@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Norwester';
+  src: url('./fonts/norwester.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-family: 'Norwester', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,7 +26,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family);
 }
 
 @layer utilities {
