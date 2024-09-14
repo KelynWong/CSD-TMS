@@ -1,13 +1,16 @@
 package com.tms.match;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.List;
 
-@SpringBootApplication
-public class MatchService {
+public interface MatchService {
+    List<Match> listMatches();
+    Match getMatch(Long id);
+    Match addMatch(Match Match);
+    Match updateMatch(Long id, Match Match);
 
-	public static void main(String[] args) {
-		SpringApplication.run(MatchService.class, args);
-	}
-
+    /**
+     * Change method's signature: do not return a value for delete operation
+     * @param id
+     */
+    void deleteMatch(Long id);
 }
