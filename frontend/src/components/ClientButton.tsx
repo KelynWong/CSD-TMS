@@ -1,11 +1,16 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
+import React, { ReactNode } from 'react';
+import { Button, ButtonProps } from "@/components/ui/button";
 
-export default function ClientButton() {
+interface ClientButtonProps extends ButtonProps {
+  children: ReactNode;
+}
+
+export default function ClientButton({ children, ...props }: ClientButtonProps) {
   return (
-    <Button variant="outline" onClick={() => console.log('Button clicked')}>
-      heelo
+    <Button {...props}>
+      {children}
     </Button>
   );
 }
