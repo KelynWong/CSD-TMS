@@ -9,6 +9,7 @@ import "./globals.css";
 import { Button } from "@/components/ui/button";
 import ClientButton from "@/components/ClientButton";
 import { ClientPageRoot } from "next/dist/client/components/client-page";
+import Footer from "@/components/Footer";
 import Navbar from "@/components/NavBar";
 export default function RootLayout({
   children,
@@ -30,6 +31,9 @@ export default function RootLayout({
             <ClientButton />
           </header>
           <main>{children}</main>
+          <footer>
+            <Footer />
+          </footer>
         </body>
       </html>
     </ClerkProvider>
