@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
+import { UserButton, SignedOut, SignedIn, SignInButton } from '@clerk/nextjs'
 import { User, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import logo from '../assets/images/logo.png';
+import ClientButton from "@/components/ClientButton";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -21,13 +22,25 @@ export default function Navbar() {
           </div>
         </Link>
         <div className="hidden md:flex space-x-6">
+          <Link href="/" className="hover:text-blue-400 transition-colors">HOME</Link>
           <Link href="/tournament" className="hover:text-blue-400 transition-colors">TOURNAMENT</Link>
           <Link href="/players" className="hover:text-blue-400 transition-colors">PLAYERS</Link>
           <Link href="/rankings" className="hover:text-blue-400 transition-colors">RANKINGS</Link>
           <Link href="/predictions" className="hover:text-blue-400 transition-colors">MATCH PREDICTIONS</Link>
         </div>
         <div className="flex items-center space-x-4">
+          <SignedIn>
             <UserButton></UserButton>
+          </SignedIn>
+          <SignedOut>
+            <ClientButton>
+              <SignInButton mode="modal">
+                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                  JOIN NOW
+                </button>
+              </SignInButton>
+            </ClientButton>
+          </SignedOut>
             <span className="sr-only">User profile</span>
           <button onClick={toggleMenu} className="md:hidden p-2 rounded-full hover:bg-gray-700 transition-colors">
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
