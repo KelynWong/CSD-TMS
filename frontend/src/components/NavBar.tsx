@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { UserButton, SignedOut, SignedIn, SignInButton } from '@clerk/nextjs'
 import { User, Menu, X } from 'lucide-react'
 import Image from 'next/image'
-import logo from '../assets/images/logo.png';
 import ClientButton from "@/components/ClientButton";
 
 export default function Navbar() {
@@ -18,15 +17,15 @@ export default function Navbar() {
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <div className="w-12 h-12">
-            <Image src={logo} alt="RacketRush Logo" width={60} height={60} />
+            <Image src="/images/logo.png" alt="RacketRush Logo" width={60} height={60} />
           </div>
         </Link>
         <div className="hidden md:flex space-x-6">
-          <Link href="/" className="hover:text-blue-400 transition-colors">HOME</Link>
-          <Link href="/tournament" className="hover:text-blue-400 transition-colors">TOURNAMENT</Link>
-          <Link href="/players" className="hover:text-blue-400 transition-colors">PLAYERS</Link>
-          <Link href="/rankings" className="hover:text-blue-400 transition-colors">RANKINGS</Link>
-          <Link href="/predictions" className="hover:text-blue-400 transition-colors">MATCH PREDICTIONS</Link>
+          <Link href="/" className="hover:text-red-400 transition-colors">HOME</Link>
+          <Link href="/tournament" className="hover:text-red-400 transition-colors">TOURNAMENT</Link>
+          <Link href="/players" className="hover:text-red-400 transition-colors">PLAYERS</Link>
+          <Link href="/rankings" className="hover:text-red-400 transition-colors">RANKINGS</Link>
+          <Link href="/predictions" className="hover:text-red-400 transition-colors">MATCH PREDICTIONS</Link>
         </div>
         <div className="flex items-center space-x-4">
           <SignedIn>
