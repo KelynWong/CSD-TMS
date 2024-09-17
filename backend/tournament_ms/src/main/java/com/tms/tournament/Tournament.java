@@ -1,16 +1,25 @@
-package main.java.com.tms.tournament;
+package com.tms.tournament;
 
-import javax.annotation.processing.Generated;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class Tournament {
     @Id @GeneratedValue
     private long tournamentId;
     private String tournamentName;
-    private String startDate;
-    private String endDate;
+    private LocalDateTime startDT;
+    private LocalDateTime endDT;
     private String status; 
+    private LocalDateTime regStartDT;
+    private LocalDateTime regEndDT;
 
-    private String[] statusArr = new String[] {"Scheduled", "Registration Start", "Registration Close", "In Progress", "Completed"};
+
+    // private String[] statusArr = new String[] {"Scheduled", "Registration Start", "Registration Close", "In Progress", "Completed"};
 
 }
