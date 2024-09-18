@@ -4,6 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.tms.user.User;
+import com.tms.user.UserService;
+
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -23,6 +27,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("/top10")
+    public ResponseEntity<List<User>> getTop10UsersByRank() {
+        List<User> topUsers = userService.getTop10UsersByRank();
+        return ResponseEntity.ok(topUsers);
+    }
+
     // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -33,16 +43,29 @@ public class UserController {
 
     // Create a new user
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<User> createUser(@RequestParam("user") String userJson,
+                                            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture) {
+        try {
+            User user = userService.createUser(userJson, profilePicture);
+            return ResponseEntity.ok(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // Update user by ID
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<User> updateUser(@PathVariable Long id,
+                                            @RequestParam("user") String userJson,
+                                            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture) {
+        try {
+            User updatedUser = userService.updateUser(id, userJson, profilePicture);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // Delete user by ID

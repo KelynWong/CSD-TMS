@@ -30,6 +30,17 @@ public class UserService {
         }
     }
 
+    // Get top 10 users by rank
+    public List<User> getTop10UsersByRank() {
+        try {
+            String response = supabaseClient.getTop10UsersByRank();
+            return Arrays.asList(objectMapper.readValue(response, User[].class));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
     // Get user by ID 
     public Optional<User> getUserById(Long id) {
         try {
@@ -47,8 +58,14 @@ public class UserService {
     }
 
     // Create a new user
-    public User createUser(User user) {
+    public User createUser(User user, String profilePicturePath) {
         try {
+            // Upload the profile picture and set the URL in the user object
+            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(profilePicturePath, user.getUsername());
+                user.setProfilePicture(profilePictureUrl);
+            }
+
             String userJson = objectMapper.writeValueAsString(user);
             String response = supabaseClient.createUser(userJson);
             return objectMapper.readValue(response, User.class);
@@ -59,12 +76,17 @@ public class UserService {
     }
 
     // Update user by ID 
-    public User updateUser(Long id, User user) {
+    public User updateUser(Long id, User user, String profilePicturePath) {
         try {
+            // Upload the new profile picture if provided, and update the URL
+            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(profilePicturePath, user.getUsername());
+                user.setProfilePicture(profilePictureUrl);
+            }
+
             String userJson = objectMapper.writeValueAsString(user);
-            String response = supabaseClient.updateUser(id, userJson); 
-            
-            return objectMapper.readValue(response, User.class); 
+            String response = supabaseClient.updateUser(id, userJson);
+            return objectMapper.readValue(response, User.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
