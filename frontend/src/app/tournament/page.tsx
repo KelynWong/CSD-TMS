@@ -39,7 +39,7 @@ export default function StatsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">8</div>
+                        <div className="text-3xl font-bold">12</div>
                     </CardContent>
                 </Card>
 
@@ -97,7 +97,7 @@ export default function StatsDashboard() {
                     <TabsList className="TabsList px-2 py-6 rounded-lg">
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="all">
                             All
-                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">59</Badge>}
+                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">63</Badge>}
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
                             Completed
@@ -109,7 +109,7 @@ export default function StatsDashboard() {
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
                             Upcoming
-                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">8</Badge>}
+                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">12</Badge>}
                         </TabsTrigger>
                     </TabsList>
                 </div>
@@ -1117,6 +1117,91 @@ export default function StatsDashboard() {
                 </TabsContent>
                 <TabsContent value="upcoming">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                        {/* what public will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic">Registration open</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic">Registration open</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
                         {/* what user will see */}
                         <Card>
                             <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
