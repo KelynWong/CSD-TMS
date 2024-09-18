@@ -19,6 +19,7 @@ public class UserService {
         this.objectMapper = objectMapper;
     }
 
+    // Get all users
     public List<User> getAllUsers() {
         try {
             String response = supabaseClient.getUsers();
@@ -29,9 +30,10 @@ public class UserService {
         }
     }
 
-    public Optional<User> getUserByUsername(String username) {
+    // Get user by ID 
+    public Optional<User> getUserById(Long id) {
         try {
-            String response = supabaseClient.getUserByUsername(username); 
+            String response = supabaseClient.getUserById(id); 
             User[] usersArray = objectMapper.readValue(response, User[].class);
             if (usersArray.length > 0) {
                 return Optional.of(usersArray[0]);
@@ -42,8 +44,9 @@ public class UserService {
             e.printStackTrace();
             return Optional.empty();
         }
-    }  
+    }
 
+    // Create a new user
     public User createUser(User user) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
@@ -55,22 +58,23 @@ public class UserService {
         }
     }
 
-    public User updateUser(String username, User user) {
+    // Update user by ID 
+    public User updateUser(Long id, User user) {
         try {
             String userJson = objectMapper.writeValueAsString(user);
-            String response = supabaseClient.updateUser(username, userJson);
+            String response = supabaseClient.updateUser(id, userJson); 
             
-            return user; 
+            return objectMapper.readValue(response, User.class); 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    
 
-    public void deleteUser(String username) {
+    // Delete user by ID 
+    public void deleteUser(Long id) {
         try {
-            supabaseClient.deleteUser(String.valueOf(username));
+            supabaseClient.deleteUser(id); 
         } catch (Exception e) {
             e.printStackTrace();
         }

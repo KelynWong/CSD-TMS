@@ -2,7 +2,7 @@ package com.tms.user;
 
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tms.user.User;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,7 +10,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
-import io.github.cdimascio.dotenv.Dotenv;
 
 @Component
 public class SupabaseClient {
@@ -21,6 +20,7 @@ public class SupabaseClient {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String SCHEMA = "user";
 
+    // Get all users
     public String getUsers() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SUPABASE_URL + "/rest/v1/user"))
@@ -34,14 +34,15 @@ public class SupabaseClient {
         return response.body();
     }
 
-    public String getUserByUsername(String username) throws IOException, InterruptedException {
+    // Get user by ID 
+    public String getUserById(Long id) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(SUPABASE_URL + "/rest/v1/user?username=eq." + username))
-            .header("apikey", SUPABASE_KEY)
-            .header("Accept-Profile", SCHEMA)
-            .header("Content-Type", "application/json")
-            .GET()
-            .build();
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
+                .header("apikey", SUPABASE_KEY)
+                .header("Accept-Profile", SCHEMA)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
@@ -51,6 +52,7 @@ public class SupabaseClient {
         }
     }
 
+    // Create a new user
     public String createUser(String userJson) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SUPABASE_URL + "/rest/v1/user"))
@@ -64,9 +66,10 @@ public class SupabaseClient {
         return response.body();
     }
 
-    public String updateUser(String username, String userJson) throws Exception {
+    // Update user by ID 
+    public String updateUser(Long id, String userJson) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?username=eq." + username))
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
                 .header("apikey", SUPABASE_KEY)
                 .header("Accept-Profile", SCHEMA)
                 .header("Content-Type", "application/json")
@@ -77,9 +80,10 @@ public class SupabaseClient {
         return response.body();
     }
 
-    public String deleteUser(String username) throws Exception {
+    // Delete user by ID
+    public String deleteUser(Long id) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?username=eq." + username))
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
                 .header("apikey", SUPABASE_KEY)
                 .header("Accept-Profile", SCHEMA)
                 .header("Content-Type", "application/json")
