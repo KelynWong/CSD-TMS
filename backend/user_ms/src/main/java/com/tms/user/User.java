@@ -23,6 +23,8 @@ public class User {
     
     private String country; 
 
+    private String profilePicture;
+
     // Constructors
     public User() {}
 
@@ -108,5 +110,13 @@ public class User {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
