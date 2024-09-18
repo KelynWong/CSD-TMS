@@ -1,15 +1,25 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { LandPlot, PartyPopper, BicepsFlexed, Medal, CirclePlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import './styles.css';
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
 
+import './styles.css';
+import { useState } from "react";
+
 export default function StatsDashboard() {
+    const [activeTab, setActiveTab] = useState('upcoming'); 
+
+    const handleTabChange = (value: string) => {
+        setActiveTab(value); 
+    };
+
     return (
         <div className="w-[80%] mx-auto py-16">
             {/* tournament stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-11">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 md:mb-9 lg:mb-11">
                 {/* <Card>
                     <CardHeader>
                         <CardTitle className="text-2xl flex justify-between">
@@ -20,17 +30,6 @@ export default function StatsDashboard() {
                         <div className="text-2xl font-bold">30</div>
                     </CardContent>
                 </Card> */}
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-2xl flex justify-between">
-                            Completed <Medal size={28} />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">23</div>
-                    </CardContent>
-                </Card>
 
                 <Card>
                     <CardHeader>
@@ -53,41 +52,64 @@ export default function StatsDashboard() {
                         <div className="text-2xl font-bold">5</div>
                     </CardContent>
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl flex justify-between">
+                            Completed <Medal size={28} />
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">23</div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* tournament cards */}
-            <Tabs defaultValue="upcoming" className="w-[100%]">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <div className="flex flex-wrap items-center justify-between">
-                    <TabsContent value="all" className="mr-8 py-5">
+                    <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
                             <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
                         </div>
                     </TabsContent>
-                    <TabsContent value="completed" className="mr-8 py-5">
+                    <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
                             <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
                         </div>
                     </TabsContent>
-                    <TabsContent value="ongoing" className="mr-8 py-5">
+                    <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
                             <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
                         </div>
                     </TabsContent>
-                    <TabsContent value="upcoming" className="mr-8 py-5">
+                    <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
                             <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
                         </div>
                     </TabsContent>
                     
-                    <TabsList className="TabsList px-2 py-6 rounded-lg py-5">
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="all">All</TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">Completed</TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="ongoing">Ongoing</TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">Upcoming</TabsTrigger>
+                    <TabsList className="TabsList px-2 py-6 rounded-lg">
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="all">
+                            All
+                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">50</Badge>}
+                        </TabsTrigger>
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
+                            Completed
+                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">23</Badge>}
+                        </TabsTrigger>
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="ongoing">
+                            Ongoing
+                            {activeTab === 'ongoing' && <Badge className="ml-2 px-1.5">5</Badge>}
+                        </TabsTrigger>
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
+                            Upcoming
+                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">2</Badge>}
+                        </TabsTrigger>
                     </TabsList>
                 </div>
                 <TabsContent value="all">
