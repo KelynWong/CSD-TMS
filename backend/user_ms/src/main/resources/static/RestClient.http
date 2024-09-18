@@ -2,12 +2,12 @@ GET http://localhost:8080/api/users
 
 
 ###
-GET http://localhost:8080/api/users/nylekwong2
+GET http://localhost:8080/api/users/1
+
 
 ###
-POST http://localhost:8080/api/users
+POST http://localhost:8080/api/users 
 Content-Type: application/json
-
 {
   "username": "nylekwong2",
   "fullname": "nylek wong",
@@ -15,13 +15,14 @@ Content-Type: application/json
   "gender": "Female",
   "email": "kelynwonget@gmail.com",
   "role": "Admin",
-  "rank": null
+  "rank": null,
+  "country": "Singapore"
 }
 
-###
-PUT http://localhost:8080/api/users/nylekwong2
-Content-Type: application/json
 
+###
+PUT http://localhost:8080/api/users/1 
+Content-Type: application/json
 {
   "username": "nylekwong2",
   "fullname": "nylek wong lala",
@@ -29,8 +30,10 @@ Content-Type: application/json
   "gender": "Male",
   "email": "kelynwonget@gmail.commmm",
   "role": "User",
-  "rank": null
+  "rank": null,
+  "country": "Malaysia"
 }
 
+
 ###
-DELETE http://localhost:8080/api/users/nylekwong2
+DELETE http://localhost:8080/api/users/1
