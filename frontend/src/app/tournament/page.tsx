@@ -1,19 +1,20 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { LandPlot, PartyPopper, BicepsFlexed, Medal, CirclePlus } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { PartyPopper, BicepsFlexed, Medal, CirclePlus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 import './styles.css';
 import { useState } from "react";
 
 export default function StatsDashboard() {
-    const [activeTab, setActiveTab] = useState('upcoming'); 
+    const [activeTab, setActiveTab] = useState('upcoming');
 
     const handleTabChange = (value: string) => {
-        setActiveTab(value); 
+        setActiveTab(value);
     };
 
     return (
@@ -38,7 +39,7 @@ export default function StatsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">2</div>
+                        <div className="text-3xl font-bold">8</div>
                     </CardContent>
                 </Card>
 
@@ -49,7 +50,7 @@ export default function StatsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">5</div>
+                        <div className="text-3xl font-bold">8</div>
                     </CardContent>
                 </Card>
 
@@ -60,7 +61,7 @@ export default function StatsDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">23</div>
+                        <div className="text-3xl font-bold">43</div>
                     </CardContent>
                 </Card>
             </div>
@@ -71,49 +72,50 @@ export default function StatsDashboard() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
+                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
                         </div>
                     </TabsContent>
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
+                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
                         </div>
                     </TabsContent>
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
+                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create</Button>
+                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
                         </div>
                     </TabsContent>
-                    
+
                     <TabsList className="TabsList px-2 py-6 rounded-lg">
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="all">
                             All
-                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">50</Badge>}
+                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">59</Badge>}
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
                             Completed
-                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">23</Badge>}
+                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">43</Badge>}
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="ongoing">
                             Ongoing
-                            {activeTab === 'ongoing' && <Badge className="ml-2 px-1.5">5</Badge>}
+                            {activeTab === 'ongoing' && <Badge className="ml-2 px-1.5">8</Badge>}
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
                             Upcoming
-                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">2</Badge>}
+                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">8</Badge>}
                         </TabsTrigger>
                     </TabsList>
                 </div>
                 <TabsContent value="all">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                        {/* what user will see */}
                         <Card>
                             <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
                                 <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
@@ -127,12 +129,12 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic">Registration open</p>
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Unregister</Button>
+                                    <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
                                     {/* <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
                                 </div>
                             </CardFooter>
@@ -150,12 +152,12 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic">Registration open</p>
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Unregister</Button> */}
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button> */}
                                     <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
                                 </div>
                             </CardFooter>
@@ -173,13 +175,171 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what admin will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic">Registration open</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic">Registration open</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what user will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -199,10 +359,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -222,10 +380,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -245,10 +401,37 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what admin will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -268,10 +451,15 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -291,10 +479,15 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -314,86 +507,45 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
                     </div>
+                    <Pagination className="mt-10 justify-end">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious className="text-base" href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink className="text-base" href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink className="text-base" href="#">2</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink className="text-base" href="#">3</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationEllipsis className="text-base" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext className="text-base" href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </TabsContent>
                 <TabsContent value="completed">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                        {/* what user will see */}
                         <Card>
                             <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
                                 <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
@@ -410,9 +562,93 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what admin will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -433,9 +669,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -456,9 +691,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -479,9 +713,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -502,9 +735,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -525,9 +757,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -548,9 +779,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -571,9 +801,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -594,9 +823,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -617,9 +845,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -640,9 +867,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
@@ -663,17 +889,33 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
                                     <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
                     </div>
+                    <Pagination className="mt-10 justify-end">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious className="text-base" href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink className="text-base" href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink className="text-base" href="#">2</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext className="text-base" href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </TabsContent>
                 <TabsContent value="ongoing">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                        {/* what user will see */}
                         <Card>
                             <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
                                 <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
@@ -690,10 +932,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -713,10 +953,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -736,10 +974,8 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -759,10 +995,37 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what admin will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1">16 Matches</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -782,10 +1045,15 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -805,10 +1073,15 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -828,125 +1101,15 @@ export default function StatsDashboard() {
                                 <p className="my-1">16 Matches</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -954,6 +1117,7 @@ export default function StatsDashboard() {
                 </TabsContent>
                 <TabsContent value="upcoming">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                        {/* what user will see */}
                         <Card>
                             <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
                                 <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
@@ -967,12 +1131,12 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic">Registration open</p>
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Unregister</Button>
+                                    <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
                                     {/* <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
                                 </div>
                             </CardFooter>
@@ -990,12 +1154,12 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic">Registration open</p>
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Unregister</Button> */}
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button> */}
                                     <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
                                 </div>
                             </CardFooter>
@@ -1013,13 +1177,13 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1036,13 +1200,42 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                </div>
+                            </CardFooter>
+                        </Card>
+                        {/* what admin will see */}
+                        <Card>
+                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
+                            </CardHeader>
+                            <CardContent className="p-6 py-3">
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">📅</p>
+                                    <p>Thursday, 10 October 2024</p>
+                                </div>
+                                <div className="my-1 flex items-start">
+                                    <p className="mr-1.5">⏰</p>
+                                    <p>12:30 PM</p>
+                                </div>
+                                <p className="my-1 italic">Registration open</p>
+                            </CardContent>
+                            <CardFooter>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1059,13 +1252,18 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic">Registration open</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1082,13 +1280,18 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1105,128 +1308,18 @@ export default function StatsDashboard() {
                                     <p className="mr-1.5">⏰</p>
                                     <p>12:30 PM</p>
                                 </div>
-                                <p className="my-1">16 Matches</p>
+                                <p className="my-1 italic text-red-600">Registration closed</p>
                             </CardContent>
                             <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
-                                </div>
-                            </CardFooter>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
-                                <div className="bg-gradient-to-t from-black to-transparent"><CardTitle className="p-4 text-lg text-white leading-6 text-pretty">Wyse Active International 2024</CardTitle></div>
-                            </CardHeader>
-                            <CardContent className="p-6 py-3">
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">📅</p>
-                                    <p>Thursday, 10 October 2024</p>
-                                </div>
-                                <div className="my-1 flex items-start">
-                                    <p className="mr-1.5">⏰</p>
-                                    <p>12:30 PM</p>
-                                </div>
-                                <p className="my-1">16 Matches</p>
-                            </CardContent>
-                            <CardFooter>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button style={{ backgroundColor: '#FFC107', color: '#000' }}>Edit</Button>
-                                    <Button>Delete</Button>
+                                <div className="grid grid-row-2 gap-2 w-full">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
+                                        <Button>Delete</Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 w-full">
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                    </div>
                                 </div>
                             </CardFooter>
                         </Card>

@@ -5,9 +5,14 @@
     color: #000000;
 }
 
-.TabsTrigger[data-state='active'] {
+.TabsTrigger[data-state='active'], .TabsTrigger[data-state='active']:hover {
     font-weight: bold;
     background-color: #FFC107;
+}
+
+.TabsTrigger:hover {
+    font-weight: bold;
+    background-color: rgb(254 243 199);
 }
 
 .cardImg {
