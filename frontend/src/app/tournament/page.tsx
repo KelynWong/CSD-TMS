@@ -6,6 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 import './styles.css';
 import { useState } from "react";
@@ -113,6 +124,7 @@ export default function StatsDashboard() {
                         </TabsTrigger>
                     </TabsList>
                 </div>
+
                 <TabsContent value="all">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
                         {/* what user will see */}
@@ -134,8 +146,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    {/* <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -157,8 +184,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button> */}
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -180,8 +239,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -203,8 +294,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -229,10 +352,26 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
+                                        <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">Matchmake</Button>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -257,7 +396,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -285,10 +440,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -313,10 +500,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -427,7 +646,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -455,7 +690,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -483,10 +734,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -511,10 +794,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -543,6 +858,7 @@ export default function StatsDashboard() {
                         </PaginationContent>
                     </Pagination>
                 </TabsContent>
+
                 <TabsContent value="completed">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
                         {/* what user will see */}
@@ -649,7 +965,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -671,7 +1003,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -693,7 +1041,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -715,7 +1079,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -737,7 +1117,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -759,7 +1155,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -781,7 +1193,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -803,7 +1231,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -825,7 +1269,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -847,7 +1307,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -869,7 +1345,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -891,7 +1383,23 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button>Delete</Button>
+                                    <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -913,6 +1421,7 @@ export default function StatsDashboard() {
                         </PaginationContent>
                     </Pagination>
                 </TabsContent>
+
                 <TabsContent value="ongoing">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
                         {/* what user will see */}
@@ -1021,7 +1530,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -1049,7 +1574,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -1077,10 +1618,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -1105,16 +1678,49 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
                         </Card>
                     </div>
                 </TabsContent>
+
                 <TabsContent value="upcoming">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
                         {/* what public will see */}
@@ -1221,8 +1827,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    {/* <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1244,8 +1882,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button> */}
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1267,8 +1937,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1290,8 +1992,40 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
                                     <Button style={{ backgroundColor: '#01205E' }}>View</Button>
-                                    {/* <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button> */}
+                                    {/* <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                Are you sure you want to unregister from this tournament? 
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Unregister</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="bg-white">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction>Register</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog> */}
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1316,7 +2050,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -1344,7 +2094,23 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
                                         <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button>
@@ -1372,10 +2138,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
@@ -1400,10 +2198,42 @@ export default function StatsDashboard() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                         <Button style={{ backgroundColor: '#01205E' }}>View</Button>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
-                                        <Button>Delete</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button>Delete</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the tournament and remove your data from our servers.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Continue</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                     <div className="grid grid-cols-1 w-full">
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="bg-white">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By proceeding, the system will proceed to Matchmake the players. 
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </div>
                             </CardFooter>
