@@ -20,8 +20,9 @@ import {
 
 import './styles.css';
 import { useState } from "react";
+import Link from 'next/link'
 
-export default function StatsDashboard() {
+export default function Tournaments() {
     const [activeTab, setActiveTab] = useState('upcoming');
 
     const handleTabChange = (value: string) => {
@@ -83,25 +84,25 @@ export default function StatsDashboard() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
+                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
+                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
+                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button>
+                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
 
@@ -145,7 +146,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -183,7 +184,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -238,7 +239,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -293,7 +294,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -350,7 +351,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -394,7 +395,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -438,7 +439,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -498,7 +499,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -558,7 +559,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -579,7 +580,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -600,7 +601,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -621,7 +622,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -644,7 +645,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -688,7 +689,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -732,7 +733,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -792,7 +793,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -879,7 +880,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -900,7 +901,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -921,7 +922,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -942,7 +943,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -964,7 +965,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1002,7 +1003,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1040,7 +1041,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1078,7 +1079,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1116,7 +1117,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1154,7 +1155,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1192,7 +1193,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1230,7 +1231,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1268,7 +1269,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1306,7 +1307,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1344,7 +1345,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1382,7 +1383,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button>Delete</Button>
@@ -1442,7 +1443,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1463,7 +1464,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1484,7 +1485,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1505,7 +1506,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1528,7 +1529,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -1572,7 +1573,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -1616,7 +1617,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -1676,7 +1677,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -1741,7 +1742,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1762,7 +1763,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1783,7 +1784,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1804,7 +1805,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -1826,7 +1827,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -1881,7 +1882,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -1936,7 +1937,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -1991,7 +1992,7 @@ export default function StatsDashboard() {
                             </CardContent>
                             <CardFooter>
                                 <div className="grid grid-cols-1 w-full">
-                                    <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                    <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                     {/* <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
@@ -2048,7 +2049,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -2092,7 +2093,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -2136,7 +2137,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -2196,7 +2197,7 @@ export default function StatsDashboard() {
                             <CardFooter>
                                 <div className="grid grid-row-2 gap-2 w-full">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                        <Button style={{ backgroundColor: '#01205E' }}>View</Button>
+                                        <Link href="/tournament/Details"><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                                         <Button className="text-black bg-amber-400 hover:bg-amber-500">Edit</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
