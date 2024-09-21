@@ -84,25 +84,25 @@ export default function Tournaments() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            <Link href="/tournaments/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            <Link href="/tournaments/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            <Link href="/tournaments/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            <Link href="/tournament/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            <Link href="/tournaments/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
                         </div>
                     </TabsContent>
 

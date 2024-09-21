@@ -8,7 +8,8 @@ import Image from 'next/image'
 import ClientButton from "@/components/ClientButton";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState('home');
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
@@ -21,11 +22,21 @@ export default function Navbar() {
           </div>
         </Link>
         <div className="hidden lg:flex space-x-10">
-          <Link href="/" className="text-lg tracking-wider hover:text-red-400 transition-colors">HOME</Link>
-          <Link href="/tournament" className="text-lg tracking-wider hover:text-red-400 transition-colors">TOURNAMENT</Link>
-          <Link href="/players" className="text-lg tracking-wider hover:text-red-400 transition-colors">PLAYERS</Link>
-          <Link href="/rankings" className="text-lg tracking-wider hover:text-red-400 transition-colors">RANKINGS</Link>
-          <Link href="/predictions" className="text-lg tracking-wider hover:text-red-400 transition-colors">MATCH PREDICTIONS</Link>
+          <Link href="/" 
+            className={`text-lg tracking-wider hover:text-red-400 transition-colors ${activeLink === 'home' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('home')}>HOME</Link>
+          <Link href="/tournaments"
+            className={`text-lg tracking-wider hover:text-red-400 transition-colors ${activeLink === 'tournaments' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('tournaments')}>TOURNAMENTS</Link>
+          <Link href="/players" 
+            className={`text-lg tracking-wider hover:text-red-400 transition-colors ${activeLink === 'players' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('players')}>PLAYERS</Link>
+          <Link href="/rankings" 
+            className={`text-lg tracking-wider hover:text-red-400 transition-colors ${activeLink === 'rankings' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('rankings')}>RANKINGS</Link>
+          <Link href="/predictions" 
+            className={`text-lg tracking-wider hover:text-red-400 transition-colors ${activeLink === 'matchPredict' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('matchPredict')}>MATCH PREDICTIONS</Link>
         </div>
         <div className="flex items-center space-x-4">
           <SignedIn>
@@ -48,11 +59,19 @@ export default function Navbar() {
         </div>
       </div>
       {isOpen && (
-        <div className="lg:hidden mt-4 space-y-2">
-          <Link href="/tournament" className="block py-2 px-4 hover:bg-gray-700 transition-colors">TOURNAMENT</Link>
-          <Link href="/players" className="block py-2 px-4 hover:bg-gray-700 transition-colors">PLAYERS</Link>
-          <Link href="/rankings" className="block py-2 px-4 hover:bg-gray-700 transition-colors">RANKINGS</Link>
-          <Link href="/predictions" className="block py-2 px-4 hover:bg-gray-700 transition-colors">MATCH PREDICTIONS</Link>
+        <div className="lg:hidden mt-16 mb-8 space-y-2">
+          <Link href="/tournaments" 
+            className={`text-lg block py-2 px-4 hover:text-red-400 transition-colors ${activeLink === 'tournaments' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('tournaments')}>TOURNAMENT</Link>
+          <Link href="/players" 
+            className={`text-lg block py-2 px-4 hover:text-red-400 transition-colors ${activeLink === 'players' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('players')}>PLAYERS</Link>
+          <Link href="/rankings"  
+            className={`text-lg block py-2 px-4 hover:text-red-400 transition-colors ${activeLink === 'rankings' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('rankings')}>RANKINGS</Link>
+          <Link href="/predictions"  
+            className={`text-lg block py-2 px-4 hover:text-red-400 transition-colors ${activeLink === 'matchPredict' ? 'text-red-400' : ''}`}
+            onClick={() => setActiveLink('matchPredict')}>MATCH PREDICTIONS</Link>
         </div>
       )}
     </nav>
