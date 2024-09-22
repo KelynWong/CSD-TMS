@@ -1,6 +1,7 @@
 package com.tms.tournament;
 
 import org.springframework.stereotype.Repository;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -14,4 +15,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     // additional derived queries specified here will be implemented by Spring Data JPA
     // start the derived query with "findBy", then reference the entity attributes you want to filter
+
 }
