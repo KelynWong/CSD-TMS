@@ -1,7 +1,8 @@
-import Link from "next/link";
 import PlayersCarousel from "@/components/PlayersCarousel";
 import { DataTable } from "./_components/DataTable";
-import { Player, columns } from "./_components/DataTableColumns";
+import { columns } from "./_components/DataTableColumns";
+import { Player } from "@/types/player";
+
 export default function Players() {
 	const data: Player[] = [
 		{
