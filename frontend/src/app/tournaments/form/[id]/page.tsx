@@ -247,11 +247,11 @@ export default function TournamentForm() {
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="font-body">
-                                            <SelectItem value="scheduled">Scheduled</SelectItem>
-                                            <SelectItem value="registrationStart">Registration Start</SelectItem>
-                                            <SelectItem value="registrationClose">Registration Close</SelectItem>
-                                            <SelectItem value="inProgress">In Progress</SelectItem>
-                                            <SelectItem value="completed">Completed</SelectItem>
+                                            <SelectItem value="Scheduled">Scheduled</SelectItem>
+                                            <SelectItem value="Registration Open">Registration Open</SelectItem>
+                                            <SelectItem value="Registration Closed">Registration Closed</SelectItem>
+                                            <SelectItem value="Ongoing">Ongoing</SelectItem>
+                                            <SelectItem value="Completed">Completed</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </FormControl>
@@ -264,8 +264,8 @@ export default function TournamentForm() {
                     />
 
                     <div className="flex justify-center space-x-4">
-                        <Button type="reset" variant="outline">Cancel</Button>
-                        <Button type="submit">{isEditing ? 'Update' : 'Submit'}</Button>
+                        <Button type="reset" variant="outline" className="text-base">Cancel</Button>
+                        <Button type="submit" className="text-base">{isEditing ? 'Update' : 'Submit'}</Button>
                     </div>
                 </form>
             </Form>
