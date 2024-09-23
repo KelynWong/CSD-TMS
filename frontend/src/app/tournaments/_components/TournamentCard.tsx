@@ -52,7 +52,7 @@ export default function TournamentCard({ name, date, time, status, numMatches, t
             <CardFooter>
                 {role === "user" ? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
-                        <Link href={`/tournaments/detail/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
+                        <Link href={`/tournaments/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
                         {isRegistered !== null && (
                             isRegistered ? (
@@ -97,7 +97,7 @@ export default function TournamentCard({ name, date, time, status, numMatches, t
                 ) : role === "admin" ? (
                     <div className="grid grid-row-2 gap-2 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                            <Link href={`/tournaments/detail/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
+                            <Link href={`/tournaments/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                             <Link href={`/tournaments/form/${tournamentId}`}><Button className="text-black bg-amber-400 hover:bg-amber-500 w-full">Edit</Button></Link>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -145,7 +145,7 @@ export default function TournamentCard({ name, date, time, status, numMatches, t
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 w-full">
-                        <Link href={`/tournaments/detail/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full">View</Button></Link>
+                        <Link href={`/tournaments/${tournamentId}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full">View</Button></Link>
                     </div>
                 )}
             </CardFooter>
