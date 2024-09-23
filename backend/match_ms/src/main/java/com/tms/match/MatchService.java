@@ -3,9 +3,20 @@ package com.tms.match;
 import java.util.List;
 
 public interface MatchService {
+
     List<Match> listMatches();
     Match getMatch(Long id);
+    MatchDTO getMatchWithGames(Long id);
+
+    List<Match> getMatchesByTournament(Long id);
+
+    List<Match> getMatchWinsByUser(Long id);
+    List<Match> getMatchLossByUser(Long id);
+    List<Match> getMatchesPlayedByUser(Long id);
+    Double getPlayerWinRate(Long id);
+
     Match addMatch(Match Match);
+
     Match updateMatch(Long id, Match Match);
 
     /**

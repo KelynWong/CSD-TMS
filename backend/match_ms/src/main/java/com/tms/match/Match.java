@@ -19,12 +19,9 @@ public class Match {
     private long tournamentId;
     private short roundNum;
     private short matchNum;
-    private String player1Username;
-    private String player1Fullname;
-    private String player2Username;
-    private String player2Fullname;
-    private String winnerUsername;
-    private String winnerFullname;
+    private long player1Id;
+    private long player2Id;
+    private long winnerId;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
