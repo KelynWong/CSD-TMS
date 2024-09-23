@@ -54,7 +54,7 @@ export default function TournamentForm() {
             description: "",
             startDate: defaultStart,
             endDate: defaultEnd,
-            status: "scheduled",
+            status: "Scheduled",
         },
     });
 
