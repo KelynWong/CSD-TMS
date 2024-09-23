@@ -96,6 +96,18 @@ export default function TournamentForm() {
         }
     };
 
+    // Handle form reset manually
+    const handleReset = () => {
+        form.reset(initialData || {
+            tournamentName: "",
+            location: "",
+            description: "",
+            startDate: defaultStart,
+            endDate: defaultEnd,
+            status: "Scheduled",
+        });
+    };
+
     return (
         <div className="w-[80%] mx-auto py-16">
             <h1 className="text-3xl mr-5 mb-6 text-center">{isEditing ? 'Edit' : 'Create'} Tournament</h1>
@@ -264,7 +276,7 @@ export default function TournamentForm() {
                     />
 
                     <div className="flex justify-center space-x-4">
-                        <Button type="reset" variant="outline" className="text-base">Cancel</Button>
+                        <Button type="button" variant="outline" className="text-base" onClick={handleReset}>Cancel</Button>
                         <Button type="submit" className="text-base">{isEditing ? 'Update' : 'Submit'}</Button>
                     </div>
                 </form>
