@@ -2,9 +2,13 @@ package com.tms.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.List;
 import java.util.Optional;
+import java.io.IOException;
 import java.util.Arrays;
 
 @Service
@@ -58,11 +62,11 @@ public class UserService {
     }
 
     // Create a new user
-    public User createUser(User user, String profilePicturePath) {
+    public User createUser(User user, MultipartFile file) throws IOException, InterruptedException {
         try {
             // Upload the profile picture and set the URL in the user object
-            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
-                String profilePictureUrl = supabaseClient.uploadProfilePicture(profilePicturePath, user.getUsername());
+            if (file != null && !file.isEmpty()) {
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(file);
                 user.setProfilePicture(profilePictureUrl);
             }
 
@@ -76,11 +80,11 @@ public class UserService {
     }
 
     // Update user by ID 
-    public User updateUser(Long id, User user, String profilePicturePath) {
+    public User updateUser(Long id, User user, MultipartFile file) throws IOException, InterruptedException {
         try {
             // Upload the new profile picture if provided, and update the URL
-            if (profilePicturePath != null && !profilePicturePath.isEmpty()) {
-                String profilePictureUrl = supabaseClient.uploadProfilePicture(profilePicturePath, user.getUsername());
+            if (file != null && !file.isEmpty()) {
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(file);
                 user.setProfilePicture(profilePictureUrl);
             }
 
