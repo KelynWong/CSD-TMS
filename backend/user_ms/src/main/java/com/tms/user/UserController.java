@@ -3,9 +3,13 @@ package com.tms.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import com.tms.user.User;
 import com.tms.user.UserService;
+
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,29 +46,36 @@ public class UserController {
     }
 
     // Create a new user
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestParam("user") String userJson,
-                                            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture) {
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Object> createUser(@RequestPart("user") User user,
+                                            @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
         try {
-            User user = userService.createUser(userJson, profilePicture);
-            return ResponseEntity.ok(user);
-        } catch (IOException e) {
+            // Check if the user part is null or invalid
+            if (user == null || user.getUsername() == null || user.getEmail() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User data is required.");
+            }
+
+            // Call your service to create the user
+            User createdUser = userService.createUser(user, profilePicture);
+            return ResponseEntity.ok(createdUser);
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to create user or upload profile picture: " + e.getMessage());
         }
     }
 
     // Update user by ID
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id,
-                                            @RequestParam("user") String userJson,
-                                            @RequestParam(value = "profilePicture", required = false) MultipartFile profilePicture) {
+    @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<Object> updateUser(@PathVariable Long id,
+                                         @RequestPart("user") User user,
+                                         @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
         try {
-            User updatedUser = userService.updateUser(id, userJson, profilePicture);
+            User updatedUser = userService.updateUser(id, user, profilePicture);
             return ResponseEntity.ok(updatedUser);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload profile picture: " + e.getMessage());
         }
     }
 
