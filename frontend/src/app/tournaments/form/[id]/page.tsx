@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from 'next/router';
+import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
@@ -14,12 +14,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useParams } from "next/navigation";
 
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
@@ -27,11 +33,12 @@ const formSchema = z.object({
     description: z.string().optional(),
     startDate: z.date(),
     endDate: z.date(),
+    status: z.string().default("scheduled"),
 });
 
 export default function TournamentForm() {
     const router = useRouter();
-    const { id } = router.query; 
+    const { id } = useParams();
     const isEditing = id && id !== 'create';
     const [initialData, setInitialData] = useState(null);
 
@@ -47,6 +54,7 @@ export default function TournamentForm() {
             description: "",
             startDate: defaultStart,
             endDate: defaultEnd,
+            status: "scheduled",
         },
     });
 
@@ -81,7 +89,7 @@ export default function TournamentForm() {
         });
 
         if (response.ok) {
-            router.push('/tournaments'); 
+            router.push('/tournaments');
         } else {
             const errorData = await response.json();
             alert(`Failed to process tournament: ${errorData.message}`);
@@ -100,10 +108,27 @@ export default function TournamentForm() {
                             <FormItem>
                                 <FormLabel className="text-lg block">Tournament Name</FormLabel>
                                 <FormControl className="block mt-2">
-                                    <Input placeholder="Enter tournament name" {...field} className="font-body" />
+                                    <Input placeholder="Enter tournament name" {...field} className="font-body bg-white" />
                                 </FormControl>
                                 <FormDescription>
                                     This will be the name displayed for the tournament.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-lg block">Tournament Description</FormLabel>
+                                <FormControl className="block mt-2">
+                                    <Textarea className="font-body bg-white" placeholder="Provide details about the tournament" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                    Add a brief description of the tournament (optional).
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -117,7 +142,7 @@ export default function TournamentForm() {
                             <FormItem>
                                 <FormLabel className="text-lg block">Location</FormLabel>
                                 <FormControl className="block mt-2">
-                                    <Input placeholder="Enter location" {...field} className="font-body" />
+                                    <Input placeholder="Enter location" {...field} className="font-body bg-white" />
                                 </FormControl>
                                 <FormDescription>
                                     Specify the location for the tournament.
@@ -127,7 +152,7 @@ export default function TournamentForm() {
                         )}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-16">
                         <FormField
                             control={form.control}
                             name="startDate"
@@ -140,7 +165,7 @@ export default function TournamentForm() {
                                                 <Button
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-[280px] justify-start text-left font-body",
+                                                        "w-full justify-start text-left font-body bg-white",
                                                         !field.value && "text-muted-foreground"
                                                     )}
                                                 >
@@ -179,7 +204,7 @@ export default function TournamentForm() {
                                                 <Button
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-[280px] justify-start text-left font-body",
+                                                        "w-full justify-start text-left font-body bg-white",
                                                         !field.value && "text-muted-foreground"
                                                     )}
                                                 >
@@ -209,15 +234,29 @@ export default function TournamentForm() {
 
                     <FormField
                         control={form.control}
-                        name="description"
+                        name="status"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="text-lg block">Tournament Description</FormLabel>
+                                <FormLabel className="text-lg block">Status of Tournament</FormLabel>
                                 <FormControl className="block mt-2">
-                                    <Textarea placeholder="Provide details about the tournament" {...field} />
+                                    <Select
+                                        value={field.value} // Bind value to form state
+                                        onValueChange={field.onChange} // Bind onChange to form state
+                                    >
+                                        <SelectTrigger className="w-full font-body bg-white">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="font-body">
+                                            <SelectItem value="scheduled">Scheduled</SelectItem>
+                                            <SelectItem value="registrationStart">Registration Start</SelectItem>
+                                            <SelectItem value="registrationClose">Registration Close</SelectItem>
+                                            <SelectItem value="inProgress">In Progress</SelectItem>
+                                            <SelectItem value="completed">Completed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </FormControl>
                                 <FormDescription>
-                                    Add a brief description of the tournament (optional).
+                                    Specify the status of the tournament.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
