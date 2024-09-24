@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,17 +63,27 @@ public class UserService {
     }
 
     // Create a new user
-    public User createUser(User user, MultipartFile file) throws IOException, InterruptedException {
+    public String createUser(User user, MultipartFile file) throws IOException, InterruptedException {
         try {
             // Upload the profile picture and set the URL in the user object
             if (file != null && !file.isEmpty()) {
-                String profilePictureUrl = supabaseClient.uploadProfilePicture(file);
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(file, user.getUsername());
                 user.setProfilePicture(profilePictureUrl);
             }
 
-            String userJson = objectMapper.writeValueAsString(user);
+            // Convert the user object to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode userNode = objectMapper.valueToTree(user);
+
+            // Remove the "id" field from the JSON
+            userNode.remove("id");
+
+            // Convert the modified JSON back to a string
+            String userJson = objectMapper.writeValueAsString(userNode);
+
+            // Send the modified JSON to the Supabase client for insertion
             String response = supabaseClient.createUser(userJson);
-            return objectMapper.readValue(response, User.class);
+            return userJson;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -84,7 +95,7 @@ public class UserService {
         try {
             // Upload the new profile picture if provided, and update the URL
             if (file != null && !file.isEmpty()) {
-                String profilePictureUrl = supabaseClient.uploadProfilePicture(file);
+                String profilePictureUrl = supabaseClient.uploadProfilePicture(file, user.getUsername());
                 user.setProfilePicture(profilePictureUrl);
             }
 

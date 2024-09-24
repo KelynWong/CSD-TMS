@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.user.User;
 import com.tms.user.UserService;
 
@@ -47,17 +48,15 @@ public class UserController {
 
     // Create a new user
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Object> createUser(@RequestPart("user") User user,
+    public ResponseEntity<Object> createUser(@RequestPart("user") String userJson,
                                             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
         try {
-            // Check if the user part is null or invalid
-            if (user == null || user.getUsername() == null || user.getEmail() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User data is required.");
-            }
-
+            ObjectMapper objectMapper = new ObjectMapper();
+            User user = objectMapper.readValue(userJson, User.class);
+            
             // Call your service to create the user
-            User createdUser = userService.createUser(user, profilePicture);
-            return ResponseEntity.ok(createdUser);
+            String userString = userService.createUser(user, profilePicture);
+            return ResponseEntity.ok(userString);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
