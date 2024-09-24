@@ -17,6 +17,7 @@ public interface MatchService {
     Match addMatch(Match Match);
 
     Match updateMatch(Long id, Match Match);
+    Match setChildren(Long id, Long leftId, Long rightId);
 
     /**
      * Change method's signature: do not return a value for delete operation

@@ -67,11 +67,8 @@ public class MatchServiceImpl implements MatchService {
     public Match updateMatch(Long id, Match newMatchInfo) {
         return this.matches.findById(id).map(match -> {
             match.setTournamentId(newMatchInfo.getTournamentId());
-            match.setRight(newMatchInfo.getRight());
-            match.setLeft(newMatchInfo.getLeft());
             match.setPlayer1Id(newMatchInfo.getPlayer1Id());
             match.setPlayer2Id(newMatchInfo.getPlayer2Id());
-            match.setGames(newMatchInfo.getGames());
             return this.matches.save(match);
         }).orElse(null);
 
@@ -86,6 +83,24 @@ public class MatchServiceImpl implements MatchService {
          * }else
          * return null;
          */
+    }
+
+    @Override
+    public Match setChildren(Long id, Long leftId, Long rightId) {
+        Optional<Match> existingMatch = this.matches.findById(id);
+        Optional<Match> leftMatch = this.matches.findById(leftId);
+        Optional<Match> rightMatch = this.matches.findById(rightId);
+        if (existingMatch.isPresent() && leftMatch.isPresent() && rightMatch.isPresent()) {
+            Match currMatch = existingMatch.get();
+            Match left = leftMatch.get();
+            Match right = rightMatch.get();
+           
+            currMatch.setLeft(left);
+            currMatch.setRight(right);
+            return this.matches.save(currMatch);
+        } else {
+            return null;
+        }
     }
 
     /**

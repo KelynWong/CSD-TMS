@@ -44,19 +44,6 @@ public class MatchController {
     }
 
     /**
-     * Search for Match with all games with the given id
-     * If there is no Match with the given "id", throw a MatchNotFoundException
-     * @param id
-     * @return Match with the given id
-     */
-    // @GetMapping("/matches-with-games/{id}")
-    // public MatchDTO getMatchWithGames(@PathVariable Long id) {
-    //     MatchDTO matchDTO = matchService.getMatchWithGames(id);
-    //     if(matchDTO == null) throw new MatchNotFoundException(id);
-    //     return matchDTO;
-    // }
-
-    /**
      * List all matches by tournament id
      * @return list of all matches in a tournament
      */
@@ -119,8 +106,23 @@ public class MatchController {
      * @return the updated, or newly added Match
      */
     @PutMapping("/matches/{id}")
+    @JsonView(Views.Public.class)
     public Match updateMatch(@PathVariable Long id, @RequestBody Match newMatchInfo){
         Match Match = matchService.updateMatch(id, newMatchInfo);
+        if(Match == null) throw new MatchNotFoundException(id);
+        
+        return Match;
+    }
+
+    /**
+     * If there is no Match with the given "id", throw a MatchNotFoundException
+     * @param id
+     * @param newMatchInfo
+     * @return the updated, or newly added Match
+     */
+    @PatchMapping("/matches/{id}")
+    public Match updateMatchChildren(@PathVariable Long id, @RequestBody MatchChildren childrenInfo){
+        Match Match = matchService.setChildren(id, childrenInfo.getLeft(), childrenInfo.getRight());
         if(Match == null) throw new MatchNotFoundException(id);
         
         return Match;
