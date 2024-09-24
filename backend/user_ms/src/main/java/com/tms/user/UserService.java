@@ -91,22 +91,30 @@ public class UserService {
     }
 
     // Update user by ID 
-    public User updateUser(Long id, User user, MultipartFile file) throws IOException, InterruptedException {
+    public String updateUser(User user, MultipartFile file) throws IOException, InterruptedException {
         try {
-            // Upload the new profile picture if provided, and update the URL
+            // Upload the profile picture and set the URL in the user object
             if (file != null && !file.isEmpty()) {
                 String profilePictureUrl = supabaseClient.uploadProfilePicture(file, user.getUsername());
                 user.setProfilePicture(profilePictureUrl);
             }
-
-            String userJson = objectMapper.writeValueAsString(user);
-            String response = supabaseClient.updateUser(id, userJson);
-            return objectMapper.readValue(response, User.class);
+    
+            // Convert the user object to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode userNode = objectMapper.valueToTree(user);
+    
+            // Convert the modified JSON back to a string
+            String userJson = objectMapper.writeValueAsString(userNode);
+    
+            // Send the modified JSON to the Supabase client for updating
+            String response = supabaseClient.updateUser(user.getId(), userJson);
+            return userJson;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+    
 
     // Delete user by ID 
     public void deleteUser(Long id) {

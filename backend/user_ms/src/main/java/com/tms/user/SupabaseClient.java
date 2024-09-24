@@ -145,9 +145,8 @@ public class SupabaseClient {
                 .header("Content-Type", "application/json")
                 .POST(BodyPublishers.ofString(userJson))
                 .build();
-            System.out.println(userJson);
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response);
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,23 +155,23 @@ public class SupabaseClient {
     }
 
     // Update user by ID 
-    public String updateUser(Long id, String userJson) throws Exception {
+    public String updateUser(Long userId, String userJson) throws Exception {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
-                    .header("apikey", SUPABASE_KEY)
-                    .header("Accept-Profile", SCHEMA)
-                    .header("Content-Type", "application/json")
-                    .PUT(BodyPublishers.ofString(userJson))
-                    .build();
-
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + userId))
+                .header("apikey", SUPABASE_KEY)
+                .header("Accept-Profile", SCHEMA)
+                .header("Content-Type", "application/json")
+                .method("PUT", BodyPublishers.ofString(userJson))
+                .build();
+    
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error updating user", e);  
         }
-    }
+    }    
 
     // Delete user by ID
     public String deleteUser(Long id) throws Exception {

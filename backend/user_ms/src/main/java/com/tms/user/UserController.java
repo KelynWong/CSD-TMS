@@ -67,16 +67,23 @@ public class UserController {
     // Update user by ID
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<Object> updateUser(@PathVariable Long id,
-                                         @RequestPart("user") User user,
-                                         @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
+                                            @RequestPart("user") String userJson,
+                                            @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
         try {
-            User updatedUser = userService.updateUser(id, user, profilePicture);
-            return ResponseEntity.ok(updatedUser);
+            ObjectMapper objectMapper = new ObjectMapper();
+            User user = objectMapper.readValue(userJson, User.class);
+            user.setId(id); // Set the ID of the user to be updated
+            
+            // Call your service to update the user
+            String userString = userService.updateUser(user, profilePicture);
+            return ResponseEntity.ok(userString);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload profile picture: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update user or upload profile picture: " + e.getMessage());
         }
     }
+
 
     // Delete user by ID
     @DeleteMapping("/{id}")
