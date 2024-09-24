@@ -6,7 +6,6 @@ public interface MatchService {
 
     List<Match> listMatches();
     Match getMatch(Long id);
-    MatchDTO getMatchWithGames(Long id);
 
     List<Match> getMatchesByTournament(Long id);
 

@@ -27,25 +27,6 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public MatchDTO getMatchWithGames(Long id) {
-        Optional<Match> matchOptional = this.matches.findByIdWithGames(id);
-        if (matchOptional.isPresent()) {
-            Match match = matchOptional.get();
-            MatchDTO matchDTO = new MatchDTO();
-            matchDTO.setId(match.getId());
-            matchDTO.setTournamentId(match.getTournamentId());
-            matchDTO.setRoundNum(match.getRoundNum());
-            matchDTO.setMatchNum(match.getMatchNum());
-            matchDTO.setPlayer1Id(match.getPlayer1Id());
-            matchDTO.setPlayer2Id(match.getPlayer2Id());
-            matchDTO.setWinnerId(match.getWinnerId());
-            matchDTO.setGames(match.getGames());
-            return matchDTO;
-        }
-        return null;
-    }
-
-    @Override
     public List<Match> getMatchesByTournament(Long tournamentId) {
         return this.matches.findByTournamentId(tournamentId);
     }
@@ -86,8 +67,8 @@ public class MatchServiceImpl implements MatchService {
     public Match updateMatch(Long id, Match newMatchInfo) {
         return this.matches.findById(id).map(match -> {
             match.setTournamentId(newMatchInfo.getTournamentId());
-            match.setRoundNum(newMatchInfo.getRoundNum());
-            match.setMatchNum(newMatchInfo.getMatchNum());
+            match.setRight(newMatchInfo.getRight());
+            match.setLeft(newMatchInfo.getLeft());
             match.setPlayer1Id(newMatchInfo.getPlayer1Id());
             match.setPlayer2Id(newMatchInfo.getPlayer2Id());
             match.setGames(newMatchInfo.getGames());
