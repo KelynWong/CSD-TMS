@@ -9,7 +9,11 @@ public class PlayerNotFoundException extends RuntimeException{
     private static final long serialVersionUID = 1L;
 
     public PlayerNotFoundException(Long playerId, Long tournamentId) {
-        super("Could not find Player " + playerId + " from this tournament " + tournamentId);
+        super("Could not find Player " + playerId + " from tournament " + tournamentId);
+    }
+
+    public PlayerNotFoundException(Long playerId) {
+        super("Could not find Player " + playerId);
     }
     
 }

@@ -96,17 +96,13 @@ public class PlayerController {
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
     @DeleteMapping("/tournaments/{tournamentId}/players/{playerId}")
-    public ResponseEntity<?> deletePlayer(@PathVariable (value = "tournamentId") Long tournamentId, 
-                                            @PathVariable (value = "playerId") Long playerId) {
+    public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") Long playerId) {
         
-        if(!tournaments.existsById(tournamentId)) {
-            throw new TournamentNotFoundException(tournamentId);
-        }
-
         return players.findById(playerId).map(player -> {
             players.delete(player);
             return ResponseEntity.ok().build();
-        }).orElseThrow(() -> new PlayerNotFoundException(tournamentId, playerId));
+        }).orElseThrow(() -> new PlayerNotFoundException(playerId));
+        
     }
 
     
