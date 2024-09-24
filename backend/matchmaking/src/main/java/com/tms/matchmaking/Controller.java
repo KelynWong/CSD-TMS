@@ -23,9 +23,9 @@ public class Controller {
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matchmaking/{tournamentId}")
-    public ResponseEntity<String> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
+    public ResponseEntity<TreeNode> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
         TreeNode root = matchmakeService.matchmake(tournamentId, players);
-        return ResponseEntity.ok("Matchmaking successful. Tournament Tree: " + root);
+        return ResponseEntity.ok(root);
     }
 
     // Returns 
