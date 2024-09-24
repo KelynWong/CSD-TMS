@@ -91,10 +91,10 @@ export const columns: ColumnDef<Match>[] = [
 		),
 		cell: ({ row }) => {
 			const result = row.getValue("result") as "Win" | "Loss";
-			const color = result === "Win" ? "text-green-600" : "text-red-600";
+			const color = result === "Win" ? "#22c55e" : "#ef4444";
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className={color}>
+					<Link href={`#`} style={{ color: color }}>
 						{row.getValue("result")}
 					</Link>
 				</Button>
