@@ -25,31 +25,56 @@ public class SupabaseClient {
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String SCHEMA = "user";
-    private final String STORAGE_BUCKET_URL = SUPABASE_URL + "/storage/v1/" + STORAGE_BUCKET + "/public/";
+    private final String STORAGE_BUCKET_URL = SUPABASE_URL + "/storage/v1/object/" + STORAGE_BUCKET + "/";
 
-    public String uploadProfilePicture(MultipartFile file) throws IOException, InterruptedException {
-        String fileName = file.getOriginalFilename();
+    public String uploadProfilePicture(MultipartFile file, String username) throws IOException, InterruptedException {
+        String fileName = username;
         if (fileName == null) {
             throw new IllegalArgumentException("File name cannot be null");
         }
+    
+        // Check if file already exists
+        HttpRequest checkRequest = HttpRequest.newBuilder()
+            .uri(URI.create(STORAGE_BUCKET_URL + fileName))
+            .header("authorization", SUPABASE_KEY)
+            .header("Content-Type", "application/json")
+            .GET()
+            .build();
+    
+        HttpResponse<String> checkResponse = client.send(checkRequest, HttpResponse.BodyHandlers.ofString());
         
-        // Convert MultipartFile to InputStream
+        if (checkResponse.statusCode() == 200) {
+            // If the picture exists, delete it first
+            HttpRequest deleteRequest = HttpRequest.newBuilder()
+                .uri(URI.create(STORAGE_BUCKET_URL + fileName))
+                .header("authorization", SUPABASE_KEY)
+                .DELETE()
+                .build();
+    
+            HttpResponse<String> deleteResponse = client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+            
+            if (deleteResponse.statusCode() != 200 && deleteResponse.statusCode() != 204) {
+                throw new RuntimeException("Failed to delete existing profile picture: " + deleteResponse.body());
+            }
+        }
+    
+        // Upload the new file
         try (InputStream inputStream = file.getInputStream()) {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(STORAGE_BUCKET_URL + fileName))
-                    .header("apikey", SUPABASE_KEY)
-                    .header("Content-Type", file.getContentType())
-                    .PUT(BodyPublishers.ofInputStream(() -> inputStream))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
+            HttpRequest uploadRequest = HttpRequest.newBuilder()
+                .uri(URI.create(STORAGE_BUCKET_URL + fileName))
+                .header("authorization", SUPABASE_KEY)
+                .header("Content-Type", file.getContentType())
+                .POST(HttpRequest.BodyPublishers.ofInputStream(() -> inputStream))
+                .build();
+    
+            HttpResponse<String> uploadResponse = client.send(uploadRequest, HttpResponse.BodyHandlers.ofString());
+            
+            if (uploadResponse.statusCode() == 200) {
                 return STORAGE_BUCKET_URL + fileName;
             } else {
-                throw new RuntimeException("Failed to upload profile picture: " + response.body());
+                throw new RuntimeException("Failed to upload profile picture: " + uploadResponse.body());
             }
         } catch (IOException e) {
-            // Handle or rethrow IOException
             throw new IOException("Error processing file input stream", e);
         }
     }
@@ -120,8 +145,9 @@ public class SupabaseClient {
                 .header("Content-Type", "application/json")
                 .POST(BodyPublishers.ofString(userJson))
                 .build();
-
+            System.out.println(userJson);
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(response);
             return response.body();
         } catch (Exception e) {
             e.printStackTrace();
