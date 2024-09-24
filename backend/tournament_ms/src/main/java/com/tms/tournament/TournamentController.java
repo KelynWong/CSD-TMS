@@ -1,29 +1,36 @@
 package com.tms.tournament;
 
-import java.util.List;
+import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.tms.tournamentplayer.Player;
+import com.tms.tournamentplayer.PlayerNotFoundException;
+import com.tms.tournamentplayer.PlayerRepository;
 
 @RestController
 public class TournamentController {
     
     private TournamentService tournamentService;
+    private PlayerRepository playerRepository;
 
-    public TournamentController(TournamentService ts) {
+    public TournamentController(TournamentService ts, PlayerRepository pr) {
         this.tournamentService = ts;
+        this.playerRepository = pr;
     }
 
     /* List all tournaments */
     @GetMapping("/tournaments")
-    public List<Tournament> getTournaments() {
+    public List<Tournament> getAllTournaments() {
         return tournamentService.listTournaments();
     }
 
     /* Get tournament by Id */
-    @GetMapping("/tournaments/{id}")
-    public Tournament getTournament(@PathVariable Long id){
+    @GetMapping("/tournaments/id/{id}")
+    public Tournament getTournamentbyId(@PathVariable Long id){
         Tournament tournament = tournamentService.getTournament(id);
         
         // handle "tournament not found 404" error
@@ -31,6 +38,22 @@ public class TournamentController {
         return tournamentService.getTournament(id);
 
     }   
+
+    /* Get tournaments by Status */
+    @GetMapping("/tournaments/status/{status}")
+    public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status){
+        List<Tournament> tournaments = tournamentService.listTournaments();
+        List<Tournament> filteredTournaments = new ArrayList<>();
+
+        for (Tournament t : tournaments) {
+            if (t.getStatus().equals(status)) {
+                filteredTournaments.add(t);
+            }
+        }
+
+        return filteredTournaments;
+
+    }  
     
     /* Create new tournament */
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,8 +75,21 @@ public class TournamentController {
     /* Delete tournament */
     @DeleteMapping("/tournaments/{id}")
     public void deleteTournament(@PathVariable Long id) {
+        
         try {
+
+            Tournament tournament = tournamentService.getTournament(id);
+            List<Player> playerList = tournament.getPlayers();
+
+            for (Player p : playerList) {
+                
+                p.getTournaments().remove(tournament);
+                playerRepository.save(p);
+
+            }
+
             tournamentService.deleteTournament(id);
+            
         } catch (EmptyResultDataAccessException e) {
             throw new TournamentNotFoundException(id);
         }

@@ -33,7 +33,7 @@ public class PlayerController {
     
     /* Get all tournament Players by tournament id */
     @GetMapping("/tournaments/{tournamentId}/players")
-    public List<Player> getAllPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
+    public List<Player> getAllRegisteredPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
         // if tournament dont exist, throw tournamentNotFound err
         if(!tournaments.existsById(tournamentId)) {
             throw new TournamentNotFoundException(tournamentId);
@@ -43,6 +43,19 @@ public class PlayerController {
             return tournament.getPlayers();
         }).orElse(null);
     }
+
+    /* Get all tournament Players by tournament id */
+    // @GetMapping("/tournaments/{tournamentId}/players")
+    // public int getNumberOfRegisteredPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
+    //     // if tournament dont exist, throw tournamentNotFound err
+    //     if(!tournaments.existsById(tournamentId)) {
+    //         throw new TournamentNotFoundException(tournamentId);
+    //     }
+    //     // else, return list of tournament Players
+    //     return tournaments.findById(tournamentId).map(tournament -> {
+    //         return tournament.getPlayers().size();
+    //     }).orElse(0);
+    // }
 
     /* Register Player */
     @PostMapping("/tournaments/{tournamentId}/players/{playerId}/register")
@@ -102,7 +115,7 @@ public class PlayerController {
             players.delete(player);
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
-        
+
     }
 
     

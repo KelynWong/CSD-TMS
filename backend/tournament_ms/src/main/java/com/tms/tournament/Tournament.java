@@ -15,6 +15,7 @@ import lombok.*;
 @Data
 public class Tournament {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
+    @Column(unique = true, nullable = false)
     private Long id;
     private String tournamentName;
     private LocalDateTime startDT;
@@ -23,16 +24,7 @@ public class Tournament {
     private LocalDateTime regStartDT;
     private LocalDateTime regEndDT;
 
-    // CascadeType.ALL: to propagate (cascade) all persistence operations to relating entities
-    // E.g., remove a book -> all associated reviews removed
-    // orphanRemoval = true: any disconnected entity instances are automatically removed
-    // E.g., to clean up dependent objects (reviews) that should not exist without a refererence from the owner object (book)
-    // @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
-    // @JsonIgnore
-    // // Ignore the field in both JSON serialization and deserialization
-    // private List<Player> Players;
-
-    @ManyToMany(mappedBy = "tournaments")
+    @ManyToMany(mappedBy = "tournaments") //, cascade = CascadeType.ALL
     @JsonIgnore
     private List<Player> players;
 

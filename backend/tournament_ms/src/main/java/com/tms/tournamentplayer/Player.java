@@ -17,7 +17,8 @@ import com.tms.tournament.Tournament;
 @Data
 public class Player {
     
-    @Id @NotNull
+    @Id
+    @Column(unique = true, nullable = false)
     private Long id;
 
     @ManyToMany
