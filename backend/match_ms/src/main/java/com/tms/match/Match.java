@@ -21,7 +21,7 @@ import lombok.*;
 public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonView({Views.Internal.class})
+    @JsonView({Views.Public.class})
     private Long id;
 
     @JsonView({Views.Public.class, Views.Internal.class})

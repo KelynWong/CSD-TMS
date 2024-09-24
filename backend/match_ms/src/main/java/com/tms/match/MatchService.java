@@ -14,7 +14,7 @@ public interface MatchService {
     List<Match> getMatchesPlayedByUser(Long id);
     Double getPlayerWinRate(Long id);
 
-    Match addMatch(Match Match);
+    Match addMatch(CreateMatch Match);
 
     Match updateMatch(Long id, Match Match);
     Match setChildren(Long id, Long leftId, Long rightId);

@@ -59,8 +59,32 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Match addMatch(Match Match) {
-        return this.matches.save(Match);
+    public Match addMatch(CreateMatch match) {
+        Match newMatch = new Match();
+        newMatch.setTournamentId(match.getTournamentId());
+        newMatch.setPlayer1Id(match.getPlayer1Id());
+        newMatch.setPlayer2Id(match.getPlayer2Id());
+        newMatch.setWinnerId(match.getWinnerId());
+
+        if (match.getLeft() != null) {
+            Optional<Match> leftMatch = this.matches.findById(match.getLeft());
+            if (leftMatch.isPresent()) {
+                newMatch.setLeft(leftMatch.get());
+            }
+        } else {
+            newMatch.setLeft(null);
+        }
+
+        if (match.getRight() != null) {
+            Optional<Match> rightMatch = this.matches.findById(match.getRight());
+            if (rightMatch.isPresent()) {
+                newMatch.setRight(rightMatch.get());
+            }
+        } else {
+            newMatch.setRight(null);
+        }
+
+        return this.matches.save(newMatch);
     }
 
     @Override
