@@ -2,6 +2,8 @@ package com.tms.tournamentplayer;
 
 import com.tms.tournament.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.*;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 
 @RestController
+@Slf4j
 public class PlayerController {
 
     private PlayerRepository players;
@@ -29,7 +32,7 @@ public class PlayerController {
     }
     
     /* Get all tournament Players by tournament id */
-    @GetMapping("/tournaments/{tournamentId}/Players")
+    @GetMapping("/tournaments/{tournamentId}/players")
     public List<Player> getAllPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
         // if tournament dont exist, throw tournamentNotFound err
         if(!tournaments.existsById(tournamentId)) {
@@ -41,41 +44,59 @@ public class PlayerController {
         }).orElse(null);
     }
 
-    /* Create tournament Player */
-    @PostMapping("/tournaments/{tournamentId}/players")
-    public Player addTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId, @RequestBody Player player) {
-        return tournaments.findById(tournamentId).map(tournament -> {
-            if (player.getTournaments() == null) {
-                List<Tournament> newTournaments = new ArrayList<>();
-                newTournaments.add(tournament);
-                player.setTournaments(newTournaments);
-            } else {
+    /* Register Player */
+    @PostMapping("/tournaments/{tournamentId}/players/{playerId}/register")
+    public Player registerPlayer(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") Long playerId) {
+        
+        Player player = players.findById(playerId).orElse(new Player(playerId, new ArrayList<>()));
+        
+        return tournaments.findById(tournamentId).map(tournament -> { // find tournament
+            
+            // if player is not registered in the tournament, add it. else, skip it
+            if (!player.getTournaments().contains(tournament)) {
+                log.info("log: added new tournamentplayer mapping");
                 player.getTournaments().add(tournament);
+                tournament.getPlayers().add(player); // need to update the tournament side oso
             }
-            tournament.getPlayers().add(player);
-            return players.save(player);
+
+            return players.save(player); // save - adds if player dont exist or updates if player exist
         }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     
     }
 
+    /* Deregister tournament Player */
+    @PutMapping("/tournaments/{tournamentId}/players/{playerId}/deregister")
+    public Player deregisterPlayer(@PathVariable (value = "tournamentId") Long tournamentId, 
+                                            @PathVariable (value = "playerId") Long playerId) {
+        // check if tournament exist
+        if(!tournaments.existsById(tournamentId)) {
+            throw new TournamentNotFoundException(tournamentId);
+        }
+        // remove tournament mapping
+        return players.findById(playerId).map(player -> {
+            player.getTournaments().remove(tournaments.findById(tournamentId).get());
+            return players.save(player);
+        }).orElseThrow(() -> new PlayerNotFoundException(tournamentId, playerId));
+
+    }
+
     /* Update tournament Player */
     @PutMapping("/tournaments/{tournamentId}/players/{playerId}")
-    public Player updatePlayer(@PathVariable (value = "tournamentId") Long tournamentId,
+    public Player updateTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId,
                                  @PathVariable (value = "playerId") Long playerId,
                                  @RequestBody Player newPlayer) {
 
         return players.findById(playerId).map(player -> {
             player.setTournaments(newPlayer.getTournaments());
             player.setId(newPlayer.getId());
-            player.setUsername(newPlayer.getUsername());
             return players.save(player);
         }).orElseThrow(() -> new PlayerNotFoundException(tournamentId, playerId));
     }
 
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
-    @DeleteMapping("/tournaments/{tournamentId}/Players/{playerId}")
-    public ResponseEntity<?> deleteReview(@PathVariable (value = "tournamentId") Long tournamentId, 
+    @DeleteMapping("/tournaments/{tournamentId}/players/{playerId}")
+    public ResponseEntity<?> deletePlayer(@PathVariable (value = "tournamentId") Long tournamentId, 
                                             @PathVariable (value = "playerId") Long playerId) {
         
         if(!tournaments.existsById(tournamentId)) {
@@ -87,6 +108,9 @@ public class PlayerController {
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new PlayerNotFoundException(tournamentId, playerId));
     }
+
     
-    
+
+   
+
 }

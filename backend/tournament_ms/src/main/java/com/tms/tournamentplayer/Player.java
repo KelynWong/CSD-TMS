@@ -20,13 +20,12 @@ public class Player {
     @Id @NotNull
     private Long id;
 
-    private String username;
-
     @ManyToMany
     @JoinTable(
         name = "TournamentPlayer",
         joinColumns = @JoinColumn(name = "playerId"),
-        inverseJoinColumns = @JoinColumn(name = "tournamentId")
+        inverseJoinColumns = @JoinColumn(name = "tournamentId"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"playerId", "tournamentId"})
     )
     @JsonIgnore
     private List<Tournament> tournaments;

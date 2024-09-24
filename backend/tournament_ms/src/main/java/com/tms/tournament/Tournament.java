@@ -15,7 +15,7 @@ import lombok.*;
 @Data
 public class Tournament {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) 
-    private long id;
+    private Long id;
     private String tournamentName;
     private LocalDateTime startDT;
     private LocalDateTime endDT;
