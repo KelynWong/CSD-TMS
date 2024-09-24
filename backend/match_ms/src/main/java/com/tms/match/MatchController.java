@@ -4,14 +4,9 @@ import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 @RestController
 public class MatchController {
@@ -37,6 +32,7 @@ public class MatchController {
      * @return Match with the given id
      */
     @GetMapping("/matches/{id}")
+    @JsonView(Views.Internal.class)
     public Match getMatch(@PathVariable Long id){
         Match match = matchService.getMatch(id);
 
@@ -53,12 +49,12 @@ public class MatchController {
      * @param id
      * @return Match with the given id
      */
-    @GetMapping("/matches-with-games/{id}")
-    public MatchDTO getMatchWithGames(@PathVariable Long id) {
-        MatchDTO matchDTO = matchService.getMatchWithGames(id);
-        if(matchDTO == null) throw new MatchNotFoundException(id);
-        return matchDTO;
-    }
+    // @GetMapping("/matches-with-games/{id}")
+    // public MatchDTO getMatchWithGames(@PathVariable Long id) {
+    //     MatchDTO matchDTO = matchService.getMatchWithGames(id);
+    //     if(matchDTO == null) throw new MatchNotFoundException(id);
+    //     return matchDTO;
+    // }
 
     /**
      * List all matches by tournament id
@@ -111,6 +107,7 @@ public class MatchController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matches")
+    @JsonView(Views.Public.class)
     public Match addMatch(@RequestBody Match Match){
         return matchService.addMatch(Match);
     }
