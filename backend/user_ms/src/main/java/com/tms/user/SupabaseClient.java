@@ -118,7 +118,7 @@ public class SupabaseClient {
     }
 
     // Get user by ID 
-    public String getUserById(Long id) throws IOException, InterruptedException {
+    public String getUserById(String id) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
                 .header("apikey", SUPABASE_KEY)
@@ -155,7 +155,7 @@ public class SupabaseClient {
     }
 
     // Update user by ID 
-    public String updateUser(Long userId, String userJson) throws Exception {
+    public String updateUser(String userId, String userJson) throws Exception {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + userId))
@@ -174,7 +174,7 @@ public class SupabaseClient {
     }    
 
     // Delete user by ID
-    public String deleteUser(Long id) throws Exception {
+    public String deleteUser(String id) throws Exception {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(SUPABASE_URL + "/rest/v1/user?id=eq." + id))
