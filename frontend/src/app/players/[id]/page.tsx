@@ -1,5 +1,4 @@
 "use client";
-import { useState, useEffect } from "react";
 import PlayerHero from "@/components/PlayerHero";
 import { Player } from "@/types/player";
 import { Match } from "@/types/match";
