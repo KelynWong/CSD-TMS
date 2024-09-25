@@ -14,6 +14,8 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.net.http.HttpRequest.BodyPublishers;
 
 @Component
@@ -132,6 +134,29 @@ public class SupabaseClient {
             return response.body();
         } else {
             throw new RuntimeException("Failed to get user: " + response.body());
+        }
+    }
+
+    // Get users by a list of IDs
+    public String getUsersByIds(List<String> ids) throws IOException, InterruptedException {
+        // Format the filter as: or=(id.eq.id1,id.eq.id2,...)
+        String idFilter = "or=(" + ids.stream()
+                                    .map(id -> "id.eq." + id)
+                                    .collect(Collectors.joining(",")) + ")";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?" + idFilter))
+                .header("apikey", SUPABASE_KEY)
+                .header("Accept-Profile", SCHEMA)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return response.body();
+        } else {
+            throw new RuntimeException("Failed to get users: " + response.body());
         }
     }
 

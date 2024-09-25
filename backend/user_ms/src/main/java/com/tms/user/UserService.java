@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Optional;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Service
@@ -59,6 +60,17 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    // Get users by a list of IDs
+    public List<User> getUsersByIds(List<String> ids) {
+        try {
+            String response = supabaseClient.getUsersByIds(ids);
+            return Arrays.asList(objectMapper.readValue(response, User[].class));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
         }
     }
 
