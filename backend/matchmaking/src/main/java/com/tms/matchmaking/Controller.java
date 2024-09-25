@@ -9,7 +9,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.deser.DataFormatReaders.Match;
 import com.tms.player.Player;
 
 @RestController
@@ -23,15 +22,15 @@ public class Controller {
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matchmaking/{tournamentId}")
-    public ResponseEntity<TreeNode> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
-        TreeNode root = matchmakeService.matchmake(tournamentId, players);
+    public ResponseEntity<Match> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
+        Match root = matchmakeService.matchmake(tournamentId, players);
         return ResponseEntity.ok(root);
     }
 
     // Returns 
     @GetMapping("/matchmaking/{tournamentId}")
     public ResponseEntity<String> getTournament(@PathVariable Long tournamentId){
-        TreeNode root = matchmakeService.getTournament(tournamentId);
+        Match root = matchmakeService.getTournament(tournamentId);
 
         return ResponseEntity.ok("test");
     }

@@ -59,32 +59,29 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Match addMatch(CreateMatch match) {
-        Match newMatch = new Match();
-        newMatch.setTournamentId(match.getTournamentId());
-        newMatch.setPlayer1Id(match.getPlayer1Id());
-        newMatch.setPlayer2Id(match.getPlayer2Id());
-        newMatch.setWinnerId(match.getWinnerId());
+    public Match addMatch(Match match) {
+        Long leftId = (match.getLeft() != null) ? match.getLeft().getId() : null;
+        Long rightId = (match.getRight() != null) ? match.getRight().getId() : null;
 
-        if (match.getLeft() != null) {
-            Optional<Match> leftMatch = this.matches.findById(match.getLeft());
+        if (leftId != null) {
+            Optional<Match> leftMatch = this.matches.findById(leftId);
             if (leftMatch.isPresent()) {
-                newMatch.setLeft(leftMatch.get());
+                match.setLeft(leftMatch.get());
             }
         } else {
-            newMatch.setLeft(null);
+            match.setLeft(null);
         }
 
-        if (match.getRight() != null) {
-            Optional<Match> rightMatch = this.matches.findById(match.getRight());
+        if (rightId != null) {
+            Optional<Match> rightMatch = this.matches.findById(rightId);
             if (rightMatch.isPresent()) {
-                newMatch.setRight(rightMatch.get());
+                match.setRight(rightMatch.get());
             }
         } else {
-            newMatch.setRight(null);
+            match.setRight(null);
         }
 
-        return this.matches.save(newMatch);
+        return this.matches.save(match);
     }
 
     @Override

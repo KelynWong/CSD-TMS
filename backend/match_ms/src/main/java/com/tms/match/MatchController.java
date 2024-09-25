@@ -95,7 +95,7 @@ public class MatchController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matches")
     @JsonView(Views.Public.class)
-    public Match addMatch(@RequestBody CreateMatch Match){
+    public Match addMatch(@RequestBody Match Match){
         return matchService.addMatch(Match);
     }
 

@@ -38,12 +38,12 @@ public class Match {
 
     @ManyToOne
     @JoinColumn(name = "left_id")
-    @JsonView(Views.Patch.class)
+    @JsonView({Views.Patch.class, Views.Public.class})
     private Match left;
 
     @ManyToOne
     @JoinColumn(name = "right_id")
-    @JsonView(Views.Patch.class)
+    @JsonView({Views.Patch.class, Views.Public.class})
     private Match right;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
