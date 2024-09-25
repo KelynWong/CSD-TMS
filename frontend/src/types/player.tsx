@@ -7,8 +7,9 @@ export type Player = {
 	rating: number;
 	wins: number;
 	losses: number;
-	win_rate: number;
+	total_matches: number;
 	profilePicture: string;
+	country: string;
 };
 
 export type PlayerCardProps = {
