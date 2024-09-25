@@ -12,9 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tms.exceptions.MatchCreationException;
+import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.player.Player;
 
 @Service
@@ -158,35 +161,60 @@ public class MatchmakeService {
         .retrieve()
         .toEntity(String.class);
 
-        JsonNode json = parseJson(res);
-        System.out.println(json);
+        if (res.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentNotFoundException("Tournament not found");
+        }
 
-        // return new Match(tournamentId);
-        return new Match(tournamentId, tournamentId, tournamentId, null, null);
+        Match rootMatch = null;
+        try {
+            rootMatch = tournamentFromJson(res.getBody());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
 
+        return rootMatch;
     }
 
-    private Match constructTreeFromJson(String jsonString, Long rootId) {
+    private Match tournamentFromJson(String jsonString) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            
-            List<Match> nodes = objectMapper.readValue(jsonString, new TypeReference<List<Match>>() {});
-            Map<Long, Match> nodeMap = new HashMap<>();
-            for (Match node : nodes) {
-                nodeMap.put(node.getId(), node);
+    
+        List<MatchJson> matchData = objectMapper.readValue(jsonString, new TypeReference<List<MatchJson>>() {});
+        
+        
+        Map<Long, Match> idToNode = new HashMap<>();
+
+        for (MatchJson md : matchData) {
+            Match match = new Match();
+            match.setId(md.getId());
+            match.setTournamentId(md.getTournamentId());
+            match.setPlayer1Id(md.getPlayer1Id());
+            match.setPlayer2Id(md.getPlayer2Id());
+            match.setWinnerId(md.getWinnerId());
+            match.setGames(md.getGames());
+            idToNode.put(match.getId(), match);
+        }
+
+        // Link left and right children
+        for (MatchJson md : matchData) {
+            Match match = idToNode.get(md.getId());
+            if (md.getLeft() != null) {
+                Long leftId = md.getLeft();
+                Match left = idToNode.get(leftId);
+                match.setLeft(left);
+                idToNode.remove(leftId);
             }
-            for (Match node : nodes) {
-                if (node.getLeft() != null) {
-                    node.setLeft(nodeMap.get(node.getLeft().getId()));
-                }
-                if (node.getRight() != null) {
-                    node.setRight(nodeMap.get(node.getRight().getId()));
-                }
+            if (md.getRight() != null) {
+                Long rightId = md.getRight();
+                Match right = idToNode.get(rightId);
+                match.setRight(right);
+                idToNode.remove(rightId);
             }
-            return nodeMap.get(rootId);
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+
+        if (idToNode.size() != 1) {
             return null;
         }
+
+        return idToNode.values().iterator().next();
     }
 }

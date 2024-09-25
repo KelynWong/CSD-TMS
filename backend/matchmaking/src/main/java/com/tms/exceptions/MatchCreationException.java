@@ -1,4 +1,4 @@
-package com.tms.matchmaking;
+package com.tms.exceptions;
 
 public class MatchCreationException extends RuntimeException {
     public MatchCreationException(String message) {

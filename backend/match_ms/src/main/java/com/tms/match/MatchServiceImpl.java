@@ -92,18 +92,6 @@ public class MatchServiceImpl implements MatchService {
             match.setPlayer2Id(newMatchInfo.getPlayer2Id());
             return this.matches.save(match);
         }).orElse(null);
-
-        /*
-         * // You can also handle Optional objects in this way
-         * //
-         * Optional<Match> b = Matchs.findById(id);
-         * if (b.isPresent()){
-         * Match Match = b.get();
-         * Match.setTitle(newMatchInfo.getTitle());
-         * return Matchs.save(Match);
-         * }else
-         * return null;
-         */
     }
 
     @Override

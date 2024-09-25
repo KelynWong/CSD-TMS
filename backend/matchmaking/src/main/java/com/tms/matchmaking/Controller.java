@@ -1,14 +1,11 @@
 package com.tms.matchmaking;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClient;
 import org.springframework.http.ResponseEntity;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.tms.player.Player;
 
 @RestController
@@ -29,10 +26,12 @@ public class Controller {
 
     // Returns 
     @GetMapping("/matchmaking/{tournamentId}")
-    public ResponseEntity<String> getTournament(@PathVariable Long tournamentId){
+    public ResponseEntity<Match> getTournament(@PathVariable Long tournamentId){
         Match root = matchmakeService.getTournament(tournamentId);
-
-        return ResponseEntity.ok("test");
+        if (root == null) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok(root);
     }
 
 }
