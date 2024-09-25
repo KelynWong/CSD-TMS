@@ -2,7 +2,9 @@ package com.tms.match;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.tms.game.Game;
 
 import jakarta.persistence.*;
@@ -14,19 +16,36 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Match {
-    private @Id @GeneratedValue (strategy = GenerationType.IDENTITY) Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonView({Views.Public.class})
+    private Long id;
+
+    @JsonView({Views.Public.class, Views.Internal.class})
     private long tournamentId;
-    private short roundNum;
-    private short matchNum;
-    private String player1Username;
-    private String player1Fullname;
-    private String player2Username;
-    private String player2Fullname;
-    private String winnerUsername;
-    private String winnerFullname;
+
+    @JsonView({Views.Public.class, Views.Internal.class})
+    private long player1Id;
+
+    @JsonView({Views.Public.class, Views.Internal.class})
+    private long player2Id;
+
+    @JsonView({Views.Public.class, Views.Internal.class})
+    private long winnerId;
+
+    @ManyToOne
+    @JoinColumn(name = "left_id")
+    @JsonView({Views.Patch.class, Views.Public.class})
+    private Match left;
+
+    @ManyToOne
+    @JoinColumn(name = "right_id")
+    @JsonView({Views.Patch.class, Views.Public.class})
+    private Match right;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private List<Game> games;
 }
