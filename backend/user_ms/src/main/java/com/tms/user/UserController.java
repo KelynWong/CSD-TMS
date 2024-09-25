@@ -52,7 +52,7 @@ public class UserController {
 
     // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -78,7 +78,7 @@ public class UserController {
 
     // Update user by ID
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<Object> updateUser(@PathVariable Long id,
+    public ResponseEntity<Object> updateUser(@PathVariable String id,
                                             @RequestPart("user") String userJson,
                                             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
         try {
@@ -99,7 +99,7 @@ public class UserController {
 
     // Delete user by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
@@ -167,6 +167,9 @@ public class UserController {
         try {
             // Create a new User instance
             User user = new User();
+
+            // Id 
+            user.setId(userData.get("id").asText());
     
             // Extract necessary user details from the webhook data
             if (userData.has("username") && !userData.get("username").isNull()) {
@@ -223,7 +226,7 @@ public class UserController {
     // Handle the user.updated event from Clerk
     private void handleUserUpdated(JsonNode userData) {
         try {
-            Long userId = userData.get("id").asLong();
+            String userId = userData.get("id").toString();
             User user = userService.getUserById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -250,7 +253,7 @@ public class UserController {
     // Handle the user.deleted event from Clerk
     private void handleUserDeleted(JsonNode userData) {
         try {
-            Long userId = userData.get("id").asLong();
+            String userId = userData.get("id").toString();
             userService.deleteUser(userId);
         } catch (Exception e) {
             throw new RuntimeException("Error handling user.deleted event: " + e.getMessage());

@@ -47,7 +47,7 @@ public class UserService {
     }
 
     // Get user by ID 
-    public Optional<User> getUserById(Long id) {
+    public Optional<User> getUserById(String id) {
         try {
             String response = supabaseClient.getUserById(id); 
             User[] usersArray = objectMapper.readValue(response, User[].class);
@@ -75,8 +75,8 @@ public class UserService {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode userNode = objectMapper.valueToTree(user);
 
-            // Remove the "id" field from the JSON
-            userNode.remove("id");
+            // // Remove the "id" field from the JSON
+            // userNode.remove("id");
 
             // Convert the modified JSON back to a string
             String userJson = objectMapper.writeValueAsString(userNode);
@@ -117,7 +117,7 @@ public class UserService {
     
 
     // Delete user by ID 
-    public void deleteUser(Long id) {
+    public void deleteUser(String id) {
         try {
             supabaseClient.deleteUser(id); 
         } catch (Exception e) {
