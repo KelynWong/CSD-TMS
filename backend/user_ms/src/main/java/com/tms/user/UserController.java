@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -56,6 +57,14 @@ public class UserController {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/ids")
+    public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<Map<String, String>> ids) {
+        List<User> users = userService.getUsersByIds(ids.stream()
+                .map(idMap -> idMap.get("id"))
+                .collect(Collectors.toList()));
+        return ResponseEntity.ok(users);
     }
 
     // Create a new user
@@ -264,7 +273,11 @@ public class UserController {
             }
     
             // Role
-            user.setRole("Player");
+            if (userData.has("public_metadata") && userData.get("public_metadata").has("role")) {
+                user.setRole(userData.get("public_metadata").get("role").asText());
+            } else {
+                user.setRole("Player");
+            }
 
             // Rank
             if (userData.has("public_metadata") && userData.get("public_metadata").has("rank")) {
