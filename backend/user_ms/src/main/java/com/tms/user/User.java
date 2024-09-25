@@ -4,24 +4,30 @@ import javax.persistence.*;
 
 @Entity
 public class User {
+    @Id
+    private String id;
+
     @Column(unique = true)
     private String username;
 
     private String fullname;
     private String password;
     private String gender;
-    
+
     @Column(unique = true)
     private String email;
-    
+
     private String role;
-    
     private Integer rank;
+    
+    private String country; 
+
+    private String profilePicture;
 
     // Constructors
     public User() {}
 
-    public User(String username, String fullname, String password, String gender, String email, String role, Integer rank) {
+    public User(String username, String fullname, String password, String gender, String email, String role, Integer rank, String country) {
         this.username = username;
         this.fullname = fullname;
         this.password = password;
@@ -29,9 +35,18 @@ public class User {
         this.email = email;
         this.role = role;
         this.rank = rank;
+        this.country = country;
     }
 
     // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -86,5 +101,21 @@ public class User {
 
     public void setRank(Integer rank) {
         this.rank = rank;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
