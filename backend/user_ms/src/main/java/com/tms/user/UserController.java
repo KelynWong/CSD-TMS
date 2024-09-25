@@ -226,29 +226,57 @@ public class UserController {
     // Handle the user.updated event from Clerk
     private void handleUserUpdated(JsonNode userData) {
         try {
-            String userId = userData.get("id").toString();
+            // Fetch the user by ID
+            String userId = userData.get("id").asText();
             User user = userService.getUserById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-
-            // Update user details based on webhook data
-            if (userData.has("email")) {
-                user.setEmail(userData.get("email").asText());
+    
+            // Update email if present
+            if (userData.has("email_addresses") && userData.get("email_addresses").size() > 0) {
+                user.setEmail(userData.get("email_addresses").get(0).get("email_address").asText());
             }
-            if (userData.has("username")) {
+    
+            // Update username if present
+            if (userData.has("username") && !userData.get("username").isNull()) {
                 user.setUsername(userData.get("username").asText());
             }
-
-            // Update any additional user fields
+    
+            // Update full name if present
             if (userData.has("first_name") || userData.has("last_name")) {
-                user.setFullname(userData.get("first_name").asText() + " " + userData.get("last_name").asText());
+                String firstName = userData.has("first_name") ? userData.get("first_name").asText() : "";
+                String lastName = userData.has("last_name") ? userData.get("last_name").asText() : "";
+                user.setFullname(firstName + " " + lastName);
             }
+    
+            // Update gender if present
+            if (userData.has("public_metadata") && userData.get("public_metadata").has("gender")) {
+                user.setGender(userData.get("public_metadata").get("gender").asText());
+            }
+    
+            // Update profile picture if present
+            if (userData.has("profile_image_url") && !userData.get("profile_image_url").isNull()) {
+                user.setProfilePicture(userData.get("profile_image_url").asText());
+            }
+    
+            // Update country if present
+            if (userData.has("public_metadata") && userData.get("public_metadata").has("country")) {
+                user.setCountry(userData.get("public_metadata").get("country").asText());
+            }
+    
+            // Role
+            user.setRole("Player");
 
+            // Rank
+            if (userData.has("public_metadata") && userData.get("public_metadata").has("rank")) {
+                user.setRank(userData.get("public_metadata").get("rank").asInt());
+            }
+    
             // Update the user in your system
             userService.updateUser(user, null);
         } catch (Exception e) {
             throw new RuntimeException("Error handling user.updated event: " + e.getMessage());
         }
-    }
+    }    
 
     // Handle the user.deleted event from Clerk
     private void handleUserDeleted(JsonNode userData) {
