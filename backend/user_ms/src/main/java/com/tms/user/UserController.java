@@ -281,7 +281,7 @@ public class UserController {
     // Handle the user.deleted event from Clerk
     private void handleUserDeleted(JsonNode userData) {
         try {
-            String userId = userData.get("id").toString();
+            String userId = userData.get("id").asText();
             userService.deleteUser(userId);
         } catch (Exception e) {
             throw new RuntimeException("Error handling user.deleted event: " + e.getMessage());
