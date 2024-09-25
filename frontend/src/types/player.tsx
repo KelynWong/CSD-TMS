@@ -1,5 +1,5 @@
 export type Player = {
-	id: number;
+	id: string;
 	username: string;
 	fullname: string;
 	gender: string;
@@ -8,4 +8,13 @@ export type Player = {
 	wins: number;
 	losses: number;
 	win_rate: number;
+	profilePicture: string;
+};
+
+export type PlayerCardProps = {
+	id: string;
+	fullname: string;
+	username: string;
+	gender: string;
+	profilePicture: string;
 };
