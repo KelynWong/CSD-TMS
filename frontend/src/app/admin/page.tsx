@@ -4,29 +4,42 @@ import React from "react";
 import AdminHero from "@/components/AdminHero";
 import { Admin } from "@/types/admin";
 import { useState, useEffect } from "react";
-import { fetchPlayer } from "@/api/users/api";
 import { formatDate } from "@/utils/dateFormatter";
 import TournamentHistory from "@/components/TournamentHistory";
+import { useUserContext } from "@/context/userContext";
+import Loading from "@/components/Loading";
 
-export default function AdminPage({ params }: { params: { id: string } }) {
+export default function AdminPage() {
+	const { user } = useUserContext();
+	console.log(user);
 	const [admin, setAdmin] = useState<Admin | null>(null);
+	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		const getAdminData = async () => {
-			try {
-				const data = await fetchPlayer(params.id);
-				const mappedData: Admin = {
-					id: data.id,
-					username: data.username,
-					fullname: data.fullname,
-					profilePicture: data.profilePicture,
-				};
-				setAdmin(mappedData);
-			} catch (err) {
-				console.error("Failed to fetch admin:", err);
-			}
-		};
-		getAdminData();
-	}, [params.id]);
+		if (user) {
+			// Fetch admin data only when user data is available
+			setLoading(false);
+			const getAdminData = async () => {
+				try {
+					const mappedData: Admin = {
+						id: user.id,
+						username: user.username,
+						fullname: user.fullName,
+						profilePicture: user.imageUrl,
+					};
+					setAdmin(mappedData);
+				} catch (err) {
+					console.error("Failed to fetch admin:", err);
+				}
+			};
+			getAdminData();
+		} else {
+			setLoading(true);
+		}
+	}, [user]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
 	const TournamentHistories: Tournament[] = [
 		// Add your tournament history data here
