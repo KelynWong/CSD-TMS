@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { UserButton, SignedOut, SignedIn, SignInButton } from '@clerk/nextjs'
-import { User, Menu, X } from 'lucide-react'
-import Image from 'next/image'
+import { useState } from "react";
+import Link from "next/link";
+import { UserButton, SignedOut, SignedIn, SignInButton } from "@clerk/nextjs";
+import { User, Menu, X } from "lucide-react";
+import Image from "next/image";
 import ClientButton from "@/components/ClientButton";
-import { ModeToggle } from './ThemeChangeButton'
+import { ModeToggle } from "./ThemeChangeButton";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
+	const [isOpen, setIsOpen] = useState(false);
 
-  const toggleMenu = () => setIsOpen(!isOpen)
+	const toggleMenu = () => setIsOpen(!isOpen);
 
-  return (
+	return (
 		<nav className="bg-black text-white p-4">
 			<div className="container mx-auto flex items-center justify-between">
 				<Link href="/" className="flex items-center space-x-2">
@@ -52,7 +52,7 @@ export default function Navbar() {
 					</Link>
 				</div>
 				<div className="flex items-center space-x-4">
-          <ModeToggle></ModeToggle>
+					<ModeToggle></ModeToggle>
 					<SignedIn>
 						<UserButton></UserButton>
 					</SignedIn>

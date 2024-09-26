@@ -9,7 +9,7 @@ interface ClientButtonProps extends ButtonProps {
 
 export default function ClientButton({ children, ...props }: ClientButtonProps) {
   return (
-    <Button {...props}>
+    <Button {...props} className='bg-black hover:bg-black'>
       {children}
     </Button>
   );
