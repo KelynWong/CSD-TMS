@@ -6,8 +6,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
 @RestController
 public class MatchController {
     private MatchService matchService;
@@ -32,7 +30,6 @@ public class MatchController {
      * @return Match with the given id
      */
     @GetMapping("/matches/{id}")
-    @JsonView(Views.Internal.class)
     public Match getMatch(@PathVariable Long id){
         Match match = matchService.getMatch(id);
 
@@ -94,7 +91,6 @@ public class MatchController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matches")
-    @JsonView(Views.Public.class)
     public Match addMatch(@RequestBody Match Match){
         return matchService.addMatch(Match);
     }
@@ -106,7 +102,6 @@ public class MatchController {
      * @return the updated, or newly added Match
      */
     @PutMapping("/matches/{id}")
-    @JsonView(Views.Public.class)
     public Match updateMatch(@PathVariable Long id, @RequestBody Match newMatchInfo){
         Match Match = matchService.updateMatch(id, newMatchInfo);
         if(Match == null) throw new MatchNotFoundException(id);
