@@ -19,7 +19,7 @@ public class Player {
     
     @Id
     @Column(unique = true, nullable = false)
-    private Long id;
+    private String id;
 
     @ManyToMany
     @JoinTable(
