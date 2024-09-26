@@ -13,14 +13,14 @@ import lombok.NoArgsConstructor;
 public class Match {
     private Long id;
     private Long tournamentId;
-    private Long player1Id;
-    private Long player2Id;
-    private Long winnerId;
+    private String player1Id;
+    private String player2Id;
+    private String winnerId;
     private Match left;
     private Match right;
     private List<Game> games;
 
-    public Match(Long tournamentId, Long player1Id, Long player2Id, Match left, Match right) {
+    public Match(Long tournamentId, String player1Id, String player2Id, Match left, Match right) {
         this.tournamentId = tournamentId;
         this.player1Id = player1Id;
         this.player2Id = player2Id;

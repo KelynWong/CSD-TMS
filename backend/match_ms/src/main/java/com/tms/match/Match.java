@@ -27,13 +27,13 @@ public class Match {
     private long tournamentId;
 
     @JsonView({Views.Public.class, Views.Internal.class})
-    private long player1Id;
+    private String player1Id;
 
     @JsonView({Views.Public.class, Views.Internal.class})
-    private long player2Id;
+    private String player2Id;
 
     @JsonView({Views.Public.class, Views.Internal.class})
-    private long winnerId;
+    private String winnerId;
 
     @ManyToOne
     @JoinColumn(name = "left_id")
