@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class PlayerNotFoundException extends RuntimeException{
     private static final long serialVersionUID = 1L;
 
-    public PlayerNotFoundException(Long playerId, Long tournamentId) {
+    public PlayerNotFoundException(String playerId, Long tournamentId) {
         super("Could not find Player " + playerId + " from tournament " + tournamentId);
     }
 
-    public PlayerNotFoundException(Long playerId) {
+    public PlayerNotFoundException(String playerId) {
         super("Could not find Player " + playerId);
     }
     
