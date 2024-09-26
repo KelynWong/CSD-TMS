@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.tms.Views;
 import com.tms.player.Player;
 
 @RestController
@@ -18,6 +20,7 @@ public class Controller {
 
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
+    @JsonView(Views.Post.class)
     @PostMapping("/matchmaking/{tournamentId}")
     public ResponseEntity<Match> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
         Match root = matchmakeService.matchmake(tournamentId, players);
@@ -26,6 +29,7 @@ public class Controller {
 
     // Returns 
     @GetMapping("/matchmaking/{tournamentId}")
+    @JsonView(Views.Get.class)
     public ResponseEntity<Match> getTournament(@PathVariable Long tournamentId){
         Match root = matchmakeService.getTournament(tournamentId);
         if (root == null) {
