@@ -199,6 +199,29 @@ public class SupabaseClient {
         }
     }
 
+    // Get users by role
+    public String getUsersByRole(String role) throws SupabaseClientException {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(SUPABASE_URL + "/rest/v1/user?role=ilike." + role))
+                .header("apikey", SUPABASE_KEY)
+                .header("Accept-Profile", SCHEMA)
+                .header("Content-Type", "application/json")
+                .GET()
+                .build();
+    
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    
+            if (response.statusCode() == 200) {
+                return response.body();
+            } else {
+                throw new SupabaseClientException("Failed to get users by role: " + response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new SupabaseClientException("Error retrieving users by role", e);
+        }
+    }    
+
     // Create a new user
     public String createUser(String userJson) throws Exception {
         try {

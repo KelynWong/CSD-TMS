@@ -88,6 +88,17 @@ public class UserService {
         }
     }
 
+    // Get users by role
+    public List<User> getUsersByRole(String role) {
+        try {
+            String response = supabaseClient.getUsersByRole(role);
+            User[] usersArray = objectMapper.readValue(response, User[].class);
+            return Arrays.asList(usersArray);
+        } catch (IOException e) {
+            throw new SupabaseClientException("Error fetching users by role", e);
+        }
+    }    
+
     // Create a new user
     public String createUser(User user, MultipartFile file) {
         try {
