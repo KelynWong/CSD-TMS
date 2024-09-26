@@ -1,3 +1,5 @@
+import { Calendar } from "@/components/ui/calendar";
+
 export default function Home() {
-  return <div>Home Page</div>;
+	return <>HomePage</>;
 }

@@ -1,0 +1,47 @@
+GET http://localhost:8080/books
+
+
+###
+GET http://localhost:8080/books/2
+
+###
+DELETE http://localhost:8080/books/1
+
+
+###
+POST http://localhost:8080/books
+Content-Type: application/json
+
+{
+    "title": "I, Human"
+}
+
+###
+PUT http://localhost:8080/books/4
+Content-Type: application/json
+
+{
+    "title": "Sapiens"
+}
+
+###
+GET http://localhost:8080/books/2/reviews
+
+###
+POST http://localhost:8080/books/1/reviews
+Content-Type: application/json
+
+{
+    "review": "Terrible book!"
+}
+
+###
+PUT http://localhost:8080/books/2/reviews/3
+Content-Type: application/json
+
+{
+    "review": "Should be bad!"
+}
+
+###
+DELETE http://localhost:8080/books/1/reviews/5
