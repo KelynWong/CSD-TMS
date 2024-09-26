@@ -6,6 +6,7 @@ import { UserButton, SignedOut, SignedIn, SignInButton } from '@clerk/nextjs'
 import { User, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import ClientButton from "@/components/ClientButton";
+import { ModeToggle } from './ThemeChangeButton'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -51,6 +52,7 @@ export default function Navbar() {
 					</Link>
 				</div>
 				<div className="flex items-center space-x-4">
+          <ModeToggle></ModeToggle>
 					<SignedIn>
 						<UserButton></UserButton>
 					</SignedIn>

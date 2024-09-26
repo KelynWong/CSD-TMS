@@ -38,7 +38,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	}, [params.id]);
 
 	console.log(player);
-
+  
 	const MatchHistory: Match[] = [
 		{
 			set_number: 1,
