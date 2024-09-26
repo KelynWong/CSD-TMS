@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Player } from "@/types/player";
 
 const URL = "http://localhost:8080";
 
@@ -17,6 +16,8 @@ type PlayerResponse = {
 
 export const fetchPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
+		console.log(`${URL}/api/users`);
+
 		const response = await axios.get(`${URL}/api/users`);
 		return response.data;
 	} catch (error) {

@@ -19,8 +19,11 @@ export default clerkMiddleware((auth, req) => {
 		return NextResponse.redirect(onboardingUrl);
 	}
 
-	if (userId && !isPublicRoute(req)) {
-		return NextResponse.next();
+	const userRole = sessionClaims?.metadata?.role;
+	if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "Admin") {
+		// Redirect to a forbidden page or return an error response
+		const forbiddenUrl = new URL("/", req.url);
+		return NextResponse.redirect(forbiddenUrl);
 	}
 });
 

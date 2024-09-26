@@ -3,12 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { UserButton, SignedOut, SignedIn, SignInButton } from "@clerk/nextjs";
-import { User, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import ClientButton from "@/components/ClientButton";
 import { ModeToggle } from "./ThemeChangeButton";
+import { useUser } from "@clerk/nextjs";
 
 export default function Navbar() {
+	const user = useUser();
+	const isAdmin = user.user?.publicMetadata.role === "Admin";
+  const userId = user.user?.id;
 	const [isOpen, setIsOpen] = useState(false);
 
 	const toggleMenu = () => setIsOpen(!isOpen);
@@ -52,6 +56,13 @@ export default function Navbar() {
 					</Link>
 				</div>
 				<div className="flex items-center space-x-4">
+					{isAdmin && (
+						<Link
+							href={`/admin/${userId}`}
+							className="hover:text-red-400 transition-colors">
+							ADMIN
+						</Link>
+					)}
 					<ModeToggle></ModeToggle>
 					<SignedIn>
 						<UserButton></UserButton>
