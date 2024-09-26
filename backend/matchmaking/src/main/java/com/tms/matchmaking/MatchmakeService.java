@@ -18,8 +18,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.exceptions.MatchCreationException;
+import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
+import com.tms.match.Match;
+import com.tms.match.MatchJson;
 import com.tms.player.Player;
+import com.tms.tournament.Tournament;
 
 @Service
 public class MatchmakeService {
@@ -34,45 +38,50 @@ public class MatchmakeService {
     }
 
     public Match matchmake(Long tournamentId, List<Player> players) {
-        int n = players.size();
-        int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
+        try {
+            getTournamentMatches(tournamentId);
+            throw new TournamentExistsException("Matches already exist for tournament ID: " + tournamentId);
+        } catch (TournamentNotFoundException e) {
+            int n = players.size();
+            int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
 
-        Deque<Match> tree = new ArrayDeque<>();
-        int byes = (int) Math.pow(2, k) - n;
+            Deque<Match> tree = new ArrayDeque<>();
+            int byes = (int) Math.pow(2, k) - n;
 
-        // choose top x players to get byes. currently just the first x players
-        List<Player> byePlayers = players.subList(0, byes);
+            // choose top x players to get byes. currently just the first x players
+            List<Player> byePlayers = players.subList(0, byes);
 
-        // create matches for byes
-        for (int i = 0; i < byes; i++) {
-            List<Player> matchPlayers = byePlayers.subList(i, i + 1);
-            Match match = createMatch(tournamentId, matchPlayers);
-            tree.add(match);
-        }
-
-        // create remaining matches for base layer
-        List<Player> remainingPlayers = players.subList(byes, n);
-        for (int i = 0; i < remainingPlayers.size(); i += 2) {
-            List<Player> matchPlayers = remainingPlayers.subList(i, i + 2);
-            Match match = createMatch(tournamentId, matchPlayers);
-            tree.add(match);
-        }
-
-        // create matches for the rest of the tree
-        for (int i = (k - 2); i >= 0; i--) {
-            int numMatches = (int) Math.pow(2, i);
-            for (int j = 0; j < numMatches; j++) {
-                Match left = tree.poll();
-                Match right = tree.poll();
-                Match match = createMatchWithoutPlayers(tournamentId, left, right);
-                
-                match.setLeft(left);
-                match.setRight(right);
+            // create matches for byes
+            for (int i = 0; i < byes; i++) {
+                List<Player> matchPlayers = byePlayers.subList(i, i + 1);
+                Match match = createMatch(tournamentId, matchPlayers);
                 tree.add(match);
             }
-        }
 
-        return tree.poll();
+            // create remaining matches for base layer
+            List<Player> remainingPlayers = players.subList(byes, n);
+            for (int i = 0; i < remainingPlayers.size(); i += 2) {
+                List<Player> matchPlayers = remainingPlayers.subList(i, i + 2);
+                Match match = createMatch(tournamentId, matchPlayers);
+                tree.add(match);
+            }
+
+            // create matches for the rest of the tree
+            for (int i = (k - 2); i >= 0; i--) {
+                int numMatches = (int) Math.pow(2, i);
+                for (int j = 0; j < numMatches; j++) {
+                    Match left = tree.poll();
+                    Match right = tree.poll();
+                    Match match = createMatchWithoutPlayers(tournamentId, left, right);
+                    
+                    match.setLeft(left);
+                    match.setRight(right);
+                    tree.add(match);
+                }
+            }
+
+            return tree.poll();
+        }
     }
 
     private Match createMatch(Long tournamentId, List<Player> matchPlayers) {
@@ -158,18 +167,15 @@ public class MatchmakeService {
     }
 
     public Match getTournament(Long tournamentId) {
-        
-        // Get matches of a given tournament id
-        ResponseEntity<String> matchRes = restClient.get()
-        .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
-        .retrieve()
-        .toEntity(String.class);
-
-        if (matchRes.getStatusCode() != HttpStatus.OK) {
-            throw new TournamentNotFoundException("Tournament not found");
-        }
-
         // TODO: Get tournament data
+        // ResponseEntity<Tournament> playerRes = restClient.get()
+        //         .uri(TOURNAMENT_URL + "/id/{tournamentId}", tournamentId)
+        //         .retrieve()
+        //         .toEntity(Tournament.class);
+
+
+        // Get matches of a given tournament id
+        List<MatchJson> matchRes = getTournamentMatches(tournamentId);
 
         // Get player data for a particular tournament
         ResponseEntity<List<Player>> playerRes = restClient.get()
@@ -185,12 +191,25 @@ public class MatchmakeService {
 
         Match rootMatch = null;
         try {
-            rootMatch = tournamentFromJson(matchRes.getBody());
+            rootMatch = tournamentFromJson(matchRes);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
 
         return rootMatch;
+    }
+
+    private List<MatchJson> getTournamentMatches(Long tournamentId) {
+        ResponseEntity<List<MatchJson>> matchRes = restClient.get()
+        .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
+        .retrieve()
+        .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {});
+
+        if (matchRes.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentNotFoundException("Tournament not found");
+        }
+
+        return matchRes.getBody();
     }
 
     private Match tournamentFromJson(String jsonString) throws JsonProcessingException {

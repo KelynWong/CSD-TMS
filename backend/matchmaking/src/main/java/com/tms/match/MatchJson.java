@@ -1,4 +1,4 @@
-package com.tms.matchmaking;
+package com.tms.match;
 
 import java.util.List;
 

@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.tms.Views;
+import com.tms.exceptions.TournamentExistsException;
+import com.tms.match.Match;
 import com.tms.player.Player;
 
 @RestController
@@ -23,8 +25,13 @@ public class Controller {
     @JsonView(Views.Post.class)
     @PostMapping("/matchmaking/{tournamentId}")
     public ResponseEntity<Match> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
-        Match root = matchmakeService.matchmake(tournamentId, players);
-        return ResponseEntity.ok(root);
+        try {
+            Match root = matchmakeService.matchmake(tournamentId, players);
+            return ResponseEntity.ok(root);
+        } catch (TournamentExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        
     }
 
     // Returns 
