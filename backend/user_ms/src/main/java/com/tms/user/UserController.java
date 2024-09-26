@@ -211,7 +211,7 @@ public class UserController {
             user.setRole("Player");
     
             // Rank 
-            user.setRank(null);
+            user.setRank(1500);
     
             // Country - Since Clerk data doesn't include country, use a default
             user.setCountry(null);
