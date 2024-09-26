@@ -59,12 +59,24 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Get user by list of ids
     @PostMapping("/ids")
     public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<Map<String, String>> ids) {
         List<User> users = userService.getUsersByIds(ids.stream()
                 .map(idMap -> idMap.get("id"))
                 .collect(Collectors.toList()));
         return ResponseEntity.ok(users);
+    }
+
+    // Get users by role
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
+        List<User> users = userService.getUsersByRole(role);
+        if (!users.isEmpty()) {
+            return ResponseEntity.ok(users);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Create a new user
