@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ public class MatchmakeService {
 
     private RestClient restClient;
     private final String MATCH_URL = "http://localhost:8080/matches";
+    private final String TOURNAMENT_URL = "http://localhost:8082/tournaments";
+    private final String PLAYER_URL = "http://localhost:8083/api/users";
 
     public MatchmakeService() {
         this.restClient = RestClient.create();
@@ -73,8 +76,8 @@ public class MatchmakeService {
     }
 
     private Match createMatch(Long tournamentId, List<Player> matchPlayers) {
-        Long player1 = null;
-        Long player2 = null;
+        String player1 = null;
+        String player2 = null;
 
         if (matchPlayers.size() == 2) {
             player1 = matchPlayers.get(0).getId();
@@ -156,18 +159,33 @@ public class MatchmakeService {
 
     public Match getTournament(Long tournamentId) {
         
-        ResponseEntity<String> res = restClient.get()
+        // Get matches of a given tournament id
+        ResponseEntity<String> matchRes = restClient.get()
         .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
         .retrieve()
         .toEntity(String.class);
 
-        if (res.getStatusCode() != HttpStatus.OK) {
+        if (matchRes.getStatusCode() != HttpStatus.OK) {
             throw new TournamentNotFoundException("Tournament not found");
         }
 
+        // TODO: Get tournament data
+
+        // Get player data for a particular tournament
+        ResponseEntity<List<Player>> playerRes = restClient.get()
+                .uri(PLAYER_URL)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<Player>>() {});
+
+        if (playerRes.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentNotFoundException("Tournament not found");
+        }
+
+        List<Player> players = playerRes.getBody();
+
         Match rootMatch = null;
         try {
-            rootMatch = tournamentFromJson(res.getBody());
+            rootMatch = tournamentFromJson(matchRes.getBody());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

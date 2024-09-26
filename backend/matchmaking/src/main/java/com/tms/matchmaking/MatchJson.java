@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 public class MatchJson {
     private Long id;
     private Long tournamentId;
-    private Long player1Id;
-    private Long player2Id;
-    private Long winnerId;
+    private String player1Id;
+    private String player2Id;
+    private String winnerId;
     private Long left;
     private Long right;
     private List<Game> games;

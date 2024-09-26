@@ -59,7 +59,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/win/{playerId}")
-    public List<Match> getMatchWinsByUser(@PathVariable Long playerId){
+    public List<Match> getMatchWinsByUser(@PathVariable String playerId){
         return matchService.getMatchWinsByUser(playerId);
     }
 
@@ -70,7 +70,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/loss/{playerId}")
-    public List<Match> getMatchLossByUser(@PathVariable Long playerId){
+    public List<Match> getMatchLossByUser(@PathVariable String playerId){
         return matchService.getMatchLossByUser(playerId);
     }
 
@@ -81,7 +81,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/played/{playerId}")
-    public List<Match> getMatchesPlayedByUser(@PathVariable Long playerId){
+    public List<Match> getMatchesPlayedByUser(@PathVariable String playerId){
         return matchService.getMatchesPlayedByUser(playerId);
     }
 

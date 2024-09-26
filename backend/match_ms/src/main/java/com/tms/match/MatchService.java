@@ -9,10 +9,10 @@ public interface MatchService {
 
     List<Match> getMatchesByTournament(Long id);
 
-    List<Match> getMatchWinsByUser(Long id);
-    List<Match> getMatchLossByUser(Long id);
-    List<Match> getMatchesPlayedByUser(Long id);
-    Double getPlayerWinRate(Long id);
+    List<Match> getMatchWinsByUser(String id);
+    List<Match> getMatchLossByUser(String id);
+    List<Match> getMatchesPlayedByUser(String id);
+    Double getPlayerWinRate(String id);
 
     Match addMatch(Match Match);
 

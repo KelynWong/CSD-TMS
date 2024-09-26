@@ -32,22 +32,22 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public List<Match> getMatchWinsByUser(Long playerId) {
+    public List<Match> getMatchWinsByUser(String playerId) {
         return this.matches.findByWinnerId(playerId);
     }
 
     @Override
-    public List<Match> getMatchLossByUser(Long playerId) {
+    public List<Match> getMatchLossByUser(String playerId) {
         return this.matches.findByLoserId(playerId);
     }
 
     @Override
-    public List<Match> getMatchesPlayedByUser(Long playerId) {
+    public List<Match> getMatchesPlayedByUser(String playerId) {
         return this.matches.findMatchesPlayedByPlayer(playerId);
     }
 
     @Override
-    public Double getPlayerWinRate(Long playerId) {
+    public Double getPlayerWinRate(String playerId) {
         List<Match> winningMatches = this.matches.findByWinnerId(playerId);
         List<Match> allMatches = this.matches.findMatchesPlayedByPlayer(playerId);
 
