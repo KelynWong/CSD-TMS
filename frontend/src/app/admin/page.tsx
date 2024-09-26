@@ -37,9 +37,9 @@ export default function AdminPage() {
 		}
 	}, [user]);
 
-  if (loading) {
-    return <Loading />;
-  }
+	if (loading) {
+		return <Loading />;
+	}
 
 	const TournamentHistories: Tournament[] = [
 		// Add your tournament history data here
@@ -167,9 +167,7 @@ export default function AdminPage() {
 
 	return (
 		<>
-			<div>
-				<AdminHero admin={admin} />
-			</div>
+			<div>{admin ? <AdminHero admin={admin} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Buttons</p>
 			</div>

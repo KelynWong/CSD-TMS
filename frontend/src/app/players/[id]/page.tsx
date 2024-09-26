@@ -224,9 +224,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 
 	return (
 		<>
-			<div>
-				<PlayerHero {...player} />
-			</div>
+			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Match History</p>
 				<DataTable columns={columns} data={MatchHistory} />
