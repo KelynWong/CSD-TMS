@@ -4,12 +4,9 @@ import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tms.tournamentplayer.Player;
-import com.tms.tournamentplayer.PlayerNotFoundException;
-import com.tms.tournamentplayer.PlayerRepository;
+import com.tms.tournamentplayer.*;
 
 @RestController
 public class TournamentController {
