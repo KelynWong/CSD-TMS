@@ -9,35 +9,40 @@ import { formatDate } from "@/utils/dateFormatter";
 import { useState, useEffect } from "react";
 import { fetchPlayer } from "@/api/users/api";
 import Loading from "@/components/Loading";
+import { useUserContext } from "@/context/userContext";
 
-export default function PlayerProfile({ params }: { params: { id: string } }) {
+export default function UserProfile() {
+	const { user } = useUserContext();
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [loading, setLoading] = useState(true);
+
 	useEffect(() => {
-		const getPlayerData = async () => {
-			try {
-				const data = await fetchPlayer(params.id);
-				setLoading(false);
-				const mappedData: Player = {
-					id: data.id,
-					username: data.username,
-					fullname: data.fullname,
-					gender: data.gender,
-					ranking: 1,
-					rating: data.rating ? data.rating : 0,
-					wins: 10,
-					losses: 5,
-					total_matches: 15,
-					profilePicture: data.profilePicture,
-					country: data.country,
-				};
-				setPlayer(mappedData);
-			} catch (err) {
-				console.error("Failed to fetch player:", err);
-			}
-		};
-		getPlayerData();
-	}, [params.id]);
+		if (user) {
+			const getPlayerData = async () => {
+				try {
+					const data = await fetchPlayer(user.id);
+					setLoading(false);
+					const mappedData: Player = {
+						id: user.id,
+						username: user.username,
+						fullname: user.fullName,
+						gender: user.publicMetadata.gender,
+						ranking: 1,
+						rating: data.rating ? data.rating : 0,
+						profilePicture: user.imageUrl,
+						wins: 10,
+						losses: 5,
+						total_matches: 15,
+						country: user.publicMetadata.country,
+					};
+					setPlayer(mappedData);
+				} catch (err) {
+					console.error("Failed to fetch player:", err);
+				}
+			};
+			getPlayerData();
+		}
+	}, [user]);
 
 	if (loading) {
 		return <Loading />;

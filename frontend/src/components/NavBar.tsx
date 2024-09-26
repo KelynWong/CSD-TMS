@@ -12,8 +12,8 @@ import { useUser } from "@clerk/nextjs";
 export default function Navbar() {
 	const user = useUser();
 	const isAdmin = user.user?.publicMetadata.role === "Admin";
-  const userId = user.user?.id;
 	const [isOpen, setIsOpen] = useState(false);
+
 
 	const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -56,13 +56,19 @@ export default function Navbar() {
 					</Link>
 				</div>
 				<div className="flex items-center space-x-4">
-					{isAdmin && (
+					{isAdmin ? (
 						<Link
-							href={`/admin/${userId}`}
+							href={`/admin`}
 							className="hover:text-red-400 transition-colors">
 							ADMIN
 						</Link>
-					)}
+					) : (
+            <Link
+              href={`/user-profile`}
+              className="hover:text-red-400 transition-colors">
+              PROFILE
+              </Link>
+          )}
 					<ModeToggle></ModeToggle>
 					<SignedIn>
 						<UserButton></UserButton>
