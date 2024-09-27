@@ -11,7 +11,7 @@ interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes
 export function DataTableColumnHeader<TData, TValue>({ column, title }: DataTableColumnHeaderProps<TData, TValue>) {
     if (!column.getCanSort()) return <div>{title}</div>;
     return (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 text-primary">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
