@@ -8,11 +8,16 @@ import { formatDate } from "@/utils/dateFormatter";
 import TournamentHistory from "@/components/TournamentHistory";
 import { useUserContext } from "@/context/userContext";
 import Loading from "@/components/Loading";
+import { DataTable } from "./_components/DataTable";
+import { columns } from "./_components/DataTableColumns";
+import { fetchUsers } from "@/api/users/api";
+import { User } from "@/types/user";
 
 export default function AdminPage() {
 	const { user } = useUserContext();
 	console.log(user);
 	const [admin, setAdmin] = useState<Admin | null>(null);
+	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		if (user) {
@@ -27,6 +32,10 @@ export default function AdminPage() {
 						profilePicture: user.imageUrl,
 					};
 					setAdmin(mappedData);
+
+					const users = await fetchUsers();
+          console.log(users);
+					setUsers(users);
 				} catch (err) {
 					console.error("Failed to fetch admin:", err);
 				}
@@ -169,7 +178,8 @@ export default function AdminPage() {
 		<>
 			<div>{admin ? <AdminHero admin={admin} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
-				<p className="text-4xl font-bold pb-3">Buttons</p>
+				<p className="text-4xl font-bold pb-3">User</p>
+				<DataTable columns={columns} data={users}></DataTable>
 			</div>
 			<div className="container mx-auto py-5 px-5">
 				<TournamentHistory tournaments={TournamentHistories} />

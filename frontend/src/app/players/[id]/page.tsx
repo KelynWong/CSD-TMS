@@ -89,6 +89,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 			datetime: formatDate(new Date("2024-01-01 13:00:00")),
 		},
 	];
+  
 	type Tournament = {
 		id: number;
 		name: string;

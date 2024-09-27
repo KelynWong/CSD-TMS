@@ -14,12 +14,44 @@ type PlayerResponse = {
 	role: string;
 };
 
-export const fetchPlayers = async (): Promise<PlayerResponse[]> => {
+type AdminResponse = {
+	id: string;
+	username: string;
+	fullname: string;
+	profilePicture: string;
+	email: string;
+	role: string;
+};
+
+type UserResponse = {
+	id: string;
+	username: string;
+	fullname: string;
+	email: string;
+	role: string;
+	gender: string;
+	rating: number;
+	country: string;
+	profilePicture: string;
+};
+
+export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
 		console.log(`${URL}/api/users`);
 
 		const response = await axios.get(`${URL}/api/users`);
-		return response.data;
+		const formattedData: UserResponse[] = response.data.map((user: any) => ({
+			id: user.id,
+			username: user.username,
+			fullname: user.fullname,
+			email: user.email,
+			role: user.role,
+			gender: user.gender,
+			rating: user.rank ? user.rank : 0,
+			country: user.country,
+			profilePicture: user.profilePicture,
+		}));
+		return formattedData;
 	} catch (error) {
 		console.error("Error fetching players", error);
 		throw error;
@@ -44,6 +76,39 @@ export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 		return formattedData;
 	} catch (error) {
 		console.error("Error fetching player", error);
+		throw error;
+	}
+};
+
+export const fetchUserByRoles = async (
+	role: string
+): Promise<PlayerResponse[] | AdminResponse[]> => {
+	try {
+		const response = await axios.get(`${URL}/api/users/role/${role}`);
+		if (role === "player") {
+			return response.data.map((player: any) => ({
+				id: player.id,
+				username: player.username,
+				fullname: player.fullname,
+				gender: player.gender,
+				rating: player.rank,
+				country: player.country,
+				profilePicture: player.profilePicture,
+				email: player.email,
+				role: player.role,
+			}));
+		} else {
+			return response.data.map((admin: any) => ({
+				id: admin.id,
+				username: admin.username,
+				fullname: admin.fullname,
+				profilePicture: admin.profilePicture,
+				email: admin.email,
+				role: admin.role,
+			}));
+		}
+	} catch (error) {
+		console.error("Error fetching players by role", error);
 		throw error;
 	}
 };
