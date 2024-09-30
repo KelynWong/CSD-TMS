@@ -40,39 +40,19 @@ public class RestExceptionHandler{
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(TournamentNotFoundException.class)
-    public ResponseEntity<Object> handleTournamentNotFound(TournamentNotFoundException ex) {
+    @ExceptionHandler(MatchNotFoundException.class)
+    public ResponseEntity<Object> handleMatchNotFound(MatchNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(TournamentExistsException.class)
-    public ResponseEntity<Object> handleTournamentExists(TournamentExistsException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(PlayerNotFoundException.class)
-    public ResponseEntity<Object> handlePlayerNotFound(PlayerNotFoundException ex) {
+    @ExceptionHandler(GameNotFoundException.class)
+    public ResponseEntity<Object> handleGameNotFound(GameNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(MatchCreationException.class)
-    public ResponseEntity<Object> handleMatchCreation(MatchCreationException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(NoPlayersRegisteredException.class)
-    public ResponseEntity<Object> handleNoPlayersRegistered(NoPlayersRegisteredException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
 }
