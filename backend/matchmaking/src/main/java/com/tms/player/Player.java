@@ -1,7 +1,5 @@
 package com.tms.player;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -7,7 +7,7 @@ public interface MatchService {
     List<Match> listMatches();
     Match getMatch(Long id);
 
-    List<Match> getMatchesByTournament(Long id);
+    List<MatchJson> getMatchesByTournament(Long id);
 
     List<Match> getMatchWinsByUser(String id);
     List<Match> getMatchLossByUser(String id);

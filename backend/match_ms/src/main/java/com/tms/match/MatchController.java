@@ -47,7 +47,7 @@ public class MatchController {
      * @return list of all matches in a tournament
      */
     @GetMapping("/matches/tournament/{tournamentId}")
-    public List<Match> getMatchesByTournament(@PathVariable Long tournamentId){
+    public List<MatchJson> getMatchesByTournament(@PathVariable Long tournamentId){
         return matchService.getMatchesByTournament(tournamentId);
     }
 
