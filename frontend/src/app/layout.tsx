@@ -1,6 +1,6 @@
-"use client";
-
-import { ClerkProvider } from "@clerk/nextjs";
+import {
+  ClerkProvider,
+} from "@clerk/nextjs";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/NavBar";

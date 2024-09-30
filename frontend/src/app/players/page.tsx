@@ -1,7 +1,7 @@
 "use client";
 
 import { PlayerCard } from "./_components/PlayerCard";
-import { Player, PlayerCardProps, PlayerResponse } from "@/types/player";
+import { Player, PlayerCardProps,  } from "@/types/player";
 import { fetchUserByRoles } from "@/api/users/api";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
