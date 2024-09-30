@@ -12,7 +12,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            className={`text-base ${currentPage === 1 ? "text-gray-400 pointer-events-none" : ""}`}
+            className={`text-base ${currentPage === 1 ? "text-gray-200 pointer-events-none" : ""}`}
             href="#"
             onClick={currentPage > 1 ? () => onPageChange(currentPage - 1) : undefined}
           >
@@ -22,7 +22,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         {Array.from({ length: totalPages }, (_, index) => (
           <PaginationItem key={index}>
             <PaginationLink
-              className={`text-base ${currentPage === index + 1 ? "font-bold text-black" : "text-slate-300"}`}
+              className={`text-base ${currentPage === index + 1 ? "font-bold text-black" : "text-zinc-400"}`}
               href="#"
               onClick={() => onPageChange(index + 1)}
             >
@@ -32,7 +32,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
         ))}
         <PaginationItem>
           <PaginationNext
-            className={`text-base ${currentPage === totalPages ? "text-gray-400 pointer-events-none" : ""}`}
+            className={`text-base ${currentPage === totalPages ? "text-gray-200 pointer-events-none" : ""}`}
             href="#"
             onClick={currentPage < totalPages ? () => onPageChange(currentPage + 1) : undefined}
           >
