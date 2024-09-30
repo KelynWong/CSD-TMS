@@ -16,8 +16,7 @@ public interface MatchService {
 
     Match addMatch(MatchJson match);
 
-    Match updateMatch(Long id, Match match);
-    Match setChildren(Long id, Long leftId, Long rightId);
+    Match updateMatchAndParent(Long id, MatchPlayers matchPlayers);
 
     /**
      * Change method's signature: do not return a value for delete operation

@@ -87,31 +87,41 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Match updateMatch(Long id, Match newMatchInfo) {
-        return this.matches.findById(id).map(match -> {
-            match.setTournamentId(newMatchInfo.getTournamentId());
-            match.setPlayer1Id(newMatchInfo.getPlayer1Id());
-            match.setPlayer2Id(newMatchInfo.getPlayer2Id());
-            return this.matches.save(match);
-        }).orElse(null);
-    }
-
-    @Override
-    public Match setChildren(Long id, Long leftId, Long rightId) {
-        Optional<Match> existingMatch = this.matches.findById(id);
-        Optional<Match> leftMatch = this.matches.findById(leftId);
-        Optional<Match> rightMatch = this.matches.findById(rightId);
-        if (existingMatch.isPresent() && leftMatch.isPresent() && rightMatch.isPresent()) {
-            Match currMatch = existingMatch.get();
-            Match left = leftMatch.get();
-            Match right = rightMatch.get();
-           
-            currMatch.setLeft(left);
-            currMatch.setRight(right);
-            return this.matches.save(currMatch);
-        } else {
+    public Match updateMatchAndParent(Long id, MatchPlayers newMatchPlayers) {
+        Optional<Match> optionalMatch = this.matches.findById(id);
+        if (!optionalMatch.isPresent()) {
             return null;
         }
+
+        Match match = optionalMatch.get();
+        if (newMatchPlayers.getPlayer1Id() != null) {
+            match.setPlayer1Id(newMatchPlayers.getPlayer1Id());
+        }
+
+        if (newMatchPlayers.getPlayer2Id() != null) {
+            match.setPlayer2Id(newMatchPlayers.getPlayer2Id());
+        }
+
+        if (newMatchPlayers.getWinnerId() != null) {
+            match.setWinnerId((newMatchPlayers.getWinnerId()));
+        }
+        this.matches.save(match);
+
+        List<Match> tournamentMatches = this.matches.findByTournamentId(match.getTournamentId());
+        Match parentMatch = findParentMatch(tournamentMatches, id);
+        
+        if (parentMatch != null) {
+            String player1Id = parentMatch.getPlayer1Id();
+            String player2Id = parentMatch.getPlayer2Id();
+            if (player1Id == null) {
+                parentMatch.setPlayer1Id(newMatchPlayers.getWinnerId());
+            } else if (!player1Id.equals(newMatchPlayers.getWinnerId()) && player2Id == null) {
+                parentMatch.setPlayer2Id(newMatchPlayers.getWinnerId());
+            }
+            this.matches.save(parentMatch);
+        }
+
+        return match;
     }
 
     /**
@@ -122,5 +132,15 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public void deleteMatch(Long id) {
         this.matches.deleteById(id);
+    }
+
+    private Match findParentMatch(List<Match> matches, Long matchId) {
+        for (Match match : matches) {
+            if ((match.getLeft() != null && match.getLeft().getId().equals(matchId)) ||
+                (match.getRight() != null && match.getRight().getId().equals(matchId))) {
+                return match;
+            }
+        }
+        return null;
     }
 }
