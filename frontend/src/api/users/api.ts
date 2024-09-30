@@ -112,3 +112,16 @@ export const fetchUserByRoles = async (
 		throw error;
 	}
 };
+
+
+// update this
+const updateUser = async (id: string, formData: FormData) => {
+  try {
+    const response = await axios.put(`${URL}/api/users/${id}`, formData);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user", error);
+    throw error;
+  }
+}

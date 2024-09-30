@@ -1,8 +1,8 @@
 "use client";
 
 import { PlayerCard } from "./_components/PlayerCard";
-import { Player, PlayerCardProps } from "@/types/player";
-import { fetchPlayers } from "@/api/users/api";
+import { Player, PlayerCardProps, PlayerResponse } from "@/types/player";
+import { fetchUserByRoles } from "@/api/users/api";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
@@ -10,7 +10,7 @@ export default function Players() {
 	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]);
 	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		fetchPlayers().then((data) => {
+		fetchUserByRoles("Player").then((data: PlayerResponse[]) => {
 			setLoading(false);
 			const mappedData: PlayerCardProps[] = data.map((player: Player) => {
 				return {

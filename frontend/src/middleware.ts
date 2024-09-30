@@ -18,7 +18,7 @@ export default clerkMiddleware((auth, req) => {
 		const onboardingUrl = new URL("/onboarding", req.url);
 		return NextResponse.redirect(onboardingUrl);
 	}
-
+  
 	const userRole = sessionClaims?.metadata?.role;
 	if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "Admin") {
 		// Redirect to a forbidden page or return an error response

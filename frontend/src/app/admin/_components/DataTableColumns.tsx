@@ -16,9 +16,7 @@ export const columns: ColumnDef<User>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-          <Link href={`#`}>
-					{row.getValue("username")}
-          </Link>
+					<Link href={`#`}>{row.getValue("username")}</Link>
 				</Button>
 			);
 		},
@@ -107,9 +105,9 @@ export const columns: ColumnDef<User>[] = [
 	},
 	{
 		id: "actions",
-		cell: () => (
+		cell: ({ row }) => (
 			<div className="w-full flex justify-end">
-				<DataTableRowActions />
+				<DataTableRowActions row={row.original} />
 			</div>
 		),
 	},
