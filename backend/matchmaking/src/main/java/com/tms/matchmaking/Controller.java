@@ -25,12 +25,18 @@ public class Controller {
         return ResponseEntity.ok("Matches created successfully");
     }
 
-    // Returns 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/matchmaking/{tournamentId}")
     public ResponseEntity<Tournament> getTournament(@PathVariable Long tournamentId){
         Tournament tournament = matchmakeService.getTournament(tournamentId);
         return ResponseEntity.ok(tournament);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/matchmaking/generateWinners/{tournamentId}")
+    public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
+        matchmakeService.generateWinners(tournamentId);
+        return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
     }
 
 }

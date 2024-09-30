@@ -27,8 +27,9 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public List<Match> getMatchesByTournament(Long tournamentId) {
-        return this.matches.findByTournamentId(tournamentId);
+    public List<MatchJson> getMatchesByTournament(Long tournamentId) {
+        List<Match> matches = this.matches.findByTournamentId(tournamentId);
+        return MatchJson.fromMatches(matches);
     }
 
     @Override
