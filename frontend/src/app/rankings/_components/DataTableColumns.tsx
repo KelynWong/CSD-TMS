@@ -5,18 +5,9 @@ import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowOptions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Player } from "@/types/player";
 
-export type Player = {
-	id: number;
-	username: string;
-	fullname: string;
-	gender: string;
-	ranking: number;
-	rating: number;
-	wins: number;
-	losses: number;
-	win_rate: number;
-};
+
 export const columns: ColumnDef<Player>[] = [
 	{
 		accessorKey: "ranking",
@@ -47,7 +38,7 @@ export const columns: ColumnDef<Player>[] = [
 	{
 		accessorKey: "fullname",
 		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Name" />
+			<DataTableColumnHeader column={column} title="Full Name" />
 		),
 		cell: ({ row }) => {
 			return (
@@ -79,45 +70,6 @@ export const columns: ColumnDef<Player>[] = [
 			return (
 				<Button variant="link" asChild>
 					<Link href={`#`} className="text-secondary">{row.getValue("rating")}</Link>
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: "wins",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Wins" />
-		),
-		cell: ({ row }) => {
-			return (
-				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("wins")}</Link>
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: "losses",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Losses" />
-		),
-		cell: ({ row }) => {
-			return (
-				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("losses")}</Link>
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: "win_rate",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Win Rate" />
-		),
-		cell: ({ row }) => {
-			return (
-				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("win_rate")}</Link>
 				</Button>
 			);
 		},

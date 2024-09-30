@@ -27,7 +27,6 @@ import {
 
 import { DataTablePagination } from "./DataTablePagination";
 import { DataTableToolbar } from "./DataTableToolbar";
-import Link from "next/link";
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
@@ -99,10 +98,6 @@ export function DataTable<TData, TValue>({
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									onClick={() => {
-										console.log(row);
-										router.push(`/players/${row.original.id}`);
-									}}
 									data-state={row.getIsSelected() && "selected"}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id} className="text-white">

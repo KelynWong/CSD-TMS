@@ -1,7 +1,6 @@
-import Link from "next/link";
-import PlayersCarousel from "@/components/PlayersCarousel";
-import { DataTable } from "./_components/DataTable";
-import { Player, columns } from "./_components/DataTableColumns";
+import { PlayerCard } from "./_components/PlayerCard";
+import { Player } from "@/types/player";
+
 export default function Players() {
 	const data: Player[] = [
 		{
@@ -127,12 +126,12 @@ export default function Players() {
 		},
 	];
 	return (
-		<div className="w-full max-w-full overflow-hidden px-4 sm:px-6 lg:px-8">
-			<div className="mx-auto max-w-7xl relative py-12 px-8 sm:px-12">
-				<PlayersCarousel />
-			</div>
-			<div className="container mx-auto py-10">
-				<DataTable columns={columns} data={data} />
+		<div className="container mx-auto px-4 py-8">
+			<h1 className="text-3xl font-bold mb-6">Players</h1>
+			<div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+				{data.map((player) => (
+					<PlayerCard key={player.id} player={player} />
+				))}
 			</div>
 		</div>
 	);

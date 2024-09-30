@@ -40,6 +40,16 @@ export function DataTableToolbar<TData>({
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
+				<Input
+					placeholder="Filter full name..."
+					value={
+						(table.getColumn("fullname")?.getFilterValue() as string) ?? ""
+					}
+					onChange={(event) =>
+						table.getColumn("fullname")?.setFilterValue(event.target.value)
+					}
+					className="h-8 w-[150px] lg:w-[250px]"
+				/>
 				{table.getColumn("gender") && (
 					<DataTableFacetedFilter
 						column={table.getColumn("gender")}
