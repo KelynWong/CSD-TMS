@@ -47,7 +47,7 @@ export function UpdateUserModal({
 		formData.append("role", role);
 		formData.append("rating", rating);
 		try {
-			const response = await updateUser(userData.id, formData);
+			// const response = await updateUser(userData.id, formData);
 			onSave({
 				...userData,
 				role,
