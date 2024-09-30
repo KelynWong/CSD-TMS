@@ -33,7 +33,7 @@ public class Controller {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/matchmaking/generateWinners/{tournamentId}")
+    @PutMapping("/matchmaking/generateWinners/{tournamentId}")
     public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
         matchmakeService.generateWinners(tournamentId);
         return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
