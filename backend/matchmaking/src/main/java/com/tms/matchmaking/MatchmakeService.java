@@ -40,9 +40,8 @@ public class MatchmakeService {
             List<MatchJson> tournaments = null;
             tournaments = getTournamentMatches(tournamentId);
             if (tournaments != null && !tournaments.isEmpty()) {
-                throw new TournamentExistsException("Matches already created for tournament ID: " + tournamentId);
+                throw new TournamentExistsException(tournamentId);
             }
-            
         } catch (TournamentNotFoundException e) {
             System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
             int n = players.size();
@@ -206,7 +205,7 @@ public class MatchmakeService {
                 .toEntity(Tournament.class);
 
         if (tournamentRes.getStatusCode() != HttpStatus.OK) {
-            throw new TournamentNotFoundException("Tournament not found");
+            throw new TournamentNotFoundException(tournamentId);
         }
 
         return tournamentRes.getBody();
@@ -232,7 +231,7 @@ public class MatchmakeService {
         .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {});
 
         if (matchRes.getStatusCode() != HttpStatus.OK || matchRes.getBody().isEmpty()) {
-            throw new TournamentNotFoundException("Tournament not found");
+            throw new TournamentNotFoundException(tournamentId, true);
         }
 
         return matchRes.getBody();
