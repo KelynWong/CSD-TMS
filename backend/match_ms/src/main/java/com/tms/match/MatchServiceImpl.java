@@ -59,14 +59,16 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public Match addMatch(Match match) {
-        Long leftId = (match.getLeft() != null) ? match.getLeft().getId() : null;
-        Long rightId = (match.getRight() != null) ? match.getRight().getId() : null;
+    public Match addMatch(MatchJson match) {
+        Match newMatch = new Match(match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id());
+        
+        Long leftId = match.getLeft();
+        Long rightId = match.getRight();
 
         if (leftId != null) {
             Optional<Match> leftMatch = this.matches.findById(leftId);
             if (leftMatch.isPresent()) {
-                match.setLeft(leftMatch.get());
+                newMatch.setLeft(leftMatch.get());
             }
         } else {
             match.setLeft(null);
@@ -75,13 +77,13 @@ public class MatchServiceImpl implements MatchService {
         if (rightId != null) {
             Optional<Match> rightMatch = this.matches.findById(rightId);
             if (rightMatch.isPresent()) {
-                match.setRight(rightMatch.get());
+                newMatch.setRight(rightMatch.get());
             }
         } else {
             match.setRight(null);
         }
 
-        return this.matches.save(match);
+        return this.matches.save(newMatch);
     }
 
     @Override

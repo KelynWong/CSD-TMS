@@ -21,7 +21,7 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private long tournamentId;
+    private Long tournamentId;
 
     private String player1Id;
 
@@ -39,4 +39,17 @@ public class Match {
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games;
+
+    public Match(Long tournamentId, String player1Id, String player2Id) {
+        this.tournamentId = tournamentId;
+        this.player1Id = player1Id;
+        this.player2Id = player2Id;
+
+        this.id = null;
+        this.winnerId = null;
+        this.left = null;
+        this.right = null;
+        this.games = null;
+
+    }
 }

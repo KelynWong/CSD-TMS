@@ -14,9 +14,9 @@ public interface MatchService {
     List<Match> getMatchesPlayedByUser(String id);
     Double getPlayerWinRate(String id);
 
-    Match addMatch(Match Match);
+    Match addMatch(MatchJson match);
 
-    Match updateMatch(Long id, Match Match);
+    Match updateMatch(Long id, Match match);
     Match setChildren(Long id, Long leftId, Long rightId);
 
     /**

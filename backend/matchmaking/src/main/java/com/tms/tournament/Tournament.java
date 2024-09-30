@@ -3,6 +3,7 @@ package com.tms.tournament;
 import java.time.*;
 import java.util.*;
 
+import com.tms.match.Match;
 import com.tms.player.Player;
 
 import lombok.*;
@@ -19,7 +20,6 @@ public class Tournament {
     private LocalDateTime regStartDT;
     private LocalDateTime regEndDT;
     private List<Player> players;
-
-    // private String[] statusArr = new String[] {"Scheduled", "Registration Start", "Registration Close", "In Progress", "Completed"};
+    private Match rootMatch;
 
 }
