@@ -91,8 +91,8 @@ public class MatchController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matches")
-    public Match addMatch(@RequestBody Match Match){
-        return matchService.addMatch(Match);
+    public Match addMatch(@RequestBody MatchJson match){
+        return matchService.addMatch(match);
     }
 
     /**

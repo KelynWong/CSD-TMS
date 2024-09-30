@@ -18,4 +18,16 @@ public class MatchJson {
     private Long left;
     private Long right;
     private List<Game> games;
+
+    public MatchJson(Long tournamentId, String player1Id, String player2Id, Long left, Long right) {
+        this.tournamentId = tournamentId;
+        this.player1Id = player1Id;
+        this.player2Id = player2Id;
+        this.left = left;
+        this.right = right;
+
+        this.id = null;
+        this.winnerId = null;
+        this.games = null;
+    }
 }
