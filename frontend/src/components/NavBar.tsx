@@ -17,7 +17,7 @@ export default function Navbar() {
     <nav className="bg-black text-white py-2 px-6">
       <div className="lg:container lg:mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="-mb-11">
+          <div className="-mb-11 z-50">
             <Image src="/images/logo.png" alt="RacketRush Logo" width={120} height={100} />
           </div>
         </Link>
