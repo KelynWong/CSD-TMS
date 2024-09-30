@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.exception.SupabaseClientException;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,10 +19,16 @@ import java.net.http.HttpRequest.BodyPublishers;
 
 @Component
 public class SupabaseClient {
-    private final Dotenv dotenv = Dotenv.load();
-    private final String SUPABASE_URL = dotenv.get("SUPABASE_URL");
-    private final String SUPABASE_KEY = dotenv.get("SUPABASE_API_KEY");
-    private final String STORAGE_BUCKET = dotenv.get("SUPABASE_BUCKET");
+
+    @Value("${SUPABASE_URL}")
+    private String SUPABASE_URL;
+
+    @Value("${SUPABASE_API_KEY}")
+    private String SUPABASE_KEY;
+
+    @Value("${SUPABASE_BUCKET}")
+    private String STORAGE_BUCKET;
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final String SCHEMA = "user";
     private final String STORAGE_BUCKET_URL = SUPABASE_URL + "/storage/v1/object/" + STORAGE_BUCKET + "/";

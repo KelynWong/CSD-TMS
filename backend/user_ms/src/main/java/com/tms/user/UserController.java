@@ -14,8 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.user.User;
 import com.tms.user.UserService;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -31,8 +30,9 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final Dotenv dotenv = Dotenv.load(); // Loads variables from .env file
-    private final String signingSecret = dotenv.get("CLERK_SIGNING_SECRET");
+
+    @Value("${CLERK_SIGNING_SECRET}")
+    private String signingSecret;
 
     @Autowired
     public UserController(UserService userService) {
