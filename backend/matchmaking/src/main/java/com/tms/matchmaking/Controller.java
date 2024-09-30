@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
 import com.tms.player.Player;
+import com.tms.tournament.Tournament;
 
 @RestController
 public class Controller {
@@ -19,19 +20,23 @@ public class Controller {
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matchmaking/{tournamentId}")
-    public ResponseEntity<Match> matchMake(@PathVariable Long tournamentId, @RequestBody List<Player> players){
-        Match root = matchmakeService.matchmake(tournamentId, players);
-        return ResponseEntity.ok(root);
+    public ResponseEntity<String> matchMake(@PathVariable Long tournamentId){
+        matchmakeService.matchmake(tournamentId);
+        return ResponseEntity.ok("Matches created successfully");
     }
 
-    // Returns 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/matchmaking/{tournamentId}")
-    public ResponseEntity<Match> getTournament(@PathVariable Long tournamentId){
-        Match root = matchmakeService.getTournament(tournamentId);
-        if (root == null) {
-            return ResponseEntity.internalServerError().build();
-        }
-        return ResponseEntity.ok(root);
+    public ResponseEntity<Tournament> getTournament(@PathVariable Long tournamentId){
+        Tournament tournament = matchmakeService.getTournament(tournamentId);
+        return ResponseEntity.ok(tournament);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/matchmaking/generateWinners/{tournamentId}")
+    public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
+        matchmakeService.generateWinners(tournamentId);
+        return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
     }
 
 }

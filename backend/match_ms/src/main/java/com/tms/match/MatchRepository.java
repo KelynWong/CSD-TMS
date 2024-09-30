@@ -22,12 +22,12 @@ public interface MatchRepository extends JpaRepository <Match, Long> {
 
     List<Match> findByTournamentId(long tournamentId);
     
-    List<Match> findByWinnerId(long winnerId);
+    List<Match> findByWinnerId(String winnerId);
 
     @Query("SELECT m FROM Match m WHERE (:playerId = m.player1Id OR :playerId = m.player2Id) AND :playerId <> m.winnerId")
-    List<Match> findByLoserId(@Param("playerId") long playerId);
+    List<Match> findByLoserId(@Param("playerId") String playerId);
 
     @Query("SELECT m FROM Match m WHERE (m.player1Id = :playerId OR m.player2Id = :playerId) AND m.winnerId <> :playerId")
-    List<Match> findMatchesPlayedByPlayer(@Param("playerId") long playerId);
+    List<Match> findMatchesPlayedByPlayer(@Param("playerId") String playerId);
 
 }

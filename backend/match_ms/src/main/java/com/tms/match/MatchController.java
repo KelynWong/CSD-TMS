@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import com.tms.exceptions.MatchNotFoundException;
 
 @RestController
 public class MatchController {
@@ -32,7 +32,6 @@ public class MatchController {
      * @return Match with the given id
      */
     @GetMapping("/matches/{id}")
-    @JsonView(Views.Internal.class)
     public Match getMatch(@PathVariable Long id){
         Match match = matchService.getMatch(id);
 
@@ -48,7 +47,7 @@ public class MatchController {
      * @return list of all matches in a tournament
      */
     @GetMapping("/matches/tournament/{tournamentId}")
-    public List<Match> getMatchesByTournament(@PathVariable Long tournamentId){
+    public List<MatchJson> getMatchesByTournament(@PathVariable Long tournamentId){
         return matchService.getMatchesByTournament(tournamentId);
     }
 
@@ -59,7 +58,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/win/{playerId}")
-    public List<Match> getMatchWinsByUser(@PathVariable Long playerId){
+    public List<Match> getMatchWinsByUser(@PathVariable String playerId){
         return matchService.getMatchWinsByUser(playerId);
     }
 
@@ -70,7 +69,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/loss/{playerId}")
-    public List<Match> getMatchLossByUser(@PathVariable Long playerId){
+    public List<Match> getMatchLossByUser(@PathVariable String playerId){
         return matchService.getMatchLossByUser(playerId);
     }
 
@@ -81,7 +80,7 @@ public class MatchController {
      * @return list of matches with given userId
      */
     @GetMapping("/matches/user/played/{playerId}")
-    public List<Match> getMatchesPlayedByUser(@PathVariable Long playerId){
+    public List<Match> getMatchesPlayedByUser(@PathVariable String playerId){
         return matchService.getMatchesPlayedByUser(playerId);
     }
 
@@ -94,24 +93,8 @@ public class MatchController {
      */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matches")
-    @JsonView(Views.Public.class)
-    public Match addMatch(@RequestBody Match Match){
-        return matchService.addMatch(Match);
-    }
-
-    /**
-     * If there is no Match with the given "id", throw a MatchNotFoundException
-     * @param id
-     * @param newMatchInfo
-     * @return the updated, or newly added Match
-     */
-    @PutMapping("/matches/{id}")
-    @JsonView(Views.Public.class)
-    public Match updateMatch(@PathVariable Long id, @RequestBody Match newMatchInfo){
-        Match Match = matchService.updateMatch(id, newMatchInfo);
-        if(Match == null) throw new MatchNotFoundException(id);
-        
-        return Match;
+    public Match addMatch(@RequestBody MatchJson match){
+        return matchService.addMatch(match);
     }
 
     /**
@@ -121,8 +104,8 @@ public class MatchController {
      * @return the updated, or newly added Match
      */
     @PatchMapping("/matches/{id}")
-    public Match updateMatchChildren(@PathVariable Long id, @RequestBody MatchChildren childrenInfo){
-        Match Match = matchService.setChildren(id, childrenInfo.getLeft(), childrenInfo.getRight());
+    public Match updateMatchAndParent(@PathVariable Long id, @RequestBody MatchPlayers matchPlayers){
+        Match Match = matchService.updateMatchAndParent(id, matchPlayers);
         if(Match == null) throw new MatchNotFoundException(id);
         
         return Match;
