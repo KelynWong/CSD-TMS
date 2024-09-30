@@ -29,9 +29,10 @@ import com.tms.tournament.Tournament;
 public class MatchmakeService {
 
     private RestClient restClient;
-    private final String MATCH_URL = "http://localhost:8080/matches";
-    private final String TOURNAMENT_URL = "http://localhost:8082/tournaments";
-    private final String PLAYER_URL = "http://localhost:8083/api/users";
+    
+    private final String MATCH_URL = "http://match-ms:8080/matches";
+    private final String TOURNAMENT_URL = "http://tournament-ms:8082/tournaments";
+    private final String PLAYER_URL = "http://user-ms:8083/api/users";
 
     public MatchmakeService() {
         this.restClient = RestClient.create();
@@ -294,13 +295,20 @@ public class MatchmakeService {
                 Long leftId = matchJson.getLeft();
                 Match left = idToMatch.get(leftId);
                 match.setLeft(left);
-                idToMatch.remove(leftId);
             }
             if (matchJson.getRight() != null) {
                 Long rightId = matchJson.getRight();
                 Match right = idToMatch.get(rightId);
                 match.setRight(right);
-                idToMatch.remove(rightId);
+            }
+        }
+
+        for (MatchJson matchJson : matches) {
+            if (matchJson.getLeft() != null) {
+                idToMatch.remove(matchJson.getLeft());
+            }
+            if (matchJson.getRight() != null) {
+                idToMatch.remove(matchJson.getRight());
             }
         }
 

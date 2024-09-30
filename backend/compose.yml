@@ -1,24 +1,24 @@
 services:
-  match-service:
+  match-ms:
     build: ./match_ms
     ports:
       - "8080:8080"
     env_file:
     - ./match_ms/.env
 
-  matchmaking-service:
+  matchmaking-ms:
     build: ./matchmaking
     ports:
       - "8081:8081"
 
-  tournament-service:
+  tournament-ms:
     build: ./tournament_ms
     ports:
       - "8082:8082"
     env_file:
       - ./tournament_ms/.env
 
-  user-service:
+  user-ms:
     build: ./user_ms
     ports:
       - "8083:8083"
