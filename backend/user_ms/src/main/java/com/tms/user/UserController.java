@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final Dotenv dotenv = Dotenv.load(); // Loads variables from .env file
-    private final String signingSecret = dotenv.get("CLERK_SIGNING_SECRET");
 
     @Value("${CLERK_SIGNING_SECRET}")
     private String signingSecret;

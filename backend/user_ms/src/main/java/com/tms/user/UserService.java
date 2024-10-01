@@ -167,7 +167,6 @@ public class UserService {
             throw new SupabaseClientException("Error updating user", e);
         }
     }
-    
 
     // Delete user by ID
     public void deleteUser(String id) {
