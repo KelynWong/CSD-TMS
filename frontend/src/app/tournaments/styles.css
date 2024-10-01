@@ -1,0 +1,31 @@
+.TabsList {
+    background-color: transparent;
+    border: 1px solid #CBD5E1;
+    font-family: 'Kollektif', sans-serif;
+    color: #000000;
+}
+
+.TabsTrigger[data-state='active'], .TabsTrigger[data-state='active']:hover {
+    font-weight: bold;
+    background-color: #FFC107;
+}
+
+.TabsTrigger:hover {
+    font-weight: bold;
+    background-color: rgb(254 243 199);
+}
+
+.cardImg {
+    width: 100%;
+    background-image: url('/images/badminton_court.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.overlay {
+    background-color: rgba(7, 31, 65, .65);
+}
+
+.results table, .results th, .results td {
+    border: 1px solid rgb(226 232 240);
+}

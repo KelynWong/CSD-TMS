@@ -17,7 +17,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("ranking")}</Link>
+					<Link href={`#`}>{row.getValue("ranking")}</Link>
 				</Button>
 			);
 		},
@@ -30,7 +30,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("username")}</Link>
+					<Link href={`#`}>{row.getValue("username")}</Link>
 				</Button>
 			);
 		},
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("fullname")}</Link>
+					<Link href={`#`} >{row.getValue("fullname")}</Link>
 				</Button>
 			);
 		},
@@ -56,7 +56,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("gender")}</Link>
+					<Link href={`#`}>{row.getValue("gender")}</Link>
 				</Button>
 			);
 		},
@@ -69,7 +69,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} className="text-secondary">{row.getValue("rating")}</Link>
+					<Link href={`#`} >{row.getValue("rating")}</Link>
 				</Button>
 			);
 		},

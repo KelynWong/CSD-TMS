@@ -1,4 +1,4 @@
-package com.tms.game;
+package com.tms.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -8,7 +8,7 @@ public class GameNotFoundException extends RuntimeException{
     private static final long serialVersionUID = 1L;
 
     public GameNotFoundException(Long id) {
-        super("Could not find game " + id);
+        super("Game " + id + " does not exist.");
     }
     
 }

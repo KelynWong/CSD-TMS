@@ -7,17 +7,16 @@ public interface MatchService {
     List<Match> listMatches();
     Match getMatch(Long id);
 
-    List<Match> getMatchesByTournament(Long id);
+    List<MatchJson> getMatchesByTournament(Long id);
 
-    List<Match> getMatchWinsByUser(Long id);
-    List<Match> getMatchLossByUser(Long id);
-    List<Match> getMatchesPlayedByUser(Long id);
-    Double getPlayerWinRate(Long id);
+    List<Match> getMatchWinsByUser(String id);
+    List<Match> getMatchLossByUser(String id);
+    List<Match> getMatchesPlayedByUser(String id);
+    Double getPlayerWinRate(String id);
 
-    Match addMatch(Match Match);
+    Match addMatch(MatchJson match);
 
-    Match updateMatch(Long id, Match Match);
-    Match setChildren(Long id, Long leftId, Long rightId);
+    Match updateMatchAndParent(Long id, MatchPlayers matchPlayers);
 
     /**
      * Change method's signature: do not return a value for delete operation

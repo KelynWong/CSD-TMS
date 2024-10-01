@@ -1,21 +1,25 @@
-package com.tms.matchmaking;
+package com.tms.match;
 
 import java.util.List;
+
+import com.tms.player.Player;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchJson {
+public class Match {
     private Long id;
     private Long tournamentId;
-    private Long player1Id;
-    private Long player2Id;
-    private Long winnerId;
-    private Long left;
-    private Long right;
+    private Player player1;
+    private Player player2;
+    private Player winner;
+    private Match left;
+    private Match right;
     private List<Game> games;
+
 }

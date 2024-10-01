@@ -14,8 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.user.User;
 import com.tms.user.UserService;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,6 +32,9 @@ public class UserController {
     private final UserService userService;
     private final Dotenv dotenv = Dotenv.load(); // Loads variables from .env file
     private final String signingSecret = dotenv.get("CLERK_SIGNING_SECRET");
+
+    @Value("${CLERK_SIGNING_SECRET}")
+    private String signingSecret;
 
     @Autowired
     public UserController(UserService userService) {
@@ -56,6 +59,26 @@ public class UserController {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Get user by list of ids
+    @PostMapping("/ids")
+    public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<Map<String, String>> ids) {
+        List<User> users = userService.getUsersByIds(ids.stream()
+                .map(idMap -> idMap.get("id"))
+                .collect(Collectors.toList()));
+        return ResponseEntity.ok(users);
+    }
+
+    // Get users by role
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
+        List<User> users = userService.getUsersByRole(role);
+        if (!users.isEmpty()) {
+            return ResponseEntity.ok(users);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Create a new user
@@ -202,7 +225,7 @@ public class UserController {
             user.setRole("Player");
     
             // Rank 
-            user.setRank(null);
+            user.setRank(1500);
     
             // Country - Since Clerk data doesn't include country, use a default
             user.setCountry(null);
@@ -264,7 +287,11 @@ public class UserController {
             }
     
             // Role
-            user.setRole("Player");
+            if (userData.has("public_metadata") && userData.get("public_metadata").has("role")) {
+                user.setRole(userData.get("public_metadata").get("role").asText());
+            } else {
+                user.setRole("Player");
+            }
 
             // Rank
             if (userData.has("public_metadata") && userData.get("public_metadata").has("rank")) {
