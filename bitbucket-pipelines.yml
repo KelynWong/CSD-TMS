@@ -1,4 +1,4 @@
-image: atlassian/default-image:latest
+image: mcr.microsoft.com/azure-cli
 
 pipelines:
   default:
@@ -8,7 +8,7 @@ pipelines:
           - docker
         script:
           # Login to Azure Container Registry
-          - echo $AZURE_PASSWORD | docker login csdtms.azurecr.io --username csdtms --password-stdin
+          - echo $AZURE_ACR_PASSWORD | docker login csdtms.azurecr.io --username csdtms --password-stdin
           
           # Build and push user_ms
           - docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms
@@ -33,13 +33,13 @@ pipelines:
           - az login --username kelyn.wong.2022@scis.smu.edu.sg --password $AZURE_PASSWORD
           
           # Deploy user_ms
-          - az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
+          - az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password $AZURE_ACR_PASSWORD --ip-address public
 
           # Deploy tournament_ms
-          - az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
+          - az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password $AZURE_ACR_PASSWORD --ip-address public
 
           # Deploy matchmaking
-          - az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
+          - az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password $AZURE_ACR_PASSWORD --ip-address public
 
           # Deploy match_ms
-          - az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
+          - az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password $AZURE_ACR_PASSWORD --ip-address public

@@ -39,17 +39,12 @@
 
 @font-face {
 	font-family: "Kollektif";
-	src: url("./fonts/Kollektif-BoldItalic.ttf") format("truetype");
+	src: url("/fonts/Kollektif-BoldItalic.ttf") format("truetype");
 	font-weight: bold;
 	font-style: italic;
 	font-display: swap;
 }
 
-:root {
-	--background: #ffffff;
-	--foreground: #171717;
-	--font-family: "Norwester", sans-serif;
-}
 
 @media (prefers-color-scheme: dark) {
 }
