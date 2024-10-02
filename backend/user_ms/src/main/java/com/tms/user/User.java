@@ -11,7 +11,6 @@ public class User {
     private String username;
 
     private String fullname;
-    private String password;
     private String gender;
 
     @Column(unique = true)
@@ -27,11 +26,10 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String id, String username, String fullname, String password, String gender, String email, String role, Integer rank, String country) {
+    public User(String id, String username, String fullname, String gender, String email, String role, Integer rank, String country) {
         this.id = id;
         this.username = username;
         this.fullname = fullname;
-        this.password = password;
         this.gender = gender;
         this.email = email;
         this.role = role;
@@ -62,14 +60,6 @@ public class User {
 
     public void setFullname(String fullname) {
         this.fullname = fullname;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getGender() {

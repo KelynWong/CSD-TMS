@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserControllerTest {
+class UserControllerUnitTest {
 
     @Mock
     private UserService userService;
@@ -27,13 +27,13 @@ class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
-    public UserControllerTest() {
+    public UserControllerUnitTest() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void testGetAllUsers() {
-        List<User> mockUsers = List.of(new User("id123","john_doe", "John Doe", "password123", "Male", "john@example.com", "USER", 1, "USA"));
+        List<User> mockUsers = List.of(new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA"));
         when(userService.getAllUsers()).thenReturn(mockUsers);
 
         List<User> users = userController.getAllUsers();
@@ -45,7 +45,7 @@ class UserControllerTest {
 
 	@Test
 	void testGetUserById() {
-		User mockUser = new User("id123","john_doe", "John Doe", "password123", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
 		when(userService.getUserById("1")).thenReturn(Optional.of(mockUser));
 
 		ResponseEntity<User> response = userController.getUserById("1");
@@ -59,7 +59,7 @@ class UserControllerTest {
 		MultipartFile profilePicture = Mockito.mock(MultipartFile.class);
 		String userJson = "{\"username\": \"john_doe\", \"fullname\": \"John Doe\"}";
 
-		User mockUser = new User("id123","john_doe", "John Doe", "password123", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
 		when(userService.createUser(any(User.class), eq(profilePicture))).thenReturn("User Created");
 
 		ResponseEntity<Object> response = userController.createUser(userJson, profilePicture);
@@ -73,7 +73,7 @@ class UserControllerTest {
 		String userJson = "{\"username\": \"john_doe\", \"fullname\": \"John Doe\"}";
 		String userId = "1";
 
-		User mockUser = new User("id123","john_doe", "John Doe", "password123", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
 		when(userService.updateUser(any(User.class), eq(profilePicture))).thenReturn("User Updated");
 
 		ResponseEntity<Object> response = userController.updateUser(userId, userJson, profilePicture);
@@ -134,7 +134,7 @@ class UserControllerTest {
 		Map<String, String> headers = Map.of("svix-id", "123", "svix-timestamp", "123456", "svix-signature", "signature");
 
 		// Create a mock User object or set an appropriate return value for createUser
-		User mockUser = new User("id123","john_doe", "John Doe", "password123", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
 
 		// Assuming createUser returns a User object
 		when(userService.createUser(any(User.class), isNull())).thenReturn("lalala");

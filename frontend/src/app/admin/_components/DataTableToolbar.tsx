@@ -8,28 +8,27 @@ import { DataTableViewOptions } from "./DataTableViewOptions";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
 
 // need to get all tournaments from the database
-const tournamentOptions = [
+const roleOptions = [
 	{
-		value: "Singapore Open",
-		label: "Singapore Open",
+		value: "Player",
+		label: "Player",
 	},
 	{
-		value: "Malaysia Open",
-		label: "Malaysia Open",
-	},
-];
-
-const resultOptions = [
-	{
-		value: "Win",
-		label: "Win",
-	},
-	{
-		value: "Loss",
-		label: "Loss",
+		value: "Admin",
+		label: "Admin",
 	},
 ];
 
+const genderOptions = [
+	{
+		value: "Male",
+		label: "Male",
+	},
+	{
+		value: "Female",
+		label: "Female",
+	},
+];
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
 }
@@ -37,46 +36,56 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
+  const countries = table.options.data.map((row) => row.country);
+  const uniqueCountries = Array.from(new Set(countries)).map((country) => ({
+    value: country,
+    label: country,
+  }));
 	const isFiltered = table.getState().columnFilters.length > 0;
 
 	return (
 		<div className="flex items-center justify-between">
 			<div className="flex flex-1 items-center space-x-2">
 				<Input
-					placeholder="Search Tournament..."
+					placeholder="Search username..."
 					value={
-						(table.getColumn("tournament_name")?.getFilterValue() as string) ??
-						""
+						(table.getColumn("username")?.getFilterValue() as string) ?? ""
 					}
 					onChange={(event) =>
-						table
-							.getColumn("tournament_name")
-							?.setFilterValue(event.target.value)
+						table.getColumn("username")?.setFilterValue(event.target.value)
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
 				<Input
-					placeholder="Search Opponent..."
+					placeholder="Search fullname..."
 					value={
-						(table.getColumn("opponent")?.getFilterValue() as string) ?? ""
+						(table.getColumn("fullname")?.getFilterValue() as string) ?? ""
 					}
 					onChange={(event) =>
-						table.getColumn("opponent")?.setFilterValue(event.target.value)
+						table.getColumn("fullname")?.setFilterValue(event.target.value)
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
-				{table.getColumn("tournament_name") && (
+				{table.getColumn("role") && (
 					<DataTableFacetedFilter
-						column={table.getColumn("tournament_name")}
-						title="Tournament"
-						options={tournamentOptions}
+						column={table.getColumn("role")}
+						title="Role"
+						options={roleOptions}
 					/>
 				)}
-				{table.getColumn("result") && (
+				{table.getColumn("gender") && (
 					<DataTableFacetedFilter
-						column={table.getColumn("result")}
-						title="Result"
-						options={resultOptions}
+						column={table.getColumn("gender")}
+						title="Gender"
+						options={genderOptions}
+					/>
+				)}
+				{table.getColumn("country") && (
+					<DataTableFacetedFilter
+						column={table.getColumn("country")}
+						title="Country"
+						options={uniqueCountries}
+            singleSelect={true}
 					/>
 				)}
 				{isFiltered && (

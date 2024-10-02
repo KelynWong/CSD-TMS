@@ -1,54 +1,107 @@
 "use client";
-
-import React from "react";
-import AdminHero from "@/components/AdminHero";
-import { Admin } from "@/types/admin";
-import { useState, useEffect } from "react";
-import { formatDate } from "@/utils/dateFormatter";
-import TournamentHistory from "@/components/TournamentHistory";
-import { useUserContext } from "@/context/userContext";
-import Loading from "@/components/Loading";
+import PlayerHero from "@/components/PlayerHero";
+import { Player } from "@/types/player";
+import { Match } from "@/types/match";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
-import { fetchUsers } from "@/api/users/api";
-import { User } from "@/types/user";
+import TournamentHistory from "@/components/TournamentHistory";
+import { formatDate } from "@/utils/dateFormatter";
+import { useState, useEffect } from "react";
+import { fetchPlayer } from "@/api/users/api";
+import Loading from "@/components/Loading";
+import { useUserContext } from "@/context/userContext";
 
-export default function AdminPage() {
+export default function UserProfile() {
 	const { user } = useUserContext();
-	console.log(user);
-	const [admin, setAdmin] = useState<Admin | null>(null);
-	const [users, setUsers] = useState<User[]>([]);
+	const [player, setPlayer] = useState<Player | null>(null);
 	const [loading, setLoading] = useState(true);
+
 	useEffect(() => {
 		if (user) {
-			// Fetch admin data only when user data is available
-			setLoading(false);
-			const getAdminData = async () => {
+			const getPlayerData = async () => {
 				try {
-					const mappedData: Admin = {
+					const data = await fetchPlayer(user.id);
+					setLoading(false);
+					const mappedData: Player = {
 						id: user.id,
 						username: user.username,
 						fullname: user.fullName,
+						gender: user.publicMetadata.gender,
+						ranking: 1,
+						rating: data.rating ? data.rating : 0,
 						profilePicture: user.imageUrl,
+						wins: 10,
+						losses: 5,
+						total_matches: 15,
+						country: user.publicMetadata.country,
 					};
-					setAdmin(mappedData);
-
-					const users = await fetchUsers();
-          console.log(users);
-					setUsers(users);
+					setPlayer(mappedData);
 				} catch (err) {
-					console.error("Failed to fetch admin:", err);
+					console.error("Failed to fetch player:", err);
 				}
 			};
-			getAdminData();
-		} else {
-			setLoading(true);
+			getPlayerData();
 		}
 	}, [user]);
 
 	if (loading) {
 		return <Loading />;
 	}
+
+	const MatchHistory: Match[] = [
+		{
+			set_number: 1,
+			tournament_id: 1,
+			tournament_name: "Singapore Open",
+			opponent: "John Doe",
+			opponent_id: 1,
+			result: "Win",
+			round: 1,
+			final_score: "11-9",
+			datetime: formatDate(new Date("2024-01-01 10:00:00")),
+		},
+		{
+			set_number: 2,
+			tournament_id: 1,
+			tournament_name: "Singapore Open",
+			opponent: "John Doe",
+			opponent_id: 1,
+			result: "Win",
+			round: 1,
+			final_score: "11-9",
+			datetime: formatDate(new Date("2024-01-01 11:00:00")),
+		},
+		{
+			set_number: 3,
+			tournament_id: 1,
+			tournament_name: "Singapore Open",
+			opponent: "John Doe",
+			opponent_id: 1,
+			result: "Win",
+			round: 1,
+			final_score: "11-9",
+			datetime: formatDate(new Date("2024-01-01 12:00:00")),
+		},
+		{
+			set_number: 4,
+			tournament_id: 1,
+			tournament_name: "Singapore Open",
+			opponent: "John Doe",
+			opponent_id: 2,
+			result: "Loss",
+			round: 1,
+			final_score: "9-11",
+			datetime: formatDate(new Date("2024-01-01 13:00:00")),
+		},
+	];
+	type Tournament = {
+		id: number;
+		name: string;
+		start_date: string;
+		end_date: string;
+		status: string;
+		result: string;
+	};
 
 	const TournamentHistories: Tournament[] = [
 		// Add your tournament history data here
@@ -176,10 +229,10 @@ export default function AdminPage() {
 
 	return (
 		<>
-			<div>{admin ? <AdminHero admin={admin} /> : <Loading />}</div>
+			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
-				<p className="text-4xl font-bold pb-3">User</p>
-				<DataTable columns={columns} data={users}></DataTable>
+				<p className="text-4xl font-bold pb-3">Match History</p>
+				<DataTable columns={columns} data={MatchHistory} />
 			</div>
 			<div className="container mx-auto py-5 px-5">
 				<TournamentHistory tournaments={TournamentHistories} />
