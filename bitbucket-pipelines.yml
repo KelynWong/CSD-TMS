@@ -8,7 +8,7 @@ pipelines:
           - docker
         script:
           # Login to Azure Container Registry
-          - echo $AZURE_PASSWORD | docker login csdtms.azurecr.io --username csdtms --password-stdin
+          - echo $AZURE_ACR_PASSWORD | docker login csdtms.azurecr.io --username csdtms --password-stdin
           
           # Build and push user_ms
           - docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms
