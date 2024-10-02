@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserControllerTest {
+class UserControllerUnitTest {
 
     @Mock
     private UserService userService;
