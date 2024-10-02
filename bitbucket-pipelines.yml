@@ -1,4 +1,4 @@
-image: atlassian/default-image:latest
+image: mcr.microsoft.com/azure-cli
 
 pipelines:
   default:
