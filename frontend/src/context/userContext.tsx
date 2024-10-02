@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 
@@ -19,7 +21,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 			setUserData(user);
 		}
 	}, [user]);
-  console.log(user);
+	console.log(user);
 	return (
 		<UserContext.Provider value={{ user: userData, setUser: setUserData }}>
 			{children}

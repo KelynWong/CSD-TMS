@@ -11,12 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import * as React from "react";
 import { UpdateUserModal } from "./UpdateUserModal";
-import { on } from "events";
+import { DeleteUserModal } from "./DeleteUserModal";
 
 /* eslint-disable */
 export function DataTableRowActions<TData>({ row }: { row: TData }) {
 	/* eslint-enable */
-	console.log(row);
 	const [isUpdateModalOpen, setIsUpdateModalOpen] = React.useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 	const [userData, setUserData] = React.useState(row);
@@ -42,7 +41,13 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 						}}>
 						Update User
 					</DropdownMenuItem>
-					<DropdownMenuItem>Delete User</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => {
+							console.log("Delete User");
+							setIsDeleteModalOpen(true);
+						}}>
+						Delete User
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 			{isUpdateModalOpen && (
@@ -51,6 +56,13 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 					onClose={() => setIsUpdateModalOpen(false)}
 					userData={userData}
 					onSave={handleSave}
+				/>
+			)}
+			{isDeleteModalOpen && (
+				<DeleteUserModal
+					isOpen={isDeleteModalOpen}
+					onClose={() => setIsDeleteModalOpen(false)}
+					userData={userData}
 				/>
 			)}
 		</>

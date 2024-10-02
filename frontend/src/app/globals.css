@@ -54,11 +54,7 @@
 @media (prefers-color-scheme: dark) {
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-family);
-}
+
 
 @layer utilities {
   .text-balance {

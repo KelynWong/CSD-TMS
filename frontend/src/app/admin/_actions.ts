@@ -1,6 +1,6 @@
 "use server";
 
-import {  clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 
 export const updateUser = async (userId: string, formData: FormData) => {
 	if (!userId) {
@@ -21,10 +21,19 @@ export const updateUser = async (userId: string, formData: FormData) => {
 
 		// update user rating
 
-
 		return { message: "User metadata Updated" };
 	} catch (e) {
 		console.log("error", e);
-		return { message: "Error Updating User Metadata" };
+		return { error: e, message: "Error Updating User Metadata" };
+	}
+};
+
+export const deleteUser = async (userId: string) => {
+	try {
+		await clerkClient().users.deleteUser(userId);
+		return { message: "User Deleted" };
+	} catch (e) {
+		console.log("error", e);
+		return { error: e, message: "Error Deleting User" };
 	}
 };

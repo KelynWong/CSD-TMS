@@ -7,20 +7,6 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./DataTableViewOptions";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
 
-<<<<<<< HEAD
-=======
-const genderOptions = [
-	{
-		value: "male",
-		label: "Male",
-	},
-	{
-		value: "female",
-		label: "Female",
-	},
-];
-
->>>>>>> remotes/origin/main
 // need to get all tournaments from the database
 const tournamentOptions = [
 	{
