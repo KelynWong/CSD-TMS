@@ -35,6 +35,19 @@ public class PlayerController {
         }).orElse(null);
     }
 
+    /* Get all tournament Players by tournament id */
+    @GetMapping("/players/{playerId}")
+    public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
+        // if player dont exist, throw playerNotFound err
+        if(!players.existsById(playerId)) {
+            throw new PlayerNotFoundException(playerId);
+        }
+        // else, return list of tournaments 
+        return players.findById(playerId).map(player -> {
+            return player.getTournaments();
+        }).orElse(null);
+    }
+
     /* Register Player */
     @PostMapping("/tournaments/{tournamentId}/players/{playerId}/register")
     public Player registerPlayer(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
@@ -72,17 +85,17 @@ public class PlayerController {
     }
 
     /* Update tournament Player */
-    @PutMapping("/tournaments/{tournamentId}/players/{playerId}")
-    public Player updateTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId,
-                                 @PathVariable (value = "playerId") String playerId,
-                                 @RequestBody Player newPlayer) {
+    // @PutMapping("/tournaments/{tournamentId}/players/{playerId}")
+    // public Player updateTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId,
+    //                              @PathVariable (value = "playerId") String playerId,
+    //                              @RequestBody Player newPlayer) {
 
-        return players.findById(playerId).map(player -> {
-            player.setTournaments(newPlayer.getTournaments());
-            player.setId(newPlayer.getId());
-            return players.save(player);
-        }).orElseThrow(() -> new PlayerNotFoundException(playerId, tournamentId));
-    }
+    //     return players.findById(playerId).map(player -> {
+    //         player.setTournaments(newPlayer.getTournaments());
+    //         player.setId(newPlayer.getId());
+    //         return players.save(player);
+    //     }).orElseThrow(() -> new PlayerNotFoundException(playerId, tournamentId));
+    // }
 
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
