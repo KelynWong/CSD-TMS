@@ -1,38 +1,45 @@
-trigger:
-  branches:
-    include:
-      - master  # or your main branch
+image: atlassian/default-image:latest
 
-pool:
-  vmImage: 'ubuntu-latest'  # Using an Ubuntu agent for the pipeline
+pipelines:
+  default:
+    - step:
+        name: Build and Push Docker Images
+        services:
+          - docker
+        script:
+          # Login to Azure Container Registry
+          - echo $AZURE_PASSWORD | docker login csdtms.azurecr.io --username <your-acr-name> --password-stdin
+          
+          # Build and push user_ms
+          - docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms
+          - docker push csdtms.azurecr.io/user_ms:latest
+          
+          # Build and push tournament_ms
+          - docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms
+          - docker push csdtms.azurecr.io/tournament_ms:latest
 
-variables:
-  # Define environment variables
-  imageTag: '$(Build.BuildId)'  # The build ID will be used as the Docker image tag
+          # Build and push matchmaking
+          - docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking
+          - docker push csdtms.azurecr.io/matchmaking:latest
 
-steps:
-  # Step 1: Checkout the code from Bitbucket
-  - task: UseGitVersion@5
-    inputs:
-      versionSpec: 'latest'
-      updateAssemblyInfo: true
-  
-  # Step 2: Set up Docker
-  - task: DockerInstaller@0
-    displayName: 'Install Docker'
+          # Build and push match_ms
+          - docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms
+          - docker push csdtms.azurecr.io/match_ms:latest
 
-  # Step 3: Build Docker images using Docker Compose
-  - script: |
-      docker-compose -f backend/compose.yml build
-    displayName: 'Build Docker images'
+    - step:
+        name: Deploy to Azure Container Instances
+        script:
+          # Login to Azure
+          - echo $AZURE_PASSWORD | az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_PASSWORD --tenant $AZURE_TENANT_ID
+          
+          # Deploy user_ms
+          - az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
 
-  # Step 4: Push Docker images to Azure Container Registry (ACR)
-  - task: Docker@2
-    displayName: 'Login to ACR'
-    inputs:
-      containerRegistry: 'csdtms'  # Service connection to ACR
-      command: 'login'
+          # Deploy tournament_ms
+          - az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
 
-  - script: |
-      docker-compose -f backend/compose.yml push
-    displayName: 'Push Docker images to ACR'
+          # Deploy matchmaking
+          - az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
+
+          # Deploy match_ms
+          - az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --ip-address public
