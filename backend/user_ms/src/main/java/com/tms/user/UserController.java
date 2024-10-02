@@ -236,9 +236,6 @@ public class UserController {
                 user.setProfilePicture(userData.get("profile_image_url").asText());
             }
     
-            // Password 
-            user.setPassword(null); 
-    
             // Call your service to create the user in the database
             userService.createUser(user, null);
     
