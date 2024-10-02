@@ -45,12 +45,6 @@
 	font-display: swap;
 }
 
-:root {
-	--background: #ffffff;
-	--foreground: #171717;
-	--font-family: "Norwester", sans-serif;
-}
-
 @media (prefers-color-scheme: dark) {
 }
 
@@ -84,6 +78,7 @@ h6 {
 * {
 	@apply border-border;
 }
+
 body {
 	@apply bg-background text-foreground;
 }

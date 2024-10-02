@@ -344,7 +344,7 @@ export default function Tournaments() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{tournamentCount.completed}</div>
+                        <div className="text-3xl font-heading font-bold">{tournamentCount.completed}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -354,7 +354,7 @@ export default function Tournaments() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{tournamentCount.ongoing}</div>
+                        <div className="text-3xl font-heading font-bold">{tournamentCount.ongoing}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -364,7 +364,7 @@ export default function Tournaments() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold">{tournamentCount.upcoming}</div>
+                        <div className="text-3xl font-heading font-bold">{tournamentCount.upcoming}</div>
                     </CardContent>
                 </Card>
             </div>

@@ -29,3 +29,7 @@
 .results table, th, td {
     border: 1px solid rgb(226 232 240);
 }
+
+Button {
+    font-family: "Norwester", sans-serif;
+}
