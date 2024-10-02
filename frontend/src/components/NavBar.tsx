@@ -6,8 +6,11 @@ import { UserButton, SignedOut, SignedIn, SignInButton } from '@clerk/nextjs'
 import { User, Menu, X } from 'lucide-react'
 import Image from 'next/image'
 import ClientButton from "@/components/ClientButton";
+import{useUser}from"@clerk/nextjs";
+import{ModeToggle}from"./ThemeChangeButton";
 
 export default function Navbar() {
+  const user=useUser();const isAdmin=user.user?.publicMetadata.role==="Admin";const isPlayer=user.user?.publicMetadata.role==="Player";
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('home');
 
@@ -39,6 +42,8 @@ export default function Navbar() {
             onClick={() => setActiveLink('matchPredict')}>MATCH PREDICTIONS</Link>
         </div>
         <div className="flex items-center space-x-4">
+          {isAdmin&&(<Link href={`/admin`}className="hover:text-red-400 transition-colors">ADMIN</Link>)}{isPlayer&&(<Link href={`/user-profile`}className="hover:text-red-400 transition-colors">PROFILE</Link>)}
+          <ModeToggle></ModeToggle>
           <SignedIn>
             <UserButton></UserButton>
           </SignedIn>

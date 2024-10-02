@@ -2,7 +2,7 @@
 const nextConfig = {
 	images: {
 		disableStaticImages: true,
-		domains: ["images.clerk.dev"],
+		domains: ["images.clerk.dev", "www.gravatar.com", "img.clerk.com"],
 	},
 	webpack(config) {
 		config.module.rules.push({

@@ -27,7 +27,7 @@ class UserControllerUnitTest {
     @InjectMocks
     private UserController userController;
 
-    public UserControllerTest() {
+    public UserControllerUnitTest() {
         MockitoAnnotations.openMocks(this);
     }
 

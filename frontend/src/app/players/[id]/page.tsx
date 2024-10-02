@@ -4,25 +4,27 @@ import { Player } from "@/types/player";
 import { Match } from "@/types/match";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
-import TournamentHistory from "./_components/TournamentHistory";
+import TournamentHistory from "@/components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
 import { useState, useEffect } from "react";
 import { fetchPlayer } from "@/api/users/api";
+import Loading from "@/components/Loading";
 
 export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [player, setPlayer] = useState<Player | null>(null);
+	const [loading, setLoading] = useState(true);
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
 				const data = await fetchPlayer(params.id);
-				console.log(data);
+				setLoading(false);
 				const mappedData: Player = {
 					id: data.id,
 					username: data.username,
 					fullname: data.fullname,
 					gender: data.gender,
 					ranking: 1,
-					rating: data.rating? data.rating : 0,
+					rating: data.rating ? data.rating : 0,
 					wins: 10,
 					losses: 5,
 					total_matches: 15,
@@ -34,10 +36,12 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				console.error("Failed to fetch player:", err);
 			}
 		};
-    getPlayerData();
+		getPlayerData();
 	}, [params.id]);
 
-	console.log(player);
+	if (loading) {
+		return <Loading />;
+	}
 
 	const MatchHistory: Match[] = [
 		{
@@ -85,6 +89,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 			datetime: formatDate(new Date("2024-01-01 13:00:00")),
 		},
 	];
+  
 	type Tournament = {
 		id: number;
 		name: string;
@@ -220,9 +225,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 
 	return (
 		<>
-			<div>
-				<PlayerHero {...player} />
-			</div>
+			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Match History</p>
 				<DataTable columns={columns} data={MatchHistory} />
