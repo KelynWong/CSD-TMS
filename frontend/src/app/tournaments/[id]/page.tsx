@@ -17,7 +17,21 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table";
+} from "@/components/ui/table";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Pencil } from "lucide-react";
+import Link from 'next/link';
+import SetEditForm from "../_components/SetEditForm";
 
 const tournament = {
     tournamentID: 1,
@@ -28,7 +42,6 @@ const tournament = {
     registrationEndDate: "26/10/2024",
     status: "Scheduled",
     organizer: "Kelyn",
-    match: 16,
     player: [
         {
             name: "Kai Xuan",
@@ -94,9 +107,72 @@ const tournament = {
             name: "Lynetteeeeeeeeeeeee",
             pic: "/images/china.png",
         },
+        {
+            name: "Lynetteeeeeeeeeeeee",
+            pic: "/images/china.png",
+        },
     ],
+    matches: [
+        {
+            matchId: 1,
+            player1Fullname: "Kai Xuan",
+            player2Fullname: "Owen",
+            winnerFullname: "Kai Xuan",
+            sets: [
+                {
+                    setId: 1,
+                    setNum: 1,
+                    date: "November 28",
+                    player1Score: 2,
+                    player2Score: 0
+                },
+                {
+                    setId: 2,
+                    setNum: 2,
+                    date: "November 29",
+                    player1Score: 0,
+                    player2Score: 2
+                },
+                {
+                    setId: 3,
+                    setNum: 3,
+                    date: "November 30",
+                    player1Score: 4,
+                    player2Score: 0
+                },
+            ],
+        },
+        {
+            matchId: 2,
+            player1Fullname: "Kai Xuan",
+            player2Fullname: "Owen",
+            winnerFullname: "Kai Xuan",
+            sets: [
+                {
+                    setId: 4,
+                    setNum: 1,
+                    date: "December 2",
+                    player1Score: 2,
+                    player2Score: 0
+                },
+                {
+                    setId: 5,
+                    setNum: 2,
+                    date: "December 3",
+                    player1Score: 0,
+                    player2Score: 2
+                },
+                {
+                    setId: 6,
+                    setNum: 3,
+                    date: "December 4",
+                    player1Score: null,
+                    player2Score: null
+                },
+            ],
+        },
+    ]
 };
-
 
 export default function TournamentDetails() {
 
@@ -125,7 +201,7 @@ export default function TournamentDetails() {
                         </div>
                         <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                             <span className="w-9/12">No. of Match: </span>
-                            <span className="w-3/12">{tournament.match}</span>
+                            <span className="w-3/12">{tournament.matches.length}</span>
                         </div>
                         <div className="flex justify-between px-6 py-3 font-semibold">
                             <span className="w-9/12">Format:</span>
@@ -191,7 +267,7 @@ export default function TournamentDetails() {
                         <TableHeader>
                             <TableRow className="bg-amber-400 hover:bg-amber-400">
                                 <TableHead className="text-black font-bold text-center px-5">No.</TableHead>
-                                <TableHead className="text-black font-bold pl-3 w-1/5">Round of {tournament.match}</TableHead>
+                                <TableHead className="text-black font-bold pl-3 w-1/5">Round of {tournament.matches.length}</TableHead>
                                 <TableHead className="text-black font-bold pl-3 w-1/5">Quarter-Final</TableHead>
                                 <TableHead className="text-black font-bold pl-3 w-1/5">Semi-Final</TableHead>
                                 <TableHead className="text-black font-bold pl-3 w-1/5">Final</TableHead>
@@ -435,113 +511,63 @@ export default function TournamentDetails() {
                 <div className="w-full my-5 matches">
                     <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
                     <div className="flex gap-4">
-                        <div className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                            <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">Match 1</h2>
-                            <div className="text-slate-600">
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>November 30</p>
-                                </div>
-                                <div className="flex justify-center border-b border-slate-200">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>0 - 2</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold bg-green-100">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
-                                </div>
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>December 1</p>
-                                </div>
-                                <div className="flex justify-center border-b border-slate-200">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>2 - 2</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
-                                </div>
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>December 4</p>
-                                </div>
-                                <div className="flex justify-center">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold bg-green-100 rounded-bl-lg">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>1 - 0</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {tournament.matches.map((match, matchIndex) => (
+                            <div key={match.matchId} className="w-full border border-slate-200 bg-white rounded-lg font-body">
+                                <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1}`}</h2>
+                                <div className="text-slate-600">
+                                    {match.sets.map((set) => (
+                                        <>
+                                            <div key={set.setId} className="border-b border-slate-200 px-6 py-2 flex justify-between">
+                                                <p className="text-slate-500">{`Set ${set.setNum}`}</p>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
+                                                    </AlertDialogTrigger>
 
-                        <div className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                            <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">Match 2</h2>
-                            <div className="text-slate-600">
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>November 30</p>
-                                </div>
-                                <div className="flex justify-center border-b border-slate-200">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>0 - 2</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold bg-green-100">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
-                                </div>
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>December 1</p>
-                                </div>
-                                <div className="flex justify-center border-b border-slate-200">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>2 - 2</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
-                                </div>
-                                <div className="border-b border-slate-200 px-6 py-2 text-slate-500">
-                                    <p>December 4</p>
-                                </div>
-                                <div className="flex justify-center">
-                                    <div className="w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold bg-green-100 rounded-bl-lg">
-                                        <p>Shi Yu Qi</p>
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                    </div>
-                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                        <p>1 - 0</p>
-                                    </div>
-                                    <div className="w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold">
-                                        <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                        <p>Kai Xuan</p>
-                                    </div>
+                                                    <AlertDialogContent className="bg-white">
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Enter the updated scores for each player in the set.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+
+                                                        <SetEditForm
+                                                            initialPlayer1Score={set.player1Score ?? 0}
+                                                            initialPlayer2Score={set.player2Score ?? 0}
+                                                            player1Name={match.player1Fullname}
+                                                            player2Name={match.player2Fullname}
+                                                        />
+
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </div>
+                                            <div className="flex justify-center border-b border-slate-200">
+                                                <div
+                                                    className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${
+                                                    (set.player1Score !== null && set.player2Score !== null)  && set.player1Score > set.player2Score ? 'bg-green-100' : ''
+                                                    }`}
+                                                >
+                                                    <p>{match.player1Fullname}</p>
+                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
+                                                </div>
+                                                <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
+                                                    <p>{set.player1Score !== null ? set.player1Score : '?'} - {set.player2Score !== null ? set.player2Score : '?'}</p>
+                                                </div>
+                                                <div
+                                                    className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${
+                                                    (set.player1Score !== null && set.player2Score !== null) && set.player1Score < set.player2Score ? 'bg-green-100' : ''
+                                                    }`}
+                                                >
+                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
+                                                    <p>{match.player2Fullname}</p>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ))}
                                 </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>
