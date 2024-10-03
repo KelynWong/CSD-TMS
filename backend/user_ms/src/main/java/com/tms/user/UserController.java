@@ -45,11 +45,11 @@ public class UserController {
     return userService.getAllUsers();
   }
 
-  @GetMapping("/top10")
-  public ResponseEntity<List<User>> getTop10UsersByRank() {
-    List<User> topUsers = userService.getTop10UsersByRank();
-    return ResponseEntity.ok(topUsers);
-  }
+//   @GetMapping("/top10")
+//   public ResponseEntity<List<User>> getTop10UsersByRank() {
+//     List<User> topUsers = userService.getTop10UsersByRank();
+//     return ResponseEntity.ok(topUsers);
+//   }
 
   // Get user by ID
   @GetMapping("/{id}")
@@ -220,9 +220,6 @@ public class UserController {
       // Role
       user.setRole("Player");
 
-      // Rank
-      user.setRank(1500);
-
       // Country - Since Clerk data doesn't include country, use a default
       user.setCountry(null);
 
@@ -284,11 +281,6 @@ public class UserController {
         user.setRole(userData.get("public_metadata").get("role").asText());
       } else {
         user.setRole("Player");
-      }
-
-      // Rank
-      if (userData.has("public_metadata") && userData.get("public_metadata").has("rank")) {
-        user.setRank(userData.get("public_metadata").get("rank").asInt());
       }
 
       // Update the user in your system
