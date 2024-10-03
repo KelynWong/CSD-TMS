@@ -6,321 +6,85 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import './styles.css';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from 'next/link';
 import TournamentCard from "./_components/TournamentCard";
 import Pagination from "./_components/Pagination";
+import { fetchTournaments } from "@/api/tournaments/api";
+import { Tournament } from "@/types/tournament";
+import Loading from "@/components/Loading";
 
 export default function Tournaments() {
     const [activeTab, setActiveTab] = useState('all');
+    const [loading, setLoading] = useState(true);
+    const [categorizedTournaments, setCategorizedTournaments] = useState<{
+        all: Tournament[],
+        completed: Tournament[],
+        ongoing: Tournament[],
+        upcoming: Tournament[]
+    }>({
+        all: [],
+        completed: [],
+        ongoing: [],
+        upcoming: []
+    });
 
     // Pagination states for each tab
     const [currentAllPage, setCurrentAllPage] = useState(1);
     const [currentCompletedPage, setCurrentCompletedPage] = useState(1);
     const [currentOngoingPage, setCurrentOngoingPage] = useState(1);
     const [currentUpcomingPage, setCurrentUpcomingPage] = useState(1);
-
+    
     const itemsPerPage = 12;
 
-    const tournamentData = {
-        all: [
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 1,
-                role: null,
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 2,
-                role: "user",
-                isRegistered: true,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 3,
-                role: "user",
-                isRegistered: false,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Scheduled",
-                numMatches: null,
-                tournamentId: 4,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Closed",
-                numMatches: null,
-                tournamentId: 5,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 6,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Completed",
-                numMatches: 16,
-                tournamentId: 7,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 8,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: false,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Closed",
-                numMatches: null,
-                tournamentId: 9,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: true,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 10,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: false,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 11,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: true,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Completed",
-                numMatches: 16,
-                tournamentId: 12,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Completed",
-                numMatches: 16,
-                tournamentId: 13,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: null,
+    useEffect(() => {
+        const getTournamentsData = async () => {
+            try {
+                const data = await fetchTournaments();
+                setLoading(false);
+                const mappedData: Tournament[] = data.map((tournament: any) => ({
+                    id: tournament.id,
+                    tournamentName: tournament.tournamentName,
+                    startDT: tournament.startDT,
+                    endDT: tournament.endDT,
+                    status: tournament.status,
+                    regStartDT: tournament.regStartDT,
+                    regEndDT: tournament.regEndDT,
+                }));
+                categorizeTournaments(mappedData);
+            } catch (err) {
+                console.error("Failed to fetch tournaments:", err);
             }
-        ],
-        completed: [
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Completed",
-                numMatches: 16,
-                tournamentId: 7,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Completed",
-                numMatches: 16,
-                tournamentId: 12,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: null,
-            }
-        ],
-        ongoing: [
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 6,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 10,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: false,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Ongoing",
-                numMatches: 16,
-                tournamentId: 11,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: true,
-            },
+        };
+        getTournamentsData();
+    }, []);
 
-        ],
-        upcoming: [
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 1,
-                role: null,
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 2,
-                role: "user",
-                isRegistered: true,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 3,
-                role: "user",
-                isRegistered: false,
-                availForMatchMake: null,
-            },
-            {
-                name: "Champions Cup 2024",
-                date: "Friday, 15 October 2024",
-                time: "3:00 PM",
-                status: "Scheduled",
-                numMatches: null,
-                tournamentId: 4,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Closed",
-                numMatches: null,
-                tournamentId: 5,
-                role: "user",
-                isRegistered: null,
-                availForMatchMake: null,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Open",
-                numMatches: null,
-                tournamentId: 8,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: false,
-            },
-            {
-                name: "Wyse Active International 2024",
-                date: "Thursday, 10 October 2024",
-                time: "12:30 PM",
-                status: "Registration Closed",
-                numMatches: null,
-                tournamentId: 9,
-                role: "admin",
-                isRegistered: null,
-                availForMatchMake: true,
-            },
-        ],
+    const categorizeTournaments = (data: Tournament[]) => {
+        const completed = data.filter(tournament => tournament.status === 'Completed');
+        const ongoing = data.filter(tournament => tournament.status === 'InProgress');
+        const upcoming = data.filter(tournament => tournament.status === 'RegistrationStart' || tournament.status === 'Scheduled');
+        const all = data;
+
+        setCategorizedTournaments({
+            all,
+            completed,
+            ongoing,
+            upcoming
+        });
     };
 
     const tournamentCount = {
-        all: tournamentData.all.length,
-        completed: tournamentData.completed.length,
-        ongoing: tournamentData.ongoing.length,
-        upcoming: tournamentData.upcoming.length,
+        all: categorizedTournaments.all.length,
+        completed: categorizedTournaments.completed.length,
+        ongoing: categorizedTournaments.ongoing.length,
+        upcoming: categorizedTournaments.upcoming.length,
     };
 
     const totalPages = {
-        all: Math.ceil(tournamentData.all.length / itemsPerPage),
-        completed: Math.ceil(tournamentData.completed.length / itemsPerPage),
-        ongoing: Math.ceil(tournamentData.ongoing.length / itemsPerPage),
-        upcoming: Math.ceil(tournamentData.upcoming.length / itemsPerPage),
+        all: Math.ceil(categorizedTournaments.all.length / itemsPerPage),
+        completed: Math.ceil(categorizedTournaments.completed.length / itemsPerPage),
+        ongoing: Math.ceil(categorizedTournaments.ongoing.length / itemsPerPage),
+        upcoming: Math.ceil(categorizedTournaments.upcoming.length / itemsPerPage),
     };
 
     const handleTabChange = (value: string) => {
@@ -332,6 +96,10 @@ export default function Tournaments() {
         const end = start + itemsPerPage;
         return data.slice(start, end);
     };
+
+    if (loading) {
+		return <Loading />;
+	}
 
     return (
         <div className="w-[80%] mx-auto py-16">
@@ -417,65 +185,22 @@ export default function Tournaments() {
                     </TabsList>
                 </div>
 
-                <TabsContent value="all">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-                        {paginatedTournaments(tournamentData.all, currentAllPage).map((tournament) => (
-                            <TournamentCard key={tournament.tournamentId} {...tournament} />
-                        ))}
-                    </div>
-                    {totalPages.all > 1 && (
-                        <Pagination
-                            currentPage={currentAllPage}
-                            totalPages={totalPages.all}
-                            onPageChange={setCurrentAllPage}
-                        />
-                    )}
-                </TabsContent>
-
-                <TabsContent value="completed">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-                        {paginatedTournaments(tournamentData.completed, currentCompletedPage).map((tournament) => (
-                            <TournamentCard key={tournament.tournamentId} {...tournament} />
-                        ))}
-                    </div>
-                    {totalPages.completed > 1 && (
-                        <Pagination
-                            currentPage={currentCompletedPage}
-                            totalPages={totalPages.completed}
-                            onPageChange={setCurrentCompletedPage}
-                        />
-                    )}
-                </TabsContent>
-
-                <TabsContent value="ongoing">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-                        {paginatedTournaments(tournamentData.ongoing, currentOngoingPage).map((tournament) => (
-                            <TournamentCard key={tournament.tournamentId} {...tournament} />
-                        ))}
-                    </div>
-                    {totalPages.ongoing > 1 && (
-                        <Pagination
-                            currentPage={currentOngoingPage}
-                            totalPages={totalPages.ongoing}
-                            onPageChange={setCurrentOngoingPage}
-                        />
-                    )}
-                </TabsContent>
-
-                <TabsContent value="upcoming">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-                        {paginatedTournaments(tournamentData.upcoming, currentUpcomingPage).map((tournament) => (
-                            <TournamentCard key={tournament.tournamentId} {...tournament} />
-                        ))}
-                    </div>
-                    {totalPages.upcoming > 1 && (
-                        <Pagination
-                            currentPage={currentUpcomingPage}
-                            totalPages={totalPages.upcoming}
-                            onPageChange={setCurrentUpcomingPage}
-                        />
-                    )}
-                </TabsContent>
+                {(['all', 'completed', 'ongoing', 'upcoming'] as const).map((tab) => (
+                    <TabsContent key={tab} value={tab}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
+                            {paginatedTournaments(categorizedTournaments[tab], tab === 'all' ? currentAllPage : tab === 'completed' ? currentCompletedPage : tab === 'ongoing' ? currentOngoingPage : currentUpcomingPage).map((tournament: Tournament) => (
+                                <TournamentCard numMatches={null} role={"admin"} key={tournament.id} {...tournament} />
+                            ))}
+                        </div>
+                        {totalPages[tab] > 1 && (
+                            <Pagination
+                                currentPage={tab === 'all' ? currentAllPage : tab === 'completed' ? currentCompletedPage : tab === 'ongoing' ? currentOngoingPage : currentUpcomingPage}
+                                totalPages={totalPages[tab]}
+                                onPageChange={tab === 'all' ? setCurrentAllPage : tab === 'completed' ? setCurrentCompletedPage : tab === 'ongoing' ? setCurrentOngoingPage : setCurrentUpcomingPage}
+                            />
+                        )}
+                    </TabsContent>
+                ))}
             </Tabs>
         </div>
     );

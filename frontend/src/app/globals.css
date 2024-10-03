@@ -81,6 +81,7 @@ h6 {
 
 body {
 	@apply bg-background text-foreground;
+	font-family: "Kollektif", sans-serif;
 }
 
 @layer base {
