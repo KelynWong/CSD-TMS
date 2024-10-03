@@ -17,7 +17,6 @@ public class User {
     private String email;
 
     private String role;
-    private Integer rank;
     
     private String country; 
 
@@ -26,14 +25,13 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String id, String username, String fullname, String gender, String email, String role, Integer rank, String country) {
+    public User(String id, String username, String fullname, String gender, String email, String role, String country) {
         this.id = id;
         this.username = username;
         this.fullname = fullname;
         this.gender = gender;
         this.email = email;
         this.role = role;
-        this.rank = rank;
         this.country = country;
     }
 
@@ -84,14 +82,6 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
     }
 
     public String getCountry() {

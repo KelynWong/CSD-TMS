@@ -11,11 +11,9 @@ Content-Type: application/json
 {
   "username": "nylekwong2",
   "fullname": "nylek wong",
-  "password": "password",
   "gender": "Female",
   "email": "kelynwonget@gmail.com",
   "role": "Admin",
-  "rank": null,
   "country": "Singapore"
 }
 
@@ -26,11 +24,9 @@ Content-Type: application/json
 {
   "username": "nylekwong2",
   "fullname": "nylek wong lala",
-  "password": "password123",
   "gender": "Male",
   "email": "kelynwonget@gmail.commmm",
   "role": "User",
-  "rank": null,
   "country": "Malaysia"
 }
 

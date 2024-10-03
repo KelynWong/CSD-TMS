@@ -132,28 +132,28 @@ public class SupabaseClient {
     }
   }
 
-  // get top 10 users by rank
-  public String getTop10UsersByRank() throws SupabaseClientException {
-    try {
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(SUPABASE_URL + "/rest/v1/user?order=rank.desc&limit=10"))
-          .header("apikey", SUPABASE_KEY)
-          .header("Accept-Profile", SCHEMA)
-          .header("Content-Type", "application/json")
-          .GET()
-          .build();
+//   // get top 10 users by rank
+//   public String getTop10UsersByRank() throws SupabaseClientException {
+//     try {
+//       HttpRequest request = HttpRequest.newBuilder()
+//           .uri(URI.create(SUPABASE_URL + "/rest/v1/user?order=rank.desc&limit=10"))
+//           .header("apikey", SUPABASE_KEY)
+//           .header("Accept-Profile", SCHEMA)
+//           .header("Content-Type", "application/json")
+//           .GET()
+//           .build();
 
-      HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-      if (response.statusCode() == 200) {
-        return response.body();
-      } else {
-        throw new SupabaseClientException("Failed to get top 10 users by rank: " + response.body());
-      }
-    } catch (Exception e) {
-      throw new SupabaseClientException("Error getting top 10 users by rank", e);
-    }
-  }
+//       if (response.statusCode() == 200) {
+//         return response.body();
+//       } else {
+//         throw new SupabaseClientException("Failed to get top 10 users by rank: " + response.body());
+//       }
+//     } catch (Exception e) {
+//       throw new SupabaseClientException("Error getting top 10 users by rank", e);
+//     }
+//   }
 
   // Get user by ID
   public String getUserById(String id) throws SupabaseClientException {

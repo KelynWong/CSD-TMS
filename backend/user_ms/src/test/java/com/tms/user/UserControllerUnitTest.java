@@ -33,7 +33,7 @@ class UserControllerUnitTest {
 
     @Test
     void testGetAllUsers() {
-        List<User> mockUsers = List.of(new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA"));
+        List<User> mockUsers = List.of(new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", "USA"));
         when(userService.getAllUsers()).thenReturn(mockUsers);
 
         List<User> users = userController.getAllUsers();
@@ -45,7 +45,7 @@ class UserControllerUnitTest {
 
 	@Test
 	void testGetUserById() {
-		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", "USA");
 		when(userService.getUserById("1")).thenReturn(Optional.of(mockUser));
 
 		ResponseEntity<User> response = userController.getUserById("1");
@@ -59,7 +59,7 @@ class UserControllerUnitTest {
 		MultipartFile profilePicture = Mockito.mock(MultipartFile.class);
 		String userJson = "{\"username\": \"john_doe\", \"fullname\": \"John Doe\"}";
 
-		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", "USA");
 		when(userService.createUser(any(User.class), eq(profilePicture))).thenReturn("User Created");
 
 		ResponseEntity<Object> response = userController.createUser(userJson, profilePicture);
@@ -73,7 +73,7 @@ class UserControllerUnitTest {
 		String userJson = "{\"username\": \"john_doe\", \"fullname\": \"John Doe\"}";
 		String userId = "1";
 
-		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", "USA");
 		when(userService.updateUser(any(User.class), eq(profilePicture))).thenReturn("User Updated");
 
 		ResponseEntity<Object> response = userController.updateUser(userId, userJson, profilePicture);
@@ -134,7 +134,7 @@ class UserControllerUnitTest {
 		Map<String, String> headers = Map.of("svix-id", "123", "svix-timestamp", "123456", "svix-signature", "signature");
 
 		// Create a mock User object or set an appropriate return value for createUser
-		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", 1, "USA");
+		User mockUser = new User("id123","john_doe", "John Doe", "Male", "john@example.com", "USER", "USA");
 
 		// Assuming createUser returns a User object
 		when(userService.createUser(any(User.class), isNull())).thenReturn("lalala");
