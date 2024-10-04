@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import TournamentCard from "@/components/TournamentCard";
 import Paginator from "@/components/Paginator";
 
