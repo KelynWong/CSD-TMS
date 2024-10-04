@@ -2,7 +2,7 @@ import axios from "axios";
 
 const URL = "http://localhost:8083";
 
-type PlayerResponse = {
+export type PlayerResponse = {
 	id: string;
 	username: string;
 	fullname: string;
@@ -14,7 +14,7 @@ type PlayerResponse = {
 	role: string;
 };
 
-type AdminResponse = {
+export type AdminResponse = {
 	id: string;
 	username: string;
 	fullname: string;
@@ -23,7 +23,7 @@ type AdminResponse = {
 	role: string;
 };
 
-type UserResponse = {
+export type UserResponse = {
 	id: string;
 	username: string;
 	fullname: string;
