@@ -12,9 +12,6 @@ jobs:
     services:
       docker:
         image: docker:latest
-        options: >-
-          --privileged  # Required for Docker in Docker
-          --network host
 
     steps:
     - name: Checkout code
