@@ -34,7 +34,14 @@ public class TournamentServiceImpl implements TournamentService{
 
     @Override
     public Tournament updateTournament(Long id, Tournament newTournament){
-        return tournaments.findById(id).map(tournament -> {tournament.setTournamentName(newTournament.getTournamentName());
+        return tournaments.findById(id).map(tournament -> {
+            tournament.setTournamentName(newTournament.getTournamentName());
+            tournament.setRegEndDT(newTournament.getRegEndDT());
+            tournament.setRegStartDT(newTournament.getRegStartDT());
+            tournament.setStatus(newTournament.getStatus());
+            tournament.setStartDT(newTournament.getStartDT());
+            tournament.setEndDT(newTournament.getEndDT());
+            tournament.setCreatedBy(newTournament.getCreatedBy());
             return tournaments.save(tournament);
         }).orElse(null);
     }
