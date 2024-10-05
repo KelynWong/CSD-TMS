@@ -23,6 +23,7 @@ public class Tournament {
     private String status; 
     private LocalDateTime regStartDT;
     private LocalDateTime regEndDT;
+    private String createdBy;
 
     @ManyToMany(mappedBy = "tournaments") //, cascade = CascadeType.ALL
     @JsonIgnore
