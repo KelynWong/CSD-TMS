@@ -1,3 +1,4 @@
+import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
 const URL = "http://localhost:8082";
@@ -31,5 +32,54 @@ export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
 		throw error;
+	}
+};
+
+
+export const createTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
+    try {
+        console.log(`${URL}/tournaments`);
+		console.log(tournamentData);
+
+        const response = await axios.post(`${URL}/tournaments`, tournamentData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return response.status === 201; 
+    } catch (error) {
+        console.error("Error creating tournaments", error);
+        return false;
+    }
+};
+
+export const updateTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
+	try {
+		console.log(`${URL}/tournaments/${tournamentData.id}`);
+
+		const response = await axios.put(`${URL}/tournaments/${tournamentData.id}`, tournamentData, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		return response.status === 204; 
+	} catch (error) {
+		console.error("Error updating tournaments", error);
+		return false;
+	}
+};
+
+export const deleteTournament = async (id: number): Promise<boolean> => {
+	try {
+		console.log(`${URL}/tournaments/${id}`);
+
+		const response = await axios.delete(`${URL}/tournaments/${id}`);
+
+		return response.status === 204; 
+	} catch (error) {
+		console.error("Error deleting tournaments", error);
+		return false;
 	}
 };

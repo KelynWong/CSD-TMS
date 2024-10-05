@@ -29,6 +29,8 @@ export default function Tournaments() {
         upcoming: []
     });
 
+    const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
+
     // Pagination states for each tab
     const [currentAllPage, setCurrentAllPage] = useState(1);
     const [currentCompletedPage, setCurrentCompletedPage] = useState(1);
@@ -45,11 +47,11 @@ export default function Tournaments() {
                 const mappedData: Tournament[] = data.map((tournament: any) => ({
                     id: tournament.id,
                     tournamentName: tournament.tournamentName,
-                    startDT: tournament.startDT,
-                    endDT: tournament.endDT,
+                    startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
                     status: tournament.status,
-                    regStartDT: tournament.regStartDT,
-                    regEndDT: tournament.regEndDT,
+                    regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
                 }));
                 categorizeTournaments(mappedData);
             } catch (err) {

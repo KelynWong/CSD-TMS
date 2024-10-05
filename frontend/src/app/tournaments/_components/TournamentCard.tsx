@@ -13,6 +13,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useEffect, useState } from 'react';
+import { deleteTournament } from "@/api/tournaments/api";
 
 interface TournamentCardProps {
     id: number;
@@ -89,6 +90,17 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         setAvailForMatchMake(true)
     }
 
+    const handleDelete = async () => {
+        try {
+            await deleteTournament(id); 
+            alert('Tournament deleted successfully!');
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to delete tournament:', error);
+            alert('Failed to delete tournament.');
+        }
+    };
+
     // TO DO: call API to check if user is registered for tournament
     // useEffect(() => {
     //     const getUserRegisterationStatusData = async () => {
@@ -104,7 +116,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
 
     return (
         <Card>
-            <CardHeader className="p-0 pt-20 rounded-t-lg cardImg">
+            <CardHeader className="p-0 h-36 overflow-hidden justify-end rounded-t-lg cardImg">
                 <div className="bg-gradient-to-t from-black to-transparent">
                     <CardTitle className="p-4 text-lg text-white leading-6 text-pretty">{tournamentName}</CardTitle>
                 </div>
@@ -188,7 +200,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction>Continue</AlertDialogAction>
+                                        <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
