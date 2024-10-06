@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Player } from "../types/player";
 
 const PlayerHero = ({ player }: { player: Player }) => {
-	console.log(player);
 	const length = player?.fullname ? player.fullname.split(" ").length : 0;
 	const firstName = player?.fullname
 		? player.fullname

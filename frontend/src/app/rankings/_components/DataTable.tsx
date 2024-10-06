@@ -99,7 +99,6 @@ export function DataTable<TData, TValue>({
 								<TableRow
 									key={row.id}
 									onClick={() => {
-										console.log(row);
 										router.push(`/players/${row.original.id}`);
 									}}
 									data-state={row.getIsSelected() && "selected"}>
