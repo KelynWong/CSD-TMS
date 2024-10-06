@@ -39,15 +39,15 @@ public class UserService {
         }
     }
 
-    // Get top 10 users by rank
-    public List<User> getTop10UsersByRank() {
-        try {
-            String response = supabaseClient.getTop10UsersByRank();
-            return Arrays.asList(objectMapper.readValue(response, User[].class));
-        } catch (IOException e) {
-            throw new SupabaseClientException("Error fetching top 10 users", e);
-        }
-    }
+    // // Get top 10 users by rank
+    // public List<User> getTop10UsersByRank() {
+    //     try {
+    //         String response = supabaseClient.getTop10UsersByRank();
+    //         return Arrays.asList(objectMapper.readValue(response, User[].class));
+    //     } catch (IOException e) {
+    //         throw new SupabaseClientException("Error fetching top 10 users", e);
+    //     }
+    // }
 
     public Optional<User> getUserByUsername(String username) {
         try {

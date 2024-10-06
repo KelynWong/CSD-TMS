@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import * as React from "react";
 import { updateUser } from "../_actions";
 import { message } from "antd";
+import { useFetchUsersContext } from "@/context/fetchUsersContext";
 
 export function UpdateUserModal({
 	isOpen,
@@ -31,6 +32,7 @@ export function UpdateUserModal({
 	userData: TData;
 	onSave: (user: TData) => void;
 }) {
+	const { setShouldFetchUsers } = useFetchUsersContext();
 	const [role, setRole] = React.useState(userData.role);
 	const handleRoleChange = (value: string) => {
 		setRole(value);
@@ -48,14 +50,16 @@ export function UpdateUserModal({
 		formData.append("rating", rating);
 		try {
 			const response = await updateUser(userData.id, formData);
-			onSave({
-				...userData,
-				role,
-				rating,
-			});
-
-			message.success("User updated successfully");
-			onClose(); // Close the modal
+			setTimeout(() => {
+				setShouldFetchUsers(true);
+				onSave({
+					...userData,
+					role,
+					rating,
+				});
+				message.success("User updated successfully");
+				onClose(); // Close the modal
+			}, 1500);
 		} catch (error) {
 			message.error("Failed to update user");
 		}

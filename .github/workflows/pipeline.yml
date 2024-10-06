@@ -1,0 +1,66 @@
+name: Build and Deploy Docker Images
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to Azure Container Registry
+      run: echo "${{ secrets.AZURE_ACR_PASSWORD }}" | docker login csdtms.azurecr.io --username csdtms --password-stdin
+
+    - name: Build and Push Docker Images
+      run: |
+        # Build and push user_ms
+        docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms\
+          --build-arg SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+          --build-arg SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
+          --build-arg SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" \
+          --build-arg CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
+        docker push csdtms.azurecr.io/user_ms:latest
+
+        # Build and push tournament_ms
+        docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms \
+          --build-arg DB_URL="${{ secrets.DB_URL }}" \
+          --build-arg DB_USER="${{ secrets.DB_USER }}" \
+          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+        docker push csdtms.azurecr.io/tournament_ms:latest
+
+        # Build and push matchmaking
+        docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking
+        docker push csdtms.azurecr.io/matchmaking:latest
+
+        # Build and push match_ms
+        docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms \
+          --build-arg DB_URL="${{ secrets.DB_URL }}" \
+          --build-arg DB_USER="${{ secrets.DB_USER }}" \
+          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+        docker push csdtms.azurecr.io/match_ms:latest
+
+    - name: Log in to Azure
+      run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
+
+    - name: Deploy to Azure Container Instances
+      run: |
+        # Deploy user_ms
+        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8083
+
+        # Deploy tournament_ms
+        az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8082
+
+        # Deploy matchmaking
+        az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8081
+
+        # Deploy match_ms
+        az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8080

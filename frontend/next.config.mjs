@@ -2,7 +2,23 @@
 const nextConfig = {
 	images: {
 		disableStaticImages: true,
-		domains: ["images.clerk.dev", "www.gravatar.com", "img.clerk.com"],
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "images.clerk.dev",
+				pathname: "**",
+			},
+			{
+				protocol: "https",
+				hostname: "www.gravatar.com",
+				pathname: "**",
+			},
+			{
+				protocol: "https",
+				hostname: "img.clerk.com",
+				pathname: "**",
+			},
+		],
 	},
 	webpack(config) {
 		config.module.rules.push({

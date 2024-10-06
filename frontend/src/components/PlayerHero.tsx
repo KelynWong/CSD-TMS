@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Player } from "../types/player";
 
 const PlayerHero = ({ player }: { player: Player }) => {
-	console.log(player);
 	const length = player?.fullname ? player.fullname.split(" ").length : 0;
 	const firstName = player?.fullname
 		? player.fullname
@@ -37,7 +36,7 @@ const PlayerHero = ({ player }: { player: Player }) => {
 				</div>
 
 				{/* Profile Content */}
-				<div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+				<div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
 					<div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-8">
 						<Image
 							src={player.profilePicture || "/images/default_profile.png"}

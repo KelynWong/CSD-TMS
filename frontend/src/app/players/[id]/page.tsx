@@ -6,17 +6,22 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import TournamentHistory from "@/components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
-import { useState, useEffect } from "react";
 import { fetchPlayer } from "@/api/users/api";
+import { fetchPlayerStats } from "@/api/matches/api";
 import Loading from "@/components/Loading";
+import React, { useState, useEffect } from "react";
+import { fetchTournaments } from "@/api/tournaments/api";
 
 export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [tournaments, setTournaments] = useState<Tournament[]>([]);
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
 				const data = await fetchPlayer(params.id);
+				const stats = await fetchPlayerStats(params.id);
+				const tournaments = await fetchTournaments(params.id);
 				setLoading(false);
 				const mappedData: Player = {
 					id: data.id,
@@ -25,12 +30,22 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					gender: data.gender,
 					ranking: 1,
 					rating: data.rating ? data.rating : 0,
-					wins: 10,
-					losses: 5,
-					total_matches: 15,
+					wins: stats.wins ? stats.wins : 0,
+					losses: stats.losses ? stats.losses : 0,
+					total_matches: stats.gamesPlayed ? stats.gamesPlayed : 0,
 					profilePicture: data.profilePicture,
 					country: data.country,
 				};
+
+				const tournamentHistory = tournaments.map((tournament) => ({
+					id: tournament.id,
+					name: tournament.name,
+					start_date: formatDate(new Date(tournament.startDate)),
+					end_date: formatDate(new Date(tournament.endDate)),
+					status: tournament.status,
+				}));
+
+				setTournaments(tournamentHistory);
 				setPlayer(mappedData);
 			} catch (err) {
 				console.error("Failed to fetch player:", err);
@@ -89,139 +104,6 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 			datetime: formatDate(new Date("2024-01-01 13:00:00")),
 		},
 	];
-  
-	type Tournament = {
-		id: number;
-		name: string;
-		start_date: string;
-		end_date: string;
-		status: string;
-		result: string;
-	};
-
-	const TournamentHistories: Tournament[] = [
-		// Add your tournament history data here
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-	];
 
 	return (
 		<>
@@ -231,7 +113,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				<DataTable columns={columns} data={MatchHistory} />
 			</div>
 			<div className="container mx-auto py-5 px-5">
-				<TournamentHistory tournaments={TournamentHistories} />
+				<TournamentHistory tournaments={tournaments} />
 			</div>
 		</>
 	);

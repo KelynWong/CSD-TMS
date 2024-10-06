@@ -12,8 +12,6 @@ const AdminHero = ({ admin }: { admin: Admin }) => {
 	const lastName = admin?.fullname
 		? admin.fullname.split(" ").slice(-1).join(" ")
 		: "";
-	console.log(firstName);
-	console.log(lastName);
 	return (
 		<div className="bg-black text-white">
 			{/* Player Profile Hero Section */}
@@ -32,7 +30,7 @@ const AdminHero = ({ admin }: { admin: Admin }) => {
 					/>
 				</div>
 				{/* Profile Content */}
-				<div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+				<div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
 					<div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-8">
 						<Image
 							src={admin?.profilePicture || "/images/default_profile.png"}

@@ -25,7 +25,6 @@ export function DeleteUserModal({
 		e.preventDefault();
 		try {
 			const response = await deleteUser(userData.id);
-      console.log(response);
 			message.success("User deleted successfully");
 		} catch (error) {
       message.error("Failed to delete user");
