@@ -1,7 +1,7 @@
 package com.tms.exceptions;
 
 public class RatingNotFoundException extends RuntimeException {
-    public RatingNotFoundException(String ratingId) {
-        super("Rating not found with ID: " + ratingId);
+    public RatingNotFoundException(String userId) {
+        super("No rating exists for userId " + userId);
     }
 }

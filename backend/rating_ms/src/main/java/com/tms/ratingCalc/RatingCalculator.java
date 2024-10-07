@@ -30,12 +30,11 @@ public class RatingCalculator {
   private final static double CONVERGENCE_TOLERANCE =  0.000001;
   private final static int ITERATION_MAX =  1000;
   private final static double DAYS_PER_MILLI =  1.0 / (1000 * 60 * 60 * 24);
+  private final static double DEFAULT_RATING_PERIOD_PER_DAY = 0.03;
 
   private final double tau; // constrains volatility over time
   private final double defaultVolatility;
   private double ratingPeriodsPerMilli;
-  private final double DEFAULT_RATING_PERIOD_PER_DAY = 0.03;
-
 
   /**
    * Standard constructor, taking default values for volatility
@@ -43,6 +42,7 @@ public class RatingCalculator {
   public RatingCalculator() {
     tau = DEFAULT_TAU;
     defaultVolatility = DEFAULT_VOLATILITY;
+    ratingPeriodsPerMilli = DEFAULT_RATING_PERIOD_PER_DAY * DAYS_PER_MILLI;
   }
 
   /**
@@ -61,10 +61,10 @@ public class RatingCalculator {
    * @param tau             How volatility changes over time
    */
   public RatingCalculator(double initVolatility, double tau, double ratingPeriodsPerDay) {
-	this.defaultVolatility = DEFAULT_VOLATILITY;
+	  this.defaultVolatility = DEFAULT_VOLATILITY;
     this.tau = DEFAULT_TAU;
 	
-	// this.defaultVolatility = initVolatility;
+	  // this.defaultVolatility = initVolatility;
     // this.tau = tau;
     this.ratingPeriodsPerMilli = ratingPeriodsPerDay * DAYS_PER_MILLI;
   }
@@ -130,7 +130,6 @@ public class RatingCalculator {
     if ( ratingPeriodsPerMilli != 0 && player.getLastRatingPeriodEndDate() != null ) {
         Duration interval = new Duration(player.getLastRatingPeriodEndDate(), ratingPeriodEndDate);
         elapsedRatingPeriods = interval.getMillis() * ratingPeriodsPerMilli;
-		System.out.println(elapsedRatingPeriods);
     }
     if (reverse) {
         elapsedRatingPeriods = -elapsedRatingPeriods;

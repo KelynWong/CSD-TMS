@@ -4,10 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.joda.time.DateTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.tms.exceptions.RatingNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
+import com.tms.ratingCalc.RatingPeriodResults;
 
 @Service
 public class RatingService {
@@ -28,6 +33,15 @@ public class RatingService {
         return ratingRepo.findById(ratingId);
     }
 
+    public Page<Rating> getTopRatings(Pageable pageable) {
+        Pageable sortedByRatingDesc = PageRequest.of(
+            pageable.getPageNumber(), 
+            pageable.getPageSize(), 
+            Sort.by("rating").descending()
+        );
+        return ratingRepo.findAll(sortedByRatingDesc);
+    }
+
     public Rating initRating(RatingDTO ratingDTO) {
         DateTime firstDayOfYear = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
         Rating rating = new Rating(ratingDTO.getId(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
@@ -38,7 +52,41 @@ public class RatingService {
         return ratingRepo.save(rating);
     }
 
-    public Rating updateRating(String ratingId, Rating newRating) {
+    public List<Rating> calcRating(ResultsDTO match) {
+        DateTime now = DateTime.now();
+        RatingPeriodResults results = new RatingPeriodResults();
+        Optional<Rating> winner = ratingRepo.findById(match.getWinnerId());
+        Optional<Rating> loser = ratingRepo.findById(match.getLoserId());
+
+        if (!winner.isPresent() || !loser.isPresent()) {
+            throw new RatingNotFoundException(match.getWinnerId() + " or " + match.getLoserId());
+        }
+        
+        Rating winnerRating = winner.get();
+        Rating loserRating = loser.get(); 
+
+        processRating(winnerRating, match.getTournamentEndDate(), now);
+        processRating(loserRating, match.getTournamentEndDate(), now);
+
+        results.addResult(winnerRating, loserRating);
+        ratingCalc.updateRatings(results);
+
+        updateRating(winnerRating.getId(), winnerRating);
+        updateRating(loserRating.getId(), loserRating);
+
+        return List.of(winnerRating, loserRating);
+    }
+
+    private Rating processRating(Rating rating, DateTime currTournamentDate, DateTime currDateTime) {
+        double rd = ratingCalc.previewDeviation(rating, currTournamentDate, false);
+        if (rd != rating.getRatingDeviation()) {
+            rating.setRatingDeviation(rd);
+        }
+        rating.setLastRatingPeriodEndDate(currDateTime);
+        return rating;
+    }
+
+    private Rating updateRating(String ratingId, Rating newRating) {
         return ratingRepo.findById(ratingId).map(rating -> {
             rating.setRating(newRating.getRating());
             rating.setRatingDeviation(newRating.getRatingDeviation());

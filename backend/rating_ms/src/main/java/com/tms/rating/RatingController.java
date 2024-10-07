@@ -2,6 +2,10 @@ package com.tms.rating;
 
 import java.util.List;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,19 +30,27 @@ public class RatingController {
                 .orElseThrow(() -> new RatingNotFoundException(userId));
     }
 
+    @GetMapping("/ratings/top")
+    public Page<Rating> getTopRatings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ratingService.getTopRatings(pageable);
+    }
+
     @PostMapping("/ratings/init")
     public Rating initRating(@RequestBody RatingDTO rating) {
         return ratingService.initRating(rating);
     }
 
-    @PostMapping("/ratings")
-    public Rating addRating(@RequestBody Rating rating) {
-        return ratingService.addRating(rating);
-    }
+    // @PostMapping("/ratings")
+    // public Rating addRating(@RequestBody Rating rating) {
+    //     return ratingService.addRating(rating);
+    // }
 
-    @PutMapping("/ratings/{userId}")
-    public Rating updateRating(@PathVariable String userId, @RequestBody Rating newRating) {
-        return ratingService.updateRating(userId, newRating);
+    @PutMapping("/ratings")
+    public List<Rating> updateRating(@RequestBody ResultsDTO match) {
+        return ratingService.calcRating(match);
     }
 
     @DeleteMapping("/ratings/{userId}")
