@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.exceptions.base.MockitoException;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoException.class)
+// @ExtendWith(MockitoException.class)
 public class TournamentServiceTest {
     
     // @Mock
@@ -37,15 +37,14 @@ public class TournamentServiceTest {
     //     // Assert
     // }
     // @Test
-    // void addTournament_SameTitle_ReturnNull() {
+    // void addTournament_SameName_ReturnNull() {
     //     // Arrange
-    //     Tournament tournament = new Tournament();
-        
-    //     Book book = new Book("This is a New Title");
-    //     List<Book> booksOfSameTitle = new ArrayList<Book>(); 
-    //     booksOfSameTitle.add(book);
+    //     Tournament tournament = new Tournament("New Tournament");
+    //     List<Tournament> tournamentOfSameName = new ArrayList<>();
+    //     tournamentOfSameName.add(tournament);
+
     //     // mock the "findbytitle" operation
-    //     when(books.findByTitle(any(String.class))).thenReturn(booksOfSameTitle);
+    //     when(books.findByTournamentName(any(String.class))).thenReturn(booksOfSameTitle);
     //     // Act 
     //     Book savedBook = bookService.addBook(book);
     //     // Assert
