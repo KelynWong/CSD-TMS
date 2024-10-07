@@ -8,6 +8,7 @@ package com.tms.rating;
 
 import org.joda.time.DateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tms.ratingCalc.RatingCalculator;
 
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ import lombok.*;
  * @author Jeremy Gooch
  */
 @Entity
-@EqualsAndHashCode
+@NoArgsConstructor
 public class Rating {
 
     private @Id String id; // references clerk userId
@@ -35,22 +36,32 @@ public class Rating {
 
 	 // the following variables are used to hold values temporarily whilst running calculations
 	@Transient
+	@JsonIgnore
 	private double workingRating;
+
 	@Transient
+	@JsonIgnore
 	private double workingRatingDeviation;
+	
 	@Transient
+	@JsonIgnore
 	private double workingVolatility;
 
-	public Rating(double initRating, double initRatingDeviation, double initVolatility, int nbResults) {
-		this(initRating, initRatingDeviation, initVolatility, nbResults, null);
+	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults) {
+		this(id, initRating, initRatingDeviation, initVolatility, nbResults, null);
 	}
 
-	public Rating(double initRating, double initRatingDeviation, double initVolatility, int nbResults, DateTime lastRatingPeriodEndDate) {
+	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults, DateTime lastRatingPeriodEndDate) {
+		this.id = id;
 		this.rating = initRating;
 		this.ratingDeviation = initRatingDeviation;
 		this.volatility = initVolatility;
 		this.numberOfResults = nbResults;
 		this.lastRatingPeriodEndDate = lastRatingPeriodEndDate;
+	}
+
+	public String getId() {
+		return this.id;
 	}
 
 	/**
@@ -72,6 +83,7 @@ public class Rating {
 	 *
 	 * @return double
 	 */
+	@JsonIgnore
 	public double getGlicko2Rating() {
 		return RatingCalculator.convertRatingToGlicko2Scale(this.rating);
 	}
@@ -111,6 +123,7 @@ public class Rating {
 	 *
 	 * @return double
 	 */
+	@JsonIgnore
 	public double getGlicko2RatingDeviation() {
 		return RatingCalculator.convertRatingDeviationToGlicko2Scale( ratingDeviation );
 	}

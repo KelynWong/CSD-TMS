@@ -20,10 +20,15 @@ public class RatingController {
         return ratingService.getAllRatings();
     }
 
-    @GetMapping("/ratings/{ratingId}")
-    public Rating getRating(@PathVariable String ratingId) {
-        return ratingService.getRatingById(ratingId)
-                .orElseThrow(() -> new RatingNotFoundException(ratingId));
+    @GetMapping("/ratings/{userId}")
+    public Rating getRating(@PathVariable String userId) {
+        return ratingService.getRatingById(userId)
+                .orElseThrow(() -> new RatingNotFoundException(userId));
+    }
+
+    @PostMapping("/ratings/init")
+    public Rating initRating(@RequestBody RatingDTO rating) {
+        return ratingService.initRating(rating);
     }
 
     @PostMapping("/ratings")
@@ -31,14 +36,14 @@ public class RatingController {
         return ratingService.addRating(rating);
     }
 
-    @PutMapping("/ratings/{ratingId}")
-    public Rating updateRating(@PathVariable String ratingId, @RequestBody Rating newRating) {
-        return ratingService.updateRating(ratingId, newRating);
+    @PutMapping("/ratings/{userId}")
+    public Rating updateRating(@PathVariable String userId, @RequestBody Rating newRating) {
+        return ratingService.updateRating(userId, newRating);
     }
 
-    @DeleteMapping("/ratings/{ratingId}")
-    public ResponseEntity<?> deleteRating(@PathVariable String ratingId) {
-        ratingService.deleteRating(ratingId);
+    @DeleteMapping("/ratings/{userId}")
+    public ResponseEntity<?> deleteRating(@PathVariable String userId) {
+        ratingService.deleteRating(userId);
         return ResponseEntity.ok().build();
     }
 }

@@ -3,17 +3,21 @@ package com.tms.rating;
 import java.util.List;
 import java.util.Optional;
 
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import com.tms.exceptions.RatingNotFoundException;
+import com.tms.ratingCalc.RatingCalculator;
 
 @Service
 public class RatingService {
 
     private final RatingRepository ratingRepo;
+    private final RatingCalculator ratingCalc;
 
-    public RatingService(RatingRepository ratingRepo) {
+    public RatingService(RatingRepository ratingRepo, RatingCalculator ratingCalc) {
         this.ratingRepo = ratingRepo;
+        this.ratingCalc = ratingCalc;
     }
 
     public List<Rating> getAllRatings() {
@@ -22,6 +26,12 @@ public class RatingService {
 
     public Optional<Rating> getRatingById(String ratingId) {
         return ratingRepo.findById(ratingId);
+    }
+
+    public Rating initRating(RatingDTO ratingDTO) {
+        DateTime firstDayOfYear = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
+        Rating rating = new Rating(ratingDTO.getId(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        return ratingRepo.save(rating);
     }
 
     public Rating addRating(Rating rating) {

@@ -10,6 +10,7 @@ import com.tms.rating.Rating;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.springframework.stereotype.Component;
 
 /**
  * This is the main calculation engine based on the contents of Glickman's paper.
@@ -18,6 +19,7 @@ import org.joda.time.Duration;
  * @author Jeremy Gooch
  *
  */
+@Component
 public class RatingCalculator {
 
   private final static double DEFAULT_RATING =  1500.0;
@@ -32,6 +34,7 @@ public class RatingCalculator {
   private final double tau; // constrains volatility over time
   private final double defaultVolatility;
   private double ratingPeriodsPerMilli;
+  private final double DEFAULT_RATING_PERIOD_PER_DAY = 0.03;
 
 
   /**
