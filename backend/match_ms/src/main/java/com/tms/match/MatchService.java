@@ -18,6 +18,7 @@ public interface MatchService {
     List<Match> addTournament(CreateTournament tournament);
 
     Match updateMatchAndParent(Long id, MatchPlayers matchPlayers);
+    void generateWinners(Long tournamentId);
 
     /**
      * Change method's signature: do not return a value for delete operation

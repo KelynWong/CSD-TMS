@@ -2,12 +2,9 @@ package com.tms.matchmaking;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Comparator;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -182,39 +179,6 @@ public class MatchmakeService {
         tournament.setRootMatch(rootMatch);
 
         return tournament;
-    }
-
-    public void generateWinners(Long tournamentId) {
-        List<MatchJson> matches = getTournamentMatches(tournamentId);
-        Comparator<MatchJson> byId = Comparator.comparing(MatchJson::getId);
-        matches.sort(byId);
-
-        Random random = new Random();
-
-        int matchesToUpdate = (matches.size() + 1) / 2;
-        int currUpdated = 0;
-        while (matchesToUpdate > 0) {
-            for (int i = 0; i < matchesToUpdate; i++) {
-                MatchJson match = matches.get(i);
-                String player1Id = match.getPlayer1Id();
-                String player2Id = match.getPlayer2Id();
-                
-                String winnerId = match.getWinnerId();
-                if (winnerId != null) {
-                    continue;
-                }
-                winnerId = random.nextBoolean() ? player1Id : player2Id;
-    
-                MatchPlayers matchPlayers = new MatchPlayers(player1Id, player2Id, winnerId);
-                updateWinner(matchPlayers, match.getId());
-            }
-            
-            currUpdated += matchesToUpdate;
-            matches = getTournamentMatches(tournamentId);
-            matches.sort(byId);
-            matches = matches.subList(currUpdated, matches.size());
-            matchesToUpdate = matchesToUpdate / 2;
-        }
     }
 
     private JsonNode parseJson(ResponseEntity<String> res) {

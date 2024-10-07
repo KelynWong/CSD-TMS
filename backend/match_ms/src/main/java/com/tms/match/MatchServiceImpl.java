@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.tms.exceptions.MatchNotFoundException;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -32,7 +35,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public List<MatchJson> getMatchesByTournament(Long tournamentId) {
-        List<Match> matches = this.matches.findByTournamentId(tournamentId);
+        List<Match> matches = this.matches.findByTournamentIdOrderByIdAsc(tournamentId);
         return MatchJson.fromMatches(matches);
     }
 
@@ -141,7 +144,7 @@ public class MatchServiceImpl implements MatchService {
         }
         this.matches.save(match);
 
-        List<Match> tournamentMatches = this.matches.findByTournamentId(match.getTournamentId());
+        List<Match> tournamentMatches = this.matches.findByTournamentIdOrderByIdAsc(match.getTournamentId());
         Match parentMatch = findParentMatch(tournamentMatches, id);
         
         if (parentMatch != null) {
@@ -156,6 +159,40 @@ public class MatchServiceImpl implements MatchService {
         }
 
         return match;
+    }
+
+    @Override
+    @Transactional
+    public void generateWinners(Long tournamentId) {
+        List<Match> matches = this.matches.findByTournamentIdOrderByIdAsc(tournamentId);
+        
+        Random random = new Random();
+
+        int matchesToUpdate = (matches.size() + 1) / 2;
+        int currUpdated = 0;
+        while (matchesToUpdate > 0) {
+            for (int i = 0; i < matchesToUpdate; i++) {
+                Match match = matches.get(i);
+                String player1Id = match.getPlayer1Id();
+                String player2Id = match.getPlayer2Id();
+                
+                String winnerId = match.getWinnerId();
+                if (winnerId != null) {
+                    continue;
+                }
+                winnerId = random.nextBoolean() ? player1Id : player2Id;
+    
+                MatchPlayers matchPlayers = new MatchPlayers(player1Id, player2Id, winnerId);
+                if (updateMatchAndParent(match.getId(), matchPlayers) == null) {
+                    throw new MatchNotFoundException(match.getId());
+                }
+            }
+            
+            currUpdated += matchesToUpdate;
+            matches = this.matches.findByTournamentIdOrderByIdAsc(tournamentId);
+            matches = matches.subList(currUpdated, matches.size());
+            matchesToUpdate = matchesToUpdate / 2;
+        }
     }
 
     /**
