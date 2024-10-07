@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -57,6 +59,7 @@ public class MatchmakeService {
 
             // choose top x players to get byes.
             List<Rating> playerRatings = fetchRatings(playerIds);
+            playerRatings = shuffleRatings(playerRatings);
             List<Rating> byePlayers = playerRatings.subList(0, byes);
 
             // create matches for byes
@@ -85,6 +88,29 @@ public class MatchmakeService {
 
             sendCreateMatchesRequest(matches, numMatchesAtBase);
         }
+    }
+
+    private List<Rating> shuffleRatings(List<Rating> ratings) {
+        List<Rating> shuffledRatings = new ArrayList<>(ratings);
+        int start = 0;
+
+        while (start < shuffledRatings.size()) {
+            int end = start;
+            double currentRating = shuffledRatings.get(start).getRating();
+
+            // Find the end of the current rating group
+            while (end < shuffledRatings.size() && shuffledRatings.get(end).getRating() == currentRating) {
+                end++;
+            }
+
+            // Shuffle the sublist of players with the same rating
+            Collections.shuffle(shuffledRatings.subList(start, end));
+
+            // Move to the next group
+            start = end;
+        }
+
+        return shuffledRatings;
     }
 
     private MatchJson createMatch(Long tournamentId, List<Rating> matchPlayers) {
@@ -238,7 +264,6 @@ public class MatchmakeService {
         List<String> playerIds = players.stream()
                 .map(Player::getId)
                 .collect(Collectors.toList());
-        System.out.println(playerIds);
 
         ResponseEntity<List<Rating>> ratingRes = restClient.post()
                 .uri(RATING_URL + "/by-ids")
