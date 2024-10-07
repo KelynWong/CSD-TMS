@@ -1,6 +1,7 @@
 package com.tms.matchmaking;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tms.exceptions.*;
+import com.tms.match.CreateTournament;
 import com.tms.match.Match;
 import com.tms.match.MatchJson;
 import com.tms.match.MatchPlayers;
@@ -51,7 +53,7 @@ public class MatchmakeService {
             int n = players.size();
             int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
 
-            Deque<MatchJson> tree = new ArrayDeque<>();
+            List<MatchJson> matches = new ArrayList<>();
             int byes = (int) Math.pow(2, k) - n;
 
             // choose top x players to get byes. currently just the first x players
@@ -61,7 +63,7 @@ public class MatchmakeService {
             for (int i = 0; i < byes; i++) {
                 List<Player> matchPlayers = byePlayers.subList(i, i + 1);
                 MatchJson match = createMatch(tournamentId, matchPlayers);
-                tree.add(match);
+                matches.add(match);
             }
 
             // create remaining matches for base layer
@@ -69,23 +71,61 @@ public class MatchmakeService {
             for (int i = 0; i < remainingPlayers.size(); i += 2) {
                 List<Player> matchPlayers = remainingPlayers.subList(i, i + 2);
                 MatchJson match = createMatch(tournamentId, matchPlayers);
-                tree.add(match);
+                matches.add(match);
             }
 
+            double numMatchesAtBase = Math.pow(2, k - 1);
+            double numMatchesRemaining = (n - 1) - numMatchesAtBase;
+
             // create matches for the rest of the tree
-            for (int i = (k - 2); i >= 0; i--) {
-                int numMatches = (int) Math.pow(2, i);
-                for (int j = 0; j < numMatches; j++) {
-                    Long left = tree.poll().getId();
-                    Long right = tree.poll().getId();
-                    MatchJson match = createMatchWithoutPlayers(tournamentId, left, right);
-                    
-                    tree.add(match);
-                }
+            for (int i=0; i < numMatchesRemaining; i++) {
+                MatchJson match = createMatchWithoutPlayers(tournamentId);
+                matches.add(match);
             }
+
+            sendCreateMatchesRequest(matches, numMatchesAtBase);
         }
     }
 
+    private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
+        String player1 = null;
+        String player2 = null;
+
+        if (matchPlayers.size() == 2) {
+            player1 = matchPlayers.get(0).getId();
+            player2 = matchPlayers.get(1).getId();
+        } else if (matchPlayers.size() == 1) {
+            player1 = matchPlayers.get(0).getId();
+        } else {
+            throw new IllegalArgumentException("Invalid number of players");
+        }
+        MatchJson match = new MatchJson(tournamentId, player1, player2, null, null);
+
+        return match;
+    }
+
+    private MatchJson createMatchWithoutPlayers(Long tournamentId) {
+        MatchJson match = new MatchJson(tournamentId, null, null, null, null);
+        return match;
+    }
+
+    private boolean sendCreateMatchesRequest(List<MatchJson> matches, double numMatchesAtBase) {
+        CreateTournament createTournament = new CreateTournament(matches, numMatchesAtBase);
+
+        ResponseEntity<String> res = restClient.post()
+        .uri(MATCH_URL + "/tournament")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(createTournament)
+        .retrieve()
+        .toEntity(String.class);
+
+        if (res.getStatusCode() != HttpStatus.CREATED) {
+            throw new MatchCreationException("Error creating matches");
+        }
+
+        return true;
+    }
+    
     public void inOrderTraversal(Match root) {
         if (root == null) {
             return;
@@ -177,47 +217,6 @@ public class MatchmakeService {
         }
     }
 
-    private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
-        String player1 = null;
-        String player2 = null;
-
-        if (matchPlayers.size() == 2) {
-            player1 = matchPlayers.get(0).getId();
-            player2 = matchPlayers.get(1).getId();
-        } else if (matchPlayers.size() == 1) {
-            player1 = matchPlayers.get(0).getId();
-        } else {
-            throw new IllegalArgumentException("Invalid number of players");
-        }
-        MatchJson match = new MatchJson(tournamentId, player1, player2, null, null);
-
-        return sendCreateMatchRequest(match);
-    }
-
-    private MatchJson createMatchWithoutPlayers(Long tournamentId, Long leftId, Long rightId) {
-        MatchJson match = new MatchJson(tournamentId, null, null, leftId, rightId);
-
-        return sendCreateMatchRequest(match);
-    }
-
-    private MatchJson sendCreateMatchRequest(MatchJson match) {
-        ResponseEntity<String> res = restClient.post()
-        .uri(MATCH_URL)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(match)
-        .retrieve()
-        .toEntity(String.class);
-
-        if (res.getStatusCode() != HttpStatus.CREATED) {
-            throw new MatchCreationException("Error creating match");
-        }
-
-        JsonNode json = parseJson(res);
-        Long matchId = json.get("id").asLong();
-        match.setId(matchId);
-        return match;
-    }
-    
     private JsonNode parseJson(ResponseEntity<String> res) {
         String json = null;
         if (res != null && res.getBody() != null) {

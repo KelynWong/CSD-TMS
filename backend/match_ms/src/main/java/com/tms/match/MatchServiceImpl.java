@@ -1,9 +1,13 @@
 package com.tms.match;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -85,6 +89,35 @@ public class MatchServiceImpl implements MatchService {
         }
 
         return this.matches.save(newMatch);
+    }
+
+    @Override
+    @Transactional
+    public List<Match> addTournament(CreateTournament tournament) {
+        List<Match> res = new ArrayList<>();
+        Deque<Match> q = new ArrayDeque<>();
+
+        int numMatchesAtBase = (int) tournament.getNumMatchesAtBase();
+
+        for (int i = 0; i < numMatchesAtBase; i++) {
+            Match match = this.addMatch(tournament.getMatches().get(i));
+            res.add(match);
+            q.add(match);
+        }
+
+        for (int i = numMatchesAtBase; i < tournament.getMatches().size(); i++) {
+            Long left = q.poll().getId();
+            Long right = q.poll().getId();
+            MatchJson matchToAdd = tournament.getMatches().get(i);
+            matchToAdd.setLeft(left);
+            matchToAdd.setRight(right);
+
+            Match match = this.addMatch(matchToAdd);
+            res.add(match);
+            q.add(match);
+        }
+
+        return res;
     }
 
     @Override

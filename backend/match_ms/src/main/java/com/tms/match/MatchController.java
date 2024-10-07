@@ -97,6 +97,12 @@ public class MatchController {
         return matchService.addMatch(match);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/matches/tournament")
+    public List<Match> addTournament(@RequestBody CreateTournament tournament){
+        return matchService.addTournament(tournament);
+    }
+
     /**
      * If there is no Match with the given "id", throw a MatchNotFoundException
      * @param id
