@@ -17,7 +17,6 @@ import { useFetchUsersContext } from "@/context/fetchUsersContext";
 export default function AdminPage() {
 	const { user } = useUserContext();
 	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext();
-	console.log(user);
 	const [admin, setAdmin] = useState<Admin | null>(null);
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -37,7 +36,6 @@ export default function AdminPage() {
 					setAdmin(mappedData);
 
 					const users = await fetchUsers();
-					console.log(users);
 					setUsers(users);
 				} catch (err) {
 					console.error("Failed to fetch admin:", err);
@@ -51,10 +49,8 @@ export default function AdminPage() {
 
 	useEffect(() => {
 		if (shouldFetchUsers) {
-			console.log("fetching users");
 			const getUsers = async () => {
 				const users = await fetchUsers();
-				console.log(users);
 				setUsers(users);
 				setShouldFetchUsers(false);
 			};
@@ -63,7 +59,6 @@ export default function AdminPage() {
 	}, [shouldFetchUsers, setShouldFetchUsers]);
 
 	useEffect(() => {
-		console.log("Users state updated:", users);
 	}, [users]);
 
 	if (loading) {

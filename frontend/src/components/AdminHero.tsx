@@ -12,8 +12,6 @@ const AdminHero = ({ admin }: { admin: Admin }) => {
 	const lastName = admin?.fullname
 		? admin.fullname.split(" ").slice(-1).join(" ")
 		: "";
-	console.log(firstName);
-	console.log(lastName);
 	return (
 		<div className="bg-black text-white">
 			{/* Player Profile Hero Section */}

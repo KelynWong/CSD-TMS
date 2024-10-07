@@ -36,14 +36,12 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 				<DropdownMenuContent align="end" className="w-[160px]">
 					<DropdownMenuItem
 						onClick={() => {
-							console.log("Update User");
 							setIsUpdateModalOpen(true);
 						}}>
 						Update User
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => {
-							console.log("Delete User");
 							setIsDeleteModalOpen(true);
 						}}>
 						Delete User
