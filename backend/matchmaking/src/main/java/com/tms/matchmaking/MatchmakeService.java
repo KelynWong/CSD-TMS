@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -21,24 +22,25 @@ import com.tms.match.Match;
 import com.tms.match.MatchJson;
 import com.tms.match.MatchPlayers;
 import com.tms.player.Player;
+import com.tms.player.Rating;
 import com.tms.tournament.Tournament;
-
 
 @Service
 public class MatchmakeService {
 
     private RestClient restClient;
-    
+
     private final String MATCH_URL = "http://match-ms:8080/matches";
     private final String TOURNAMENT_URL = "http://tournament-ms:8082/tournaments";
     private final String PLAYER_URL = "http://user-ms:8083/api/users";
+    private final String RATING_URL = "http://rating-ms:8084/ratings";
 
     public MatchmakeService() {
         this.restClient = RestClient.create();
     }
 
     public void matchmake(Long tournamentId) {
-        List<Player> players = fetchTournamentPlayerIds(tournamentId);
+        List<Player> playerIds = fetchTournamentPlayerIds(tournamentId);
         try {
             List<MatchJson> tournaments = null;
             tournaments = getTournamentMatches(tournamentId);
@@ -47,35 +49,36 @@ public class MatchmakeService {
             }
         } catch (TournamentNotFoundException e) {
             System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
-            int n = players.size();
+            int n = playerIds.size();
             int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
 
             List<MatchJson> matches = new ArrayList<>();
             int byes = (int) Math.pow(2, k) - n;
 
-            // choose top x players to get byes. currently just the first x players
-            List<Player> byePlayers = players.subList(0, byes);
+            // choose top x players to get byes.
+            List<Rating> playerRatings = fetchRatings(playerIds);
+            List<Rating> byePlayers = playerRatings.subList(0, byes);
 
             // create matches for byes
             for (int i = 0; i < byes; i++) {
-                List<Player> matchPlayers = byePlayers.subList(i, i + 1);
+                List<Rating> matchPlayers = byePlayers.subList(i, i + 1);
                 MatchJson match = createMatch(tournamentId, matchPlayers);
                 matches.add(match);
             }
 
             // create remaining matches for base layer
-            List<Player> remainingPlayers = players.subList(byes, n);
+            List<Rating> remainingPlayers = playerRatings.subList(byes, n);
             for (int i = 0; i < remainingPlayers.size(); i += 2) {
-                List<Player> matchPlayers = remainingPlayers.subList(i, i + 2);
+                List<Rating> matchPlayers = remainingPlayers.subList(i, i + 2);
                 MatchJson match = createMatch(tournamentId, matchPlayers);
                 matches.add(match);
             }
 
             double numMatchesAtBase = Math.pow(2, k - 1);
-            double numMatchesRemaining = (n - 1) - numMatchesAtBase;
+            double numMatchesRemaining = (Math.pow(2, k) - 1) - numMatchesAtBase;
 
             // create matches for the rest of the tree
-            for (int i=0; i < numMatchesRemaining; i++) {
+            for (int i = 0; i < numMatchesRemaining; i++) {
                 MatchJson match = createMatchWithoutPlayers(tournamentId);
                 matches.add(match);
             }
@@ -84,7 +87,7 @@ public class MatchmakeService {
         }
     }
 
-    private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
+    private MatchJson createMatch(Long tournamentId, List<Rating> matchPlayers) {
         String player1 = null;
         String player2 = null;
 
@@ -110,11 +113,11 @@ public class MatchmakeService {
         CreateTournament createTournament = new CreateTournament(matches, numMatchesAtBase);
 
         ResponseEntity<String> res = restClient.post()
-        .uri(MATCH_URL + "/tournament")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(createTournament)
-        .retrieve()
-        .toEntity(String.class);
+                .uri(MATCH_URL + "/tournament")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(createTournament)
+                .retrieve()
+                .toEntity(String.class);
 
         if (res.getStatusCode() != HttpStatus.CREATED) {
             throw new MatchCreationException("Error creating matches");
@@ -122,15 +125,15 @@ public class MatchmakeService {
 
         return true;
     }
-    
+
     public void inOrderTraversal(Match root) {
         if (root == null) {
             return;
         }
-    
+
         ArrayDeque<Match> queue = new ArrayDeque<>();
         queue.add(root);
-    
+
         while (!queue.isEmpty()) {
             int levelSize = queue.size();
             for (int i = 0; i < levelSize; i++) {
@@ -151,22 +154,14 @@ public class MatchmakeService {
         // Get tournament data
         Tournament tournament = fetchTournamentData(tournamentId);
 
-        // Get player ids for a particular tournament   
+        // Get player ids for a particular tournament
         List<Player> playerIds = fetchTournamentPlayerIds(tournamentId);
 
         // Get player data for a particular tournament
-        ResponseEntity<List<Player>> playerRes = restClient.post()
-                .uri(PLAYER_URL + "/ids")
-                .body(playerIds)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {});
-        
-        if (playerRes.getStatusCode() != HttpStatus.OK) {
-            throw new PlayerNotFoundException("Player ID not registered in database.");
-        }
-        
-        tournament.setPlayers(playerRes.getBody());
-        
+        List<Player> players = fetchPlayerData(playerIds);
+
+        tournament.setPlayers(players);
+
         // Get matches of a given tournament id
         List<MatchJson> matchRes = getTournamentMatches(tournamentId);
 
@@ -215,7 +210,8 @@ public class MatchmakeService {
         ResponseEntity<List<Player>> playerIdRes = restClient.get()
                 .uri(TOURNAMENT_URL + "/{tournamentId}/players", tournamentId)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {});
+                .toEntity(new ParameterizedTypeReference<List<Player>>() {
+                });
 
         if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
             throw new NoPlayersRegisteredException("No players registered for tournament");
@@ -224,11 +220,46 @@ public class MatchmakeService {
         return playerIdRes.getBody();
     }
 
+    private List<Player> fetchPlayerData(List<Player> playerIds) {
+        ResponseEntity<List<Player>> playerRes = restClient.post()
+                .uri(PLAYER_URL + "/ids")
+                .body(playerIds)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<Player>>() {});
+
+        if (playerRes.getStatusCode() != HttpStatus.OK) {
+            throw new PlayerNotFoundException("Player ID not registered in database.");
+        }
+
+        return playerRes.getBody();
+    }
+
+    private List<Rating> fetchRatings(List<Player> players) {
+        List<String> playerIds = players.stream()
+                .map(Player::getId)
+                .collect(Collectors.toList());
+        System.out.println(playerIds);
+
+        ResponseEntity<List<Rating>> ratingRes = restClient.post()
+                .uri(RATING_URL + "/by-ids")
+                .body(playerIds)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<Rating>>() {
+                });
+
+        if (ratingRes.getStatusCode() != HttpStatus.OK || ratingRes.getBody().isEmpty()) {
+            throw new RatingNotFoundException("No ratings found for players");
+        }
+        
+        return ratingRes.getBody();
+    }
+
     private List<MatchJson> getTournamentMatches(Long tournamentId) {
         ResponseEntity<List<MatchJson>> matchRes = restClient.get()
-        .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
-        .retrieve()
-        .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {});
+                .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {
+                });
 
         if (matchRes.getStatusCode() != HttpStatus.OK || matchRes.getBody().isEmpty()) {
             throw new TournamentNotFoundException(tournamentId, true);
@@ -284,10 +315,10 @@ public class MatchmakeService {
 
     private void updateWinner(MatchPlayers matchPlayers, Long matchId) {
         ResponseEntity<String> res = restClient.patch()
-        .uri(MATCH_URL + "/{matchId}", matchId)
-        .body(matchPlayers)
-        .retrieve()
-        .toEntity(String.class);
+                .uri(MATCH_URL + "/{matchId}", matchId)
+                .body(matchPlayers)
+                .retrieve()
+                .toEntity(String.class);
 
         if (res.getStatusCode() != HttpStatus.OK) {
             throw new MatchUpdateException(matchId);

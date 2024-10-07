@@ -1,12 +1,10 @@
 package com.tms.matchmaking;
 
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-import com.tms.player.Player;
 import com.tms.tournament.Tournament;
 
 @RestController

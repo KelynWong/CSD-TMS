@@ -1,6 +1,6 @@
 package com.tms.rating;
 
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 import lombok.Data;
 
@@ -8,5 +8,5 @@ import lombok.Data;
 public class ResultsDTO {
     private String winnerId;
     private String loserId;
-    private DateTime tournamentEndDate;
+    private LocalDateTime tournamentEndDate;
 }
