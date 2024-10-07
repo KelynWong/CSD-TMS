@@ -43,6 +43,11 @@ public class RatingController {
         return ratingService.initRating(rating);
     }
 
+    // @PostMapping("/ratings/initBatch/{start}/{end}")
+    // public List<Rating> initRatings(@PathVariable int start, @PathVariable int end) {
+    //     return ratingService.initRatings(start, end);
+    // }
+
     // @PostMapping("/ratings")
     // public Rating addRating(@RequestBody Rating rating) {
     //     return ratingService.addRating(rating);

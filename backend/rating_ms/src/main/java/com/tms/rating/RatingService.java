@@ -1,5 +1,6 @@
 package com.tms.rating;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +47,14 @@ public class RatingService {
         DateTime firstDayOfYear = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
         Rating rating = new Rating(ratingDTO.getId(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
+    }
+
+    public List<Rating> initRatings(int start, int end) {
+        ArrayList<Rating> ratingList = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            ratingList.add(initRating(new RatingDTO("user" + i)));
+        }
+        return ratingList;
     }
 
     public Rating addRating(Rating rating) {
