@@ -6,7 +6,7 @@
  */
 package com.tms.rating;
 
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tms.ratingCalc.RatingCalculator;
@@ -32,7 +32,7 @@ public class Rating {
 	private double ratingDeviation;
 	private double volatility;
 	private int numberOfResults; // the number of results from which the rating has been calculated
-	private DateTime lastRatingPeriodEndDate;
+	private LocalDateTime lastRatingPeriodEndDate;
 
 	 // the following variables are used to hold values temporarily whilst running calculations
 	@Transient
@@ -51,7 +51,7 @@ public class Rating {
 		this(id, initRating, initRatingDeviation, initVolatility, nbResults, null);
 	}
 
-	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults, DateTime lastRatingPeriodEndDate) {
+	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults, LocalDateTime lastRatingPeriodEndDate) {
 		this.id = id;
 		this.rating = initRating;
 		this.ratingDeviation = initRatingDeviation;
@@ -113,7 +113,7 @@ public class Rating {
 		this.ratingDeviation = ratingDeviation;
 	}
 
-	public DateTime getLastRatingPeriodEndDate() {
+	public LocalDateTime getLastRatingPeriodEndDate() {
 		return lastRatingPeriodEndDate;
 	}
 
@@ -189,7 +189,7 @@ public class Rating {
 		this.workingRatingDeviation = workingRatingDeviation;
 	}
 
-	public void setLastRatingPeriodEndDate(DateTime lastRatingPeriodEndDate) {
+	public void setLastRatingPeriodEndDate(LocalDateTime lastRatingPeriodEndDate) {
 		this.lastRatingPeriodEndDate = lastRatingPeriodEndDate;
 	}
 }

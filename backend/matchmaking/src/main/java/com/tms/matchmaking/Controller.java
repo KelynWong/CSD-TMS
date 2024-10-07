@@ -1,12 +1,10 @@
 package com.tms.matchmaking;
 
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
-import com.tms.player.Player;
 import com.tms.tournament.Tournament;
 
 @RestController
@@ -30,13 +28,6 @@ public class Controller {
     public ResponseEntity<Tournament> getTournament(@PathVariable Long tournamentId){
         Tournament tournament = matchmakeService.getTournament(tournamentId);
         return ResponseEntity.ok(tournament);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/matchmaking/generateWinners/{tournamentId}")
-    public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
-        matchmakeService.generateWinners(tournamentId);
-        return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
     }
 
 }

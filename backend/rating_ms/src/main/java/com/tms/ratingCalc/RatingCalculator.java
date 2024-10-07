@@ -8,8 +8,8 @@ package com.tms.ratingCalc;
 import com.tms.rating.Rating;
 
 import java.util.List;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
 /**
@@ -125,11 +125,12 @@ public class RatingCalculator {
    * @param reverse
    * @return new rating deviation
    */
-  public double previewDeviation(Rating player, DateTime ratingPeriodEndDate, boolean reverse) {
+  public double previewDeviation(Rating player, LocalDateTime ratingPeriodEndDate, boolean reverse) {
     double elapsedRatingPeriods = 0;
     if ( ratingPeriodsPerMilli != 0 && player.getLastRatingPeriodEndDate() != null ) {
-        Duration interval = new Duration(player.getLastRatingPeriodEndDate(), ratingPeriodEndDate);
-        elapsedRatingPeriods = interval.getMillis() * ratingPeriodsPerMilli;
+      LocalDateTime lastRatingPeriodEndDate = player.getLastRatingPeriodEndDate();
+      Duration interval = Duration.between(lastRatingPeriodEndDate, ratingPeriodEndDate);
+        elapsedRatingPeriods = interval.toMillis() * ratingPeriodsPerMilli;
     }
     if (reverse) {
         elapsedRatingPeriods = -elapsedRatingPeriods;

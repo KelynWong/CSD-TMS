@@ -3,8 +3,9 @@ package com.tms.rating;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +31,12 @@ public class RatingService {
         return ratingRepo.findAll();
     }
 
-    public Optional<Rating> getRatingById(String ratingId) {
-        return ratingRepo.findById(ratingId);
+    public Optional<Rating> getRatingById(String playerIds) {
+        return ratingRepo.findById(playerIds);
+    }
+
+    public List<Rating> getRatingsByIds(List<String> playerIds) {
+        return ratingRepo.findAllByIdOrderByRatingDesc(playerIds);
     }
 
     public Page<Rating> getTopRatings(Pageable pageable) {
@@ -44,7 +49,7 @@ public class RatingService {
     }
 
     public Rating initRating(RatingDTO ratingDTO) {
-        DateTime firstDayOfYear = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(ratingDTO.getId(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
     }
@@ -62,7 +67,7 @@ public class RatingService {
     }
 
     public List<Rating> calcRating(ResultsDTO match) {
-        DateTime now = DateTime.now();
+        LocalDateTime now = LocalDateTime.now();
         RatingPeriodResults results = new RatingPeriodResults();
         Optional<Rating> winner = ratingRepo.findById(match.getWinnerId());
         Optional<Rating> loser = ratingRepo.findById(match.getLoserId());
@@ -86,7 +91,7 @@ public class RatingService {
         return List.of(winnerRating, loserRating);
     }
 
-    private Rating processRating(Rating rating, DateTime currTournamentDate, DateTime currDateTime) {
+    private Rating processRating(Rating rating, LocalDateTime currTournamentDate, LocalDateTime currDateTime) {
         double rd = ratingCalc.previewDeviation(rating, currTournamentDate, false);
         if (rd != rating.getRatingDeviation()) {
             rating.setRatingDeviation(rd);

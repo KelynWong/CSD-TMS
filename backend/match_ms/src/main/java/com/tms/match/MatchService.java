@@ -15,8 +15,10 @@ public interface MatchService {
     Double getPlayerWinRate(String id);
 
     Match addMatch(MatchJson match);
+    List<Match> addTournament(CreateTournament tournament);
 
     Match updateMatchAndParent(Long id, MatchPlayers matchPlayers);
+    void generateWinners(Long tournamentId);
 
     /**
      * Change method's signature: do not return a value for delete operation

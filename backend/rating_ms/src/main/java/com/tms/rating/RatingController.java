@@ -38,15 +38,20 @@ public class RatingController {
         return ratingService.getTopRatings(pageable);
     }
 
+    @PostMapping("/ratings/by-ids")
+    public List<Rating> getRatingsByIds(@RequestBody List<String> ratingIds) {
+        return ratingService.getRatingsByIds(ratingIds);
+    }
+
     @PostMapping("/ratings/init")
     public Rating initRating(@RequestBody RatingDTO rating) {
         return ratingService.initRating(rating);
     }
 
-    // @PostMapping("/ratings/initBatch/{start}/{end}")
-    // public List<Rating> initRatings(@PathVariable int start, @PathVariable int end) {
-    //     return ratingService.initRatings(start, end);
-    // }
+    @PostMapping("/ratings/initBatch/{start}/{end}")
+    public List<Rating> initRatings(@PathVariable int start, @PathVariable int end) {
+        return ratingService.initRatings(start, end);
+    }
 
     // @PostMapping("/ratings")
     // public Rating addRating(@RequestBody Rating rating) {
