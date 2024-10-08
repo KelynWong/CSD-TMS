@@ -124,6 +124,8 @@ export default function TournamentForm() {
 
     const onSubmit = async (data: any) => {
         setLoading(true);
+
+        console.log(user.id);
         
         const payload = {
             ...data,
@@ -132,6 +134,7 @@ export default function TournamentForm() {
             regStartDT: data.regStartDT.toISOString(),
             regEndDT: data.regEndDT.toISOString(),
             ...(isEditing && { id: id }),
+            ...(!isEditing && { createdBy: user.id })
         };
     
         console.log(payload);

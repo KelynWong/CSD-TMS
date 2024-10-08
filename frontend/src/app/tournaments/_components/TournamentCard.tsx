@@ -203,7 +203,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className="my-1">{numMatches} Matches</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'RegistrationClosed' ? 'text-red-600' : 'text-green-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'RegistrationClosed' ? 'text-red-600' : status === 'RegistrationOpen' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
