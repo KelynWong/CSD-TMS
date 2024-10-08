@@ -28,6 +28,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { TimePicker } from "../../_components/TimePicker";
 import { createTournaments, updateTournaments, fetchTournaments } from "@/api/tournaments/api";
 import Loading from "@/components/Loading";
+import { useUserContext } from "@/context/userContext";
 
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
@@ -43,6 +44,8 @@ const formSchema = z.object({
 export default function TournamentForm() {
     const router = useRouter();
     const { id } = useParams();
+    const { user } = useUserContext();
+    console.log(user);
     const isEditing = id && id !== 'create';
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
@@ -80,7 +83,7 @@ export default function TournamentForm() {
             endDT: defaultEnd,
             status: "Scheduled",
             regStartDT: defaultRegStart,
-            regEndDT: defaultRegEnd
+            regEndDT: defaultRegEnd,
         },
     });
 
@@ -135,6 +138,7 @@ export default function TournamentForm() {
         const response = await (isEditing ? updateTournaments(payload) : createTournaments(payload));
     
         if (response) {
+            console.log(response)
             setLoading(false);
             alert(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
             router.push('/tournaments');

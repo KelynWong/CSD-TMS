@@ -13,10 +13,11 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { use, useEffect, useState } from 'react';
-import { deleteTournament } from "@/api/tournaments/api";
+import { checkPlayerRegisteredForTournament, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
 import { fetchMatchByTournamentID } from '@/api/matches/api';
 import Loading from "@/components/Loading";
 import { Match } from '@/types/match';
+import { useUserContext } from '@/context/userContext';
 
 interface TournamentCardProps {
     id: number;
@@ -30,6 +31,7 @@ interface TournamentCardProps {
 }
 
 export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, role }: TournamentCardProps) {
+    const { user } = useUserContext();
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [numMatches, setNumMatches] = useState(0);
@@ -91,10 +93,24 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }).format(formattedRegEndDT);
 
     useEffect(() => {
+        setLoading(true);
+        const getUserRegisteredData = async () => {
+            try {
+                const data = await checkPlayerRegisteredForTournament(id, user.id);
+                setIsRegistered(data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Failed to fetch player registration status:", err);
+            }
+        };
+        getUserRegisteredData();
+    }, [isRegistered, user]);
+
+    useEffect(() => {
+        setLoading(true);
         const getMatchCount = async () => {
             try {
                 const data = await fetchMatchByTournamentID(id);
-                setLoading(false);
                 const mappedData: Match[] = data.map((match: any) => ({
                     id: match.id,
                     tournamentId: match.tournamentId,
@@ -106,6 +122,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     games: match.games
                 }));
                 setNumMatches(mappedData.length);
+                setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch tournaments:", err);
             }
@@ -113,33 +130,55 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         getMatchCount();
     }, []);
 
-    if (status === 'Registration Closed') {
-        setAvailForMatchMake(true)
-    }
+    useEffect(() => {
+        if (status === 'RegistrationClosed') {
+            setAvailForMatchMake(true);
+        } else {
+            setAvailForMatchMake(false);  // Reset to false if the status changes
+        }
+    }, [status]);
 
-    const handleDelete = async () => {
+    const registerPlayer = async () => {
         try {
-            await deleteTournament(id); 
-            alert('Tournament deleted successfully!');
+            await registerTournament(id, user.id);
+            setLoading(false);
+            alert('Registration successful!');
             window.location.reload();
-        } catch (error) {
-            console.error('Failed to delete tournament:', error);
-            alert('Failed to delete tournament.');
+        } catch (err) {
+            alert('Registration failed :(');
+            console.error("Failed to register for tournament:", err);
         }
     };
 
-    // TO DO: call API to check if user is registered for tournament
-    // useEffect(() => {
-    //     const getUserRegisterationStatusData = async () => {
-    //         try {
-    //             const data = await fetchUserRegistrationStatus();
-    //             setIsRegistered(data);
-    //         } catch (err) {
-    //             console.error("Failed to fetch user registration status:", err);
-    //         }
-    //     };
-    //     getUserRegisteredData();
-    // }, []);
+    const deRegisterPlayer = async () => {
+        try {
+            await withdrawTournament(id, user.id);
+            alert('Successfully withdrawn from tournament! :)');
+            window.location.reload();
+        } catch (err) {
+            setLoading(false);
+            alert('Failed to withdraw from tournament :(');
+            console.error("Failed to register for tournament:", err);
+        }
+    };
+    
+    const handleDelete = async () => {
+        setLoading(true);
+        try {
+            await deleteTournament(id); 
+            setLoading(false);
+            alert('Tournament deleted successfully! :)');
+            window.location.reload();
+        } catch (error) {
+            setLoading(false);
+            console.error('Failed to delete tournament:', error);
+            alert('Failed to delete tournament :(');
+        }
+    };
+
+    if (loading) {
+		return <Loading />;
+	}
 
     return (
         <Card>
@@ -165,7 +204,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 )}
             </CardContent>
             <CardFooter>
-                {role === "user" && status === 'RegistrationOpen'? (
+                {role === "Player" && status === 'RegistrationOpen'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
@@ -173,18 +212,18 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                             isRegistered ? (
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Unregister</Button>
+                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Withdraw</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="bg-white">
                                         <AlertDialogHeader>
-                                            <AlertDialogTitle>Confirm Unregistration</AlertDialogTitle>
+                                            <AlertDialogTitle>Confirm Withdrawal</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                Are you sure you want to unregister from this tournament?
+                                                Are you sure you want to withdraw from this tournament?
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction>Unregister</AlertDialogAction>
+                                            <AlertDialogAction className="text-black bg-amber-400 hover:bg-amber-500" onClick={deRegisterPlayer}>Withdraw</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
@@ -202,14 +241,14 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction>Register</AlertDialogAction>
+                                            <AlertDialogAction className="bg-red-500 hover:bg-red-700 text-white" onClick={registerPlayer}>Register</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
                             )
                         )}
                     </div>
-                ) : role === "admin" ? (
+                ) : role === "Admin" ? (
                     <div className="grid grid-row-2 gap-2 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>

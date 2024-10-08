@@ -22,9 +22,9 @@ type MatchResponse = {
 
 export const fetchMatchByTournamentID = async (id: number): Promise<MatchResponse[]> => {
 	try {
-		console.log(`${URL}/matches/tournaments/${id}`);
+		// console.log(`${URL}/matches/tournament/${id}`);
 
-		const response = await axios.get(`${URL}/tournaments`);
+		const response = await axios.get(`${URL}/matches/tournament/${id}`);
 		const formattedData: MatchResponse[] = response.data.map((match: any) => ({
 			id: match.id,
 			tournamentId: match.tournamentId,
@@ -35,7 +35,7 @@ export const fetchMatchByTournamentID = async (id: number): Promise<MatchRespons
 			right: match.right,
 			games: match.games
 		}));
-		console.log(formattedData);
+		
 		return formattedData;
 	} catch (error) {
 		console.error("Error fetching matches", error);

@@ -6,4 +6,5 @@ export type Tournament = {
 	status: string;
 	regStartDT: string;
 	regEndDT: string;
+	createdBy: string;
 };

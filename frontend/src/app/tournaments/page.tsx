@@ -13,9 +13,12 @@ import Pagination from "./_components/Pagination";
 import { fetchTournaments } from "@/api/tournaments/api";
 import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
+import { useUserContext } from "@/context/userContext";
+import { fetchPlayer } from "@/api/users/api";
 
 export default function Tournaments() {
-    const role = "admin";
+    const { user } = useUserContext();
+    const [role, setRole] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
     const [categorizedTournaments, setCategorizedTournaments] = useState<{
@@ -41,6 +44,21 @@ export default function Tournaments() {
     const itemsPerPage = 12;
 
     useEffect(() => {
+		if (user) {
+			const getPlayerData = async () => {
+				try {
+					const data = await fetchPlayer(user.id);
+					setLoading(false);
+					setRole(data.role);
+				} catch (err) {
+					console.error("Failed to fetch player:", err);
+				}
+			};
+			getPlayerData();
+		}
+	}, [user]);
+
+    useEffect(() => {
         const getTournamentsData = async () => {
             try {
                 const data = await fetchTournaments();
@@ -53,6 +71,7 @@ export default function Tournaments() {
                     status: tournament.status,
                     regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
                     regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    createdBy: tournament.createdBy,
                 }));
                 categorizeTournaments(mappedData);
             } catch (err) {
@@ -64,8 +83,8 @@ export default function Tournaments() {
 
     const categorizeTournaments = (data: Tournament[]) => {
         const completed = data.filter(tournament => tournament.status === 'Completed');
-        const ongoing = data.filter(tournament => tournament.status === 'InProgress');
-        const upcoming = data.filter(tournament => tournament.status === 'RegistrationStart' || tournament.status === 'Scheduled');
+        const ongoing = data.filter(tournament => tournament.status === 'Ongoing');
+        const upcoming = data.filter(tournament => tournament.status === 'Scheduled' || tournament.status === 'RegistrationOpen' || tournament.status === 'RegistrationClosed');
         const all = data;
 
         setCategorizedTournaments({
@@ -89,6 +108,39 @@ export default function Tournaments() {
         ongoing: Math.ceil(categorizedTournaments.ongoing.length / itemsPerPage),
         upcoming: Math.ceil(categorizedTournaments.upcoming.length / itemsPerPage),
     };
+
+    const getCurrentPage = (tab: string) => {
+        switch (tab) {
+          case 'all':
+            return currentAllPage;
+          case 'completed':
+            return currentCompletedPage;
+          case 'ongoing':
+            return currentOngoingPage;
+          case 'upcoming':
+            return currentUpcomingPage;
+          default:
+            return 1;
+        }
+    };
+      
+    const handlePageChange = (tab: string) => (page: number) => {
+        switch (tab) {
+          case 'all':
+            setCurrentAllPage(page);
+            break;
+          case 'completed':
+            setCurrentCompletedPage(page);
+            break;
+          case 'ongoing':
+            setCurrentOngoingPage(page);
+            break;
+          case 'upcoming':
+            setCurrentUpcomingPage(page);
+            break;
+        }
+    };
+      
 
     const handleTabChange = (value: string) => {
         setActiveTab(value);
@@ -146,25 +198,25 @@ export default function Tournaments() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
 
@@ -197,9 +249,9 @@ export default function Tournaments() {
                         </div>
                         {totalPages[tab] > 1 && (
                             <Pagination
-                                currentPage={tab === 'all' ? currentAllPage : tab === 'completed' ? currentCompletedPage : tab === 'ongoing' ? currentOngoingPage : currentUpcomingPage}
+                                currentPage={getCurrentPage(tab)}
                                 totalPages={totalPages[tab]}
-                                onPageChange={tab === 'all' ? setCurrentAllPage : tab === 'completed' ? setCurrentCompletedPage : tab === 'ongoing' ? setCurrentOngoingPage : setCurrentUpcomingPage}
+                                onPageChange={handlePageChange(tab)}
                             />
                         )}
                     </TabsContent>
