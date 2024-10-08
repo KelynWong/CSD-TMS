@@ -1,6 +1,7 @@
 package com.tms.tournamentplayer;
 
 import com.tms.tournament.*;
+import com.tms.exception.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +36,7 @@ public class PlayerController {
         }).orElse(null);
     }
 
-    /* Get all tournament Players by tournament id */
+    /* Get all tournaments by player id */
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
         // if player dont exist, throw playerNotFound err
@@ -46,6 +47,28 @@ public class PlayerController {
         return players.findById(playerId).map(player -> {
             return player.getTournaments();
         }).orElse(null);
+    }
+
+    @GetMapping("/tournaments/{tournamentId}/players/{playerId}")
+    public Map<String,Boolean> IsRegister(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
+        Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
+        Map<String,Boolean> result = new HashMap<>();
+        
+        return tournaments.findById(tournamentId).map(tournament -> { // find tournament
+            
+            // if player is not registered in the tournament, return true;
+            if (player.getTournaments().contains(tournament)) {
+                
+                result.put("IsRegistered", true);
+                return result; 
+                
+            }
+
+            // Else, return false
+            result.put("IsRegistered", false);
+            return result; 
+
+        }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     }
 
     /* Register Player */
