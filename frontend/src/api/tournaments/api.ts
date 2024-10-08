@@ -1,8 +1,6 @@
 import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
-// hii
-
 const URL = "http://localhost:8082";
 
 type tournamentResponse = {
