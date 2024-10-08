@@ -45,7 +45,6 @@
 	font-display: swap;
 }
 
-
 @media (prefers-color-scheme: dark) {
 }
 
@@ -79,8 +78,10 @@ h6 {
 * {
 	@apply border-border;
 }
+
 body {
 	@apply bg-background text-foreground;
+	font-family: "Kollektif", sans-serif;
 }
 
 @layer base {

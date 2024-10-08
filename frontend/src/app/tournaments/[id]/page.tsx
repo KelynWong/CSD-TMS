@@ -32,6 +32,7 @@ import {
 import { Pencil } from "lucide-react";
 import Link from 'next/link';
 import SetEditForm from "../_components/SetEditForm";
+import CarouselComponent from "../_components/CarouselComponent";
 
 const tournament = {
     tournamentID: 1,
@@ -213,7 +214,7 @@ export default function TournamentDetails() {
                 <div className="w-full formatPlayer my-5 flex gap-4">
                     <div className="w-3/5 border border-slate-200 bg-white rounded-lg font-body">
                         <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">formats</h2>
-                        <div className="p-6 pt-4 text-slate-600">
+                        <div className="p-6 pt-4 pb-16 text-slate-600">
                             <p className="mb-2">Participants</p>
                             <ul className="ml-3 list-disc list-inside">
                                 <li>Six teams from the Upper Division of Season 2 of previous DPC season</li>
@@ -237,26 +238,9 @@ export default function TournamentDetails() {
                         </div>
                     </div>
 
-                    <div className="w-2/5 bg-white rounded-lg font-body">
+                    <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
                         <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
-                        <Carousel opts={{ align: "start", }} className="m-6 mt-0">
-                            <CarouselContent className="justify-content-center m-0">
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                    {Array.from({ length: tournament.player.length }).map((_, index) => (
-                                        <CarouselItem key={index} className="m-0 p-0">
-                                            <Card className="border-2 border-yellow-400 rounded-lg">
-                                                <CardContent className="flex flex-col items-center justify-items-center py-4 px-3">
-                                                    <img src={tournament.player[index].pic} alt={tournament.player[index].name} className="rounded-full w-6 h-6" />
-                                                    <p className="w-full text-center font-medium truncate pt-1.5">{tournament.player[index].name}</p>
-                                                </CardContent>
-                                            </Card>
-                                        </CarouselItem>
-                                    ))}
-                                </div>
-                            </CarouselContent>
-                            {/* <CarouselPrevious />
-                            <CarouselNext /> */}
-                        </Carousel>
+                        <CarouselComponent tournament={tournament} />
                     </div>
                 </div>
 
