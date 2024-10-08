@@ -166,10 +166,8 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     };
     
     const handleDelete = async () => {
-        setLoading(true);
         try {
-            await deleteTournament(id); 
-            setLoading(false);
+            await deleteTournament(id);
             alert('Tournament deleted successfully! :)');
             window.location.reload();
         } catch (error) {
