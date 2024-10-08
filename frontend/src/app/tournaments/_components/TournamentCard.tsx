@@ -13,7 +13,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { use, useEffect, useState } from 'react';
-import { checkPlayerRegisteredForTournament, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
+import { getPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
 import { fetchMatchByTournamentID } from '@/api/matches/api';
 import Loading from "@/components/Loading";
 import { Match } from '@/types/match';
@@ -33,9 +33,10 @@ interface TournamentCardProps {
 export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, role }: TournamentCardProps) {
     const { user } = useUserContext();
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
-    const [isRegistered, setIsRegistered] = useState(false);
+    const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
+    
     const formattedStartDT = new Date(startDT);
     const startDate = new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
@@ -96,15 +97,17 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         setLoading(true);
         const getUserRegisteredData = async () => {
             try {
-                const data = await checkPlayerRegisteredForTournament(id, user.id);
+                console.log(user)
+                const data = await getPlayerRegistrationStatus(id, user.id);
                 setIsRegistered(data);
+                console.log(isRegistered)
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch player registration status:", err);
             }
         };
         getUserRegisteredData();
-    }, [isRegistered, user]);
+    }, [user, isRegistered]);
 
     useEffect(() => {
         setLoading(true);

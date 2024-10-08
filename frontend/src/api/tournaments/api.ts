@@ -35,7 +35,7 @@ export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
 	}
 };
 
-export const getAllPlayersInTournament = async (tournament_id: number): Promise<any[]> => {
+export const getAllPlayersByTournament = async (tournament_id: number): Promise<any[]> => {
 	try {
 		console.log(`${URL}/tournaments/${tournament_id}/players`);
 
@@ -53,22 +53,16 @@ export const getAllPlayersInTournament = async (tournament_id: number): Promise<
 	}
 };
 
-export const checkPlayerRegisteredForTournament = async (tournament_id: number, user_id: string): Promise<boolean> => {
+export const getPlayerRegistrationStatus = async (tournament_id: number, user_id: string): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/tournaments/${tournament_id}/players`);
+		// console.log(`${URL}/tournaments/${tournament_id}/players/${user_id}`);
 		// console.log(user_id);
 	
-		const response = await axios.get(`${URL}/tournaments/${tournament_id}/players`);
-	
-		if (response.status === 200 && response.data) {
-			// Check if the passed user_id exists in the array of player objects
-			return response.data.some((player: { id: string }) => player.id === user_id);
-		} else {
-			return false; // Return false if no players are found or response is not OK
-		}
+		const response = await axios.get(`${URL}/tournaments/${tournament_id}/players/${user_id}`);
+		return response.data.IsRegistered;
 	} catch (error) {
-		console.error("Error fetching players in tournament", error);
-		return false; // Return false in case of error
+		console.error("Error fetching player registration status", error);
+		return false; 
 	}
 };
 
