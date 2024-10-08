@@ -15,6 +15,7 @@ import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
 
 export default function Tournaments() {
+    const role = "admin";
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
     const [categorizedTournaments, setCategorizedTournaments] = useState<{
@@ -110,11 +111,11 @@ export default function Tournaments() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-2xl flex justify-between">
-                            Completed <Medal size={28} />
+                            Upcoming <PartyPopper size={28} />
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-heading font-bold">{tournamentCount.completed}</div>
+                        <div className="text-3xl font-heading font-bold">{tournamentCount.upcoming}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -130,11 +131,11 @@ export default function Tournaments() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-2xl flex justify-between">
-                            Upcoming <PartyPopper size={28} />
+                            Completed <Medal size={28} />
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-heading font-bold">{tournamentCount.upcoming}</div>
+                        <div className="text-3xl font-heading font-bold">{tournamentCount.completed}</div>
                     </CardContent>
                 </Card>
             </div>
@@ -145,25 +146,25 @@ export default function Tournaments() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            <Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="completed" className="mr-8 py-4">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            <Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="ongoing" className="mr-8 py-4">
-                        <div className="flex items-center justify-between">
-                            <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            <Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            <Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>
+                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="ongoing" className="mr-8 py-4">
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
+                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="completed" className="mr-8 py-4">
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-3xl mr-5">Completed Tournaments</h1>
+                            {role == "admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
                         </div>
                     </TabsContent>
 
@@ -172,26 +173,26 @@ export default function Tournaments() {
                             All
                             {activeTab === 'all' && <Badge className="ml-2 px-1.5">{tournamentCount.all}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
-                            Completed
-                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">{tournamentCount.completed}</Badge>}
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
+                            Upcoming
+                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">{tournamentCount.upcoming}</Badge>}
                         </TabsTrigger>
                         <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="ongoing">
                             Ongoing
                             {activeTab === 'ongoing' && <Badge className="ml-2 px-1.5">{tournamentCount.ongoing}</Badge>}
                         </TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
-                            Upcoming
-                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">{tournamentCount.upcoming}</Badge>}
+                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
+                            Completed
+                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">{tournamentCount.completed}</Badge>}
                         </TabsTrigger>
                     </TabsList>
                 </div>
 
-                {(['all', 'completed', 'ongoing', 'upcoming'] as const).map((tab) => (
+                {(['all', 'upcoming', 'ongoing', 'completed'] as const).map((tab) => (
                     <TabsContent key={tab} value={tab}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
                             {paginatedTournaments(categorizedTournaments[tab], tab === 'all' ? currentAllPage : tab === 'completed' ? currentCompletedPage : tab === 'ongoing' ? currentOngoingPage : currentUpcomingPage).map((tournament: Tournament) => (
-                                <TournamentCard numMatches={null} role={"admin"} key={tournament.id} {...tournament} />
+                                <TournamentCard role={role} key={tournament.id} {...tournament} />
                             ))}
                         </div>
                         {totalPages[tab] > 1 && (

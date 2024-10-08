@@ -12,8 +12,11 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { deleteTournament } from "@/api/tournaments/api";
+import { fetchMatchByTournamentID } from '@/api/matches/api';
+import Loading from "@/components/Loading";
+import { Match } from '@/types/match';
 
 interface TournamentCardProps {
     id: number;
@@ -23,13 +26,14 @@ interface TournamentCardProps {
     status: string,
     regStartDT: string,
     regEndDT: string,
-    numMatches: number | null;
     role: string | null;
 }
 
-export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, numMatches, role }: TournamentCardProps) {
+export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, role }: TournamentCardProps) {
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
+    const [numMatches, setNumMatches] = useState(0);
+    const [loading, setLoading] = useState(true);
     const formattedStartDT = new Date(startDT);
     const startDate = new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
@@ -86,6 +90,29 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         hour12: true
     }).format(formattedRegEndDT);
 
+    useEffect(() => {
+        const getMatchCount = async () => {
+            try {
+                const data = await fetchMatchByTournamentID(id);
+                setLoading(false);
+                const mappedData: Match[] = data.map((match: any) => ({
+                    id: match.id,
+                    tournamentId: match.tournamentId,
+                    player1Id: match.player1Id,
+                    player2Id: match.player2Id,
+                    winnerId: match.winnerId,
+                    left: match.left,
+                    right: match.right,
+                    games: match.games
+                }));
+                setNumMatches(mappedData.length);
+            } catch (err) {
+                console.error("Failed to fetch tournaments:", err);
+            }
+        };
+        getMatchCount();
+    }, []);
+
     if (status === 'Registration Closed') {
         setAvailForMatchMake(true)
     }
@@ -134,11 +161,11 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className="my-1">{numMatches} Matches</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'Registration Closed' ? 'text-red-600' : 'text-green-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'RegistrationClosed' ? 'text-red-600' : 'text-green-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
-                {role === "user" ? (
+                {role === "user" && status === 'RegistrationOpen'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
