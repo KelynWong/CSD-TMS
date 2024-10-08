@@ -57,10 +57,9 @@ export function UpdateUserModal({
 					role,
 					rating,
 				});
-				console.log("fetch user updated successfully");
 				message.success("User updated successfully");
 				onClose(); // Close the modal
-			}, 1000);
+			}, 1500);
 		} catch (error) {
 			message.error("Failed to update user");
 		}

@@ -2,7 +2,7 @@ import axios from "axios";
 
 const URL = "http://localhost:8083";
 
-type PlayerResponse = {
+export type PlayerResponse = {
 	id: string;
 	username: string;
 	fullname: string;
@@ -14,7 +14,7 @@ type PlayerResponse = {
 	role: string;
 };
 
-type AdminResponse = {
+export type AdminResponse = {
 	id: string;
 	username: string;
 	fullname: string;
@@ -23,7 +23,7 @@ type AdminResponse = {
 	role: string;
 };
 
-type UserResponse = {
+export type UserResponse = {
 	id: string;
 	username: string;
 	fullname: string;
@@ -37,8 +37,6 @@ type UserResponse = {
 
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
-		console.log(`${URL}/api/users`);
-
 		const response = await axios.get(`${URL}/api/users`);
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
@@ -61,7 +59,6 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
 		const response = await axios.get(`${URL}/api/users/${id}`);
-		console.log(response.data);
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -114,7 +111,7 @@ export const fetchUserByRoles = async (
 };
 
 
-// update this
+//TODO update this
 const updateUser = async (id: string, formData: FormData) => {
   try {
     const response = await axios.put(`${URL}/api/users/${id}`, formData);

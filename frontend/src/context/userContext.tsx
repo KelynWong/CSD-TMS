@@ -21,7 +21,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 			setUserData(user);
 		}
 	}, [user]);
-	console.log(user);
+
 	return (
 		<UserContext.Provider value={{ user: userData, setUser: setUserData }}>
 			{children}

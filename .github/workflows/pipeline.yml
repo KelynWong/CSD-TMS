@@ -23,11 +23,18 @@ jobs:
     - name: Build and Push Docker Images
       run: |
         # Build and push user_ms
-        docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms
+        docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms\
+          --build-arg SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+          --build-arg SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
+          --build-arg SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" \
+          --build-arg CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
         docker push csdtms.azurecr.io/user_ms:latest
 
         # Build and push tournament_ms
-        docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms
+        docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms \
+          --build-arg DB_URL="${{ secrets.DB_URL }}" \
+          --build-arg DB_USER="${{ secrets.DB_USER }}" \
+          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
         docker push csdtms.azurecr.io/tournament_ms:latest
 
         # Build and push matchmaking
@@ -35,7 +42,10 @@ jobs:
         docker push csdtms.azurecr.io/matchmaking:latest
 
         # Build and push match_ms
-        docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms
+        docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms \
+          --build-arg DB_URL="${{ secrets.DB_URL }}" \
+          --build-arg DB_USER="${{ secrets.DB_USER }}" \
+          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
         docker push csdtms.azurecr.io/match_ms:latest
 
     - name: Log in to Azure
