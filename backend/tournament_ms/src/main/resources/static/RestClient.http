@@ -1,15 +1,15 @@
-GET http://localhost:8080/books
+GET http://localhost:8080/Tournaments
 
 
 ###
-GET http://localhost:8080/books/2
+GET http://localhost:8080/Tournaments/2
 
 ###
-DELETE http://localhost:8080/books/1
+DELETE http://localhost:8080/Tournaments/1
 
 
 ###
-POST http://localhost:8080/books
+POST http://localhost:8080/Tournaments
 Content-Type: application/json
 
 {
@@ -17,7 +17,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/books/4
+PUT http://localhost:8080/Tournaments/4
 Content-Type: application/json
 
 {
@@ -25,18 +25,18 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/books/2/reviews
+GET http://localhost:8080/Tournaments/2/reviews
 
 ###
-POST http://localhost:8080/books/1/reviews
+POST http://localhost:8080/Tournaments/1/reviews
 Content-Type: application/json
 
 {
-    "review": "Terrible book!"
+    "review": "Terrible Tournament!"
 }
 
 ###
-PUT http://localhost:8080/books/2/reviews/3
+PUT http://localhost:8080/Tournaments/2/reviews/3
 Content-Type: application/json
 
 {
@@ -44,4 +44,4 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/books/1/reviews/5
+DELETE http://localhost:8080/Tournaments/1/reviews/5
