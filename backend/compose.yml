@@ -10,6 +10,8 @@ services:
     build: ./matchmaking
     ports:
       - "8081:8081"
+    env_file:
+      - ./matchmaking/.env
 
   tournament-ms:
     build: ./tournament_ms

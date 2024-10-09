@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,15 +30,23 @@ import com.tms.tournament.Tournament;
 @Service
 public class MatchmakeService {
 
-    private RestClient restClient;
+    private final RestClient restClient;
+    private final String MATCH_URL;
+    private final String TOURNAMENT_URL;
+    private final String PLAYER_URL;
+    private final String RATING_URL;
 
-    private final String MATCH_URL = "http://match-ms:8080/matches";
-    private final String TOURNAMENT_URL = "http://tournament-ms:8082/tournaments";
-    private final String PLAYER_URL = "http://user-ms:8083/api/users";
-    private final String RATING_URL = "http://rating-ms:8084/ratings";
-
-    public MatchmakeService() {
+    public MatchmakeService(
+        @Value("${MATCH_URL}") String MATCH_URL,
+        @Value("${TOURNAMENT_URL}") String TOURNAMENT_URL,
+        @Value("${PLAYER_URL}") String PLAYER_URL,
+        @Value("${RATING_URL}") String RATING_URL
+    ) {
         this.restClient = RestClient.create();
+        this.MATCH_URL = MATCH_URL;
+        this.TOURNAMENT_URL = TOURNAMENT_URL;
+        this.PLAYER_URL = PLAYER_URL;
+        this.RATING_URL = RATING_URL;
     }
 
     public void matchmake(Long tournamentId) {
