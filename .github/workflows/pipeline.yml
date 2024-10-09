@@ -54,7 +54,7 @@ jobs:
     - name: Deploy to Azure Container Instances
       run: |
         # Deploy user_ms
-        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8083 
+        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
 
         # Deploy tournament_ms
         az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}"
