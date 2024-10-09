@@ -35,7 +35,19 @@ export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
 	}
 };
 
-export const getAllPlayersByTournament = async (tournament_id: number): Promise<any[]> => {
+export const fetchTournamentById = async (tournament_id: number): Promise<Tournament> => {
+	try {
+		// console.log(`${URL}/tournaments/id/${tournament_id}`);
+
+		const response = await axios.get(`${URL}/tournaments/id/${tournament_id}`);
+		return response.data;
+	} catch (error) {
+		console.error(`Error fetching tournament ${tournament_id}`, error);
+		throw error;
+	}
+};
+
+export const fetchAllPlayersByTournament = async (tournament_id: number): Promise<any[]> => {
 	try {
 		console.log(`${URL}/tournaments/${tournament_id}/players`);
 
@@ -53,7 +65,7 @@ export const getAllPlayersByTournament = async (tournament_id: number): Promise<
 	}
 };
 
-export const getPlayerRegistrationStatus = async (tournament_id: number, user_id: string): Promise<boolean> => {
+export const fetchPlayerRegistrationStatus = async (tournament_id: number, user_id: string): Promise<boolean> => {
 	try {
 		// console.log(`${URL}/tournaments/${tournament_id}/players/${user_id}`);
 		// console.log(user_id);

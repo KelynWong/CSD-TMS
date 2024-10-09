@@ -13,8 +13,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { use, useEffect, useState } from 'react';
-import { getPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
-import { fetchMatchByTournamentID } from '@/api/matches/api';
+import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
+import { fetchMatchByTournamentId } from '@/api/matches/api';
 import Loading from "@/components/Loading";
 import { Match } from '@/types/match';
 import { useUserContext } from '@/context/userContext';
@@ -98,7 +98,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         const getUserRegisteredData = async () => {
             try {
                 console.log(user)
-                const data = await getPlayerRegistrationStatus(id, user.id);
+                const data = await fetchPlayerRegistrationStatus(id, user.id);
                 setIsRegistered(data);
                 console.log(isRegistered)
                 setLoading(false);
@@ -113,18 +113,18 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         setLoading(true);
         const getMatchCount = async () => {
             try {
-                const data = await fetchMatchByTournamentID(id);
-                const mappedData: Match[] = data.map((match: any) => ({
-                    id: match.id,
-                    tournamentId: match.tournamentId,
-                    player1Id: match.player1Id,
-                    player2Id: match.player2Id,
-                    winnerId: match.winnerId,
-                    left: match.left,
-                    right: match.right,
-                    games: match.games
-                }));
-                setNumMatches(mappedData.length);
+                const data = await fetchMatchByTournamentId(id);
+                // const mappedData: Match[] = data.map((match: any) => ({
+                //     id: match.id,
+                //     tournamentId: match.tournamentId,
+                //     player1Id: match.player1Id,
+                //     player2Id: match.player2Id,
+                //     winnerId: match.winnerId,
+                //     left: match.left,
+                //     right: match.right,
+                //     games: match.games
+                // }));
+                setNumMatches(data.length);
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch tournaments:", err);

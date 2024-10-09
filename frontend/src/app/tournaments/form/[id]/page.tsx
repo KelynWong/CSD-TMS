@@ -45,7 +45,6 @@ export default function TournamentForm() {
     const router = useRouter();
     const { id } = useParams();
     const { user } = useUserContext();
-    console.log(user);
     const isEditing = id && id !== 'create';
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
