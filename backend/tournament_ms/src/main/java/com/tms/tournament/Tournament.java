@@ -20,10 +20,11 @@ public class Tournament {
     private String tournamentName;
     private LocalDateTime startDT;
     private LocalDateTime endDT;
-    private String status; 
+    private String status = "Scheduled"; 
     private LocalDateTime regStartDT;
     private LocalDateTime regEndDT;
     private String createdBy;
+    private String winner = null;
 
     @ManyToMany(mappedBy = "tournaments") //, cascade = CascadeType.ALL
     @JsonIgnore
