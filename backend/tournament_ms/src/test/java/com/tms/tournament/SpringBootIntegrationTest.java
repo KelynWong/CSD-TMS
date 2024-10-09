@@ -35,11 +35,11 @@ class SpringBootIntegrationTest {
 	@Autowired
 	private TestRestTemplate restTemplate;
 
-	@Autowired
-	private TournamentRepository tournaments;
+	// @Autowired
+	// private TournamentRepository tournaments;
 
-	@Autowired
-	private PlayerRepository players;
+	// @Autowired
+	// private PlayerRepository players;
 
 	// @AfterEach
 	// void tearDown() {
@@ -98,8 +98,7 @@ class SpringBootIntegrationTest {
         String winner = null;
         List<Player> players = new ArrayList<>();
 
-        Tournament tournament = new Tournament(id, tournamentName, regStartDT, regEndDT, status, startDT, endDT, createdBy, winner, players);
-
+        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy, winner, players);
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
 			
 		assertEquals(201, result.getStatusCode().value());
