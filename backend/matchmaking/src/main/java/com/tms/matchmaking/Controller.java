@@ -1,6 +1,5 @@
 package com.tms.matchmaking;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +8,10 @@ import com.tms.tournament.Tournament;
 
 @RestController
 public class Controller {
-    private MatchmakeService matchmakeService;
+    private final MatchmakeService matchmakeService;
 
-    public Controller() {
-        this.matchmakeService = new MatchmakeService();
+    public Controller(MatchmakeService matchmakeService) {
+        this.matchmakeService = matchmakeService;
     }
 
     // Creates all matches for a given tournament with no games.

@@ -34,7 +34,7 @@ jobs:
         docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms \
           --build-arg DB_URL="${{ secrets.DB_URL }}" \
           --build-arg DB_USER="${{ secrets.DB_USER }}" \
-          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          --build-arg DB_PW="${{ secrets.DB_PW }}"
         docker push csdtms.azurecr.io/tournament_ms:latest
 
         # Build and push matchmaking
@@ -45,8 +45,15 @@ jobs:
         docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms \
           --build-arg DB_URL="${{ secrets.DB_URL }}" \
           --build-arg DB_USER="${{ secrets.DB_USER }}" \
-          --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          --build-arg DB_PW="${{ secrets.DB_PW }}"
         docker push csdtms.azurecr.io/match_ms:latest
+
+        # Build and push rating_ms
+        docker build -t csdtms.azurecr.io/rating_ms:latest ./backend/rating_ms \
+          --build-arg DB_URL="${{ secrets.DB_URL }}" \
+          --build-arg DB_USER="${{ secrets.DB_USER }}" \
+          --build-arg DB_PW="${{ secrets.DB_PW }}"
+        docker push csdtms.azurecr.io/rating_ms:latest
 
     - name: Log in to Azure
       run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
@@ -54,13 +61,16 @@ jobs:
     - name: Deploy to Azure Container Instances
       run: |
         # Deploy user_ms
-        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8083
+        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
 
         # Deploy tournament_ms
-        az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8082
+        az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}"
 
         # Deploy matchmaking
         az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8081
 
         # Deploy match_ms
-        az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8080
+        az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}"
+
+        # Deploy rating_ms
+        az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --ip-address public --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}"

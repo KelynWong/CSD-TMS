@@ -5,8 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 @Data
 @AllArgsConstructor
 public class Rating {
