@@ -117,7 +117,8 @@ jobs:
           --subnet tmsSubnet \
           --no-wait \
           --http-settings-cookie-based-affinity Disabled \
-          --routing-rule-type Basic
+          --routing-rule-type Basic \
+          --priority 1000
 
     - name: Configure Backend Pools
       run: |
@@ -194,7 +195,7 @@ jobs:
           --name userMSRule \
           --http-listener appGatewayHttpListener \
           --rule-type Basic \
-          --priority 100 \
+          --priority 1000 \
           --http-settings userMSHttpSetting \
           --backend-pool userMSBackendPool \
           --paths "/user-ms/*"
@@ -206,7 +207,7 @@ jobs:
           --name tournamentMSRule \
           --http-listener appGatewayHttpListener \
           --rule-type Basic \
-          --priority 101 \
+          --priority 1001 \
           --http-settings tournamentMSHttpSetting \
           --backend-pool tournamentMSBackendPool \
           --paths "/tournament-ms/*"
@@ -218,7 +219,7 @@ jobs:
           --name matchMSRule \
           --http-listener appGatewayHttpListener \
           --rule-type Basic \
-          --priority 102 \
+          --priority 1002 \
           --http-settings matchMSHttpSetting \
           --backend-pool matchMSBackendPool \
           --paths "/match-ms/*"
@@ -230,7 +231,7 @@ jobs:
           --name ratingMSRule \
           --http-listener appGatewayHttpListener \
           --rule-type Basic \
-          --priority 103 \
+          --priority 1003 \
           --http-settings ratingMSHttpSetting \
           --backend-pool ratingMSBackendPool \
           --paths "/rating-ms/*"
