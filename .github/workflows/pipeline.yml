@@ -115,7 +115,19 @@ jobs:
           --public-ip-address appGatewayPublicIP \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
-          --no-wait
+          --no-wait \
+          --http-settings-cookie-based-affinity Disabled \
+          --routing-rule-type Basic \
+          --http-listener appGatewayHttpListener
+
+        # Create an HTTP Listener (Ensure this is correctly configured)
+        az network application-gateway http-listener create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name appGatewayHttpListener \
+          --frontend-port 80 \
+          --protocol Http \
+          --frontend-ip appGatewayFrontendIP
 
     - name: Configure Backend Pools
       run: |
@@ -185,46 +197,50 @@ jobs:
 
     - name: Configure Path-Based Routing Rules
       run: |
-        # Routing for /user-ms/*
-        az network application-gateway url-path-map create \
+        # Path-based routing for user-ms
+        az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
-          --name pathMapUserMS \
-          --default-backend-pool userMSBackendPool \
-          --default-http-settings userMSHttpSetting \
-          --paths "/user-ms/*" \
-          --rule-name userMSRule \
-          --priority 100  
+          --name userMSRule \
+          --http-listener appGatewayHttpListener \
+          --rule-type Basic \
+          --priority 100 \
+          --http-settings userMSHttpSetting \
+          --backend-pool userMSBackendPool \
+          --paths "/user-ms/*"
 
-        # Routing for /tournament-ms/*
-        az network application-gateway url-path-map create \
+        # Path-based routing for tournament-ms
+        az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
-          --name pathMapTournamentMS \
-          --default-backend-pool tournamentMSBackendPool \
-          --default-http-settings tournamentMSHttpSetting \
-          --paths "/tournament-ms/*" \
-          --rule-name tournamentMSRule \
-          --priority 101  
+          --name tournamentMSRule \
+          --http-listener appGatewayHttpListener \
+          --rule-type Basic \
+          --priority 101 \
+          --http-settings tournamentMSHttpSetting \
+          --backend-pool tournamentMSBackendPool \
+          --paths "/tournament-ms/*"
 
-        # Routing for /match-ms/*
-        az network application-gateway url-path-map create \
+        # Path-based routing for match-ms
+        az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
-          --name pathMapMatchMS \
-          --default-backend-pool matchMSBackendPool \
-          --default-http-settings matchMSHttpSetting \
-          --paths "/match-ms/*" \
-          --rule-name matchMSRule \
-          --priority 102 
+          --name matchMSRule \
+          --http-listener appGatewayHttpListener \
+          --rule-type Basic \
+          --priority 102 \
+          --http-settings matchMSHttpSetting \
+          --backend-pool matchMSBackendPool \
+          --paths "/match-ms/*"
 
-        # Routing for /rating-ms/*
-        az network application-gateway url-path-map create \
+        # Path-based routing for rating-ms
+        az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
-          --name pathMapRatingMS \
-          --default-backend-pool ratingMSBackendPool \
-          --default-http-settings ratingMSHttpSetting \
-          --paths "/rating-ms/*" \
-          --rule-name ratingMSRule \
-          --priority 103  
+          --name ratingMSRule \
+          --http-listener appGatewayHttpListener \
+          --rule-type Basic \
+          --priority 103 \
+          --http-settings ratingMSHttpSetting \
+          --backend-pool ratingMSBackendPool \
+          --paths "/rating-ms/*"
