@@ -206,7 +206,7 @@ jobs:
 
     - name: Configure Path-Based Routing Rules
       run: |
-        # Create a URL path map
+        # Create a URL path map with a specific default backend pool for the user-ms
         az network application-gateway url-path-map create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -262,4 +262,6 @@ jobs:
           --rule-type PathBasedRouting \
           --http-listener appGatewayHttpListener \
           --url-path-map myPathMap \
+          --address-pool userMSBackendPool \  
+          --default-address-pool userMSBackendPool \  
           --priority 1
