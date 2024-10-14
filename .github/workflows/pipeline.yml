@@ -110,7 +110,7 @@ jobs:
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
-          --sku WAF_v2 \
+          --sku Standard_v2 \
           --frontend-port 80 \
           --public-ip-address appGatewayPublicIP \
           --vnet-name tmsVNet \
@@ -118,6 +118,9 @@ jobs:
           --http-settings-cookie-based-affinity Disabled \
           --routing-rule-type Basic \
           --priority 1000
+
+        # Wait for the Application Gateway to be fully provisioned
+        az network application-gateway wait --created --name appGateway --resource-group tms
 
     - name: Configure Backend Pools
       run: |
