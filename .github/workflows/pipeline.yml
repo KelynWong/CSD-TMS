@@ -263,5 +263,4 @@ jobs:
           --http-listener appGatewayHttpListener \
           --url-path-map myPathMap \
           --address-pool userMSBackendPool \  
-          --default-address-pool userMSBackendPool \  
           --priority 1
