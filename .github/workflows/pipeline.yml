@@ -264,4 +264,4 @@ jobs:
           --url-path-map myPathMap \
           --address-pool userMSBackendPool \  
           --http-settings userMSHttpSetting \
-          --priority 1
+          --priority Standard_v2
