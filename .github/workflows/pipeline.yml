@@ -192,7 +192,9 @@ jobs:
           --name pathMapUserMS \
           --default-backend-pool userMSBackendPool \
           --default-http-settings userMSHttpSetting \
-          --paths "/user-ms/*"
+          --paths "/user-ms/*" \
+          --rule-name userMSRule \
+          --priority 100  
 
         # Routing for /tournament-ms/*
         az network application-gateway url-path-map create \
@@ -201,7 +203,9 @@ jobs:
           --name pathMapTournamentMS \
           --default-backend-pool tournamentMSBackendPool \
           --default-http-settings tournamentMSHttpSetting \
-          --paths "/tournament-ms/*"
+          --paths "/tournament-ms/*" \
+          --rule-name tournamentMSRule \
+          --priority 101  
 
         # Routing for /match-ms/*
         az network application-gateway url-path-map create \
@@ -210,7 +214,9 @@ jobs:
           --name pathMapMatchMS \
           --default-backend-pool matchMSBackendPool \
           --default-http-settings matchMSHttpSetting \
-          --paths "/match-ms/*"
+          --paths "/match-ms/*" \
+          --rule-name matchMSRule \
+          --priority 102 
 
         # Routing for /rating-ms/*
         az network application-gateway url-path-map create \
@@ -219,4 +225,6 @@ jobs:
           --name pathMapRatingMS \
           --default-backend-pool ratingMSBackendPool \
           --default-http-settings ratingMSHttpSetting \
-          --paths "/rating-ms/*"
+          --paths "/rating-ms/*" \
+          --rule-name ratingMSRule \
+          --priority 103  
