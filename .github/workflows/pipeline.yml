@@ -261,6 +261,4 @@ jobs:
           --name routingRule1 \
           --rule-type PathBasedRouting \
           --http-listener appGatewayHttpListener \
-          --url-path-map myPathMap \
-          --address-pool userMSBackendPool \  
-          --http-settings userMSHttpSetting 
+          --url-path-map myPathMap 
