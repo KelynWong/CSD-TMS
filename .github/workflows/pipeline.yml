@@ -117,17 +117,7 @@ jobs:
           --subnet tmsSubnet \
           --no-wait \
           --http-settings-cookie-based-affinity Disabled \
-          --routing-rule-type Basic \
-          --http-listener appGatewayHttpListener
-
-        # Create an HTTP Listener (Ensure this is correctly configured)
-        az network application-gateway http-listener create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name appGatewayHttpListener \
-          --frontend-port 80 \
-          --protocol Http \
-          --frontend-ip appGatewayFrontendIP
+          --routing-rule-type Basic
 
     - name: Configure Backend Pools
       run: |
