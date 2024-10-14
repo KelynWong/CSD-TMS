@@ -115,7 +115,6 @@ jobs:
           --public-ip-address appGatewayPublicIP \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
-          --no-wait \
           --http-settings-cookie-based-affinity Disabled \
           --routing-rule-type Basic \
           --priority 1000
