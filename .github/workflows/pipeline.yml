@@ -60,22 +60,22 @@ jobs:
         # Deploy user_ms
         az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" \
         --vnet tmsVNet \
-        --subnet tmsSubnet
+        --subnet aciSubnet
 
         # Deploy tournament_ms
         az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet \
-        --subnet tmsSubnet 
+        --subnet aciSubnet 
 
         # Deploy match_ms
         az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet \
-        --subnet tmsSubnet 
+        --subnet aciSubnet 
 
         # Deploy rating_ms
         az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet \
-        --subnet tmsSubnet 
+        --subnet aciSubnet 
 
     - name: Build and Deploy Matchmaking MS
       run: |
@@ -96,5 +96,127 @@ jobs:
         az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
         --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082" PLAYER_URL="http://$USER_MS_IP:8083" RATING_URL="http://$RATING_MS_IP:8084" \
         --vnet tmsVNet \
-        --subnet tmsSubnet
+        --subnet aciSubnet
 
+    - name: Create Application Gateway
+      run: |
+        # Create Public IP for the Application Gateway
+        az network public-ip create \
+          --resource-group tms \
+          --name appGatewayPublicIP \
+          --sku Standard
+
+        # Create Application Gateway
+        az network application-gateway create \
+          --resource-group tms \
+          --name appGateway \
+          --sku WAF_v2 \
+          --frontend-port 80 \
+          --public-ip-address appGatewayPublicIP \
+          --vnet-name tmsVNet \
+          --subnet tmsSubnet \
+          --no-wait
+
+    - name: Configure Backend Pools
+      run: |
+        # Add backend pools for each microservice
+
+        # Backend pool for user-ms
+        az network application-gateway address-pool create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSBackendPool \
+          --servers "$USER_MS_IP"
+
+        # Backend pool for tournament-ms
+        az network application-gateway address-pool create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSBackendPool \
+          --servers "$TOURNAMENT_MS_IP"
+
+        # Backend pool for match-ms
+        az network application-gateway address-pool create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSBackendPool \
+          --servers "$MATCH_MS_IP"
+
+        # Backend pool for rating-ms
+        az network application-gateway address-pool create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSBackendPool \
+          --servers "$RATING_MS_IP"
+
+    - name: Configure HTTP Settings for each Backend
+      run: |
+        # HTTP settings for user-ms
+        az network application-gateway http-settings create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHttpSetting \
+          --port 8083 \
+          --protocol Http
+
+        # HTTP settings for tournament-ms
+        az network application-gateway http-settings create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHttpSetting \
+          --port 8082 \
+          --protocol Http
+
+        # HTTP settings for match-ms
+        az network application-gateway http-settings create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHttpSetting \
+          --port 8080 \
+          --protocol Http
+
+        # HTTP settings for rating-ms
+        az network application-gateway http-settings create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHttpSetting \
+          --port 8084 \
+          --protocol Http
+
+    - name: Configure Path-Based Routing Rules
+      run: |
+        # Routing for /user-ms/*
+        az network application-gateway url-path-map create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name pathMapUserMS \
+          --default-backend-pool userMSBackendPool \
+          --default-http-settings userMSHttpSetting \
+          --paths "/user-ms/*"
+
+        # Routing for /tournament-ms/*
+        az network application-gateway url-path-map create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name pathMapTournamentMS \
+          --default-backend-pool tournamentMSBackendPool \
+          --default-http-settings tournamentMSHttpSetting \
+          --paths "/tournament-ms/*"
+
+        # Routing for /match-ms/*
+        az network application-gateway url-path-map create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name pathMapMatchMS \
+          --default-backend-pool matchMSBackendPool \
+          --default-http-settings matchMSHttpSetting \
+          --paths "/match-ms/*"
+
+        # Routing for /rating-ms/*
+        az network application-gateway url-path-map create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name pathMapRatingMS \
+          --default-backend-pool ratingMSBackendPool \
+          --default-http-settings ratingMSHttpSetting \
+          --paths "/rating-ms/*"
