@@ -28,266 +28,139 @@ import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api
 import { fetchPlayer } from "@/api/users/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
 import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
+import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
 
-// const tournamentDetails = {
-//     tournamentID: 1,
-//     tournamentName: "DPC WEU 2021/2022 Tour 1: Division I",
-//     startDate: "16/10/2024",
-//     endDate: "26/10/2024",
-//     registrationStartDate: "16/10/2024",
-//     registrationEndDate: "26/10/2024",
-//     status: "Scheduled",
-//     organizer: "Kelyn",
-//     player: [
-//         {
-//             name: "Kai Xuan",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Sonia",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Owen",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Lynette",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Kai Xuan",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Sonia",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Owen",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Lynette",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Kai Xuan",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Sonia",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Owen",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Lynette",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Kai Xuan",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Sonia",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Owen",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Lynetteeeeeeeeeeeee",
-//             pic: "/images/china.png",
-//         },
-//         {
-//             name: "Lynetteeeeeeeeeeeee",
-//             pic: "/images/china.png",
-//         },
-//     ],
-//     matches: [
-//         {
-//             matchId: 1,
-//             player1Fullname: "Kai Xuan",
-//             player2Fullname: "Owen",
-//             winnerFullname: "Kai Xuan",
-//             sets: [
-//                 {
-//                     setId: 1,
-//                     setNum: 1,
-//                     date: "November 28",
-//                     player1Score: 2,
-//                     player2Score: 0
-//                 },
-//                 {
-//                     setId: 2,
-//                     setNum: 2,
-//                     date: "November 29",
-//                     player1Score: 0,
-//                     player2Score: 2
-//                 },
-//                 {
-//                     setId: 3,
-//                     setNum: 3,
-//                     date: "November 30",
-//                     player1Score: 4,
-//                     player2Score: 0
-//                 },
-//             ],
-//         },
-//         {
-//             matchId: 2,
-//             player1Fullname: "Kai Xuan",
-//             player2Fullname: "Owen",
-//             winnerFullname: "Kai Xuan",
-//             sets: [
-//                 {
-//                     setId: 4,
-//                     setNum: 1,
-//                     date: "December 2",
-//                     player1Score: 2,
-//                     player2Score: 0
-//                 },
-//                 {
-//                     setId: 5,
-//                     setNum: 2,
-//                     date: "December 3",
-//                     player1Score: 0,
-//                     player2Score: 2
-//                 },
-//                 {
-//                     setId: 6,
-//                     setNum: 3,
-//                     date: "December 4",
-//                     player1Score: null,
-//                     player2Score: null
-//                 },
-//             ],
-//         },
-//     ]
-// };
+function countMatches(rootMatch: RootMatch | null): number {
+    if (!rootMatch) {
+        return 0;
+    }
+    
+    // Count the current match + recursively count matches on the left and right
+    const leftCount = rootMatch.left ? countMatches(rootMatch.left) : 0;
+    const rightCount = rootMatch.right ? countMatches(rootMatch.right) : 0;
+    
+    return 1 + leftCount + rightCount; // 1 for the current match
+}
 
 export default function TournamentDetails() {
     const router = useRouter();
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
-    const [matchMakingDetails, setMatchMakingDetails] = useState<any>(null);
-    const [tournamentDetails, setTournamentDetails] = useState<any>(null);
+    const [tournamentDetails, setTournamentDetails] = useState<TournamentDetails | null>(null);
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
-    // Fetching data 
+    // Fetching data
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            // Fetch tournament details
-            const tournamentData = await fetchTournamentById(Number(id));
-            console.log(tournamentData);
+            try {
+                // Fetch tournament details
+                const tournamentData = await fetchTournamentById(Number(id));
 
-            // Fetch player details
-            const playersData = await fetchAllPlayersByTournament(Number(id));
+                // Adjust dates for timezone
+                const formattedStartDT = new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset);
+                const startDate = new Intl.DateTimeFormat('en-GB', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                }).format(formattedStartDT);
+                const startTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                }).format(formattedStartDT);
 
-            // Fetch matches details
-            const matchesData = await fetchMatchByTournamentId(Number(id));
+                const formattedEndDT = new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset);
+                const endDate = new Intl.DateTimeFormat('en-GB', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                }).format(formattedEndDT);
+                const endTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                }).format(formattedEndDT);
 
-            // Fetch matchmaking details
-            const mmData = await fetchMatchMakingByTournamentId(Number(id));
+                const formattedRegStartDT = new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset);
+                const regStartDate = new Intl.DateTimeFormat('en-GB', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                }).format(formattedRegStartDT);
+                const regStartTime: string = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                }).format(formattedRegStartDT);
 
-            setMatchMakingDetails(mmData);
+                const formattedRegEndDT = new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset);
+                const regEndDate = new Intl.DateTimeFormat('en-GB', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                }).format(formattedRegEndDT);
+                const regEndTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                }).format(formattedRegEndDT);
 
-            // Adjust dates for timezone
-            const formattedStartDT = new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset);
-            const startDate = new Intl.DateTimeFormat('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }).format(formattedStartDT);
-            const startTime = new Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            }).format(formattedStartDT);
+                let tournamentDetails = {
+                    id: tournamentData.id,
+                    tournamentName: tournamentData.tournamentName,
+                    startDT: `${formattedStartDT}`,
+                    endDT: `${formattedEndDT}`,
+                    regStartDT: `${formattedRegStartDT}`,
+                    regEndDT: `${formattedRegEndDT}`,
+                    status: tournamentData.status,
+                    organizer: tournamentData.createdBy,
+                    rootMatch: null, // Initialize rootMatch as empty
+                    players: [], // Initialize players as empty
+                    matches: [] as Match[], // Initialize matches with explicit type
+                };
 
-            const formattedEndDT = new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset);
-            const endDate = new Intl.DateTimeFormat('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }).format(formattedEndDT);
-            const endTime = new Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            }).format(formattedEndDT);
+                if (tournamentData.status === "Ongoing" || tournamentData.status === "Completed") {
+                    const mmData = await fetchMatchMakingByTournamentId(Number(id));
+                    const matchesData = await fetchMatchByTournamentId(Number(id));
 
-            const formattedRegStartDT = new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset);
-            const regStartDate = new Intl.DateTimeFormat('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }).format(formattedRegStartDT);
-            const regStartTime = new Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            }).format(formattedRegStartDT);
+                    const enrichedMatches = await Promise.all(
+                        matchesData.map(async (match) => {
+                            const games = await fetchGamesByMatchId(match.id);
+                            return {
+                                id: match.id,
+                                tournamentId: match.tournamentId,
+                                player1Id: match.player1Id,
+                                player2Id: match.player2Id,
+                                winnerId: match.winnerId,
+                                left: match.left,
+                                right: match.right,
+                                games: games.map((game) => ({
+                                    id: game.id,
+                                    setNum: game.setNum,
+                                    player1Score: game.player1Score,
+                                    player2Score: game.player2Score,
+                                })),
+                            };
+                        })
+                    );
 
-            const formattedRegEndDT = new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset);
-            const regEndDate = new Intl.DateTimeFormat('en-GB', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            }).format(formattedRegEndDT);
-            const regEndTime = new Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true
-            }).format(formattedRegEndDT);
+                    tournamentDetails = {
+                        ...tournamentDetails,
+                        ...mmData,
+                        matches: enrichedMatches, // Add matches with sets
+                    };
+                }
 
-            const tournamentDetails = {
-                tournamentID: tournamentData.id,
-                tournamentName: tournamentData.tournamentName,
-                startDate: `${startDate}, ${startTime}`,
-                endDate: `${endDate}, ${endTime}`,
-                registrationStartDate: `${regStartDate}, ${regStartTime}`,
-                registrationEndDate: `${regEndDate}, ${regEndTime}`,
-                status: tournamentData.status,
-                organizer: tournamentData.createdBy,
-                player: await Promise.all(
-                    playersData.map(async (player) => {
-                        const playerDetails = await fetchPlayer(player.id);
-                        return {
-                            name: playerDetails.username,
-                            pic: playerDetails.profilePicture,
-                        };
-                    })
-                ),
-                matches: await Promise.all(
-                    matchesData.map(async (match) => {
-                        const games = await fetchGamesByMatchId(match.id);
-                        return {
-                            matchId: match.id,
-                            player1Fullname: `Player ${match.player1Id}`,
-                            player2Fullname: `Player ${match.player2Id}`,
-                            winnerFullname: `Player ${match.winnerId}`,
-                            sets: games.map((game) => ({
-                                setId: game.id,
-                                setNum: game.setNum,
-                                player1Score: game.player1Score,
-                                player2Score: game.player2Score,
-                            })),
-                        };
-                    })
-                ),
-            };
-            console.log(tournamentDetails);
-            setTournamentDetails(tournamentDetails);
+                console.log(tournamentDetails);
+                setTournamentDetails(tournamentDetails);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
             setLoading(false);
         };
 
@@ -297,6 +170,8 @@ export default function TournamentDetails() {
     if (loading) {
         return <Loading />;
     }
+
+    const totalMatches = countMatches(tournamentDetails?.rootMatch ?? null);
 
     return (
         tournamentDetails ? (
@@ -316,11 +191,11 @@ export default function TournamentDetails() {
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Registration Dates:</span>
-                                <span className="w-3/12">{tournamentDetails.registrationStartDate} - {tournamentDetails.registrationEndDate}</span>
+                                <span className="w-3/12">{tournamentDetails.regStartDT} - {tournamentDetails.regEndDT}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Tournament Dates:</span>
-                                <span className="w-3/12">{tournamentDetails.startDate} - {tournamentDetails.endDate}</span>
+                                <span className="w-3/12">{tournamentDetails.startDT} - {tournamentDetails.endDT}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Status: </span>
@@ -328,7 +203,7 @@ export default function TournamentDetails() {
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">No. of Match: </span>
-                                <span className="w-3/12">{tournamentDetails.matches.length === 0 ? 'TBC' : tournamentDetails.matches.length}</span>
+                                <span className="w-3/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
                             </div>
                             <div className="flex justify-between px-6 py-3 font-semibold">
                                 <span className="w-9/12">Format:</span>
@@ -343,7 +218,7 @@ export default function TournamentDetails() {
                             <div className="p-6 pt-4 pb-16 text-slate-600">
                                 <p className="mb-2">Participants</p>
                                 <ul className="ml-3 list-disc list-inside">
-                                    <li>{tournamentDetails.player.length} players/teams participate in the tournament</li>
+                                    <li>There is no limit on how many players/teams participate in the tournament</li>
                                     <li>Top 8 seeds based on the BWF World Rankings</li>
                                     <li>Wild card entries and qualifiers fill remaining slots</li>
                                 </ul>
@@ -367,7 +242,7 @@ export default function TournamentDetails() {
                         { tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
                             <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
-                                <CarouselComponent tournament={tournamentDetails} />
+                                <CarouselComponent tournament={{ ...tournamentDetails, players: tournamentDetails.players ?? [] }} />
                             </div>
                         ) : (
                             <></>
@@ -379,7 +254,9 @@ export default function TournamentDetails() {
                             <div className="w-full my-5 results">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
 
-                                <TournamentResultTable matchMakingDetails={matchMakingDetails} tournamentDetails={tournamentDetails} />
+                                {tournamentDetails.rootMatch && (
+                                    <TournamentResultTable matchResult={tournamentDetails.rootMatch} />
+                                )}
                                 {/* <Table className="font-body text-base">
                                     <TableHeader>
                                         <TableRow className="bg-amber-400 hover:bg-amber-400">
@@ -628,14 +505,14 @@ export default function TournamentDetails() {
                             <div className="w-full my-5 matches">
                                 <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {tournamentDetails.matches.map((match: { matchId: Key | null | undefined; sets: any[]; player1Fullname: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<AwaitedReactNode> | null | undefined; player2Fullname: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<AwaitedReactNode> | null | undefined; }, matchIndex: number) => (
-                                        <div key={match.matchId} className="w-full border border-slate-200 bg-white rounded-lg font-body">
+                                    {tournamentDetails?.matches?.map((match, matchIndex: number) => (
+                                        <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
                                             <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1}`}</h2>
                                             <div className="text-slate-600">
-                                                {match.sets.map((set) => (
+                                                {match.games.map((game) => (
                                                     <>
-                                                        <div key={set.setId} className="border-b border-slate-200 px-6 py-2 flex justify-between">
-                                                            <p className="text-slate-500">{`Set ${set.setNum}`}</p>
+                                                        <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
+                                                            <p className="text-slate-500">{`Set ${game.setNum}`}</p>
                                                             <AlertDialog>
                                                                 <AlertDialogTrigger asChild>
                                                                     <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
@@ -650,10 +527,10 @@ export default function TournamentDetails() {
                                                                     </AlertDialogHeader>
 
                                                                     <SetEditForm
-                                                                        initialPlayer1Score={set.player1Score ?? 0}
-                                                                        initialPlayer2Score={set.player2Score ?? 0}
-                                                                        player1Name={String(match.player1Fullname)}
-                                                                        player2Name={String(match.player2Fullname)}
+                                                                        initialPlayer1Score={game.player1Score ?? 0}
+                                                                        initialPlayer2Score={game.player2Score ?? 0}
+                                                                        player1Name={String(match.player1Id)}
+                                                                        player2Name={String(match.player2Id)}
                                                                     />
 
                                                                 </AlertDialogContent>
@@ -661,21 +538,21 @@ export default function TournamentDetails() {
                                                         </div>
                                                         <div className="flex justify-center border-b border-slate-200">
                                                             <div
-                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(set.player1Score !== null && set.player2Score !== null) && set.player1Score > set.player2Score ? 'bg-green-100' : ''
+                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
                                                                     }`}
                                                             >
-                                                                <p>{match.player1Fullname}</p>
+                                                                <p>{match.player1Id}</p>
                                                                 <img src="/images/china.png" className="rounded-full w-6 h-6" />
                                                             </div>
                                                             <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                                                <p>{set.player1Score !== null ? set.player1Score : '?'} - {set.player2Score !== null ? set.player2Score : '?'}</p>
+                                                                <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
                                                             </div>
                                                             <div
-                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(set.player1Score !== null && set.player2Score !== null) && set.player1Score < set.player2Score ? 'bg-green-100' : ''
+                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
                                                                     }`}
                                                             >
                                                                 <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                                <p>{match.player2Fullname}</p>
+                                                                <p>{match.player2Id}</p>
                                                             </div>
                                                         </div>
                                                     </>

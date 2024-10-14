@@ -5,19 +5,27 @@ import React, { useState, useEffect, useRef } from 'react';
 const ITEMS_PER_PAGE = 16;
 
 interface Player {
-    pic: string;
-    name: string;
+    id: string,
+    username: string,
+    fullname: string,
+    password: string|null,
+    gender: string,
+    email: string,
+    role: string,
+    rank: number|null,
+    country: string,
+    profilePicture: string|null
 }
 
 interface Tournament {
-    player: Player[];
+    players: Player[];
 }
 
 const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
     const [currentPage, setCurrentPage] = useState(0);
     const carouselRef = useRef<HTMLDivElement>(null);
 
-    const totalPages = Math.ceil(tournament.player.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(tournament.players.length / ITEMS_PER_PAGE);
 
     const handleDotClick = (pageIndex: number) => {
         setCurrentPage(pageIndex);
@@ -25,7 +33,7 @@ const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
 
     const startIndex = currentPage * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentItems = tournament.player.slice(startIndex, endIndex);
+    const currentItems = tournament.players.slice(startIndex, endIndex);
 
     return (
         <>
@@ -36,8 +44,8 @@ const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
                             <CarouselItem key={index} className="m-0 p-0">
                                 <Card className="border-2 border-yellow-400 rounded-lg">
                                     <CardContent className="flex flex-col items-center justify-items-center py-4 px-3">
-                                        <img src={player.pic} alt={player.name} className="rounded-full w-6 h-6" />
-                                        <p className="w-full text-center font-medium truncate pt-1.5">{player.name}</p>
+                                        <img src={player.profilePicture ?? '/public/images/player.png'} alt={player.username} className="rounded-full w-6 h-6" />
+                                        <p className="w-full text-center font-medium truncate pt-1.5">{player.username}</p>
                                     </CardContent>
                                 </Card>
                             </CarouselItem>
