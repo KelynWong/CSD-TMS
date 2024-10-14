@@ -124,35 +124,43 @@ jobs:
 
     - name: Configure Backend Pools
       run: |
-        # Add backend pools for each microservice
+        # Get IP addresses of the microservices
+        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking-ms --query "ipAddress.ip" -o tsv)
 
-        # Backend pool for user-ms
+        # Add backend pools for each microservice
         az network application-gateway address-pool create \
           --resource-group tms \
           --gateway-name appGateway \
           --name userMSBackendPool \
-          --servers "$USER_MS_IP"
+          --servers $USER_MS_IP
 
-        # Backend pool for tournament-ms
         az network application-gateway address-pool create \
           --resource-group tms \
           --gateway-name appGateway \
           --name tournamentMSBackendPool \
-          --servers "$TOURNAMENT_MS_IP"
+          --servers $TOURNAMENT_MS_IP
 
-        # Backend pool for match-ms
         az network application-gateway address-pool create \
           --resource-group tms \
           --gateway-name appGateway \
           --name matchMSBackendPool \
-          --servers "$MATCH_MS_IP"
+          --servers $MATCH_MS_IP
 
-        # Backend pool for rating-ms
         az network application-gateway address-pool create \
           --resource-group tms \
           --gateway-name appGateway \
           --name ratingMSBackendPool \
-          --servers "$RATING_MS_IP"
+          --servers $RATING_MS_IP
+
+        az network application-gateway address-pool create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSBackendPool \
+          --servers $MATCHMAKING_MS_IP
 
     - name: Configure HTTP Settings for each Backend
       run: |
@@ -186,6 +194,14 @@ jobs:
           --gateway-name appGateway \
           --name ratingMSHttpSetting \
           --port 8084 \
+          --protocol Http
+
+        # HTTP settings for rating-ms
+        az network application-gateway http-settings create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHttpSetting \
+          --port 8081 \
           --protocol Http
 
     - name: Configure Path-Based Routing Rules
@@ -237,3 +253,15 @@ jobs:
           --http-settings ratingMSHttpSetting \
           --backend-pool ratingMSBackendPool \
           --paths "/rating-ms/*"
+
+        # Path-based routing for rating-ms
+        az network application-gateway rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSRule \
+          --http-listener appGatewayHttpListener \
+          --rule-type Basic \
+          --priority 1004 \
+          --http-settings matchmakingMSHttpSetting \
+          --backend-pool matchmakingMSBackendPool \
+          --paths "/matchmaking-ms/*"
