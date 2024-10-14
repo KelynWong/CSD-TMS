@@ -129,7 +129,7 @@ jobs:
         TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
         MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
         RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
-        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
         # Add backend pools for each microservice
         az network application-gateway address-pool create \
@@ -258,7 +258,7 @@ jobs:
         az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
-          --name ratingMSRule \
+          --name matchmakingMSRule \
           --http-listener appGatewayHttpListener \
           --rule-type Basic \
           --priority 1004 \
