@@ -262,3 +262,4 @@ jobs:
           --rule-type PathBasedRouting \
           --http-listener appGatewayHttpListener \
           --url-path-map myPathMap 
+ 
