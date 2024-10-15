@@ -10,18 +10,21 @@ import { fetchPlayer } from "@/api/users/api";
 import { fetchPlayerStats } from "@/api/matches/api";
 import Loading from "@/components/Loading";
 import React, { useState, useEffect } from "react";
-import { fetchTournaments } from "@/api/tournaments/api";
+import {
+	fetchTournamentByPlayerId,
+	tournamentResponse,
+} from "@/api/tournaments/api";
 
 export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [tournaments, setTournaments] = useState<Tournament[]>([]);
+	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
 				const data = await fetchPlayer(params.id);
 				const stats = await fetchPlayerStats(params.id);
-				const tournaments = await fetchTournaments(params.id);
+				const tournaments = await fetchTournamentByPlayerId(params.id);
 				setLoading(false);
 				const mappedData: Player = {
 					id: data.id,
@@ -39,10 +42,13 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 
 				const tournamentHistory = tournaments.map((tournament) => ({
 					id: tournament.id,
-					name: tournament.name,
-					start_date: formatDate(new Date(tournament.startDate)),
-					end_date: formatDate(new Date(tournament.endDate)),
+					tournamentName: tournament.tournamentName,
+					startDT: formatDate(new Date(tournament.startDT)),
+					endDT: formatDate(new Date(tournament.endDT)),
 					status: tournament.status,
+					regStartDT: formatDate(new Date(tournament.regStartDT)),
+					regEndDT: formatDate(new Date(tournament.regEndDT)),
+					winner: tournament.winner,
 				}));
 
 				setTournaments(tournamentHistory);

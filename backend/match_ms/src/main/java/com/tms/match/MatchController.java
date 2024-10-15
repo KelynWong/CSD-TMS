@@ -17,6 +17,12 @@ public class MatchController {
         this.matchService = bs;
     }
 
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
+    }
+
     /**
      * List all matches in the system
      * @return list of all matches

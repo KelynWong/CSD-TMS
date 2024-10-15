@@ -39,6 +39,12 @@ public class UserController {
     this.userService = userService;
   }
 
+  // Health check endpoint
+  @GetMapping("/health")
+  public ResponseEntity<String> healthCheck() {
+      return ResponseEntity.ok("Service is healthy");
+  }
+
   // Get all users
   @GetMapping
   public List<User> getAllUsers() {

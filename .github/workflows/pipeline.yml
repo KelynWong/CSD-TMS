@@ -162,6 +162,67 @@ jobs:
           --name matchmakingMSBackendPool \
           --servers $MATCHMAKING_MS_IP
 
+    - name: Configure Health Probes for Microservices
+      run: |
+        # Get IP addresses of the microservices
+        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+
+        # Create health probes using HTTP settings
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHealthProbe \
+          --protocol Http \
+          --path /api/users/health \
+          --timeout 20 \
+          --interval 30 \
+          --from-http-settings true
+
+        # Repeat for other services
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --timeout 20 \
+          --interval 30 \
+          --from-http-settings true
+
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --timeout 20 \
+          --interval 30 \
+          --from-http-settings true
+
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --timeout 20 \
+          --interval 30 \
+          --from-http-settings true
+
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --timeout 20 \
+          --interval 30 \
+          --from-http-settings true
+
     - name: Configure HTTP Settings for each Backend
       run: |
         # HTTP settings for user-ms
@@ -170,7 +231,9 @@ jobs:
           --gateway-name appGateway \
           --name userMSHttpSetting \
           --port 8083 \
-          --protocol Http
+          --protocol Http \
+          --host-name-from-backend-pool true \
+          --probe userMSHealthProbe
 
         # HTTP settings for tournament-ms
         az network application-gateway http-settings create \
@@ -178,7 +241,9 @@ jobs:
           --gateway-name appGateway \
           --name tournamentMSHttpSetting \
           --port 8082 \
-          --protocol Http
+          --protocol Http \
+          --host-name-from-backend-pool true \
+          --probe tournamentMSHealthProbe
 
         # HTTP settings for match-ms
         az network application-gateway http-settings create \
@@ -186,7 +251,9 @@ jobs:
           --gateway-name appGateway \
           --name matchMSHttpSetting \
           --port 8080 \
-          --protocol Http
+          --protocol Http \
+          --host-name-from-backend-pool true \
+          --probe matchMSHealthProbe
 
         # HTTP settings for rating-ms
         az network application-gateway http-settings create \
@@ -194,7 +261,9 @@ jobs:
           --gateway-name appGateway \
           --name ratingMSHttpSetting \
           --port 8084 \
-          --protocol Http
+          --protocol Http \
+          --host-name-from-backend-pool true \
+          --probe ratingMSHealthProbe
 
         # HTTP settings for rating-ms
         az network application-gateway http-settings create \
@@ -202,7 +271,9 @@ jobs:
           --gateway-name appGateway \
           --name matchmakingMSHttpSetting \
           --port 8081 \
-          --protocol Http
+          --protocol Http \
+          --host-name-from-backend-pool true \
+          --probe matchmakingMSHealthProbe
 
     - name: Configure Path-Based Routing Rules
       run: |
@@ -254,11 +325,62 @@ jobs:
           --address-pool matchmakingMSBackendPool \
           --http-settings matchmakingMSHttpSetting
 
-        # Create a routing rule that uses the URL path map
-        az network application-gateway rule create \
+        # Update existing routing rule that uses the URL path map
+        az network application-gateway rule update \
           --resource-group tms \
           --gateway-name appGateway \
-          --name routingRule1 \
+          --name rule1 \
           --rule-type PathBasedRouting \
           --http-listener appGatewayHttpListener \
-          --url-path-map myPathMap 
+          --url-path-map myPathMap \
+          --address-pool userMSBackendPool \
+          --http-settings userMSHttpSetting \
+          --priority 100
+
+    - name: Configure Rewrite Rules
+      run: |
+        az network application-gateway rewrite-rule set create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name myRewriteRuleSet
+        
+        # Create a rewrite rule to strip /match-ms, /tournament-ms, /user-ms, /rating-ms, and /matchmaking-ms from the path
+        az network application-gateway rewrite-rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --rule-set-name myRewriteRuleSet \
+          --name stripPathPrefix \
+          --conditions "[{\"variable\":\"request_uri\",\"pattern\":\"^/[^/]+(/.*)$\",\"ignoreCase\":\"true\"}]" \
+          --action-set-url-path "path={var_request_uri}" \
+          --enable-reroute true
+          
+        # Apply the rewrite rule to the HTTP settings of the backend pools
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHttpSetting \
+          --rewrite-rule stripPathPrefix
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHttpSetting \
+          --rewrite-rule stripPathPrefix
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHttpSetting \
+          --rewrite-rule stripPathPrefix
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHttpSetting \
+          --rewrite-rule stripPathPrefix
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHttpSetting \
+          --rewrite-rule stripPathPrefix
