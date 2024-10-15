@@ -28,8 +28,11 @@ public class GameController {
      * Return the newly added game
      */
     @PostMapping("/matches/{matchId}/games")
-    public Game addGame(@PathVariable Long matchId, @RequestBody Game game) {
-        return gameService.addGame(matchId, game);
+    public List<Game> addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
+        if (games.size() == 0 || games.size() < 3) {
+            throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
+        }
+        return gameService.addGames(matchId, games);
     }
 
     /**
@@ -55,5 +58,11 @@ public class GameController {
                               @PathVariable Long gameId) {
         gameService.deleteGame(matchId, gameId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/matches/create-games")
+    public ResponseEntity<String> createGames() {
+        gameService.createGames();
+        return ResponseEntity.ok("Games created");
     }
 }
