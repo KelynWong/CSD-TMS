@@ -55,7 +55,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                 if (currentMatch?.right) queue.push(currentMatch.right);
             }
 
-            console.log(currentLevelWinners)
+            // console.log(currentLevelWinners)
 
             // Once all matches in the current level are processed, append the level winners to the main array
             winners.unshift(...currentLevelWinners);
@@ -67,12 +67,12 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     gatherWinnersBFS(matchResult);
 
     // Now you have both `players` and `winners` arrays populated
-    console.log("Players:", players);
-    console.log("Winners:", winners);
+    // console.log("Players:", players);
+    // console.log("Winners:", winners);
 
     // Calculate total rounds needed based on number of players
     const totalRounds = Math.ceil(Math.log2(players.length));
-    console.log("Total Rounds:", totalRounds);
+    // console.log("Total Rounds:", totalRounds);
 
     const columnHeaders = useMemo(() => {
         const headers = [];
@@ -106,7 +106,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                         <TableCell className={`w-1/${columnHeaders.length}`}>
                             <div className="flex items-center gap-2">
                                 {/* Dynamic player display */}
-                                <img src="/images/default-flag.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
                                 <p>{player}</p>
                             </div>
                         </TableCell>
@@ -129,7 +129,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                                 return (
                                     <TableCell key={round} rowSpan={rowSpan}>
                                         <div className="flex items-center gap-2">
-                                            <img src="/images/default-flag.png" className="rounded-full w-6 h-6" alt="Winner Profile" />
+                                            <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Winner Profile" />
                                             <p>{winners[winnerIndex]}</p> 
                                         </div>
                                     </TableCell>

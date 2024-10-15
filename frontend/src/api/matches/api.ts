@@ -1,3 +1,4 @@
+import { Game } from "@/types/tournamentDetails";
 import axios from "axios";
 
 const URL = "http://localhost:8080";
@@ -53,5 +54,22 @@ export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	} catch (error) {
 		console.error("Error fetching games", error);
 		throw error;
+	}
+};
+
+export const updateGamesByGameId = async (match_id: number, gameData: Partial<Game>): Promise<boolean> => {
+	try {
+		console.log(`${URL}/matches/${match_id}/games/${gameData.id}`);
+
+		const response = await axios.put(`${URL}/matches/${match_id}/games/${gameData.id}`, gameData, {
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		return response.status === 200; 
+	} catch (error) {
+		console.error("Error updating game score", error);
+		return false;
 	}
 };
