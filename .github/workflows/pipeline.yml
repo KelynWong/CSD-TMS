@@ -337,7 +337,7 @@ jobs:
           --http-settings userMSHttpSetting \
           --priority 100
 
-        - name: Configure Rewrite Rules
+    - name: Configure Rewrite Rules
       run: |
         # Create a rewrite rule to strip /match-ms, /tournament-ms, /user-ms, /rating-ms, and /matchmaking-ms from the path
         az network application-gateway rewrite-rule create \
