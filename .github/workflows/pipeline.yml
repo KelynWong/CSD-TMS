@@ -345,7 +345,7 @@ jobs:
           --gateway-name appGateway \
           --name stripPathPrefix \
           --rule-sequence 1 \
-          --condition "Variable=request_uri Pattern=^/[^/]+(/.*)$ IgnoreCase=true" \
+          --condition "Variable='request_uri' Pattern='^/[^/]+(/.*)$' IgnoreCase='true'" \
           --action-set-url-path "path={var_request_uri}"
           
         # Apply the rewrite rule to the HTTP settings of the backend pools
