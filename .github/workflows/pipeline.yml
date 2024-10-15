@@ -162,6 +162,73 @@ jobs:
           --name matchmakingMSBackendPool \
           --servers $MATCHMAKING_MS_IP
 
+    - name: Configure Health Probes for Microservices
+      run: |
+        # Create a health probe for user-ms
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --host $USER_MS_IP \
+          --timeout 20 \
+          --interval 30 \
+          --unhealthy-threshold 3 \
+          --http-settings userMSHttpSetting
+
+        # Create a health probe for tournament-ms
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --host $TOURNAMENT_MS_IP \
+          --timeout 20 \
+          --interval 30 \
+          --unhealthy-threshold 3 \
+          --http-settings tournamentMSHttpSetting
+
+        # Create a health probe for match-ms
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --host $MATCH_MS_IP \
+          --timeout 20 \
+          --interval 30 \
+          --unhealthy-threshold 3 \
+          --http-settings matchMSHttpSetting
+
+        # Create a health probe for rating-ms
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --host $RATING_MS_IP \
+          --timeout 20 \
+          --interval 30 \
+          --unhealthy-threshold 3 \
+          --http-settings ratingMSHttpSetting
+
+        # Create a health probe for matchmaking-ms
+        az network application-gateway probe create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHealthProbe \
+          --protocol Http \
+          --path /health \
+          --host $MATCHMAKING_MS_IP \
+          --timeout 20 \
+          --interval 30 \
+          --unhealthy-threshold 3 \
+          --http-settings matchmakingMSHttpSetting
+
     - name: Configure HTTP Settings for each Backend
       run: |
         # HTTP settings for user-ms
