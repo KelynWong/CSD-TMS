@@ -7,6 +7,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.tms.exceptions.GameNotFoundException;
 import com.tms.exceptions.MatchNotFoundException;
@@ -40,27 +41,15 @@ public class GameService {
         if (this.getAllGamesByMatchId(matchId).size() > 0) {
             throw new IllegalArgumentException("Games already exist for this match. Use PUT to update games.");
         }
-
-        int player1Wins = 0;
-        int player2Wins = 0;
         Match match = optionalMatch.get();
 
         for (Game game : gamesToAdd) {
-            if (game.getPlayer1Score() > game.getPlayer2Score()) {
-                player1Wins++;
-            } else {
-                player2Wins++;
+            if (!validateGame(game)) {
+                throw new IllegalArgumentException("Invalid game data");
             }
         }
 
-        if (player1Wins < player2Wins) {
-            // swap scores such that player1 wins
-            for (Game game : gamesToAdd) {
-                short temp = game.getPlayer1Score();
-                game.setPlayer1Score(game.getPlayer2Score());
-                game.setPlayer2Score(temp);
-            }
-        }
+        gamesToAdd = ensurePlayer1IsWinner(gamesToAdd);
 
         for (Game game : gamesToAdd) {
             game.setMatch(match);
@@ -70,6 +59,10 @@ public class GameService {
     }
 
     public Game updateGame(Long matchId, Long gameId, Game newGame) {
+        if (!validateGame(newGame)) {
+            throw new IllegalArgumentException("Invalid game data");
+        }
+
         Optional<Match> optionalMatch = matches.findById(matchId);
         if (!optionalMatch.isPresent()) {
             throw new MatchNotFoundException(matchId);
@@ -89,7 +82,7 @@ public class GameService {
         if (!matches.existsById(matchId)) {
             throw new MatchNotFoundException(matchId);
         }
-    
+
         Optional<Game> gameOptional = games.findByIdAndMatchId(gameId, matchId);
         gameOptional.ifPresent(games::delete);
         return gameOptional.orElseThrow(() -> new GameNotFoundException(gameId));
@@ -104,7 +97,7 @@ public class GameService {
             if (!existingGames.isEmpty()) {
                 continue; // Skip this match if games already exist
             }
-            
+
             int numGames = random.nextInt(2) + 2; // 2 or 3 games
             int player2Win = 0;
 
@@ -134,5 +127,42 @@ public class GameService {
                 games.save(game);
             }
         }
+    }
+
+    private boolean validateGame(Game game) {
+        boolean setCheck = game.getSetNum() > 0 && game.getSetNum() <= 3;
+
+        int p1Score = game.getPlayer1Score();
+        int p2Score = game.getPlayer2Score();
+
+        boolean scoreCheck = (p1Score == 30 && p2Score == 29) ||
+                (p2Score == 30 && p1Score == 29) ||
+                ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) == 2) ||
+                ((p1Score == 21 && p2Score >= 0 && p2Score < 20) || 
+                    (p2Score == 21 && p1Score >= 0 && p1Score < 20));
+
+        return setCheck && scoreCheck;
+    }
+
+    private List<Game> ensurePlayer1IsWinner(List<Game> gamesToAdd) {
+        int player1Wins = 0;
+        int player2Wins = 0;
+        for (Game game : gamesToAdd) {
+            if (game.getPlayer1Score() > game.getPlayer2Score()) {
+                player1Wins++;
+            } else {
+                player2Wins++;
+            }
+        }
+
+        if (player1Wins < player2Wins) {
+            // swap scores such that player1 wins
+            for (Game game : gamesToAdd) {
+                short temp = game.getPlayer1Score();
+                game.setPlayer1Score(game.getPlayer2Score());
+                game.setPlayer2Score(temp);
+            }
+        }
+        return gamesToAdd;
     }
 }

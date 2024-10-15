@@ -96,7 +96,7 @@ class TournamentIntegrationTest {
 
 	@Test
 	public void getTournament_InvalidTournamentId_Failure() throws Exception {
-		URI uri = new URI(baseURL + port + "/tournaments/4");
+		URI uri = new URI(baseURL + port + "/tournaments/id/4"); // [TBC] 4 is hardcoded but it is a invalid id currently
 		
 		ResponseEntity<Tournament> result = restTemplate.getForEntity(uri, Tournament.class);
 			
@@ -108,8 +108,8 @@ class TournamentIntegrationTest {
 		URI uri = new URI(baseURL + port + "/tournaments");
 
 		// - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "";
+        // Long id = Long.valueOf(0);
+        String tournamentName = "Tournament Integration Testing ";
         LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
         LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
         LocalDateTime startDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
@@ -117,13 +117,17 @@ class TournamentIntegrationTest {
         String status = "Scheduled";
         String createdBy = "admin1";
         String winner = null;
-        List<Player> players = new ArrayList<>();
+        // List<Player> players = new ArrayList<>();
 
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy, winner, players);
+        Tournament tournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy, winner);
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
+		// Long t_id = result.getBody().getId();
 			
 		assertEquals(201, result.getStatusCode().value());
 		assertEquals(tournament.getTournamentName(), result.getBody().getTournamentName());
+
+		// After test
+		// tournaments.deleteById(t_id);
 	}
 
 	// @Test
