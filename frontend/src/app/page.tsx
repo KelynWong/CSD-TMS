@@ -4,7 +4,7 @@ export default function Home() {
 
 	return (
 		<div>
-			<div className="header px-16 py-10">
+			<div className="header px-16 py-16">
 				<div className="match-overview w-100 flex flex-col items-end">
 					<div className="match w-1/4 my-3 p-6 rounded-xl">
 						<h2 className="text-2xl pb-2 text-center border-b border-gray-500">Ongoing Match</h2>
@@ -39,10 +39,10 @@ export default function Home() {
 				</div>
 			</div>
 			<div className="latest-rank w-100 flex">
-				<div className="w-1/5 title px-6 py-4 text-center">
+				<div className="w-1/5 title px-6 py-5 text-center">
 					<h1 className="text-3xl">latest Ranking</h1>
 				</div>
-				<div className="w-4/5 players px-14 py-4 flex items-center">
+				<div className="w-4/5 players px-14 py-5 flex items-center">
 					<div id="scroll-text">
 						<div className="flex items-center">
 							<h3 className="text-xl mr-12">🥇 rank 1 - Wang zhi yi</h3>

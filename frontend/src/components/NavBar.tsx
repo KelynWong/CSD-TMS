@@ -64,14 +64,14 @@ export default function Navbar() {
 						onClick={() => setActiveLink("rankings")}>
 						RANKINGS
 					</Link>
-					<Link
+					{/* <Link
 						href="/predictions"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							activeLink === "matchPredict" ? "text-red-400" : ""
 						}`}
 						onClick={() => setActiveLink("matchPredict")}>
 						MATCH PREDICTIONS
-					</Link>
+					</Link> */}
 				</div>
 				<div className="flex items-center space-x-4">
 					{isAdmin && (
@@ -142,14 +142,14 @@ export default function Navbar() {
 						onClick={() => setActiveLink("rankings")}>
 						RANKINGS
 					</Link>
-					<Link
+					{/* <Link
 						href="/predictions"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							activeLink === "matchPredict" ? "text-red-400" : ""
 						}`}
 						onClick={() => setActiveLink("matchPredict")}>
 						MATCH PREDICTIONS
-					</Link>
+					</Link> */}
 				</div>
 			)}
 		</nav>
