@@ -179,7 +179,8 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
         # Repeat for other services
         az network application-gateway probe create \
@@ -189,7 +190,8 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
         az network application-gateway probe create \
           --resource-group tms \
@@ -198,7 +200,8 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
         az network application-gateway probe create \
           --resource-group tms \
@@ -207,7 +210,8 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
         az network application-gateway probe create \
           --resource-group tms \
@@ -216,7 +220,8 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
     - name: Configure HTTP Settings for each Backend
       run: |
