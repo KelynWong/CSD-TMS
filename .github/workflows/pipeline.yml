@@ -255,6 +255,7 @@ jobs:
           --http-settings matchmakingMSHttpSetting
 
         # Create a routing rule that uses the URL path map
+        az network application-gateway rule create \
           --resource-group tms \
           --gateway-name appGateway \
           --name routingRule1 \
