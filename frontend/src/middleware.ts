@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { SignIn } from "@clerk/nextjs";
 
 // This Middleware does not protect any routes by default.
 // See https://clerk.com/docs/references/nextjs/clerk-middleware for more information about configuring your Middleware
@@ -13,9 +14,11 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware((auth, req) => {
-	const { userId, sessionClaims, redirectToSignIn } = auth();
-	if (!isPublicRoute(req) && !userId)
-		return redirectToSignIn({ returnBackUrl: "/" });
+	const { userId, sessionClaims } = auth();
+	if (!isPublicRoute(req) && !userId) {
+		const forbiddenUrl = new URL("/", req.url);
+		return NextResponse.redirect(forbiddenUrl);
+	}
 
 	if (
 		userId &&

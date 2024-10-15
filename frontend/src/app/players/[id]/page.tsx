@@ -4,7 +4,7 @@ import { Player } from "@/types/player";
 import { Match } from "@/types/match";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
-import TournamentHistory from "@/components/TournamentHistory";
+import TournamentHistory from "./_components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
 import { fetchPlayer } from "@/api/users/api";
 import { fetchPlayerStats } from "@/api/matches/api";
