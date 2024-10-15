@@ -19,6 +19,12 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
+    }
+
     @GetMapping("/ratings")
     public List<Rating> getAllRatings() {
         return ratingService.getAllRatings();

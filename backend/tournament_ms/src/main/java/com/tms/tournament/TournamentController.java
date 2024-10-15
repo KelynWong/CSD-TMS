@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.tms.tournamentplayer.*;
@@ -18,6 +19,12 @@ public class TournamentController {
     public TournamentController(TournamentService ts, PlayerRepository pr) {
         this.tournamentService = ts;
         this.playerRepository = pr;
+    }
+
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
     }
 
     /* List all tournaments */

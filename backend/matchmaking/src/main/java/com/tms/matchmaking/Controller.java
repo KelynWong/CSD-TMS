@@ -14,6 +14,12 @@ public class Controller {
         this.matchmakeService = matchmakeService;
     }
 
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
+    }
+
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/matchmaking/{tournamentId}")
