@@ -177,7 +177,7 @@ jobs:
           --gateway-name appGateway \
           --name userMSHealthProbe \
           --protocol Http \
-          --path /health \
+          --path /api/users/health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -232,6 +232,7 @@ jobs:
           --name userMSHttpSetting \
           --port 8083 \
           --protocol Http \
+          --host-name-from-backend-pool true \
           --probe userMSHealthProbe
 
         # HTTP settings for tournament-ms
@@ -241,6 +242,7 @@ jobs:
           --name tournamentMSHttpSetting \
           --port 8082 \
           --protocol Http \
+          --host-name-from-backend-pool true \
           --probe tournamentMSHealthProbe
 
         # HTTP settings for match-ms
@@ -249,7 +251,8 @@ jobs:
           --gateway-name appGateway \
           --name matchMSHttpSetting \
           --port 8080 \
-          --protocol Http \
+          --protocol Http \ 
+          --host-name-from-backend-pool true \
           --probe matchMSHealthProbe
 
         # HTTP settings for rating-ms
@@ -259,6 +262,7 @@ jobs:
           --name ratingMSHttpSetting \
           --port 8084 \
           --protocol Http \
+          --host-name-from-backend-pool true \
           --probe ratingMSHealthProbe
 
         # HTTP settings for rating-ms
@@ -268,6 +272,7 @@ jobs:
           --name matchmakingMSHttpSetting \
           --port 8081 \
           --protocol Http \
+          --host-name-from-backend-pool true \
           --probe matchmakingMSHealthProbe
 
     - name: Configure Path-Based Routing Rules
