@@ -336,3 +336,54 @@ jobs:
           --address-pool userMSBackendPool \
           --http-settings userMSHttpSetting \
           --priority 100
+
+    - name: Configure Rewrite Rules
+      run: |
+        # Add a rewrite rule to strip /match-ms, /tournament-ms, /user-ms, /rating-ms, and /matchmaking-ms from the path
+        az network application-gateway rewrite-rule-set create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name myRewriteRuleSet
+
+        # Add a rewrite condition and action to strip /match-ms, /tournament-ms, etc.
+        az network application-gateway rewrite-rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --rule-set-name myRewriteRuleSet \
+          --name stripPathPrefix \
+          --rule-sequence 1 \
+          --conditions variable=var_request_uri pattern="^/[^/]+(/.*)$" ignore-case=false negate=false \
+          --actions set-header name="X-Original-Path" value="{var_request_uri}" \
+                     set-header name="X-Rewritten-Path" value="{http_request_path_1}" \
+                     url="replace-path" path="{http_request_path_1}"
+
+        # Associate the rewrite rule set with the HTTP settings for all backend pools
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHttpSetting \
+          --rewrite-rule-set myRewriteRuleSet
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHttpSetting \
+          --rewrite-rule-set myRewriteRuleSet
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHttpSetting \
+          --rewrite-rule-set myRewriteRuleSet
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHttpSetting \
+          --rewrite-rule-set myRewriteRuleSet
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHttpSetting \
+          --rewrite-rule-set myRewriteRuleSet
