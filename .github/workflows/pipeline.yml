@@ -282,11 +282,20 @@ jobs:
           --resource-group tms \
           --gateway-name appGateway \
           --name myPathMap \
-          --paths /user-ms/* \
+          --paths /users/* \
           --address-pool userMSBackendPool \
           --http-settings userMSHttpSetting \
           --default-address-pool userMSBackendPool \
           --default-http-settings userMSHttpSetting
+
+        az network application-gateway url-path-map rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --path-map-name myPathMap \
+          --name user \
+          --paths /user \
+          --address-pool userMSBackendPool \
+          --http-settings userMSHttpSetting
 
         # Add path rules for other microservices
         az network application-gateway url-path-map rule create \
@@ -294,7 +303,16 @@ jobs:
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name tournamentMSRule \
-          --paths /tournament-ms/* \
+          --paths /tournaments/* \
+          --address-pool tournamentMSBackendPool \
+          --http-settings tournamentMSHttpSetting
+
+        az network application-gateway url-path-map rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --path-map-name myPathMap \
+          --name tournament \
+          --paths /tournaments \
           --address-pool tournamentMSBackendPool \
           --http-settings tournamentMSHttpSetting
 
@@ -303,7 +321,16 @@ jobs:
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name matchMSRule \
-          --paths /match-ms/* \
+          --paths /matches/* \
+          --address-pool matchMSBackendPool \
+          --http-settings matchMSHttpSetting
+
+        az network application-gateway url-path-map rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --path-map-name myPathMap \
+          --name match \
+          --paths /matches \
           --address-pool matchMSBackendPool \
           --http-settings matchMSHttpSetting
 
@@ -312,7 +339,16 @@ jobs:
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name ratingMSRule \
-          --paths /rating-ms/* \
+          --paths /ratings/* \
+          --address-pool ratingMSBackendPool \
+          --http-settings ratingMSHttpSetting
+
+        az network application-gateway url-path-map rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --path-map-name myPathMap \
+          --name rating \
+          --paths /ratings \
           --address-pool ratingMSBackendPool \
           --http-settings ratingMSHttpSetting
 
@@ -321,7 +357,16 @@ jobs:
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name matchmakingMSRule \
-          --paths /matchmaking-ms/* \
+          --paths /matchmaking/* \
+          --address-pool matchmakingMSBackendPool \
+          --http-settings matchmakingMSHttpSetting
+
+        az network application-gateway url-path-map rule create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --path-map-name myPathMap \
+          --name matchmaking \
+          --paths /matchmaking \
           --address-pool matchmakingMSBackendPool \
           --http-settings matchmakingMSHttpSetting
 
