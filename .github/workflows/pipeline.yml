@@ -164,6 +164,13 @@ jobs:
 
     - name: Configure Health Probes for Microservices
       run: |
+        # Get IP addresses of the microservices
+        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+        
         # Create a health probe for user-ms
         az network application-gateway probe create \
           --resource-group tms \
