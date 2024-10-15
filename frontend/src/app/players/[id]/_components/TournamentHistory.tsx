@@ -3,19 +3,12 @@ import React, { useState, useEffect } from "react";
 import TournamentCard from "./TournamentCard";
 import Paginator from "./Paginator";
 
-type Tournament = {
-	id: number;
-	name: string;
-	start_date: string;
-	end_date: string;
-	status: string;
-	result: string;
-};
+import { tournamentResponse } from "@/api/tournaments/api";
 
 export default function TournamentHistory({
 	tournaments,
 }: {
-	tournaments: Tournament[];
+	tournaments: tournamentResponse[];
 }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(8);
@@ -53,7 +46,7 @@ export default function TournamentHistory({
 			<p className="text-4xl font-bold pb-3">Tournament History</p>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
 				{currentTournaments.map((tournament, index) => (
-					<TournamentCard key={index} {...tournament} />
+					<TournamentCard key={index} tournament={tournament} />
 				))}
 			</div>
 			<div className="flex justify-center mt-5">

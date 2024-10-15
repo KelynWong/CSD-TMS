@@ -35,6 +35,12 @@ public class TournamentController {
         this.playerRepository = pr;
     }
 
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
+    }
+
     /* List all tournaments */
     @GetMapping("/tournaments")
     public List<Tournament> getAllTournaments() {

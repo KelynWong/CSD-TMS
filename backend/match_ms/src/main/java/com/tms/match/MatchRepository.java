@@ -20,7 +20,7 @@ public interface MatchRepository extends JpaRepository <Match, Long> {
     @Query("SELECT m FROM Match m LEFT JOIN FETCH m.games WHERE m.id = :id")
     Optional<Match> findByIdWithGames(@Param("id") Long id);
 
-    List<Match> findByTournamentId(long tournamentId);
+    List<Match> findByTournamentIdOrderByIdAsc(long tournamentId);
     
     List<Match> findByWinnerId(String winnerId);
 

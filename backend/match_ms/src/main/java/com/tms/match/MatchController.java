@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.tms.exceptions.MatchNotFoundException;
@@ -14,6 +15,12 @@ public class MatchController {
 
     public MatchController(MatchService bs){
         this.matchService = bs;
+    }
+
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
     }
 
     /**
@@ -97,6 +104,12 @@ public class MatchController {
         return matchService.addMatch(match);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/matches/tournament")
+    public List<Match> addTournament(@RequestBody CreateTournament tournament){
+        return matchService.addTournament(tournament);
+    }
+
     /**
      * If there is no Match with the given "id", throw a MatchNotFoundException
      * @param id
@@ -109,6 +122,13 @@ public class MatchController {
         if(Match == null) throw new MatchNotFoundException(id);
         
         return Match;
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/matches/generateWinners/{tournamentId}")
+    public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
+        matchService.generateWinners(tournamentId);
+        return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
     }
 
     /**
