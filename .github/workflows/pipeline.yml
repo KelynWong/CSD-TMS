@@ -171,17 +171,25 @@ jobs:
         RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
         MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
-        # Create health probes using HTTP settings
+    - name: Configure Health Probes and HTTP Settings
+      run: |
+        # User MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
           --name userMSHealthProbe \
           --protocol Http \
-          --path /health \
+          --path /api/users/health \
           --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+          --interval 30
 
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name userMSHttpSetting \
+          --probe userMSHealthProbe
+
+        # Tournament MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -189,9 +197,15 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+          --interval 30
 
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name tournamentMSHttpSetting \
+          --probe tournamentMSHealthProbe
+
+        # Match MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -199,9 +213,15 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+          --interval 30
 
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchMSHttpSetting \
+          --probe matchMSHealthProbe
+
+        # Rating MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -209,9 +229,15 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+          --interval 30
 
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name ratingMSHttpSetting \
+          --probe ratingMSHealthProbe
+
+        # Matchmaking MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -219,8 +245,13 @@ jobs:
           --protocol Http \
           --path /health \
           --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+          --interval 30
+
+        az network application-gateway http-settings update \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name matchmakingMSHttpSetting \
+          --probe matchmakingMSHealthProbe
 
     - name: Configure HTTP Settings for each Backend
       run: |
