@@ -339,15 +339,19 @@ jobs:
 
     - name: Configure Rewrite Rules
       run: |
+        az network application-gateway rewrite-rule set create \
+          --resource-group tms \
+          --gateway-name appGateway \
+          --name myRewriteRuleSet
+        
         # Create a rewrite rule to strip /match-ms, /tournament-ms, /user-ms, /rating-ms, and /matchmaking-ms from the path
         az network application-gateway rewrite-rule create \
           --resource-group tms \
           --gateway-name appGateway \
           --rule-set-name myRewriteRuleSet \
           --name stripPathPrefix \
-          --rule-sequence 1 \
           --conditions "[{\"variable\":\"request_uri\",\"pattern\":\"^/[^/]+(/.*)$\",\"ignoreCase\":\"true\"}]" \
-          --action-set-url-path "path={var_request_uri}" \
+          --action-set "[{\"actionType\":\"RewriteUrl\",\"url\":{\"path\":\"{var_request_uri}\"}}]" \
           --enable-reroute true
           
         # Apply the rewrite rule to the HTTP settings of the backend pools
