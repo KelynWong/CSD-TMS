@@ -178,7 +178,6 @@ jobs:
           --name userMSHealthProbe \
           --protocol Http \
           --path /health \
-          --host $USER_MS_IP \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -189,7 +188,6 @@ jobs:
           --name tournamentMSHealthProbe \
           --protocol Http \
           --path /health \
-          --host $TOURNAMENT_MS_IP \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -200,7 +198,6 @@ jobs:
           --name matchMSHealthProbe \
           --protocol Http \
           --path /health \
-          --host $MATCH_MS_IP \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -211,7 +208,6 @@ jobs:
           --name ratingMSHealthProbe \
           --protocol Http \
           --path /health \
-          --host $RATING_MS_IP \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -222,7 +218,6 @@ jobs:
           --name matchmakingMSHealthProbe \
           --protocol Http \
           --path /health \
-          --host $MATCHMAKING_MS_IP \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
