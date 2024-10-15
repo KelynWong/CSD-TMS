@@ -93,23 +93,22 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         hour12: true
     }).format(formattedRegEndDT);
 
-    if (role === "Player") {
-        useEffect(() => {
+    useEffect(() => {
+        if (role === "Player") {
             setLoading(true);
             const getUserRegisteredData = async () => {
                 try {
-                    console.log(user)
                     const data = await fetchPlayerRegistrationStatus(id, user.id);
                     setIsRegistered(data);
-                    console.log(isRegistered)
                     setLoading(false);
                 } catch (err) {
                     console.error("Failed to fetch player registration status:", err);
                 }
             };
             getUserRegisteredData();
-        }, [user, isRegistered]);
-    }
+        }
+    }, [user, role, id]);
+    
 
     useEffect(() => {
         setLoading(true);
@@ -136,7 +135,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }, []);
 
     useEffect(() => {
-        if (status === 'Registration Close') {
+        if (status === 'RegistrationClose') {
             setAvailForMatchMake(true);
         } else {
             setAvailForMatchMake(false);  // Reset to false if the status changes
@@ -211,11 +210,11 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className="my-1">{numMatches} Matches</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'RegistrationClose' ? 'text-red-600' : status === 'RegistrationStart' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
-                {role === "Player" && status === 'Registration Start'? (
+                {role === "Player" && status === 'RegistrationStart'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
