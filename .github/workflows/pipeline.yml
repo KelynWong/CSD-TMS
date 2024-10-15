@@ -177,7 +177,7 @@ jobs:
           --gateway-name appGateway \
           --name userMSHealthProbe \
           --protocol Http \
-          --path /api/users/health \
+          --path /users/health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
