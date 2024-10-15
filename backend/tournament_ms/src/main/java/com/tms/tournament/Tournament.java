@@ -38,6 +38,6 @@ public class Tournament {
     @JsonIgnore
     private List<Player> players;
 
-    // {"Scheduled", "Registration Start", "Registration Close", "In Progress", "Completed"}
+    // {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
 
 }

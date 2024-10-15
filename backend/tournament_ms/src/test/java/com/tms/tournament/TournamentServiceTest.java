@@ -33,7 +33,64 @@ public class TournamentServiceTest {
 
     /* Unit Testing */
 
-    /* addTournament() - 
+    /* listTournaments() - TBC */
+
+    /* getTournament() 
+     * 1. Found
+     * 2. Not Found
+    */
+    @Test 
+    void getTournament_Found_ReturnTournament() {
+        // Arrange
+        // - mock objects
+        Long id = Long.valueOf(0);
+        String tournamentName = "New Badminton Tournament";
+        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
+        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
+        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
+        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
+        String status = "Scheduled";
+        String createdBy = "admin1";
+        String winner = null;
+        List<Player> players = new ArrayList<>();
+
+        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy, winner, players); 
+
+        Optional<Tournament> optTournament = Optional.of(tournament);
+
+        // - mock methods/operations
+        when(tournaments.findById(id)).thenReturn(optTournament);
+
+        // Act 
+        log.info("INFO: GETTOURNAMENT_FOUND ACT START!");
+        Tournament savedTournament = tournamentService.getTournament(id);
+        log.info("INFO: GETTOURNAMENT_FOUND ACT END!");
+
+        // Assert
+        assertNotNull(savedTournament);
+        verify(tournaments).findById(id);
+    }
+
+    @Test 
+    void getTournament_NotFound_ReturnNull() {
+        // Arrange
+        // - mock objects
+        Long id = Long.valueOf(0);
+        
+        // - mock methods/operations
+        when(tournaments.findById(id)).thenReturn(Optional.empty());
+
+        // Act 
+        log.info("INFO: GETTOURNAMENT_NOTFOUND ACT START!");
+        Tournament tournament = tournamentService.getTournament(id);
+        log.info("INFO: GETTOURNAMENT_NOTFOUND ACT END!");
+
+        // Assert
+        assertNull(tournament);
+        verify(tournaments).findById(id);
+    }
+
+    /* addTournament() 
      * 1. newName
      * 2. sameName
     */
@@ -103,11 +160,10 @@ public class TournamentServiceTest {
         verify(tournaments).findByTournamentName(tournament.getTournamentName());
     }
 
-    /* updateTournament() - 
+    /* updateTournament()
      * 1. Found
      * 2. NotFound
     */
-
     @Test
     void updateTournament_Found_ReturnSavedTournament() {
         // Arrange
@@ -173,12 +229,10 @@ public class TournamentServiceTest {
         verify(tournaments).findById(id);
     }
 
-
-
-
-
-
-   
+    /* deleteTournament() - TBC
+     * 1. Found
+     * 2. NotFound
+    */   
 
 
 }

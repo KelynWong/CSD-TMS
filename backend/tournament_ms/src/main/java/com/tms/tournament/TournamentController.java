@@ -159,9 +159,9 @@ public class TournamentController {
             return false;
         }
 
-        // Status - only hv {"Scheduled", "RegistrationStart", "RegistrationClose", "InProgress", "Completed"}
+        // Status - only hv {"Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed"}
         List<String> statusList = new ArrayList<>(
-                Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "InProgress", "Completed"));
+                Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed"));
 
         if (!statusList.contains(tournament.getStatus().replace(" ", ""))) {
             log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
