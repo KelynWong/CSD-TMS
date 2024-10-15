@@ -170,7 +170,7 @@ jobs:
         MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
         RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
         MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
-        
+
         # Create a health probe for user-ms
         az network application-gateway probe create \
           --resource-group tms \
@@ -180,9 +180,7 @@ jobs:
           --path /health \
           --host $USER_MS_IP \
           --timeout 20 \
-          --interval 30 \
-          --unhealthy-threshold 3 \
-          --http-settings userMSHttpSetting
+          --interval 30 
 
         # Create a health probe for tournament-ms
         az network application-gateway probe create \
@@ -193,9 +191,7 @@ jobs:
           --path /health \
           --host $TOURNAMENT_MS_IP \
           --timeout 20 \
-          --interval 30 \
-          --unhealthy-threshold 3 \
-          --http-settings tournamentMSHttpSetting
+          --interval 30 
 
         # Create a health probe for match-ms
         az network application-gateway probe create \
@@ -206,9 +202,7 @@ jobs:
           --path /health \
           --host $MATCH_MS_IP \
           --timeout 20 \
-          --interval 30 \
-          --unhealthy-threshold 3 \
-          --http-settings matchMSHttpSetting
+          --interval 30 
 
         # Create a health probe for rating-ms
         az network application-gateway probe create \
@@ -219,9 +213,7 @@ jobs:
           --path /health \
           --host $RATING_MS_IP \
           --timeout 20 \
-          --interval 30 \
-          --unhealthy-threshold 3 \
-          --http-settings ratingMSHttpSetting
+          --interval 30 
 
         # Create a health probe for matchmaking-ms
         az network application-gateway probe create \
@@ -232,9 +224,7 @@ jobs:
           --path /health \
           --host $MATCHMAKING_MS_IP \
           --timeout 20 \
-          --interval 30 \
-          --unhealthy-threshold 3 \
-          --http-settings matchmakingMSHttpSetting
+          --interval 30 
 
     - name: Configure HTTP Settings for each Backend
       run: |
