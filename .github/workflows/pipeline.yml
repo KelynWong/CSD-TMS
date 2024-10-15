@@ -254,11 +254,11 @@ jobs:
           --address-pool matchmakingMSBackendPool \
           --http-settings matchmakingMSHttpSetting
 
-        # Create a routing rule that uses the URL path map
-        az network application-gateway rule create \
+        # Update existing routing rule that uses the URL path map
+        az network application-gateway rule update \
           --resource-group tms \
           --gateway-name appGateway \
-          --name routingRule1 \
+          --name rule1 \
           --rule-type PathBasedRouting \
           --http-listener appGatewayHttpListener \
           --url-path-map myPathMap \
