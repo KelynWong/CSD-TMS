@@ -40,4 +40,19 @@ public class Tournament {
 
     // {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
 
+    // Custom Constructor
+    public Tournament(String tournamentName, LocalDateTime startDT, LocalDateTime endDT, String status, 
+    LocalDateTime regStartDT, LocalDateTime regEndDT, String createdBy, String winner) {
+
+        this.tournamentName = tournamentName;
+        this.startDT = startDT;
+        this.endDT = endDT;
+        this.status = status;
+        this.regStartDT = regStartDT;
+        this.regEndDT = regEndDT;
+        this.createdBy = createdBy;
+        this.winner = winner;
+
+    }
+
 }
