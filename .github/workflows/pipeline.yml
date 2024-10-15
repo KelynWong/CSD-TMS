@@ -178,7 +178,7 @@ jobs:
           --name userMSHealthProbe \
           --protocol Http \
           --host $USER_MS_IP \
-          --path /health \
+          --path /api/users/health \
           --interval 30 \
           --timeout 30
 
