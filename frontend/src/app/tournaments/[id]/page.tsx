@@ -1,15 +1,7 @@
 "use client";
 
 import "../../tournaments/styles.css";
-import { useRouter, useParams } from 'next/navigation';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { useParams } from 'next/navigation';
 import {
     AlertDialog,
     AlertDialogContent,
@@ -21,11 +13,10 @@ import {
 import { Pencil } from "lucide-react";
 import SetEditForm from "../_components/SetEditForm";
 import CarouselComponent from "../_components/CarouselComponent";
-import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
+import { fetchTournamentById } from "@/api/tournaments/api";
 import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
-import { fetchPlayer } from "@/api/users/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
 import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
 import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
@@ -43,11 +34,11 @@ function countMatches(rootMatch: RootMatch | null): number {
 }
 
 export default function TournamentDetails() {
-    const router = useRouter();
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
     const [tournamentDetails, setTournamentDetails] = useState<TournamentDetails | null>(null);
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
+    
 
     // Fetching data
     useEffect(() => {
@@ -57,66 +48,13 @@ export default function TournamentDetails() {
                 // Fetch tournament details
                 const tournamentData = await fetchTournamentById(Number(id));
 
-                // Adjust dates for timezone
-                const formattedStartDT = new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset);
-                const startDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedStartDT);
-                const startTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedStartDT);
-
-                const formattedEndDT = new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset);
-                const endDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedEndDT);
-                const endTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedEndDT);
-
-                const formattedRegStartDT = new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset);
-                const regStartDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedRegStartDT);
-                const regStartTime: string = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedRegStartDT);
-
-                const formattedRegEndDT = new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset);
-                const regEndDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedRegEndDT);
-                const regEndTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedRegEndDT);
-
                 let tournamentDetails = {
                     id: tournamentData.id,
                     tournamentName: tournamentData.tournamentName,
-                    startDT: `${formattedStartDT}`,
-                    endDT: `${formattedEndDT}`,
-                    regStartDT: `${formattedRegStartDT}`,
-                    regEndDT: `${formattedRegEndDT}`,
+                    startDT: tournamentData.startDT ? new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset).toISOString() : "hi",
+                    endDT: new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    regStartDT: new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    regEndDT: new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
                     status: tournamentData.status,
                     organizer: tournamentData.createdBy,
                     rootMatch: null, // Initialize rootMatch as empty
@@ -124,10 +62,12 @@ export default function TournamentDetails() {
                     matches: [] as Match[], // Initialize matches with explicit type
                 };
 
-                if (tournamentData.status === "Ongoing" || tournamentData.status === "Completed") {
+                const isTournamentActive = tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
+
+                if (isTournamentActive) {
                     const mmData = await fetchMatchMakingByTournamentId(Number(id));
                     const matchesData = await fetchMatchByTournamentId(Number(id));
-
+                
                     const enrichedMatches = await Promise.all(
                         matchesData.map(async (match) => {
                             const games = await fetchGamesByMatchId(match.id);
@@ -148,13 +88,14 @@ export default function TournamentDetails() {
                             };
                         })
                     );
-
+                
+                    // Add matchmaking and match details without resetting dates unnecessarily
                     tournamentDetails = {
                         ...tournamentDetails,
                         ...mmData,
                         matches: enrichedMatches, // Add matches with sets
                     };
-                }
+                }                
 
                 console.log(tournamentDetails);
                 setTournamentDetails(tournamentDetails);
