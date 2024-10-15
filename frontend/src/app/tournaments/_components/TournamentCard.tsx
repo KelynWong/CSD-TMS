@@ -12,12 +12,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
 import { fetchMatchByTournamentId } from '@/api/matches/api';
 import Loading from "@/components/Loading";
-import { Match } from '@/types/match';
 import { useUserContext } from '@/context/userContext';
+import { matchMakeByTournamentId } from '@/api/matchmaking/api';
 
 interface TournamentCardProps {
     id: number;
@@ -93,21 +93,23 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         hour12: true
     }).format(formattedRegEndDT);
 
-    useEffect(() => {
-        setLoading(true);
-        const getUserRegisteredData = async () => {
-            try {
-                console.log(user)
-                const data = await fetchPlayerRegistrationStatus(id, user.id);
-                setIsRegistered(data);
-                console.log(isRegistered)
-                setLoading(false);
-            } catch (err) {
-                console.error("Failed to fetch player registration status:", err);
-            }
-        };
-        getUserRegisteredData();
-    }, [user, isRegistered]);
+    if (role === "Player") {
+        useEffect(() => {
+            setLoading(true);
+            const getUserRegisteredData = async () => {
+                try {
+                    console.log(user)
+                    const data = await fetchPlayerRegistrationStatus(id, user.id);
+                    setIsRegistered(data);
+                    console.log(isRegistered)
+                    setLoading(false);
+                } catch (err) {
+                    console.error("Failed to fetch player registration status:", err);
+                }
+            };
+            getUserRegisteredData();
+        }, [user, isRegistered]);
+    }
 
     useEffect(() => {
         setLoading(true);
@@ -134,17 +136,27 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }, []);
 
     useEffect(() => {
-        if (status === 'RegistrationClosed') {
+        if (status === 'Registration Close') {
             setAvailForMatchMake(true);
         } else {
             setAvailForMatchMake(false);  // Reset to false if the status changes
         }
     }, [status]);
 
+    const matchMake = async () => {
+        try {
+            await matchMakeByTournamentId(id);
+            alert('Matchmaking started successfully! :)');
+            window.location.reload();
+        } catch (err) {
+            alert('Failed to start matchmaking :( \n' + err);
+            console.log(err);
+        }
+    };
+
     const registerPlayer = async () => {
         try {
             await registerTournament(id, user.id);
-            setLoading(false);
             alert('Registration successful!');
             window.location.reload();
         } catch (err) {
@@ -159,7 +171,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             alert('Successfully withdrawn from tournament! :)');
             window.location.reload();
         } catch (err) {
-            setLoading(false);
             alert('Failed to withdraw from tournament :(');
             console.error("Failed to register for tournament:", err);
         }
@@ -171,7 +182,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             alert('Tournament deleted successfully! :)');
             window.location.reload();
         } catch (error) {
-            setLoading(false);
             console.error('Failed to delete tournament:', error);
             alert('Failed to delete tournament :(');
         }
@@ -201,11 +211,11 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className="my-1">{numMatches} Matches</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'RegistrationClosed' ? 'text-red-600' : status === 'RegistrationOpen' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
-                {role === "Player" && status === 'RegistrationOpen'? (
+                {role === "Player" && status === 'Registration Start'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
@@ -287,7 +297,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction>Start Matchmaking</AlertDialogAction>
+                                            <AlertDialogAction onClick={matchMake}>Start Matchmaking</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>

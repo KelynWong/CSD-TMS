@@ -456,8 +456,8 @@ export default function TournamentForm() {
                                         </SelectTrigger>
                                         <SelectContent className="font-body">
                                             <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                            <SelectItem value="RegistrationOpen">Registration Open</SelectItem>
-                                            <SelectItem value="RegistrationClosed">Registration Closed</SelectItem>
+                                            <SelectItem value="Registration Start">Registration Start</SelectItem>
+                                            <SelectItem value="Registration Close">Registration Close</SelectItem>
                                             <SelectItem value="Ongoing">Ongoing</SelectItem>
                                             <SelectItem value="Completed">Completed</SelectItem>
                                         </SelectContent>

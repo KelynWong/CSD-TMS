@@ -106,7 +106,7 @@ export const withdrawTournament = async (tournament_id: number, user_id: string)
 
 export const createTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
     try {
-        // console.log(`${URL}/tournaments`);
+        console.log(`${URL}/tournaments`);
 		console.log(tournamentData);
 
         const response = await axios.post(`${URL}/tournaments`, tournamentData, {
@@ -114,6 +114,8 @@ export const createTournaments = async (tournamentData: Partial<Tournament>): Pr
                 'Content-Type': 'application/json',
             },
         });
+
+		console.log(response)
 
         return response.status === 201; 
     } catch (error) {
