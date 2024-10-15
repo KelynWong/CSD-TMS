@@ -1,40 +1,65 @@
 import { useState } from 'react';
-import { Pencil } from 'lucide-react';
 import {
-  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-  AlertDialogTrigger
 } from '@radix-ui/react-alert-dialog';
-import { AlertDialogFooter, AlertDialogHeader } from '@/components/ui/alert-dialog';
+import { AlertDialogFooter } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Game } from "@/types/tournamentDetails";
+import { updateGamesByGameId } from '@/api/matches/api';
+import Loading from '@/components/Loading';
 
 interface SetEditFormProps {
+  matchId: number;
+  game: Game;
   player1Name: string;
   player2Name: string;
-  initialPlayer1Score: number;
-  initialPlayer2Score: number;
+  onClose: () => void; // New prop to close the dialog and refresh the data
 }
 
 export default function SetEditForm({
+  matchId,
+  game,
   player1Name,
   player2Name,
-  initialPlayer1Score,
-  initialPlayer2Score,
+  onClose, // Accept the callback to close the dialog
 }: SetEditFormProps) {
-  const [player1Score, setPlayer1Score] = useState(initialPlayer1Score);
-  const [player2Score, setPlayer2Score] = useState(initialPlayer2Score);
+  const [player1Score, setPlayer1Score] = useState(game.player1Score);
+  const [player2Score, setPlayer2Score] = useState(game.player2Score);
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async () => {
+    setLoading(true);
+
+    const payload = {
+      id: game.id,
+      setNum: game.setNum,
+      player1Score: player1Score,
+      player2Score: player2Score
+    };
+
+    console.log(payload);
+    const response = await updateGamesByGameId(matchId, payload);
+
+    if (response) {
+      console.log(response)
+      setLoading(false);
+      alert("Game updated successful!");
+      
+      // Call the onClose prop to notify the parent to refresh data
+      onClose();
+    } else {
+      setLoading(false);
+      alert("Failed to update game");
+    }
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        // Handle form submission logic here, such as saving updated scores
-        console.log('Updated Scores:', { player1Score, player2Score });
-      }}
+    <form onSubmit={onSubmit}
     >
       <div className="flex flex-col gap-4 pb-8 font-body">
         <div className="flex items-center justify-between">

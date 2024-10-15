@@ -1,0 +1,94 @@
+.header {
+    background-image: url("/images/banner.jpg");
+    background-repeat: no-repeat;
+    background-size: 110%;
+    background-position: left 98% center;
+}
+
+.header .match {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+}
+
+.header .match .score {
+    background-color: #E73239;
+}
+
+.latest-rank {
+    color: white;
+}
+
+.latest-rank .title {
+    position: relative;
+    background-color: #071F41;
+    z-index: 2;
+}
+
+.latest-rank .title:after {
+    content: " ";
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: #071F41;
+    transform-origin: bottom left;
+    -ms-transform: skew(-30deg, 0deg);
+    -webkit-transform: skew(-30deg, 0deg);
+    transform: skew(-30deg, 0deg);
+}
+
+.latest-rank .players {
+    background-color: #E73239;
+    overflow: hidden;
+}
+
+#scroll-text {
+    /* animation properties */
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+
+    -moz-animation: my-animation 15s linear infinite;
+    -webkit-animation: my-animation 15s linear infinite;
+    animation: my-animation 15s linear infinite;
+}
+
+/* for Firefox */
+@-moz-keyframes my-animation {
+    from {
+        -moz-transform: translateX(100%);
+    }
+
+    to {
+        -moz-transform: translateX(-100%);
+    }
+}
+
+/* for Chrome */
+@-webkit-keyframes my-animation {
+    from {
+        -webkit-transform: translateX(100%);
+    }
+
+    to {
+        -webkit-transform: translateX(-100%);
+    }
+}
+
+@keyframes my-animation {
+    from {
+        -moz-transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+    }
+
+    to {
+        -moz-transform: translateX(-100%);
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+    }
+}
