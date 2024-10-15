@@ -162,7 +162,7 @@ jobs:
           --name matchmakingMSBackendPool \
           --servers $MATCHMAKING_MS_IP
 
-    - name: Configure Health Probes for Microservices
+    - name: Configure Health Probes and HTTP Settings
       run: |
         # Get IP addresses of the microservices
         USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
@@ -171,17 +171,16 @@ jobs:
         RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
         MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
-    - name: Configure Health Probes and HTTP Settings
-      run: |
         # User MS
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
           --name userMSHealthProbe \
           --protocol Http \
-          --path /api/users/health \
-          --timeout 20 \
-          --interval 30
+          --host $USER_MS_IP \
+          --path /health \
+          --interval 30 \
+          --timeout 30
 
         az network application-gateway http-settings update \
           --resource-group tms \
@@ -195,9 +194,10 @@ jobs:
           --gateway-name appGateway \
           --name tournamentMSHealthProbe \
           --protocol Http \
+          --host $TOURNAMENT_MS_IP \
           --path /health \
-          --timeout 20 \
-          --interval 30
+          --interval 30 \
+          --timeout 30
 
         az network application-gateway http-settings update \
           --resource-group tms \
@@ -211,9 +211,10 @@ jobs:
           --gateway-name appGateway \
           --name matchMSHealthProbe \
           --protocol Http \
+          --host $MATCH_MS_IP \
           --path /health \
-          --timeout 20 \
-          --interval 30
+          --interval 30 \
+          --timeout 30
 
         az network application-gateway http-settings update \
           --resource-group tms \
@@ -227,9 +228,10 @@ jobs:
           --gateway-name appGateway \
           --name ratingMSHealthProbe \
           --protocol Http \
+          --host $RATING_MS_IP \
           --path /health \
-          --timeout 20 \
-          --interval 30
+          --interval 30 \
+          --timeout 30
 
         az network application-gateway http-settings update \
           --resource-group tms \
@@ -243,9 +245,10 @@ jobs:
           --gateway-name appGateway \
           --name matchmakingMSHealthProbe \
           --protocol Http \
+          --host $MATCHMAKING_MS_IP \
           --path /health \
-          --timeout 20 \
-          --interval 30
+          --interval 30 \
+          --timeout 30
 
         az network application-gateway http-settings update \
           --resource-group tms \
