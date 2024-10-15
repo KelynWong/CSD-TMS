@@ -351,7 +351,7 @@ jobs:
           --rule-set-name myRewriteRuleSet \
           --name stripPathPrefix \
           --conditions "[{\"variable\":\"request_uri\",\"pattern\":\"^/[^/]+(/.*)$\",\"ignoreCase\":\"true\"}]" \
-          --action-set "[{\"actionType\":\"RewriteUrl\",\"url\":{\"path\":\"{var_request_uri}\"}}]" \
+          --action-set-url-path "path={var_request_uri}" \
           --enable-reroute true
           
         # Apply the rewrite rule to the HTTP settings of the backend pools
