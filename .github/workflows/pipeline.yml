@@ -171,7 +171,7 @@ jobs:
         RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
         MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
-        # Create a health probe for user-ms
+        # Create health probes using HTTP settings
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -180,9 +180,9 @@ jobs:
           --path /health \
           --host $USER_MS_IP \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
-        # Create a health probe for tournament-ms
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -191,9 +191,9 @@ jobs:
           --path /health \
           --host $TOURNAMENT_MS_IP \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
-        # Create a health probe for match-ms
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -202,9 +202,9 @@ jobs:
           --path /health \
           --host $MATCH_MS_IP \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
-        # Create a health probe for rating-ms
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -213,9 +213,9 @@ jobs:
           --path /health \
           --host $RATING_MS_IP \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
-        # Create a health probe for matchmaking-ms
         az network application-gateway probe create \
           --resource-group tms \
           --gateway-name appGateway \
@@ -224,7 +224,8 @@ jobs:
           --path /health \
           --host $MATCHMAKING_MS_IP \
           --timeout 20 \
-          --interval 30 
+          --interval 30 \
+          --from-http-settings true
 
     - name: Configure HTTP Settings for each Backend
       run: |
