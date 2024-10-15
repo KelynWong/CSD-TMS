@@ -12,11 +12,9 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import { fetchUsers } from "@/api/users/api";
 import { User } from "@/types/user";
-import { useFetchUsersContext } from "@/context/fetchUsersContext";
 
 export default function AdminPage() {
 	const { user } = useUserContext();
-	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext();
 	const [admin, setAdmin] = useState<Admin | null>(null);
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -46,17 +44,6 @@ export default function AdminPage() {
 			setLoading(true);
 		}
 	}, [user]);
-
-	useEffect(() => {
-		if (shouldFetchUsers) {
-			const getUsers = async () => {
-				const users = await fetchUsers();
-				setUsers(users);
-				setShouldFetchUsers(false);
-			};
-			getUsers();
-		}
-	}, [shouldFetchUsers, setShouldFetchUsers]);
 
 	useEffect(() => {
 	}, [users]);
