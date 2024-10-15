@@ -293,7 +293,7 @@ jobs:
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name user \
-          --paths /user \
+          --paths /users \
           --address-pool userMSBackendPool \
           --http-settings userMSHttpSetting
 
