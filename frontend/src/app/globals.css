@@ -45,8 +45,7 @@
 	font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
-}
+@media (prefers-color-scheme: dark) {}
 
 @layer utilities {
 	.text-balance {
@@ -79,9 +78,24 @@ h6 {
 	@apply border-border;
 }
 
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
 body {
 	@apply bg-background text-foreground;
 	font-family: "Kollektif", sans-serif;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	/* Ensures the body fills the full viewport height */
+}
+
+main {
+	flex: 1;
+	/* Makes the main section take up the remaining space */
 }
 
 @layer base {

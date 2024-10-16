@@ -12,17 +12,20 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import { fetchUsers } from "@/api/users/api";
 import { User } from "@/types/user";
+import { useFetchUsersContext } from "@/context/fetchUsersContext";
 
 export default function AdminPage() {
 	const { user } = useUserContext();
 	const [admin, setAdmin] = useState<Admin | null>(null);
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
+	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext();
 
 	useEffect(() => {
 		if (user) {
 			// Fetch admin data only when user data is available
 			setLoading(false);
+
 			const getAdminData = async () => {
 				try {
 					const mappedData: Admin = {
@@ -46,7 +49,17 @@ export default function AdminPage() {
 	}, [user]);
 
 	useEffect(() => {
-	}, [users]);
+		if (shouldFetchUsers) {
+			const getUsers = async () => {
+				const users = await fetchUsers();
+				setUsers(users);
+				setShouldFetchUsers(false);
+			};
+			getUsers();
+		}
+	}, [shouldFetchUsers, setShouldFetchUsers]);
+
+	useEffect(() => {}, [users]);
 
 	if (loading) {
 		return <Loading />;
@@ -180,7 +193,7 @@ export default function AdminPage() {
 		<>
 			<div>{admin ? <AdminHero admin={admin} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
-				<p className="text-4xl font-bold pb-3">User</p>
+				<p className="text-4xl font-bold pb-3">Users</p>
 				<DataTable columns={columns} data={users}></DataTable>
 			</div>
 			<div className="container mx-auto py-5 px-5">

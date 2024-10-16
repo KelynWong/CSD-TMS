@@ -67,7 +67,7 @@ export default function Players() {
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-8">
+		<div className="container mx-auto px-4 py-10">
 			<h1 className="text-3xl font-bold mb-6">Players</h1>
 			<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
 				{currentPlayers.map((player) => (
