@@ -152,16 +152,17 @@ export default function TournamentForm() {
 
     // Handle form reset manually
     const handleReset = () => {
-        form.reset(initialData || {
-            tournamentName: "",
-            // location: "",
-            // description: "",
-            startDT: defaultStart,
-            endDT: defaultEnd,
-            status: "Scheduled",
-            regStartDT: defaultStart,
-            regEndDT: defaultEnd
-        });
+        // form.reset(initialData || {
+        //     tournamentName: "",
+        //     // location: "",
+        //     // description: "",
+        //     startDT: defaultStart,
+        //     endDT: defaultEnd,
+        //     status: "Scheduled",
+        //     regStartDT: defaultStart,
+        //     regEndDT: defaultEnd
+        // });
+        router.push("/tournaments");
     };
 
     if (loading) {

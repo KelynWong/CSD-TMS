@@ -213,62 +213,64 @@ export default function TournamentDetails() {
                                 <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     {tournamentDetails?.matches?.map((match, matchIndex: number) => (
-                                        <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                                            <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1}`}</h2>
-                                            <div className="text-slate-600">
-                                                {match.games
-                                                    .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
-                                                    .map((game) =>
-                                                    <>
-                                                        <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
-                                                            <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                            <AlertDialog>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
-                                                                </AlertDialogTrigger>
+                                        getPlayerName(match.player2Id) !== 'Unknown Player' && (
+                                            <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
+                                                <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1} - ${getPlayerName(match.player1Id)} vs ${getPlayerName(match.player2Id)}`}</h2>
+                                                <div className="text-slate-600">
+                                                    {match.games
+                                                        .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
+                                                        .map((game) =>
+                                                        <>
+                                                            <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
+                                                                <p className="text-slate-500">{`Set ${game.setNum}`}</p>
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
+                                                                    </AlertDialogTrigger>
 
-                                                                <AlertDialogContent className="bg-white">
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
-                                                                        <AlertDialogDescription>
-                                                                            Enter the updated scores for each player in the set.
-                                                                        </AlertDialogDescription>
-                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogContent className="bg-white">
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
+                                                                            <AlertDialogDescription>
+                                                                                Enter the updated scores for each player in the set.
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
 
-                                                                    <SetEditForm
-                                                                        matchId={match.id}
-                                                                        game={game}
-                                                                        player1Name={getPlayerName(match.player1Id)} 
-                                                                        player2Name={getPlayerName(match.player2Id)}
-                                                                        onClose={refreshMatchData} // Pass the refresh callback
-                                                                    />
+                                                                        <SetEditForm
+                                                                            matchId={match.id}
+                                                                            game={game}
+                                                                            player1Name={getPlayerName(match.player1Id)} 
+                                                                            player2Name={getPlayerName(match.player2Id)}
+                                                                            onClose={refreshMatchData} // Pass the refresh callback
+                                                                        />
 
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
-                                                        </div>
-                                                        <div className="flex justify-center border-b border-slate-200">
-                                                            <div
-                                                                className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
-                                                                    }`}
-                                                            >
-                                                                <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                <p>{getPlayerName(match.player1Id)} </p>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
                                                             </div>
-                                                            <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                                                <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                            <div className="flex justify-center border-b border-slate-200">
+                                                                <div
+                                                                    className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
+                                                                        }`}
+                                                                >
+                                                                    <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                    <p>{getPlayerName(match.player1Id)} </p>
+                                                                </div>
+                                                                <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
+                                                                    <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                                </div>
+                                                                <div
+                                                                    className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
+                                                                        }`}
+                                                                >
+                                                                    <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                    <p>{getPlayerName(match.player2Id)} </p>
+                                                                </div>
                                                             </div>
-                                                            <div
-                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
-                                                                    }`}
-                                                            >
-                                                                <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                <p>{getPlayerName(match.player2Id)} </p>
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                )}
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )
                                     ))}
                                 </div>
                             </div>

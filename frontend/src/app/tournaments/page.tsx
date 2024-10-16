@@ -74,6 +74,7 @@ export default function Tournaments() {
                     createdBy: tournament.createdBy,
                 }));
                 categorizeTournaments(mappedData);
+                console.log(mappedData)
             } catch (err) {
                 console.error("Failed to fetch tournaments:", err);
             }

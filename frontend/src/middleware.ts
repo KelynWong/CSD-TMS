@@ -1,6 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { SignIn } from "@clerk/nextjs";
 
 // This Middleware does not protect any routes by default.
 // See https://clerk.com/docs/references/nextjs/clerk-middleware for more information about configuring your Middleware
@@ -9,6 +8,7 @@ const isPublicRoute = createRouteMatcher([
 	"/onboarding",
 	"/players",
 	"/players/:id*",
+	"/tournaments/:id*",
 	"/tournaments",
 	"/rankings",
 ]);
