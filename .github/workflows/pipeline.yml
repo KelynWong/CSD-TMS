@@ -188,7 +188,7 @@ jobs:
           --gateway-name appGateway \
           --name tournamentMSHealthProbe \
           --protocol Http \
-          --path /tournaments/health \
+          --path /health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -198,7 +198,7 @@ jobs:
           --gateway-name appGateway \
           --name matchMSHealthProbe \
           --protocol Http \
-          --path /matches/health \
+          --path /health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -208,7 +208,7 @@ jobs:
           --gateway-name appGateway \
           --name ratingMSHealthProbe \
           --protocol Http \
-          --path /ratings/health \
+          --path /health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
@@ -218,7 +218,7 @@ jobs:
           --gateway-name appGateway \
           --name matchmakingMSHealthProbe \
           --protocol Http \
-          --path /matchmaking/health \
+          --path /health \
           --timeout 20 \
           --interval 30 \
           --from-http-settings true
