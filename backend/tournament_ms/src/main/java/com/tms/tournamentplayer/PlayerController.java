@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
+@RequestMapping("/tournaments")
 public class PlayerController {
 
     private PlayerRepository players;
@@ -24,7 +25,7 @@ public class PlayerController {
     }
     
     /* Get all tournament Players by tournament id */
-    @GetMapping("/tournaments/{tournamentId}/players")
+    @GetMapping("/{tournamentId}/players")
     public List<Player> getAllRegisteredPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
         // if tournament dont exist, throw tournamentNotFound err
         if(!tournaments.existsById(tournamentId)) {
@@ -49,7 +50,7 @@ public class PlayerController {
         }).orElse(null);
     }
 
-    @GetMapping("/tournaments/{tournamentId}/players/{playerId}")
+    @GetMapping("/{tournamentId}/players/{playerId}")
     public Map<String,Boolean> IsRegister(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
         Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
         Map<String,Boolean> result = new HashMap<>();
@@ -72,7 +73,7 @@ public class PlayerController {
     }
 
     /* Register Player */
-    @PostMapping("/tournaments/{tournamentId}/players/{playerId}/register")
+    @PostMapping("/{tournamentId}/players/{playerId}/register")
     public Player registerPlayer(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
         
         Player player = players.findById(playerId).orElse(new Player(playerId, new ArrayList<>()));
@@ -92,7 +93,7 @@ public class PlayerController {
     }
 
     /* Deregister tournament Player */
-    @PutMapping("/tournaments/{tournamentId}/players/{playerId}/deregister")
+    @PutMapping("/{tournamentId}/players/{playerId}/deregister")
     public Player deregisterPlayer(@PathVariable (value = "tournamentId") Long tournamentId, 
                                             @PathVariable (value = "playerId") String playerId) {
         // check if tournament exist
@@ -122,7 +123,7 @@ public class PlayerController {
 
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
-    @DeleteMapping("/tournaments/{tournamentId}/players/{playerId}")
+    @DeleteMapping("/{tournamentId}/players/{playerId}")
     public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") String playerId) {
         
         return players.findById(playerId).map(player -> {

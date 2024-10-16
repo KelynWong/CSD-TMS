@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
+@RequestMapping("/tournaments")
 public class TournamentController {
 
     private TournamentService tournamentService;
@@ -43,7 +45,7 @@ public class TournamentController {
     }
 
     /* List all tournaments */
-    @GetMapping("/tournaments")
+    @GetMapping
     public List<Tournament> getAllTournaments() {
 
         List<Tournament> tournamentList = tournamentService.listTournaments();
@@ -57,7 +59,7 @@ public class TournamentController {
     }
 
     /* Get tournament by Id */
-    @GetMapping("/tournaments/id/{id}")
+    @GetMapping("/id/{id}")
     public Tournament getTournamentbyId(@PathVariable Long id) {
         Tournament tournament = tournamentService.getTournament(id);
 
@@ -72,7 +74,7 @@ public class TournamentController {
     }
 
     /* Get tournaments by Status */
-    @GetMapping("/tournaments/status/{status}")
+    @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
         List<Tournament> tournaments = tournamentService.listTournaments();
         List<Tournament> filteredTournaments = new ArrayList<>();
@@ -89,7 +91,7 @@ public class TournamentController {
 
     /* Create new tournament */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/tournaments")
+    @PostMapping
     public Tournament addTournament(@RequestBody Tournament tournament) {
 
         // Input validation
@@ -112,7 +114,7 @@ public class TournamentController {
     }
 
     /* Update tournament */
-    @PutMapping("/tournaments/{id}")
+    @PutMapping("/{id}")
     public Tournament updateTournament(@PathVariable Long id, @RequestBody Tournament newTournament) {
 
         // Input validation
@@ -134,7 +136,7 @@ public class TournamentController {
     }
 
     /* Delete tournament */
-    @DeleteMapping("/tournaments/{id}")
+    @DeleteMapping("/{id}")
     public void deleteTournament(@PathVariable Long id) {
 
         try {

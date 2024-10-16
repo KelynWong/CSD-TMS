@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/matches")
 public class GameController {
     private final GameService gameService;
 
@@ -16,7 +17,7 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @GetMapping("/matches/{matchId}/games")
+    @GetMapping("/{matchId}/games")
     public List<Game> getAllGamesByMatchId(@PathVariable Long matchId) {
         return gameService.getAllGamesByMatchId(matchId);
     }
@@ -27,7 +28,7 @@ public class GameController {
      * 
      * Return the newly added game
      */
-    @PostMapping("/matches/{matchId}/games")
+    @PostMapping("/{matchId}/games")
     public List<Game> addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
         if (games.size() == 0 || games.size() < 3) {
             throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
@@ -43,7 +44,7 @@ public class GameController {
      * @param newGame
      * @return
      */
-    @PutMapping("/matches/{matchId}/games/{gameId}")
+    @PutMapping("/{matchId}/games/{gameId}")
     public Game updateGame(@PathVariable Long matchId,
                                  @PathVariable Long gameId,
                                  @RequestBody Game newGame) {
@@ -53,14 +54,14 @@ public class GameController {
     /**
      * Use a ResponseEntity to have more control over the response sent to client
      */
-    @DeleteMapping("/matches/{matchId}/games/{gameId}")
+    @DeleteMapping("/{matchId}/games/{gameId}")
     public ResponseEntity<?> deleteGame(@PathVariable Long matchId,
                               @PathVariable Long gameId) {
         gameService.deleteGame(matchId, gameId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/matches/create-games")
+    @PostMapping("/create-games")
     public ResponseEntity<String> createGames() {
         gameService.createGames();
         return ResponseEntity.ok("Games created");
