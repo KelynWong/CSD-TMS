@@ -32,7 +32,7 @@ export function UpdateUserModal({
 	userData: TData;
 	onSave: (user: TData) => void;
 }) {
-  const { setShouldFetchUsers } = useFetchUsersContext();
+	const { setShouldFetchUsers } = useFetchUsersContext();
 	const [role, setRole] = React.useState(userData.role);
 	const handleRoleChange = (value: string) => {
 		setRole(value);
@@ -51,7 +51,7 @@ export function UpdateUserModal({
 		try {
 			const response = await updateUser(userData.id, formData);
 			setTimeout(() => {
-        setShouldFetchUsers(true);
+				setShouldFetchUsers(true);
 				onSave({
 					...userData,
 					role,
