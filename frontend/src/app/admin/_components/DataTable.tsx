@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import * as React from "react";
 import {
 	ColumnDef,
@@ -36,7 +35,6 @@ export function DataTable<TData, TValue>({
 	columns,
 	data,
 }: DataTableProps<TData, TValue>) {
-	const router = useRouter();
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
