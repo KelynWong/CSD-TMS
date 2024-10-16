@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
   license = @License(
     name = "Apache License 2.0", 
     url = "NA")),
-  servers = @Server(url = "http://localhost:8080/matches")
+  servers = @Server(url = "http://localhost:8080")
 )
 public class OpenAPIConfig {
     

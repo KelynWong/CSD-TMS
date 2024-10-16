@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.tms.exceptions.MatchNotFoundException;
 
 @RestController
+@RequestMapping("/matches")
 public class MatchController {
     private MatchService matchService;
 
@@ -27,7 +28,7 @@ public class MatchController {
      * List all matches in the system
      * @return list of all matches
      */
-    @GetMapping("/matches")
+    @GetMapping
     public List<Match> getMatches(){
         return matchService.listMatches();
     }
@@ -38,7 +39,7 @@ public class MatchController {
      * @param id
      * @return Match with the given id
      */
-    @GetMapping("/matches/{id}")
+    @GetMapping("/{id}")
     public Match getMatch(@PathVariable Long id){
         Match match = matchService.getMatch(id);
 
@@ -53,7 +54,7 @@ public class MatchController {
      * List all matches by tournament id
      * @return list of all matches in a tournament
      */
-    @GetMapping("/matches/tournament/{tournamentId}")
+    @GetMapping("/tournament/{tournamentId}")
     public List<MatchJson> getMatchesByTournament(@PathVariable Long tournamentId){
         return matchService.getMatchesByTournament(tournamentId);
     }
@@ -64,7 +65,7 @@ public class MatchController {
      * @param playerId
      * @return list of matches with given userId
      */
-    @GetMapping("/matches/user/win/{playerId}")
+    @GetMapping("/user/win/{playerId}")
     public List<Match> getMatchWinsByUser(@PathVariable String playerId){
         return matchService.getMatchWinsByUser(playerId);
     }
@@ -75,7 +76,7 @@ public class MatchController {
      * @param playerId
      * @return list of matches with given userId
      */
-    @GetMapping("/matches/user/loss/{playerId}")
+    @GetMapping("/user/loss/{playerId}")
     public List<Match> getMatchLossByUser(@PathVariable String playerId){
         return matchService.getMatchLossByUser(playerId);
     }
@@ -86,7 +87,7 @@ public class MatchController {
      * @param playerId
      * @return list of matches with given userId
      */
-    @GetMapping("/matches/user/played/{playerId}")
+    @GetMapping("/user/played/{playerId}")
     public List<Match> getMatchesPlayedByUser(@PathVariable String playerId){
         return matchService.getMatchesPlayedByUser(playerId);
     }
@@ -99,13 +100,13 @@ public class MatchController {
      * @return list of all matches
      */
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/matches")
+    @PostMapping
     public Match addMatch(@RequestBody MatchJson match){
         return matchService.addMatch(match);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/matches/tournament")
+    @PostMapping("/tournament")
     public List<Match> addTournament(@RequestBody CreateTournament tournament){
         return matchService.addTournament(tournament);
     }
@@ -116,7 +117,7 @@ public class MatchController {
      * @param newMatchInfo
      * @return the updated, or newly added Match
      */
-    @PatchMapping("/matches/{id}")
+    @PatchMapping("/{id}")
     public Match updateMatchAndParent(@PathVariable Long id, @RequestBody MatchPlayers matchPlayers){
         Match Match = matchService.updateMatchAndParent(id, matchPlayers);
         if(Match == null) throw new MatchNotFoundException(id);
@@ -125,7 +126,7 @@ public class MatchController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/matches/generateWinners/{tournamentId}")
+    @PutMapping("/generateWinners/{tournamentId}")
     public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
         matchService.generateWinners(tournamentId);
         return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
@@ -136,7 +137,7 @@ public class MatchController {
      * If there is no Match with the given "id", throw a MatchNotFoundException
      * @param id
      */
-    @DeleteMapping("/matches/{id}")
+    @DeleteMapping("/{id}")
     public void deleteMatch(@PathVariable Long id){
         try{
             matchService.deleteMatch(id);
