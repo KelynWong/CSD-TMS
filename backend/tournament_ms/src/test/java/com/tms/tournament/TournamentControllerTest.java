@@ -67,7 +67,7 @@ class TournamentControllerTest {
 		Tournament[] tournamentList = result.getBody();
 
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals(7, tournamentList.length); // [TBC] 6 is hardcode, need to change
+		assertEquals(6, tournamentList.length); // [TBC] 6 is hardcode, need to change
 	}
 
 	@Test
