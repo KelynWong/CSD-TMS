@@ -135,7 +135,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }, []);
 
     useEffect(() => {
-        if (status === 'RegistrationClose') {
+        if (status === 'Registration Close') {
             setAvailForMatchMake(true);
         } else {
             setAvailForMatchMake(false);  // Reset to false if the status changes
@@ -210,11 +210,11 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className="my-1">{numMatches} Matches</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'RegistrationClose' ? 'text-red-600' : status === 'RegistrationStart' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
-                {role === "Player" && status === 'RegistrationStart'? (
+                {role === "Player" && status === 'Registration Start'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
