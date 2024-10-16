@@ -1,14 +1,22 @@
 package com.tms.tournament;
 
-import java.time.*;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tms.tournamentplayer.*;
+import com.tms.tournamentplayer.Player;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
@@ -52,6 +60,7 @@ public class Tournament {
         this.regEndDT = regEndDT;
         this.createdBy = createdBy;
         this.winner = winner;
+        // List<Player> players = new ArrayList<>();
 
     }
 

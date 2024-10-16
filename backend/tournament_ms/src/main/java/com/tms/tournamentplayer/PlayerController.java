@@ -40,13 +40,20 @@ public class PlayerController {
     /* Get all tournaments by player id */
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
+
         // if player dont exist, throw playerNotFound err
         if(!players.existsById(playerId)) {
             throw new PlayerNotFoundException(playerId);
         }
+        
         // else, return list of tournaments 
         return players.findById(playerId).map(player -> {
-            return player.getTournaments();
+            List<Tournament> tournamentList = player.getTournaments();
+            for (Tournament t : tournamentList) {
+                // Output Preparation
+                t.setStatus(addSpacingBetweenWords(t.getStatus()));
+            }         
+            return tournamentList;
         }).orElse(null);
     }
 
@@ -132,5 +139,29 @@ public class PlayerController {
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
+
+    // Add Spacing to string
+    public String addSpacingBetweenWords(String stringWithoutSpacing) {
+
+        log.info("[INFO] = "+stringWithoutSpacing);
+        if (stringWithoutSpacing.isEmpty() || stringWithoutSpacing == null) {
+            return ""; // not supposed to happen but if it happens
+        }
+
+        String stringWithSpacing = "" + stringWithoutSpacing.charAt(0);
+        // skip the first letter
+        for (int i = 1; i < stringWithoutSpacing.length(); i++) {
+
+            if (Character.isUpperCase(stringWithoutSpacing.charAt(i))) {
+                stringWithSpacing += " ";
+            }
+
+            stringWithSpacing += stringWithoutSpacing.charAt(i);
+        }
+
+        return stringWithSpacing;
+
+    }
+
 
 }

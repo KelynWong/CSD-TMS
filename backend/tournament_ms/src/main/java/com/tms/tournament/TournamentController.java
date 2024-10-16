@@ -23,6 +23,7 @@ import com.tms.exception.TournamentNotFoundException;
 import com.tms.tournamentplayer.Player;
 import com.tms.tournamentplayer.PlayerRepository;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -92,7 +93,7 @@ public class TournamentController {
     /* Create new tournament */
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Tournament addTournament(@RequestBody Tournament tournament) {
+    public Tournament addTournament(@Valid @RequestBody Tournament tournament) {
 
         // Input validation
         if (!tournamentInputValidation(tournament)) {
@@ -115,7 +116,7 @@ public class TournamentController {
 
     /* Update tournament */
     @PutMapping("/{id}")
-    public Tournament updateTournament(@PathVariable Long id, @RequestBody Tournament newTournament) {
+    public Tournament updateTournament(@PathVariable Long id, @Valid @RequestBody Tournament newTournament) {
 
         // Input validation
         if (!tournamentInputValidation(newTournament)) {
@@ -199,6 +200,11 @@ public class TournamentController {
 
     // Add Spacing to string
     public String addSpacingBetweenWords(String stringWithoutSpacing) {
+
+        log.info("[INFO] = "+stringWithoutSpacing);
+        if (stringWithoutSpacing.isEmpty() || stringWithoutSpacing == null) {
+            return ""; // not supposed to happen but if it happens
+        }
 
         String stringWithSpacing = "" + stringWithoutSpacing.charAt(0);
         // skip the first letter
