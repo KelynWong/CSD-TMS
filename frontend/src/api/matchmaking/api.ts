@@ -24,3 +24,27 @@ export const fetchMatchMakingByTournamentId = async (tournament_id: number): Pro
 		throw error;
 	}
 };
+
+export const matchMakeByTournamentId = async (tournament_id: number): Promise<boolean> => {
+	try {
+		// console.log(`${URL}/matchmaking/${tournament_id}`);
+		const response = await axios.post(`${URL}/matchmaking/${tournament_id}`);
+		console.log(response);
+		return response.status === 200; 
+	} catch (error: unknown) {
+		if (axios.isAxiosError(error)) {
+			// TypeScript now knows that `error` is an AxiosError
+			if (error.response) {
+				console.log(error.response.data.error);
+				throw error.response.data.error
+			} else {
+				console.log('Error', error.message);
+				throw error.message
+			}
+		} else {
+			// Handle errors that are not related to Axios
+			console.log('Unknown error', error);
+			throw error;
+		}
+	}
+};

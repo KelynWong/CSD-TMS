@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
   private final UserService userService;
@@ -37,6 +37,12 @@ public class UserController {
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
+  }
+
+  // Health check endpoint
+  @GetMapping("/health")
+  public ResponseEntity<String> healthCheck() {
+      return ResponseEntity.ok("Service is healthy");
   }
 
   // Get all users

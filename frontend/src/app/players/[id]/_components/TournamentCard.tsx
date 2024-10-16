@@ -4,32 +4,35 @@ import {
 	CardTitle,
 	CardDescription,
 } from "@/components/ui/card";
+import { tournamentResponse } from "@/api/tournaments/api";
 
-export default function TournamentCard({
-	name,
-	start_date,
-	end_date,
-	status,
-	result,
-}: {
-	name: string;
-	start_date: string;
-	end_date: string;
-	status: string;
-	result?: string;
-}) {
-	result = result || "win";
+type TournamentCardProps = {
+	tournament: tournamentResponse;
+};
+
+export default function TournamentCard({ tournament }: TournamentCardProps) {
+	const {
+		id,
+		tournamentName,
+		startDT,
+		endDT,
+		status,
+		regStartDT,
+		regEndDT,
+		winner,
+	} = tournament;
 	const statusClass =
-		status === "In Progress" ? "text-yellow-500" : "text-gray-500";
+		status === "Ongoing" ? "text-yellow-500" : "text-gray-500";
+
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>{name}</CardTitle>
+				<CardTitle>{tournamentName}</CardTitle>
 				<CardDescription>
-					{formatted_start} - {formatted_end}
+					{startDT} - {endDT}
 				</CardDescription>
 				<CardDescription className={statusClass}>{status}</CardDescription>
-				<CardDescription>{result}</CardDescription>
+				<CardDescription>{winner}</CardDescription>
 			</CardHeader>
 		</Card>
 	);

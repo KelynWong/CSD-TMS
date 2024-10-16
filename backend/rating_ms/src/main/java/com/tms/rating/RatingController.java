@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.tms.exceptions.RatingNotFoundException;
 
 @RestController
+@RequestMapping("/ratings")
 public class RatingController {
     private final RatingService ratingService;
 
@@ -19,18 +20,24 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
-    @GetMapping("/ratings")
+    // Health check endpoint
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Service is healthy");
+    }
+
+    @GetMapping
     public List<Rating> getAllRatings() {
         return ratingService.getAllRatings();
     }
 
-    @GetMapping("/ratings/{userId}")
+    @GetMapping("/{userId}")
     public Rating getRating(@PathVariable String userId) {
         return ratingService.getRatingById(userId)
                 .orElseThrow(() -> new RatingNotFoundException(userId));
     }
 
-    @GetMapping("/ratings/top")
+    @GetMapping("/top")
     public Page<Rating> getTopRatings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -38,17 +45,17 @@ public class RatingController {
         return ratingService.getTopRatings(pageable);
     }
 
-    @PostMapping("/ratings/by-ids")
+    @PostMapping("/by-ids")
     public List<Rating> getRatingsByIds(@RequestBody List<String> ratingIds) {
         return ratingService.getRatingsByIds(ratingIds);
     }
 
-    @PostMapping("/ratings/init")
+    @PostMapping("/init")
     public Rating initRating(@RequestBody RatingDTO rating) {
         return ratingService.initRating(rating);
     }
 
-    @PostMapping("/ratings/initBatch/{start}/{end}")
+    @PostMapping("/initBatch/{start}/{end}")
     public List<Rating> initRatings(@PathVariable int start, @PathVariable int end) {
         return ratingService.initRatings(start, end);
     }
@@ -58,12 +65,12 @@ public class RatingController {
     //     return ratingService.addRating(rating);
     // }
 
-    @PutMapping("/ratings")
+    @PutMapping
     public List<Rating> updateRating(@RequestBody ResultsDTO match) {
         return ratingService.calcRating(match);
     }
 
-    @DeleteMapping("/ratings/{userId}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteRating(@PathVariable String userId) {
         ratingService.deleteRating(userId);
         return ResponseEntity.ok().build();
