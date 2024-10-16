@@ -86,15 +86,15 @@ jobs:
 
         # Build and push matchmaking
         docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
-          --build-arg MATCH_URL="http://$MATCH_MS_IP:8080" \
-          --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082" \
-          --build-arg PLAYER_URL="http://$USER_MS_IP:8083" \
-          --build-arg RATING_URL="http://$RATING_MS_IP:8084"
+          --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
+          --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
+          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
+          --build-arg RATING_URL="http://$RATING_MS_IP:8084/ratings"
         docker push csdtms.azurecr.io/matchmaking:latest
 
         # Deploy matchmaking MS
         az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082" PLAYER_URL="http://$USER_MS_IP:8083" RATING_URL="http://$RATING_MS_IP:8084" \
+        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" RATING_URL="http://$RATING_MS_IP:8084/ratings" \
         --vnet tmsVNet \
         --subnet aciSubnet
 
