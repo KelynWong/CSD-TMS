@@ -47,7 +47,10 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
                 // Add the winner of the current match to the temporary array
                 if (currentMatch) {
-                    currentLevelWinners.push(currentMatch.winner.fullname);
+                    if (currentMatch.winner) 
+                        currentLevelWinners.push(currentMatch.winner.fullname);
+                    else
+                        currentLevelWinners.push("Match not played yet");
                 }
 
                 // Add child matches (if they exist) to the queue for further processing
@@ -126,14 +129,24 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
                             // Display the winner only on the first row of each block
                             if (index % rowSpan === 0) {
-                                return (
-                                    <TableCell key={round} rowSpan={rowSpan}>
-                                        <div className="flex items-center gap-2">
-                                            <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Winner Profile" />
-                                            <p>{winners[winnerIndex]}</p> 
-                                        </div>
-                                    </TableCell>
-                                );
+                                if (winners[winnerIndex] !== "Match not played yet") {
+                                    return (
+                                        <TableCell key={round} rowSpan={rowSpan}>
+                                            <div className="flex items-center gap-2">
+                                                <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Winner Profile" />
+                                                <p>{winners[winnerIndex]}</p> 
+                                            </div>
+                                        </TableCell>
+                                    );
+                                } else {
+                                    return (
+                                        <TableCell key={round} rowSpan={rowSpan}>
+                                            <div className="flex items-center gap-2 italic text-slate-400">
+                                                <p>{winners[winnerIndex]}</p> 
+                                            </div>
+                                        </TableCell>
+                                    );
+                                }
                             }
 
                             return null;
