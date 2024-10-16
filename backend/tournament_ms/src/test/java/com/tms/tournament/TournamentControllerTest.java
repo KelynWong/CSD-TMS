@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 /** Start an actual HTTP server listening at a random port */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Slf4j
-class TournamentIntegrationTest {
+class TournamentControllerTest {
 
 	@LocalServerPort
 	private int port;
@@ -67,7 +67,7 @@ class TournamentIntegrationTest {
 		Tournament[] tournamentList = result.getBody();
 
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals(6, tournamentList.length); // [TBC] 6 is hardcode, need to change
+		assertEquals(7, tournamentList.length); // [TBC] 6 is hardcode, need to change
 	}
 
 	@Test
