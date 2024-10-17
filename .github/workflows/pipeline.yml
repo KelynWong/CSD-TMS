@@ -382,37 +382,47 @@ jobs:
     #       --http-settings userMSHttpSetting \
     #       --priority 100
 
+    - name: Create API Management (APIM)
+      run: |
+        # Create API Management instance
+        az apim create \
+          --name tmsAPI \
+          --resource-group tms \
+          --location East US \
+          --sku-name Developer \
+          --publisher-email kelyn.wong.2022@scis.smu.edu.sg \
+          --publisher-name kelyn \
+          --public-network-access true
+
     - name: Create NSG to allow only APIM to access Application Gateway
       run: |
-        # Create NSG to allow APIM to access Application Gateway
+        # Retrieve the public IP of the APIM instance
+        apim_public_ip=$(az apim show \
+          --resource-group tms \
+          --name tmsAPI \
+          --query "gatewayUrl" \
+          --output tsv | cut -d'/' -f3)
+
+        # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
           --resource-group tms \
           --nsg-name appGatewayNSG \
           --name AllowAPIMAccess \
           --protocol Tcp \
           --priority 100 \
-          --source-address-prefixes <APIM-Subnet-IP> \
+          --source-address-prefixes ${apim_public_ip} \
           --destination-port-ranges 80 \
           --access Allow \
           --direction Inbound
 
-    - name: Attach NSG to Subnet
-      run: |
-        # Attach NSG to the subnet
-        az network vnet subnet update \
-          --resource-group tms \
-          --vnet-name tmsVNet \
-          --name tmsSubnet \
-          --network-security-group appGatewayNSG
-
-    - name: Link APIM to Application Gateway
-      run: |
-        # Link APIM to VNet
-        az apim vnet create \
-          --resource-group tms \
-          --name myApiManagement \
-          --vnet-name tmsVNet \
-          --subnet tmsSubnet
+        - name: Attach NSG to Subnet
+          run: |
+            # Attach NSG to the subnet
+            az network vnet subnet update \
+              --resource-group tms \
+              --vnet-name tmsVNet \
+              --name tmsSubnet \
+              --network-security-group appGatewayNSG
 
     - name: Create API in APIM with JWT Validation
       run: |
