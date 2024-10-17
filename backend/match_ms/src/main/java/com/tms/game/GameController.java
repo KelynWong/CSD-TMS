@@ -1,11 +1,10 @@
 package com.tms.game;
 
-import java.util.List;
-
+import com.tms.match.Match;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tms.match.Match;
+import java.util.List;
 
 @RestController
 @RequestMapping("/matches")
@@ -27,12 +26,11 @@ public class GameController {
     /**
      * Implement this method to add a game for a given matchId
      * If there's no such match, throw a MatchNotFoundException
-     * 
      * Return the newly added game
      */
     @PostMapping("/{matchId}/games")
     public Match addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
-        if (games.size() == 0 || games.size() < 3) {
+        if (games.isEmpty() || games.size() > 3) {
             throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
         }
         return gameService.addGames(matchId, games);

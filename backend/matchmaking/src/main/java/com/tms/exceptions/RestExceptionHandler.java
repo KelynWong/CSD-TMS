@@ -75,4 +75,11 @@ public class RestExceptionHandler{
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(RatingUpdateException.class)
+    public ResponseEntity<Object> handleRatingUpdateException(RatingUpdateException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

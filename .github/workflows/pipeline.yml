@@ -394,14 +394,15 @@ jobs:
           --publisher-name kelyn \
           --public-network-access true
 
-    - name: Create NSG to allow only APIM to access Application Gateway
+    - name: Create NSG and allow only APIM to access Application Gateway
       run: |
-        # Retrieve the public IP of the APIM instance
-        apim_public_ip=$(az apim show \
+        # Create Network Security Group (NSG) if it doesn't exist
+        az network nsg create \
           --resource-group tms \
-          --name tmsAPI \
-          --query "gatewayUrl" \
-          --output tsv | cut -d'/' -f3)
+          --name appGatewayNSG
+
+        # Resolve the public IP of the APIM instance
+        apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
 
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
@@ -415,14 +416,26 @@ jobs:
           --access Allow \
           --direction Inbound
 
-        - name: Attach NSG to Subnet
-          run: |
-            # Attach NSG to the subnet
-            az network vnet subnet update \
-              --resource-group tms \
-              --vnet-name tmsVNet \
-              --name tmsSubnet \
-              --network-security-group appGatewayNSG
+        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
+        az network nsg rule create \
+          --resource-group tms \
+          --nsg-name appGatewayNSG \
+          --name AllowAppGatewayPorts \
+          --protocol Tcp \
+          --priority 101 \
+          --source-address-prefixes '*' \
+          --destination-port-ranges 65200-65535 \
+          --access Allow \
+          --direction Inbound
+
+    - name: Attach NSG to Subnet
+      run: |
+        # Attach NSG to the subnet
+        az network vnet subnet update \
+          --resource-group tms \
+          --vnet-name tmsVNet \
+          --name tmsSubnet \
+          --network-security-group appGatewayNSG
 
     - name: Create API in APIM with JWT Validation
       run: |

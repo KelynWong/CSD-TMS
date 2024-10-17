@@ -1,13 +1,14 @@
 package com.tms.matchmaking;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.Collections;
-
+import com.tms.exceptions.*;
+import com.tms.match.CreateTournament;
+import com.tms.match.Game;
+import com.tms.match.Match;
+import com.tms.match.MatchJson;
+import com.tms.player.Player;
+import com.tms.player.Rating;
+import com.tms.player.ResultsDTO;
+import com.tms.tournament.Tournament;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -16,16 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tms.exceptions.*;
-import com.tms.match.CreateTournament;
-import com.tms.match.Match;
-import com.tms.match.MatchJson;
-import com.tms.match.MatchPlayers;
-import com.tms.player.Player;
-import com.tms.player.Rating;
-import com.tms.tournament.Tournament;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MatchmakeService {
@@ -37,11 +31,10 @@ public class MatchmakeService {
     private final String RATING_URL;
 
     public MatchmakeService(
-        @Value("${MATCH_URL}") String MATCH_URL,
-        @Value("${TOURNAMENT_URL}") String TOURNAMENT_URL,
-        @Value("${PLAYER_URL}") String PLAYER_URL,
-        @Value("${RATING_URL}") String RATING_URL
-    ) {
+            @Value("${MATCH_URL}") String MATCH_URL,
+            @Value("${TOURNAMENT_URL}") String TOURNAMENT_URL,
+            @Value("${PLAYER_URL}") String PLAYER_URL,
+            @Value("${RATING_URL}") String RATING_URL) {
         this.restClient = RestClient.create();
         this.MATCH_URL = MATCH_URL;
         this.TOURNAMENT_URL = TOURNAMENT_URL;
@@ -133,14 +126,12 @@ public class MatchmakeService {
         } else {
             throw new IllegalArgumentException("Invalid number of players");
         }
-        MatchJson match = new MatchJson(tournamentId, player1, player2, null, null);
 
-        return match;
+        return new MatchJson(tournamentId, player1, player2, null, null);
     }
 
     private MatchJson createMatchWithoutPlayers(Long tournamentId) {
-        MatchJson match = new MatchJson(tournamentId, null, null, null, null);
-        return match;
+        return new MatchJson(tournamentId, null, null, null, null);
     }
 
     private boolean sendCreateMatchesRequest(List<MatchJson> matches, double numMatchesAtBase) {
@@ -203,28 +194,24 @@ public class MatchmakeService {
         for (Player player : tournament.getPlayers()) {
             playerMap.put(player.getId(), player);
         }
-        Match rootMatch = null;
-        rootMatch = constructTournament(matchRes, playerMap);
+        Match rootMatch = constructTournament(matchRes, playerMap);
         tournament.setRootMatch(rootMatch);
 
         return tournament;
     }
 
-    private JsonNode parseJson(ResponseEntity<String> res) {
-        String json = null;
-        if (res != null && res.getBody() != null) {
-            json = res.getBody();
-        } else {
-            return null;
-        }
+    public MatchJson updateMatchRes(Long matchId, List<Game> games) {
+        MatchJson match = updateGames(matchId, games);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readTree(json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        String winnerId = match.getWinnerId();
+        String loserId = match.getPlayer1Id().equals(winnerId) ? match.getPlayer2Id()
+                : match.getPlayer1Id();
+
+        Tournament tournament = fetchTournamentData(match.getTournamentId());
+        LocalDateTime endDT = tournament.getEndDT();
+        updateRating(new ResultsDTO(winnerId, loserId, endDT));
+
+        return match;
     }
 
     private Tournament fetchTournamentData(Long tournamentId) {
@@ -244,7 +231,7 @@ public class MatchmakeService {
         ResponseEntity<List<Player>> playerIdRes = restClient.get()
                 .uri(TOURNAMENT_URL + "/{tournamentId}/players", tournamentId)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
@@ -259,7 +246,8 @@ public class MatchmakeService {
                 .uri(PLAYER_URL + "/ids")
                 .body(playerIds)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {});
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
 
         if (playerRes.getStatusCode() != HttpStatus.OK) {
             throw new PlayerNotFoundException("Player ID not registered in database.");
@@ -277,13 +265,13 @@ public class MatchmakeService {
                 .uri(RATING_URL + "/by-ids")
                 .body(playerIds)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Rating>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (ratingRes.getStatusCode() != HttpStatus.OK || ratingRes.getBody().isEmpty()) {
             throw new RatingNotFoundException("No ratings found for players");
         }
-        
+
         return ratingRes.getBody();
     }
 
@@ -291,7 +279,7 @@ public class MatchmakeService {
         ResponseEntity<List<MatchJson>> matchRes = restClient.get()
                 .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (matchRes.getStatusCode() != HttpStatus.OK || matchRes.getBody().isEmpty()) {
@@ -346,15 +334,31 @@ public class MatchmakeService {
         return idToMatch.values().iterator().next();
     }
 
-    private void updateWinner(MatchPlayers matchPlayers, Long matchId) {
-        ResponseEntity<String> res = restClient.patch()
-                .uri(MATCH_URL + "/{matchId}", matchId)
-                .body(matchPlayers)
+    private MatchJson updateGames(Long matchId, List<Game> games) {
+        ResponseEntity<MatchJson> res = restClient.post()
+                .uri(MATCH_URL + "/{matchId}/games", matchId)
+                .body(games)
                 .retrieve()
-                .toEntity(String.class);
+                .toEntity(MatchJson.class);
 
         if (res.getStatusCode() != HttpStatus.OK) {
             throw new MatchUpdateException(matchId);
         }
+
+        return res.getBody();
+    }
+
+    private void updateRating(ResultsDTO results) {
+        ResponseEntity<List<Rating>> res = restClient.put()
+                .uri(RATING_URL + "/update")
+                .body(results)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
+
+        if (res.getStatusCode() != HttpStatus.OK) {
+            throw new RatingUpdateException(results.getWinnerId(), results.getLoserId());
+        }
+
     }
 }
