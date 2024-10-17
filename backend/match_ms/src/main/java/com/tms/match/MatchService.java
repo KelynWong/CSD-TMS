@@ -17,7 +17,7 @@ public interface MatchService {
     Match addMatch(MatchJson match);
     List<Match> addTournament(CreateTournament tournament);
 
-    Match updateMatchAndParent(Long id, MatchPlayers matchPlayers);
+    Match setWinnerAndUpdateParent(Long matchId, boolean player1Wins);
     void generateWinners(Long tournamentId);
 
     /**
