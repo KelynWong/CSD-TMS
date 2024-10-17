@@ -1,18 +1,23 @@
 package com.tms.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tms.rating.RatingService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 
 @Service
 @Transactional
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RatingService ratingService;
+
+    public UserService(UserRepository userRepository, RatingService ratingService) {
+        this.userRepository = userRepository;
+        this.ratingService = ratingService;
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -31,6 +36,7 @@ public class UserService {
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
+        ratingService.initRating(user.getId());
         return userRepository.save(user);
     }
 
