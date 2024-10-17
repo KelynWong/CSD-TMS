@@ -103,9 +103,11 @@ jobs:
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
+          --sku Standard_v2 \  
           --frontend-port 80 \
           --vnet-name tmsVNet \
-          --subnet tmsSubnet \
+          --subnet tmsSubnet \  
+          --frontend-ip-name privateFrontend \
           --http-settings-cookie-based-affinity Disabled \
           --routing-rule-type Basic \
           --priority 1000
