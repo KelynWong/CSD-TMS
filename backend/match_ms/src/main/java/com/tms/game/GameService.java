@@ -13,6 +13,7 @@ import com.tms.exceptions.GameNotFoundException;
 import com.tms.exceptions.MatchNotFoundException;
 import com.tms.match.Match;
 import com.tms.match.MatchRepository;
+import com.tms.match.MatchService;
 
 @Service
 public class GameService {
@@ -23,6 +24,9 @@ public class GameService {
     @Autowired
     private MatchRepository matches;
 
+    @Autowired
+    private MatchService matchService;
+
     public List<Game> getAllGamesByMatchId(Long matchId) {
         if (!matches.existsById(matchId)) {
             throw new MatchNotFoundException(matchId);
@@ -31,17 +35,10 @@ public class GameService {
     }
 
     @Transactional
-    public List<Game> addGames(Long matchId, List<Game> gamesToAdd) {
-        Optional<Match> optionalMatch = matches.findById(matchId);
-
-        if (!optionalMatch.isPresent()) {
-            throw new MatchNotFoundException(matchId);
-        }
-
+    public Match addGames(Long matchId, List<Game> gamesToAdd) {
         if (this.getAllGamesByMatchId(matchId).size() > 0) {
             throw new IllegalArgumentException("Games already exist for this match. Use PUT to update games.");
         }
-        Match match = optionalMatch.get();
 
         for (Game game : gamesToAdd) {
             if (!validateGame(game)) {
@@ -49,13 +46,16 @@ public class GameService {
             }
         }
 
-        gamesToAdd = ensurePlayer1IsWinner(gamesToAdd);
+        boolean player1Wins = checkWinner(gamesToAdd);
+        Match match = matchService.setWinnerAndUpdateParent(matchId, player1Wins);
 
         for (Game game : gamesToAdd) {
             game.setMatch(match);
             games.save(game);
         }
-        return gamesToAdd;
+
+        return match;
+
     }
 
     public Game updateGame(Long matchId, Long gameId, Game newGame) {
@@ -144,7 +144,7 @@ public class GameService {
         return setCheck && scoreCheck;
     }
 
-    private List<Game> ensurePlayer1IsWinner(List<Game> gamesToAdd) {
+    private boolean checkWinner(List<Game> gamesToAdd) {
         int player1Wins = 0;
         int player2Wins = 0;
         for (Game game : gamesToAdd) {
@@ -155,14 +155,6 @@ public class GameService {
             }
         }
 
-        if (player1Wins < player2Wins) {
-            // swap scores such that player1 wins
-            for (Game game : gamesToAdd) {
-                short temp = game.getPlayer1Score();
-                game.setPlayer1Score(game.getPlayer2Score());
-                game.setPlayer2Score(temp);
-            }
-        }
-        return gamesToAdd;
+        return player1Wins > player2Wins ? true : false;
     }
 }

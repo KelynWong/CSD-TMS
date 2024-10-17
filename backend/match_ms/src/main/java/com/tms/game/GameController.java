@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.tms.match.Match;
+
 @RestController
 @RequestMapping("/matches")
 public class GameController {
@@ -29,7 +31,7 @@ public class GameController {
      * Return the newly added game
      */
     @PostMapping("/{matchId}/games")
-    public List<Game> addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
+    public Match addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
         if (games.size() == 0 || games.size() < 3) {
             throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
         }

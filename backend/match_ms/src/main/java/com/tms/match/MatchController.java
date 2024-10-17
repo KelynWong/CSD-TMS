@@ -111,20 +111,6 @@ public class MatchController {
         return matchService.addTournament(tournament);
     }
 
-    /**
-     * If there is no Match with the given "id", throw a MatchNotFoundException
-     * @param id
-     * @param newMatchInfo
-     * @return the updated, or newly added Match
-     */
-    @PatchMapping("/{id}")
-    public Match updateMatchAndParent(@PathVariable Long id, @RequestBody MatchPlayers matchPlayers){
-        Match Match = matchService.updateMatchAndParent(id, matchPlayers);
-        if(Match == null) throw new MatchNotFoundException(id);
-        
-        return Match;
-    }
-
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/generateWinners/{tournamentId}")
     public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
