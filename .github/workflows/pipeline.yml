@@ -100,11 +100,10 @@ jobs:
 
     - name: Create Application Gateway
       run: |
-        # Create Private IP for the Application Gateway
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
-          --sku Standard_v2 \
+          --sku Standard \
           --frontend-port 80 \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
