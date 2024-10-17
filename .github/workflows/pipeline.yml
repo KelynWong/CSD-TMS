@@ -396,17 +396,13 @@ jobs:
 
     - name: Create NSG and allow only APIM to access Application Gateway
       run: |
-        # Create Network Security Group (NSG)
+        # Create Network Security Group (NSG) if it doesn't exist
         az network nsg create \
           --resource-group tms \
           --name appGatewayNSG
 
-        # Retrieve the public IP of the APIM instance
-        apim_public_ip=$(az apim show \
-          --resource-group tms \
-          --name tmsAPI \
-          --query "gatewayUrl" \
-          --output tsv | cut -d'/' -f3)
+        # Resolve the public IP of the APIM instance
+        apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
 
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
