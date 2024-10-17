@@ -98,7 +98,7 @@ jobs:
         --vnet tmsVNet \
         --subnet aciSubnet
 
-        - name: Create Application Gateway
+    - name: Create Application Gateway
       run: |
         # Create Private IP for the Application Gateway
         az network application-gateway create \
