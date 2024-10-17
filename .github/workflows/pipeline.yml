@@ -100,11 +100,19 @@ jobs:
 
     - name: Create Application Gateway
       run: |
+        # Create Public IP for the Application Gateway
+        az network public-ip create \
+          --resource-group tms \
+          --name appGatewayPublicIP \
+          --sku Standard
+
+        # Create Application Gateway
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
           --sku Standard_v2 \
           --frontend-port 80 \
+          --public-ip-address appGatewayPublicIP \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
           --http-settings-cookie-based-affinity Disabled \
@@ -374,43 +382,61 @@ jobs:
           --http-settings userMSHttpSetting \
           --priority 100
 
-    - name: Set up API with JWT validation in APIM
-      run: |
-        appgw_private_ip=$(az network application-gateway show \
-          --resource-group tms \
-          --name appGateway \
-          --query "frontendIPConfigurations[?contains(privateIPAddress, '')].privateIPAddress" \
-          --output tsv)
+    - name: Create NSG to allow only APIM to access Application Gateway
+  run: |
+    # Create NSG to allow APIM to access Application Gateway
+    az network nsg rule create \
+      --resource-group tms \
+      --nsg-name appGatewayNSG \
+      --name AllowAPIMAccess \
+      --protocol Tcp \
+      --priority 100 \
+      --source-address-prefixes <APIM-Subnet-IP> \
+      --destination-port-ranges 80 \
+      --access Allow \
+      --direction Inbound
 
-        az apim api create \
-          --resource-group tms \
-          --service-name myApiManagement \
-          --api-id myApi \
-          --path / \
-          --display-name "TMS API" \
-          --service-url "http://${appgw_private_ip}" \
-          --protocols https
+  - name: Attach NSG to Subnet
+    run: |
+      # Attach NSG to the subnet
+      az network vnet subnet update \
+        --resource-group tms \
+        --vnet-name tmsVNet \
+        --name tmsSubnet \
+        --network-security-group appGatewayNSG
 
-        # Set up JWT validation
-        az apim api operation policy update \
-          --resource-group tms \
-          --service-name myApiManagement \
-          --api-id myApi \
-          --operation-id all \
-          --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
-    
-    - name: Link APIM to Application Gateway
-      run: |
-        # Add APIM access to VNet
-        az network vnet subnet update \
-          --name tmsSubnet \
-          --vnet-name tmsVNet \
-          --resource-group tms \
-          --service-endpoints Microsoft.ApiManagement
+  - name: Link APIM to Application Gateway
+    run: |
+      # Link APIM to VNet
+      az apim vnet create \
+        --resource-group tms \
+        --name myApiManagement \
+        --vnet-name tmsVNet \
+        --subnet tmsSubnet
 
-        # Link APIM to App Gateway
-        az apim vnet create \
-          --resource-group tms \
-          --name myApiManagement \
-          --vnet-name tmsVNet \
-          --subnet tmsSubnet
+  - name: Create API in APIM with JWT Validation
+    run: |
+      # Retrieve the private IP of the Application Gateway
+      appgw_private_ip=$(az network application-gateway show \
+        --resource-group tms \
+        --name appGateway \
+        --query "frontendIPConfigurations[?contains(privateIPAddress, '')].privateIPAddress" \
+        --output tsv)
+
+      # Create API in APIM with private IP of Application Gateway
+      az apim api create \
+        --resource-group tms \
+        --service-name myApiManagement \
+        --api-id myApi \
+        --path / \
+        --display-name "TMS API" \
+        --service-url "http://${appgw_private_ip}" \
+        --protocols https
+
+      # Set up JWT validation in APIM for the API
+      az apim api operation policy update \
+        --resource-group tms \
+        --service-name myApiManagement \
+        --api-id myApi \
+        --operation-id all \
+        --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
