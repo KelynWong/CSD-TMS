@@ -394,8 +394,13 @@ jobs:
           --publisher-name kelyn \
           --public-network-access true
 
-    - name: Create NSG to allow only APIM to access Application Gateway
+    - name: Create NSG and allow only APIM to access Application Gateway
       run: |
+        # Create Network Security Group (NSG)
+        az network nsg create \
+          --resource-group tms \
+          --name appGatewayNSG
+
         # Retrieve the public IP of the APIM instance
         apim_public_ip=$(az apim show \
           --resource-group tms \
