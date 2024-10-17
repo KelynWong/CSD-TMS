@@ -103,7 +103,6 @@ jobs:
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
-          --sku Standard_Small \
           --frontend-port 80 \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
