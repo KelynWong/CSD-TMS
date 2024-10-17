@@ -37,13 +37,31 @@ public class UserService {
     public User updateUser(String id, User updatedUser, MultipartFile profilePicture) { 
         return userRepository.findById(id)
             .map(user -> {
-                user.setUsername(updatedUser.getUsername());
-                user.setRole(updatedUser.getRole());
-                // Update other fields
+                if (updatedUser.getUsername() != null) {
+                    user.setUsername(updatedUser.getUsername());
+                }
+                if (updatedUser.getFullname() != null) {
+                    user.setFullname(updatedUser.getFullname());
+                }
+                if (updatedUser.getGender() != null) {
+                    user.setGender(updatedUser.getGender());
+                }
+                if (updatedUser.getEmail() != null) {
+                    user.setEmail(updatedUser.getEmail());
+                }
+                if (updatedUser.getRole() != null) {
+                    user.setRole(updatedUser.getRole());
+                }
+                if (updatedUser.getCountry() != null) {
+                    user.setCountry(updatedUser.getCountry());
+                }
+                if (updatedUser.getProfilePicture() != null) {
+                    user.setProfilePicture(updatedUser.getProfilePicture()); 
+                }
                 return userRepository.save(user);
             })
             .orElseThrow(() -> new RuntimeException("User not found"));
-    }
+    }    
 
     public List<User> getUsersByRole(String role) {
         return userRepository.findByRoleIgnoreCase(role);
