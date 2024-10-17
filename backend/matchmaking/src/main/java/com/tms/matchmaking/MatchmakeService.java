@@ -126,14 +126,12 @@ public class MatchmakeService {
         } else {
             throw new IllegalArgumentException("Invalid number of players");
         }
-        MatchJson match = new MatchJson(tournamentId, player1, player2, null, null);
 
-        return match;
+        return new MatchJson(tournamentId, player1, player2, null, null);
     }
 
     private MatchJson createMatchWithoutPlayers(Long tournamentId) {
-        MatchJson match = new MatchJson(tournamentId, null, null, null, null);
-        return match;
+        return new MatchJson(tournamentId, null, null, null, null);
     }
 
     private boolean sendCreateMatchesRequest(List<MatchJson> matches, double numMatchesAtBase) {
@@ -196,8 +194,7 @@ public class MatchmakeService {
         for (Player player : tournament.getPlayers()) {
             playerMap.put(player.getId(), player);
         }
-        Match rootMatch = null;
-        rootMatch = constructTournament(matchRes, playerMap);
+        Match rootMatch = constructTournament(matchRes, playerMap);
         tournament.setRootMatch(rootMatch);
 
         return tournament;
@@ -234,7 +231,7 @@ public class MatchmakeService {
         ResponseEntity<List<Player>> playerIdRes = restClient.get()
                 .uri(TOURNAMENT_URL + "/{tournamentId}/players", tournamentId)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
@@ -249,7 +246,7 @@ public class MatchmakeService {
                 .uri(PLAYER_URL + "/ids")
                 .body(playerIds)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Player>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (playerRes.getStatusCode() != HttpStatus.OK) {
@@ -268,7 +265,7 @@ public class MatchmakeService {
                 .uri(RATING_URL + "/by-ids")
                 .body(playerIds)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Rating>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (ratingRes.getStatusCode() != HttpStatus.OK || ratingRes.getBody().isEmpty()) {
@@ -282,7 +279,7 @@ public class MatchmakeService {
         ResponseEntity<List<MatchJson>> matchRes = restClient.get()
                 .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<MatchJson>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (matchRes.getStatusCode() != HttpStatus.OK || matchRes.getBody().isEmpty()) {
@@ -356,7 +353,7 @@ public class MatchmakeService {
                 .uri(RATING_URL + "/update")
                 .body(results)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<Rating>>() {
+                .toEntity(new ParameterizedTypeReference<>() {
                 });
 
         if (res.getStatusCode() != HttpStatus.OK) {
