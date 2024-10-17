@@ -415,14 +415,14 @@ jobs:
           --access Allow \
           --direction Inbound
 
-        - name: Attach NSG to Subnet
-          run: |
-            # Attach NSG to the subnet
-            az network vnet subnet update \
-              --resource-group tms \
-              --vnet-name tmsVNet \
-              --name tmsSubnet \
-              --network-security-group appGatewayNSG
+    - name: Attach NSG to Subnet
+      run: |
+        # Attach NSG to the subnet
+        az network vnet subnet update \
+          --resource-group tms \
+          --vnet-name tmsVNet \
+          --name tmsSubnet \
+          --network-security-group appGatewayNSG
 
     - name: Create API in APIM with JWT Validation
       run: |
