@@ -2,6 +2,9 @@ package com.tms.user;
 
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,8 +34,17 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public List<User> getUsersByIds(List<String> ids) { 
-        return userRepository.findByIdIn(ids);
+    public List<User> getUsersByIds(List<String> ids) {
+        return userRepository.findByIdInOrderByRatingDesc(ids);
+    }
+
+    public Page<User> getTopPlayers(Pageable pageable) {
+        Pageable sortedByRatingDesc = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+//        return userRepository.findAll(sortedByRatingDesc);
+        return userRepository.findAllOrderByRatingDesc(sortedByRatingDesc);
     }
 
     public User createUser(User user, MultipartFile profilePicture) {

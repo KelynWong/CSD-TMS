@@ -1,21 +1,19 @@
 package com.tms.user;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.svix.Webhook;
+import com.svix.exceptions.WebhookVerificationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.MediaType;
-// import org.springframework.http.HttpHeaders;
-
-import com.svix.Webhook;
-import com.svix.exceptions.WebhookVerificationException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tms.user.User;
-import com.tms.user.UserService;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.http.HttpHeaders;
@@ -51,11 +49,13 @@ public class UserController {
     return userService.getAllUsers();
   }
 
-//   @GetMapping("/top10")
-//   public ResponseEntity<List<User>> getTop10UsersByRank() {
-//     List<User> topUsers = userService.getTop10UsersByRank();
-//     return ResponseEntity.ok(topUsers);
-//   }
+  @GetMapping("/top-players")
+  public Page<User> getTopRatings(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return userService.getTopPlayers(pageable);
+  }
 
   // Get user by ID
   @GetMapping("/{id}")

@@ -5,10 +5,6 @@ import com.tms.ratingCalc.RatingCalculator;
 import com.tms.ratingCalc.RatingPeriodResults;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,27 +26,6 @@ public class RatingService {
         this.userRepo = userRepository;
     }
 
-    public List<Rating> getAllRatings() {
-        return ratingRepo.findAll();
-    }
-
-    public Optional<Rating> getRatingById(String playerIds) {
-        return ratingRepo.findById(playerIds);
-    }
-
-    public List<Rating> getRatingsByIds(List<String> playerIds) {
-        return ratingRepo.findAllByIdOrderByRatingDesc(playerIds);
-    }
-
-    public Page<Rating> getTopRatings(Pageable pageable) {
-        Pageable sortedByRatingDesc = PageRequest.of(
-            pageable.getPageNumber(), 
-            pageable.getPageSize(), 
-            Sort.by("rating").descending()
-        );
-        return ratingRepo.findAll(sortedByRatingDesc);
-    }
-
     public Rating initRating(String userId) {
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Optional<User> optionalUser = userRepo.findById(userId);
@@ -69,10 +44,6 @@ public class RatingService {
         return ratingList;
     }
 
-    public Rating addRating(Rating rating) {
-        return ratingRepo.save(rating);
-    }
-
     public List<Rating> calcRating(ResultsDTO match) {
         LocalDateTime now = LocalDateTime.now();
         RatingPeriodResults results = new RatingPeriodResults();
@@ -82,9 +53,9 @@ public class RatingService {
         if (!winner.isPresent() || !loser.isPresent()) {
             throw new RatingNotFoundException(match.getWinnerId() + " or " + match.getLoserId());
         }
-        
+
         Rating winnerRating = winner.get();
-        Rating loserRating = loser.get(); 
+        Rating loserRating = loser.get();
 
         processRating(winnerRating, match.getTournamentEndDate(), now);
         processRating(loserRating, match.getTournamentEndDate(), now);
