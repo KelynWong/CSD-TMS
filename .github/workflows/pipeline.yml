@@ -416,6 +416,18 @@ jobs:
           --access Allow \
           --direction Inbound
 
+        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
+        az network nsg rule create \
+          --resource-group tms \
+          --nsg-name appGatewayNSG \
+          --name AllowAppGatewayPorts \
+          --protocol Tcp \
+          --priority 101 \
+          --source-address-prefixes '*' \
+          --destination-port-ranges 65200-65535 \
+          --access Allow \
+          --direction Inbound
+
     - name: Attach NSG to Subnet
       run: |
         # Attach NSG to the subnet
