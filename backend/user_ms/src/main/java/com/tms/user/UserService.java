@@ -1,6 +1,10 @@
+package com.tms.user;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -18,23 +22,19 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User getUserById(Long id) {
+    public User getUserById(String id) { 
         return userRepository.findById(id).orElse(null);
     }
 
-    public List<User> getUsersByIds(List<Long> ids) {
+    public List<User> getUsersByIds(List<String> ids) { 
         return userRepository.findByIdIn(ids);
     }
 
-    public List<User> getUsersByRole(String role) {
-        return userRepository.findByRoleIgnoreCase(role);
-    }
-
-    public User createUser(User user) {
+    public User createUser(User user, MultipartFile profilePicture) {
         return userRepository.save(user);
     }
 
-    public User updateUser(Long id, User updatedUser) {
+    public User updateUser(String id, User updatedUser, MultipartFile profilePicture) { 
         return userRepository.findById(id)
             .map(user -> {
                 user.setUsername(updatedUser.getUsername());
@@ -45,7 +45,11 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public void deleteUser(Long id) {
+    public List<User> getUsersByRole(String role) {
+        return userRepository.findByRoleIgnoreCase(role);
+    }
+
+    public void deleteUser(String id) { 
         userRepository.deleteById(id);
     }
 }

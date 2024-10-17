@@ -59,11 +59,14 @@ public class UserController {
 
   // Get user by ID
   @GetMapping("/{id}")
-  public ResponseEntity<User> getUserById(@PathVariable String id) {
-    return userService.getUserById(id)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
-  }
+    public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
+        User user = userService.getUserById(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
   // Get user by list of ids
   @PostMapping("/ids")
@@ -94,8 +97,8 @@ public class UserController {
       User user = objectMapper.readValue(userJson, User.class);
 
       // Call your service to create the user
-      String userString = userService.createUser(user, profilePicture);
-      return ResponseEntity.ok(userString);
+      User userobj = userService.createUser(user, profilePicture);
+      return ResponseEntity.ok(userobj);
     } catch (Exception e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -114,8 +117,8 @@ public class UserController {
       user.setId(id); // Set the ID of the user to be updated
 
       // Call your service to update the user
-      String userString = userService.updateUser(user, profilePicture);
-      return ResponseEntity.ok(userString);
+      User userObj = userService.updateUser(id, user, profilePicture);
+      return ResponseEntity.ok(userObj);
     } catch (Exception e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -247,8 +250,11 @@ public class UserController {
     try {
       // Fetch the user by ID
       String userId = userData.get("id").asText();
-      User user = userService.getUserById(userId)
-          .orElseThrow(() -> new RuntimeException("User not found"));
+      User user = userService.getUserById(userId);
+      
+      if (user == null) {
+          throw new RuntimeException("User not found");
+      }
 
       // Update email if present
       if (userData.has("email_addresses") && userData.get("email_addresses").size() > 0) {
@@ -290,7 +296,7 @@ public class UserController {
       }
 
       // Update the user in your system
-      userService.updateUser(user, null);
+      userService.updateUser(userId, user, null);
     } catch (Exception e) {
       throw new RuntimeException("Error handling user.updated event: " + e.getMessage());
     }

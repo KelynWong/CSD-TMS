@@ -1,8 +1,9 @@
 package com.tms.user;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "\"user\"", schema = "\"user\"")
 public class User {
     @Id
     private String id;
