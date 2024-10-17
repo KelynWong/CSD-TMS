@@ -21,82 +21,82 @@ jobs:
     - name: Log in to Azure Container Registry
       run: echo "${{ secrets.AZURE_ACR_PASSWORD }}" | docker login csdtms.azurecr.io --username csdtms --password-stdin
 
-    - name: Build and Push Docker Images
-      run: |
-        # Build and push the other microservices (user_ms, match_ms, etc.)
-        docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms \
-          --build-arg SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-          --build-arg SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
-          --build-arg SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" \
-          --build-arg CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
-        docker push csdtms.azurecr.io/user_ms:latest
+    # - name: Build and Push Docker Images
+    #   run: |
+    #     # Build and push the other microservices (user_ms, match_ms, etc.)
+    #     docker build -t csdtms.azurecr.io/user_ms:latest ./backend/user_ms \
+    #       --build-arg SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+    #       --build-arg SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
+    #       --build-arg SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" \
+    #       --build-arg CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}"
+    #     docker push csdtms.azurecr.io/user_ms:latest
         
-        # Build and push tournament_ms
-        docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms \
-          --build-arg DB_URL="${{ secrets.DB_URL }}" \
-          --build-arg DB_USER="${{ secrets.DB_USER }}" \
-          --build-arg DB_PW="${{ secrets.DB_PW }}"
-        docker push csdtms.azurecr.io/tournament_ms:latest
+    #     # Build and push tournament_ms
+    #     docker build -t csdtms.azurecr.io/tournament_ms:latest ./backend/tournament_ms \
+    #       --build-arg DB_URL="${{ secrets.DB_URL }}" \
+    #       --build-arg DB_USER="${{ secrets.DB_USER }}" \
+    #       --build-arg DB_PW="${{ secrets.DB_PW }}"
+    #     docker push csdtms.azurecr.io/tournament_ms:latest
 
-        # Build and push match_ms
-        docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms \
-          --build-arg DB_URL="${{ secrets.DB_URL }}" \
-          --build-arg DB_USER="${{ secrets.DB_USER }}" \
-          --build-arg DB_PW="${{ secrets.DB_PW }}"
-        docker push csdtms.azurecr.io/match_ms:latest
+    #     # Build and push match_ms
+    #     docker build -t csdtms.azurecr.io/match_ms:latest ./backend/match_ms \
+    #       --build-arg DB_URL="${{ secrets.DB_URL }}" \
+    #       --build-arg DB_USER="${{ secrets.DB_USER }}" \
+    #       --build-arg DB_PW="${{ secrets.DB_PW }}"
+    #     docker push csdtms.azurecr.io/match_ms:latest
 
-        # Build and push rating_ms
-        docker build -t csdtms.azurecr.io/rating_ms:latest ./backend/rating_ms \
-          --build-arg DB_URL="${{ secrets.DB_URL }}" \
-          --build-arg DB_USER="${{ secrets.DB_USER }}" \
-          --build-arg DB_PW="${{ secrets.DB_PW }}"
-        docker push csdtms.azurecr.io/rating_ms:latest
+    #     # Build and push rating_ms
+    #     docker build -t csdtms.azurecr.io/rating_ms:latest ./backend/rating_ms \
+    #       --build-arg DB_URL="${{ secrets.DB_URL }}" \
+    #       --build-arg DB_USER="${{ secrets.DB_USER }}" \
+    #       --build-arg DB_PW="${{ secrets.DB_PW }}"
+    #     docker push csdtms.azurecr.io/rating_ms:latest
 
-    - name: Log in to Azure
-      run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
+    # - name: Log in to Azure
+    #   run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
-    - name: Deploy other Microservices
-      run: |
-        # Deploy user_ms
-        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" \
-        --vnet tmsVNet \
-        --subnet aciSubnet
+    # - name: Deploy other Microservices
+    #   run: |
+    #     # Deploy user_ms
+    #     az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" \
+    #     --vnet tmsVNet \
+    #     --subnet aciSubnet
 
-        # Deploy tournament_ms
-        az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet \
-        --subnet aciSubnet 
+    #     # Deploy tournament_ms
+    #     az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+    #     --vnet tmsVNet \
+    #     --subnet aciSubnet 
 
-        # Deploy match_ms
-        az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet \
-        --subnet aciSubnet 
+    #     # Deploy match_ms
+    #     az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+    #     --vnet tmsVNet \
+    #     --subnet aciSubnet 
 
-        # Deploy rating_ms
-        az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet \
-        --subnet aciSubnet 
+    #     # Deploy rating_ms
+    #     az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+    #     --vnet tmsVNet \
+    #     --subnet aciSubnet 
 
-    - name: Build and Deploy Matchmaking MS
-      run: |
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+    # - name: Build and Deploy Matchmaking MS
+    #   run: |
+    #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+    #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+    #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
 
-        # Build and push matchmaking
-        docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
-          --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
-          --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
-          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
-          --build-arg RATING_URL="http://$RATING_MS_IP:8084/ratings"
-        docker push csdtms.azurecr.io/matchmaking:latest
+    #     # Build and push matchmaking
+    #     docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
+    #       --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
+    #       --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
+    #       --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
+    #       --build-arg RATING_URL="http://$RATING_MS_IP:8084/ratings"
+    #     docker push csdtms.azurecr.io/matchmaking:latest
 
-        # Deploy matchmaking MS
-        az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" RATING_URL="http://$RATING_MS_IP:8084/ratings" \
-        --vnet tmsVNet \
-        --subnet aciSubnet
+    #     # Deploy matchmaking MS
+    #     az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
+    #     --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" RATING_URL="http://$RATING_MS_IP:8084/ratings" \
+    #     --vnet tmsVNet \
+    #     --subnet aciSubnet
 
     - name: Create Application Gateway
       run: |
@@ -107,7 +107,6 @@ jobs:
           --frontend-port 80 \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \  
-          --frontend-ip-name privateFrontend \
           --http-settings-cookie-based-affinity Disabled \
           --routing-rule-type Basic \
           --priority 1000
