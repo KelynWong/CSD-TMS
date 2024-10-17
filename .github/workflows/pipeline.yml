@@ -122,265 +122,265 @@ jobs:
         # Wait for the Application Gateway to be fully provisioned
         az network application-gateway wait --created --name appGateway --resource-group tms
 
-    - name: Configure Backend Pools
-      run: |
-        # Get IP addresses of the microservices
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
-        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+    # - name: Configure Backend Pools
+    #   run: |
+    #     # Get IP addresses of the microservices
+    #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+    #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+    #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+    #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
-        # Add backend pools for each microservice
-        az network application-gateway address-pool create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name userMSBackendPool \
-          --servers $USER_MS_IP
+    #     # Add backend pools for each microservice
+    #     az network application-gateway address-pool create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name userMSBackendPool \
+    #       --servers $USER_MS_IP
 
-        az network application-gateway address-pool create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name tournamentMSBackendPool \
-          --servers $TOURNAMENT_MS_IP
+    #     az network application-gateway address-pool create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name tournamentMSBackendPool \
+    #       --servers $TOURNAMENT_MS_IP
 
-        az network application-gateway address-pool create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchMSBackendPool \
-          --servers $MATCH_MS_IP
+    #     az network application-gateway address-pool create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchMSBackendPool \
+    #       --servers $MATCH_MS_IP
 
-        az network application-gateway address-pool create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name ratingMSBackendPool \
-          --servers $RATING_MS_IP
+    #     az network application-gateway address-pool create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name ratingMSBackendPool \
+    #       --servers $RATING_MS_IP
 
-        az network application-gateway address-pool create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchmakingMSBackendPool \
-          --servers $MATCHMAKING_MS_IP
+    #     az network application-gateway address-pool create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchmakingMSBackendPool \
+    #       --servers $MATCHMAKING_MS_IP
 
-    - name: Configure Health Probes for Microservices
-      run: |
-        # Get IP addresses of the microservices
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
-        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+    # - name: Configure Health Probes for Microservices
+    #   run: |
+    #     # Get IP addresses of the microservices
+    #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+    #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
+    #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
+    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
+    #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
-        # Create health probes using HTTP settings
-        az network application-gateway probe create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name userMSHealthProbe \
-          --protocol Http \
-          --path /users/health \
-          --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+    #     # Create health probes using HTTP settings
+    #     az network application-gateway probe create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name userMSHealthProbe \
+    #       --protocol Http \
+    #       --path /users/health \
+    #       --timeout 20 \
+    #       --interval 30 \
+    #       --from-http-settings true
 
-        # Repeat for other services
-        az network application-gateway probe create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name tournamentMSHealthProbe \
-          --protocol Http \
-          --path /tournaments/health \
-          --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+    #     # Repeat for other services
+    #     az network application-gateway probe create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name tournamentMSHealthProbe \
+    #       --protocol Http \
+    #       --path /tournaments/health \
+    #       --timeout 20 \
+    #       --interval 30 \
+    #       --from-http-settings true
 
-        az network application-gateway probe create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchMSHealthProbe \
-          --protocol Http \
-          --path /matches/health \
-          --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+    #     az network application-gateway probe create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchMSHealthProbe \
+    #       --protocol Http \
+    #       --path /matches/health \
+    #       --timeout 20 \
+    #       --interval 30 \
+    #       --from-http-settings true
 
-        az network application-gateway probe create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name ratingMSHealthProbe \
-          --protocol Http \
-          --path /ratings/health \
-          --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+    #     az network application-gateway probe create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name ratingMSHealthProbe \
+    #       --protocol Http \
+    #       --path /ratings/health \
+    #       --timeout 20 \
+    #       --interval 30 \
+    #       --from-http-settings true
 
-        az network application-gateway probe create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchmakingMSHealthProbe \
-          --protocol Http \
-          --path /matchmaking/health \
-          --timeout 20 \
-          --interval 30 \
-          --from-http-settings true
+    #     az network application-gateway probe create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchmakingMSHealthProbe \
+    #       --protocol Http \
+    #       --path /matchmaking/health \
+    #       --timeout 20 \
+    #       --interval 30 \
+    #       --from-http-settings true
 
-    - name: Configure HTTP Settings for each Backend
-      run: |
-        # HTTP settings for user-ms
-        az network application-gateway http-settings create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name userMSHttpSetting \
-          --port 8083 \
-          --protocol Http \
-          --host-name-from-backend-pool true \
-          --probe userMSHealthProbe
+    # - name: Configure HTTP Settings for each Backend
+    #   run: |
+    #     # HTTP settings for user-ms
+    #     az network application-gateway http-settings create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name userMSHttpSetting \
+    #       --port 8083 \
+    #       --protocol Http \
+    #       --host-name-from-backend-pool true \
+    #       --probe userMSHealthProbe
 
-        # HTTP settings for tournament-ms
-        az network application-gateway http-settings create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name tournamentMSHttpSetting \
-          --port 8082 \
-          --protocol Http \
-          --host-name-from-backend-pool true \
-          --probe tournamentMSHealthProbe
+    #     # HTTP settings for tournament-ms
+    #     az network application-gateway http-settings create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name tournamentMSHttpSetting \
+    #       --port 8082 \
+    #       --protocol Http \
+    #       --host-name-from-backend-pool true \
+    #       --probe tournamentMSHealthProbe
 
-        # HTTP settings for match-ms
-        az network application-gateway http-settings create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchMSHttpSetting \
-          --port 8080 \
-          --protocol Http \
-          --host-name-from-backend-pool true \
-          --probe matchMSHealthProbe
+    #     # HTTP settings for match-ms
+    #     az network application-gateway http-settings create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchMSHttpSetting \
+    #       --port 8080 \
+    #       --protocol Http \
+    #       --host-name-from-backend-pool true \
+    #       --probe matchMSHealthProbe
 
-        # HTTP settings for rating-ms
-        az network application-gateway http-settings create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name ratingMSHttpSetting \
-          --port 8084 \
-          --protocol Http \
-          --host-name-from-backend-pool true \
-          --probe ratingMSHealthProbe
+    #     # HTTP settings for rating-ms
+    #     az network application-gateway http-settings create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name ratingMSHttpSetting \
+    #       --port 8084 \
+    #       --protocol Http \
+    #       --host-name-from-backend-pool true \
+    #       --probe ratingMSHealthProbe
 
-        # HTTP settings for rating-ms
-        az network application-gateway http-settings create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name matchmakingMSHttpSetting \
-          --port 8081 \
-          --protocol Http \
-          --host-name-from-backend-pool true \
-          --probe matchmakingMSHealthProbe
+    #     # HTTP settings for rating-ms
+    #     az network application-gateway http-settings create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name matchmakingMSHttpSetting \
+    #       --port 8081 \
+    #       --protocol Http \
+    #       --host-name-from-backend-pool true \
+    #       --probe matchmakingMSHealthProbe
 
-    - name: Configure Path-Based Routing Rules
-      run: |
-        # Create a URL path map with a specific default backend pool for the user-ms
-        az network application-gateway url-path-map create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name myPathMap \
-          --paths /users/* \
-          --address-pool userMSBackendPool \
-          --http-settings userMSHttpSetting \
-          --default-address-pool userMSBackendPool \
-          --default-http-settings userMSHttpSetting
+    # - name: Configure Path-Based Routing Rules
+    #   run: |
+    #     # Create a URL path map with a specific default backend pool for the user-ms
+    #     az network application-gateway url-path-map create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name myPathMap \
+    #       --paths /users/* \
+    #       --address-pool userMSBackendPool \
+    #       --http-settings userMSHttpSetting \
+    #       --default-address-pool userMSBackendPool \
+    #       --default-http-settings userMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name user \
-          --paths /users \
-          --address-pool userMSBackendPool \
-          --http-settings userMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name user \
+    #       --paths /users \
+    #       --address-pool userMSBackendPool \
+    #       --http-settings userMSHttpSetting
 
-        # Add path rules for other microservices
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name tournamentMSRule \
-          --paths /tournaments/* \
-          --address-pool tournamentMSBackendPool \
-          --http-settings tournamentMSHttpSetting
+    #     # Add path rules for other microservices
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name tournamentMSRule \
+    #       --paths /tournaments/* \
+    #       --address-pool tournamentMSBackendPool \
+    #       --http-settings tournamentMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name tournament \
-          --paths /tournaments \
-          --address-pool tournamentMSBackendPool \
-          --http-settings tournamentMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name tournament \
+    #       --paths /tournaments \
+    #       --address-pool tournamentMSBackendPool \
+    #       --http-settings tournamentMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name matchMSRule \
-          --paths /matches/* \
-          --address-pool matchMSBackendPool \
-          --http-settings matchMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name matchMSRule \
+    #       --paths /matches/* \
+    #       --address-pool matchMSBackendPool \
+    #       --http-settings matchMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name match \
-          --paths /matches \
-          --address-pool matchMSBackendPool \
-          --http-settings matchMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name match \
+    #       --paths /matches \
+    #       --address-pool matchMSBackendPool \
+    #       --http-settings matchMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name ratingMSRule \
-          --paths /ratings/* \
-          --address-pool ratingMSBackendPool \
-          --http-settings ratingMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name ratingMSRule \
+    #       --paths /ratings/* \
+    #       --address-pool ratingMSBackendPool \
+    #       --http-settings ratingMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name rating \
-          --paths /ratings \
-          --address-pool ratingMSBackendPool \
-          --http-settings ratingMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name rating \
+    #       --paths /ratings \
+    #       --address-pool ratingMSBackendPool \
+    #       --http-settings ratingMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name matchmakingMSRule \
-          --paths /matchmaking/* \
-          --address-pool matchmakingMSBackendPool \
-          --http-settings matchmakingMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name matchmakingMSRule \
+    #       --paths /matchmaking/* \
+    #       --address-pool matchmakingMSBackendPool \
+    #       --http-settings matchmakingMSHttpSetting
 
-        az network application-gateway url-path-map rule create \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --path-map-name myPathMap \
-          --name matchmaking \
-          --paths /matchmaking \
-          --address-pool matchmakingMSBackendPool \
-          --http-settings matchmakingMSHttpSetting
+    #     az network application-gateway url-path-map rule create \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --path-map-name myPathMap \
+    #       --name matchmaking \
+    #       --paths /matchmaking \
+    #       --address-pool matchmakingMSBackendPool \
+    #       --http-settings matchmakingMSHttpSetting
 
-        # Update existing routing rule that uses the URL path map
-        az network application-gateway rule update \
-          --resource-group tms \
-          --gateway-name appGateway \
-          --name rule1 \
-          --rule-type PathBasedRouting \
-          --http-listener appGatewayHttpListener \
-          --url-path-map myPathMap \
-          --address-pool userMSBackendPool \
-          --http-settings userMSHttpSetting \
-          --priority 100
+    #     # Update existing routing rule that uses the URL path map
+    #     az network application-gateway rule update \
+    #       --resource-group tms \
+    #       --gateway-name appGateway \
+    #       --name rule1 \
+    #       --rule-type PathBasedRouting \
+    #       --http-listener appGatewayHttpListener \
+    #       --url-path-map myPathMap \
+    #       --address-pool userMSBackendPool \
+    #       --http-settings userMSHttpSetting \
+    #       --priority 100
 
     - name: Create NSG to allow only APIM to access Application Gateway
       run: |
