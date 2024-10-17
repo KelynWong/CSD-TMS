@@ -388,7 +388,7 @@ jobs:
         az apim create \
           --name tmsAPI \
           --resource-group tms \
-          --location East US \
+          --location eastus \
           --sku-name Developer \
           --publisher-email kelyn.wong.2022@scis.smu.edu.sg \
           --publisher-name kelyn \
