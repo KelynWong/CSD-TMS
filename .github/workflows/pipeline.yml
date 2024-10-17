@@ -103,7 +103,7 @@ jobs:
         az network application-gateway create \
           --resource-group tms \
           --name appGateway \
-          --sku WAF_v2 \
+          --sku Standard_Small \
           --frontend-port 80 \
           --vnet-name tmsVNet \
           --subnet tmsSubnet \
