@@ -1,15 +1,13 @@
 package com.tms.rating;
 
-import java.util.List;
-
-
+import com.tms.exceptions.RatingNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tms.exceptions.RatingNotFoundException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/ratings")
@@ -65,7 +63,7 @@ public class RatingController {
     //     return ratingService.addRating(rating);
     // }
 
-    @PutMapping
+    @PutMapping("/update")
     public List<Rating> updateRating(@RequestBody ResultsDTO match) {
         return ratingService.calcRating(match);
     }
