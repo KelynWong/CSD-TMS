@@ -1,19 +1,18 @@
 package com.tms.game;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import com.tms.exceptions.GameNotFoundException;
 import com.tms.exceptions.MatchNotFoundException;
 import com.tms.match.Match;
+import com.tms.match.MatchJson;
 import com.tms.match.MatchRepository;
 import com.tms.match.MatchService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class GameService {
@@ -35,7 +34,7 @@ public class GameService {
     }
 
     @Transactional
-    public Match addGames(Long matchId, List<Game> gamesToAdd) {
+    public MatchJson addGames(Long matchId, List<Game> gamesToAdd) {
         if (this.getAllGamesByMatchId(matchId).size() > 0) {
             throw new IllegalArgumentException("Games already exist for this match. Use PUT to update games.");
         }
@@ -54,7 +53,9 @@ public class GameService {
             games.save(game);
         }
 
-        return match;
+        MatchJson matchJson = new MatchJson(match);
+
+        return matchJson;
 
     }
 

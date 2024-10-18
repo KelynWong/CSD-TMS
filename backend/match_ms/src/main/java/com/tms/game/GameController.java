@@ -1,6 +1,6 @@
 package com.tms.game;
 
-import com.tms.match.Match;
+import com.tms.match.MatchJson;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +29,7 @@ public class GameController {
      * Return the newly added game
      */
     @PostMapping("/{matchId}/games")
-    public Match addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
+    public MatchJson addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
         if (games.isEmpty() || games.size() > 3) {
             throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
         }

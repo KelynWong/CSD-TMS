@@ -344,6 +344,5 @@ public class MatchmakeService {
         if (res.getStatusCode() != HttpStatus.OK) {
             throw new RatingUpdateException(results.getWinnerId(), results.getLoserId());
         }
-
     }
 }
