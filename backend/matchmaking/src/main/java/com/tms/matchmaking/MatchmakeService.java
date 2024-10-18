@@ -19,7 +19,6 @@ import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class MatchmakeService {
@@ -28,18 +27,15 @@ public class MatchmakeService {
     private final String MATCH_URL;
     private final String TOURNAMENT_URL;
     private final String PLAYER_URL;
-    private final String RATING_URL;
 
     public MatchmakeService(
             @Value("${MATCH_URL}") String MATCH_URL,
             @Value("${TOURNAMENT_URL}") String TOURNAMENT_URL,
-            @Value("${PLAYER_URL}") String PLAYER_URL,
-            @Value("${RATING_URL}") String RATING_URL) {
+            @Value("${PLAYER_URL}") String PLAYER_URL) {
         this.restClient = RestClient.create();
         this.MATCH_URL = MATCH_URL;
         this.TOURNAMENT_URL = TOURNAMENT_URL;
         this.PLAYER_URL = PLAYER_URL;
-        this.RATING_URL = RATING_URL;
     }
 
     public void matchmake(Long tournamentId) {
@@ -59,23 +55,33 @@ public class MatchmakeService {
             int byes = (int) Math.pow(2, k) - n;
 
             // choose top x players to get byes.
-            List<Rating> playerRatings = fetchRatings(playerIds);
+            List<Player> playerRatings = fetchPlayerData(playerIds);
             playerRatings = shuffleRatings(playerRatings);
-            List<Rating> byePlayers = playerRatings.subList(0, byes);
+            List<Player> byePlayers = playerRatings.subList(0, byes);
 
             // create matches for byes
             for (int i = 0; i < byes; i++) {
-                List<Rating> matchPlayers = byePlayers.subList(i, i + 1);
+                List<Player> matchPlayers = byePlayers.subList(i, i + 1);
                 MatchJson match = createMatch(tournamentId, matchPlayers);
                 matches.add(match);
             }
 
             // create remaining matches for base layer
-            List<Rating> remainingPlayers = playerRatings.subList(byes, n);
-            for (int i = 0; i < remainingPlayers.size(); i += 2) {
-                List<Rating> matchPlayers = remainingPlayers.subList(i, i + 2);
+            List<Player> remainingPlayers = playerRatings.subList(byes, n);
+            int start = 0;
+            int end = remainingPlayers.size() - 1;
+
+            // pair strong players with weak players
+            while (start <= end) {
+                List<Player> matchPlayers = new ArrayList<>();
+                matchPlayers.add(remainingPlayers.get(start));
+                if (start != end) {
+                    matchPlayers.add(remainingPlayers.get(end));
+                }
                 MatchJson match = createMatch(tournamentId, matchPlayers);
                 matches.add(match);
+                start++;
+                end--;
             }
 
             double numMatchesAtBase = Math.pow(2, k - 1);
@@ -91,16 +97,16 @@ public class MatchmakeService {
         }
     }
 
-    private List<Rating> shuffleRatings(List<Rating> ratings) {
-        List<Rating> shuffledRatings = new ArrayList<>(ratings);
+    private List<Player> shuffleRatings(List<Player> players) {
+        List<Player> shuffledRatings = new ArrayList<>(players);
         int start = 0;
 
         while (start < shuffledRatings.size()) {
             int end = start;
-            double currentRating = shuffledRatings.get(start).getRating();
+            double currentRating = shuffledRatings.get(start).getRating().getRating();
 
             // Find the end of the current rating group
-            while (end < shuffledRatings.size() && shuffledRatings.get(end).getRating() == currentRating) {
+            while (end < shuffledRatings.size() && shuffledRatings.get(end).getRating().getRating() == currentRating) {
                 end++;
             }
 
@@ -114,7 +120,7 @@ public class MatchmakeService {
         return shuffledRatings;
     }
 
-    private MatchJson createMatch(Long tournamentId, List<Rating> matchPlayers) {
+    private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
         String player1 = null;
         String player2 = null;
 
@@ -134,7 +140,7 @@ public class MatchmakeService {
         return new MatchJson(tournamentId, null, null, null, null);
     }
 
-    private boolean sendCreateMatchesRequest(List<MatchJson> matches, double numMatchesAtBase) {
+    private void sendCreateMatchesRequest(List<MatchJson> matches, double numMatchesAtBase) {
         CreateTournament createTournament = new CreateTournament(matches, numMatchesAtBase);
 
         ResponseEntity<String> res = restClient.post()
@@ -147,8 +153,6 @@ public class MatchmakeService {
         if (res.getStatusCode() != HttpStatus.CREATED) {
             throw new MatchCreationException("Error creating matches");
         }
-
-        return true;
     }
 
     public void inOrderTraversal(Match root) {
@@ -256,25 +260,6 @@ public class MatchmakeService {
         return playerRes.getBody();
     }
 
-    private List<Rating> fetchRatings(List<Player> players) {
-        List<String> playerIds = players.stream()
-                .map(Player::getId)
-                .collect(Collectors.toList());
-
-        ResponseEntity<List<Rating>> ratingRes = restClient.post()
-                .uri(RATING_URL + "/by-ids")
-                .body(playerIds)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
-
-        if (ratingRes.getStatusCode() != HttpStatus.OK || ratingRes.getBody().isEmpty()) {
-            throw new RatingNotFoundException("No ratings found for players");
-        }
-
-        return ratingRes.getBody();
-    }
-
     private List<MatchJson> getTournamentMatches(Long tournamentId) {
         ResponseEntity<List<MatchJson>> matchRes = restClient.get()
                 .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
@@ -350,7 +335,7 @@ public class MatchmakeService {
 
     private void updateRating(ResultsDTO results) {
         ResponseEntity<List<Rating>> res = restClient.put()
-                .uri(RATING_URL + "/update")
+                .uri(PLAYER_URL + "/ratings")
                 .body(results)
                 .retrieve()
                 .toEntity(new ParameterizedTypeReference<>() {
@@ -359,6 +344,5 @@ public class MatchmakeService {
         if (res.getStatusCode() != HttpStatus.OK) {
             throw new RatingUpdateException(results.getWinnerId(), results.getLoserId());
         }
-
     }
 }

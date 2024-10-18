@@ -6,13 +6,13 @@
  */
 package com.tms.rating;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tms.ratingCalc.RatingCalculator;
-
+import com.tms.user.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 /**
  * Holds an individual's Glicko-2 rating.
@@ -25,9 +25,16 @@ import lombok.*;
  */
 @Entity
 @NoArgsConstructor
+@Table(name = "\"rating\"", schema = "\"user\"")
 public class Rating {
+	@Id
+	private String id;
 
-    private @Id String id; // references clerk userId
+	@OneToOne
+	@MapsId
+	@JoinColumn(name = "user_id")
+	private User user;
+
     private double rating;
 	private double ratingDeviation;
 	private double volatility;
@@ -47,12 +54,12 @@ public class Rating {
 	@JsonIgnore
 	private double workingVolatility;
 
-	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults) {
-		this(id, initRating, initRatingDeviation, initVolatility, nbResults, null);
+	public Rating(User user, double initRating, double initRatingDeviation, double initVolatility, int nbResults) {
+		this(user, initRating, initRatingDeviation, initVolatility, nbResults, null);
 	}
 
-	public Rating(String id, double initRating, double initRatingDeviation, double initVolatility, int nbResults, LocalDateTime lastRatingPeriodEndDate) {
-		this.id = id;
+	public Rating(User user, double initRating, double initRatingDeviation, double initVolatility, int nbResults, LocalDateTime lastRatingPeriodEndDate) {
+		this.user = user;
 		this.rating = initRating;
 		this.ratingDeviation = initRatingDeviation;
 		this.volatility = initVolatility;
@@ -61,7 +68,7 @@ public class Rating {
 	}
 
 	public String getId() {
-		return this.id;
+		return this.user.getId();
 	}
 
 	/**
@@ -158,7 +165,7 @@ public class Rating {
 	 */
 	@Override
 	public String toString() {
-		return id + " / " + 
+		return user.getId() + " / " +
 				rating + " / " +
 				ratingDeviation + " / " +
 				volatility + " / " +

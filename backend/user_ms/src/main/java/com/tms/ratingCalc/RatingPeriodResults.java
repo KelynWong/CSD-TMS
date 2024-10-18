@@ -5,8 +5,8 @@
  * which should have been included as part of the distribution containing this file.
  */
 package com.tms.ratingCalc;
-import com.tms.rating.Rating;
 
+import com.tms.rating.Rating;
 
 import java.util.ArrayList;
 import java.util.HashSet;
