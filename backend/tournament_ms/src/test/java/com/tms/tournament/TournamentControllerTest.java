@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +34,8 @@ class TournamentControllerTest {
 
 	private final String baseURL = "http://localhost:";
 
+	private List<Tournament> existingTournaments;
+
 	/**
 	 * Use TestRestTemplate for testing a real instance of your application as an
 	 * external actor.
@@ -45,7 +48,6 @@ class TournamentControllerTest {
 
 	@Autowired
 	private TournamentRepository tournaments;
-
 	// @Autowired
 	// private PlayerRepository players;
 
@@ -67,7 +69,7 @@ class TournamentControllerTest {
 		Tournament[] tournamentList = result.getBody();
 
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals(7, tournamentList.length); // [TBC] 6 is hardcode, need to change
+		assertEquals(tournaments.count() , tournamentList.length); // tbc add repopulate data
 	}
 
 	@Test

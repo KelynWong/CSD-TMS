@@ -62,12 +62,13 @@ public class TournamentController {
     public Tournament getTournamentbyId(@PathVariable Long id) {
         Tournament tournament = tournamentService.getTournament(id);
 
-        // Output Preparation
-        tournament.setStatus(addSpacingBetweenWords(tournament.getStatus()));
-
         // handle "tournament not found 404" error
         if (tournament == null)
             throw new TournamentNotFoundException(id);
+        
+        // Output Preparation
+        tournament.setStatus(addSpacingBetweenWords(tournament.getStatus()));
+
         return tournamentService.getTournament(id);
 
     }
