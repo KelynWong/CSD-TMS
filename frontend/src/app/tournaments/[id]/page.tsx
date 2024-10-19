@@ -3,14 +3,14 @@
 import "../../tournaments/styles.css";
 import { useParams } from 'next/navigation';
 import {
-    AlertDialog,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Pencil } from "lucide-react";
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { CirclePlus } from "lucide-react";
 import SetEditForm from "../_components/SetEditForm";
 import CarouselComponent from "../_components/CarouselComponent";
 import { useEffect, useState } from "react";
@@ -20,6 +20,8 @@ import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api
 import TournamentResultTable from "../_components/TournamentResultTable";
 import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
 import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
+import { useUserContext } from "@/context/userContext";
+import { fetchPlayer } from "@/api/users/api";
 
 function countMatches(rootMatch: RootMatch | null): number {
     if (!rootMatch) {
@@ -35,9 +37,26 @@ function countMatches(rootMatch: RootMatch | null): number {
 
 export default function TournamentDetails() {
     const { id } = useParams();
+    const { user } = useUserContext();
+    const [role, setRole] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [tournamentDetails, setTournamentDetails] = useState<TournamentDetails | null>(null);
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
+
+    useEffect(() => {
+		if (user) {
+			const getPlayerData = async () => {
+				try {
+					const data = await fetchPlayer(user.id);
+					setLoading(false);
+					setRole(data.role);
+				} catch (err) {
+					console.error("Failed to fetch player:", err);
+				}
+			};
+			getPlayerData();
+		}
+	}, [user]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -215,7 +234,36 @@ export default function TournamentDetails() {
                                     {tournamentDetails?.matches?.map((match, matchIndex: number) => (
                                         getPlayerName(match.player2Id) !== 'Unknown Player' && (
                                             <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                                                <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1} - ${getPlayerName(match.player1Id)} vs ${getPlayerName(match.player2Id)}`}</h2>
+                                                <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
+                                                    <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${getPlayerName(match.player1Id)} vs ${getPlayerName(match.player2Id)}`}</h2>
+                                                    
+                                                    {match.games.length === 0 && role === "Admin" && (
+                                                        <Sheet>
+                                                            <SheetTrigger asChild>
+                                                                <CirclePlus stroke="#ec4344" strokeWidth="3" size={21} />
+                                                            </SheetTrigger>
+
+                                                            <SheetContent className="bg-white">
+                                                                <SheetHeader className="mb-6">
+                                                                    <SheetTitle>Add Game Results for this Match</SheetTitle>
+                                                                    <SheetDescription>
+                                                                        <p className="text-red-500 font-bold">⚠️ Please ensure that the match is completed before submitting this form! ⚠️</p>
+                                                                        <p>Enter the scores for each player in each game.</p>
+                                                                    </SheetDescription>
+                                                                </SheetHeader>
+
+                                                                <SetEditForm
+                                                                    matchId={match.id}
+                                                                    // game={game}
+                                                                    player1Name={getPlayerName(match.player1Id)} 
+                                                                    player2Name={getPlayerName(match.player2Id)}
+                                                                    onClose={refreshMatchData} // Pass the refresh callback
+                                                                />
+
+                                                            </SheetContent>
+                                                        </Sheet>
+                                                    )}
+                                                </div>
                                                 <div className="text-slate-600">
                                                     {match.games
                                                         .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
@@ -223,18 +271,18 @@ export default function TournamentDetails() {
                                                         <>
                                                             <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
                                                                 <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                                <AlertDialog>
-                                                                    <AlertDialogTrigger asChild>
+                                                                {/* <Sheet>
+                                                                    <SheetTrigger asChild>
                                                                         <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
-                                                                    </AlertDialogTrigger>
+                                                                    </SheetTrigger>
 
-                                                                    <AlertDialogContent className="bg-white">
-                                                                        <AlertDialogHeader>
-                                                                            <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
-                                                                            <AlertDialogDescription>
+                                                                    <SheetContent className="bg-white">
+                                                                        <SheetHeader>
+                                                                            <SheetTitle>Update Results for this Set</SheetTitle>
+                                                                            <SheetDescription>
                                                                                 Enter the updated scores for each player in the set.
-                                                                            </AlertDialogDescription>
-                                                                        </AlertDialogHeader>
+                                                                            </SheetDescription>
+                                                                        </SheetHeader>
 
                                                                         <SetEditForm
                                                                             matchId={match.id}
@@ -244,8 +292,8 @@ export default function TournamentDetails() {
                                                                             onClose={refreshMatchData} // Pass the refresh callback
                                                                         />
 
-                                                                    </AlertDialogContent>
-                                                                </AlertDialog>
+                                                                    </SheetContent>
+                                                                </Sheet> */}
                                                             </div>
                                                             <div className="flex justify-center border-b border-slate-200">
                                                                 <div
