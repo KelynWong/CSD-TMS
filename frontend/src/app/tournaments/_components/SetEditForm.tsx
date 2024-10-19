@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { SheetFooter, SheetClose } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Game } from "@/types/tournamentDetails";
-import { addGamesByMatchId, updateGamesByGameId } from '@/api/matches/api';
+import { updateGamesByGameId } from '@/api/matches/api';
 import Loading from '@/components/Loading';
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { addGamesByMatchId } from '@/api/matchmaking/api';
 
 interface SetEditFormProps {
   matchId: number;
@@ -145,9 +146,11 @@ export default function SetEditForm({
             Close
           </Button>
         </SheetClose>
-        <Button type="submit" className="bg-red-500 hover:bg-red-700 text-white text-base px-4 py-2 rounded">
-          Add
-        </Button>
+        <SheetClose asChild>
+          <Button type="submit" className="bg-red-500 hover:bg-red-700 text-white text-base px-4 py-2 rounded">
+            Add
+          </Button>
+        </SheetClose>
       </SheetFooter>
       </ScrollArea>
     </form>

@@ -14,9 +14,12 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     const getPlayersInRound = (match: RootMatch): void => {
         // Base case: if this is a leaf match (no child matches), push the two players and the winner
         if (!match.left && !match.right) {
-            players.push(match.player1.fullname);
-            players.push(match.player2.fullname);
-            // winners.push(match.winner.fullname); // Push the winner of this match
+            if (match.player1) {
+                players.push(match.player1.fullname);
+            }
+            if (match.player2) {
+                players.push(match.player2.fullname);
+            }
             return; // No need to continue recursion since it's a leaf match
         }
 

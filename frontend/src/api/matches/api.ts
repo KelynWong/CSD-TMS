@@ -9,14 +9,6 @@ type GameResponse = {
 	player2Score: number;
 };
 
-type Game = {
-	setNum: number;
-	player1Score: number;
-	player2Score: number;
-};
-
-type Games = Game[];
-
 type MatchResponse = {
 	id: number;
 	tournamentId: number;
@@ -72,23 +64,6 @@ export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	} catch (error) {
 		console.error("Error fetching games", error);
 		throw error;
-	}
-};
-
-export const addGamesByMatchId = async (match_id: number, gamesData: Games): Promise<boolean> => {
-	try {
-		console.log(`${URL}/matches/${match_id}/games`);
-
-		const response = await axios.post(`${URL}/matches/${match_id}/games`, gamesData, {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		});
-
-		return response.status === 200; 
-	} catch (error) {
-		console.error("Error adding game score", error);
-		return false;
 	}
 };
 

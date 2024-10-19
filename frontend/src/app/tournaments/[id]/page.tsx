@@ -237,7 +237,8 @@ export default function TournamentDetails() {
                                                 <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
                                                     <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${getPlayerName(match.player1Id)} vs ${getPlayerName(match.player2Id)}`}</h2>
                                                     
-                                                    {match.games.length === 0 && role === "Admin" && (
+                                                    {/* {match.games.length === 0 && role === "Admin" && ( */}
+                                                    {match.games.length === 0 && (
                                                         <Sheet>
                                                             <SheetTrigger asChild>
                                                                 <CirclePlus stroke="#ec4344" strokeWidth="3" size={21} />
