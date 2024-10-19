@@ -1,10 +1,12 @@
-package com.tms.rating;
+package com.tms.player;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-import lombok.Data;
-
 @Data
+@AllArgsConstructor
 public class ResultsDTO {
     private String winnerId;
     private String loserId;

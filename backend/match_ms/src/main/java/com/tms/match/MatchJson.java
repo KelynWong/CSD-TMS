@@ -1,13 +1,12 @@
 package com.tms.match;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.tms.game.Game;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.tms.game.Game;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -28,5 +27,16 @@ public class MatchJson {
                     match.getWinnerId(), match.getLeft() == null ? null : match.getLeft().getId(),
                     match.getRight() == null ? null : match.getRight().getId(), match.getGames());
         }).collect(Collectors.toList());
+    }
+
+    public MatchJson(Match match) {
+        this.id = match.getId();
+        this.tournamentId = match.getTournamentId();
+        this.player1Id = match.getPlayer1Id();
+        this.player2Id = match.getPlayer2Id();
+        this.winnerId = match.getWinnerId();
+        this.left = match.getLeft() == null ? null : match.getLeft().getId();
+        this.right = match.getRight() == null ? null : match.getRight().getId();
+        this.games = match.getGames();
     }
 }

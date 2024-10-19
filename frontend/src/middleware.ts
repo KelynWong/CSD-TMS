@@ -8,14 +8,17 @@ const isPublicRoute = createRouteMatcher([
 	"/onboarding",
 	"/players",
 	"/players/:id*",
+	"/tournaments/:id*",
 	"/tournaments",
 	"/rankings",
 ]);
 
 export default clerkMiddleware((auth, req) => {
-	const { userId, sessionClaims, redirectToSignIn } = auth();
-	if (!isPublicRoute(req) && !userId)
-		return redirectToSignIn({ returnBackUrl: "/" });
+	const { userId, sessionClaims } = auth();
+	if (!isPublicRoute(req) && !userId) {
+		const forbiddenUrl = new URL("/", req.url);
+		return NextResponse.redirect(forbiddenUrl);
+	}
 
 	if (
 		userId &&

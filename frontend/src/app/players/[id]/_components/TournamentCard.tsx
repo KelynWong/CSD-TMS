@@ -1,36 +1,43 @@
-import { tournamentResponse } from "@/api/tournaments/api";
 import {
 	Card,
 	CardHeader,
 	CardTitle,
 	CardDescription,
 } from "@/components/ui/card";
+import { tournamentResponse } from "@/api/tournaments/api";
+import { useRouter } from "next/navigation";
 
-export default function TournamentCard({ tournament }: tournamentResponse) {
-	console.log("TournamentCard component rendered");
-	console.log("Tournament Name:", tournament.tournamentName);
-	console.log("Start Date:", tournament.startDT);
-	console.log("End Date:", tournament.endDT);
-	console.log("Status:", tournament.status);
-	console.log("Registration Start Date:", tournament.regStartDT);
-	console.log("Registration End Date:", tournament.regEndDT);
-	console.log("Winner:", tournament.winner);
+type TournamentCardProps = {
+	tournament: tournamentResponse;
+};
 
-	const result = "win";
+export default function TournamentCard({ tournament }: TournamentCardProps) {
+	const router = useRouter();
+	const {
+		id,
+		tournamentName,
+		startDT,
+		endDT,
+		status,
+		regStartDT,
+		regEndDT,
+		winner,
+	} = tournament;
 	const statusClass =
-		tournament.status === "In Progress" ? "text-yellow-500" : "text-gray-500";
+		status === "Ongoing" ? "text-yellow-500" : "text-gray-500";
 
+	const handleCardClick = () => {
+		router.push(`/tournaments/${id}`);
+	};
 	return (
-		<Card>
+		<Card onClick={handleCardClick} className="cursor-pointer">
 			<CardHeader>
-				<CardTitle>{tournament.tournamentName}</CardTitle>
+				<CardTitle>{tournamentName}</CardTitle>
 				<CardDescription>
-					{tournament.startDT} - {tournament.endDT}
+					{startDT} - {endDT}
 				</CardDescription>
-				<CardDescription className={statusClass}>
-					{tournament.status}
-				</CardDescription>
-				<CardDescription>{result}</CardDescription>
+				<CardDescription className={statusClass}>{status}</CardDescription>
+				<CardDescription>Winner: {winner}</CardDescription>
 			</CardHeader>
 		</Card>
 	);

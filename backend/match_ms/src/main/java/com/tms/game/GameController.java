@@ -1,11 +1,13 @@
 package com.tms.game;
 
-import java.util.List;
-
+import com.tms.match.MatchJson;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("/matches")
 public class GameController {
     private final GameService gameService;
 
@@ -16,7 +18,7 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @GetMapping("/matches/{matchId}/games")
+    @GetMapping("/{matchId}/games")
     public List<Game> getAllGamesByMatchId(@PathVariable Long matchId) {
         return gameService.getAllGamesByMatchId(matchId);
     }
@@ -24,12 +26,14 @@ public class GameController {
     /**
      * Implement this method to add a game for a given matchId
      * If there's no such match, throw a MatchNotFoundException
-     * 
      * Return the newly added game
      */
-    @PostMapping("/matches/{matchId}/games")
-    public Game addGame(@PathVariable Long matchId, @RequestBody Game game) {
-        return gameService.addGame(matchId, game);
+    @PostMapping("/{matchId}/games")
+    public MatchJson addGames(@PathVariable Long matchId, @RequestBody List<Game> games) {
+        if (games.isEmpty() || games.size() > 3) {
+            throw new IllegalArgumentException("Games list must be either 2 or 3 games.");
+        }
+        return gameService.addGames(matchId, games);
     }
 
     /**
@@ -40,7 +44,7 @@ public class GameController {
      * @param newGame
      * @return
      */
-    @PutMapping("/matches/{matchId}/games/{gameId}")
+    @PutMapping("/{matchId}/games/{gameId}")
     public Game updateGame(@PathVariable Long matchId,
                                  @PathVariable Long gameId,
                                  @RequestBody Game newGame) {
@@ -50,10 +54,16 @@ public class GameController {
     /**
      * Use a ResponseEntity to have more control over the response sent to client
      */
-    @DeleteMapping("/matches/{matchId}/games/{gameId}")
+    @DeleteMapping("/{matchId}/games/{gameId}")
     public ResponseEntity<?> deleteGame(@PathVariable Long matchId,
                               @PathVariable Long gameId) {
         gameService.deleteGame(matchId, gameId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/create-games")
+    public ResponseEntity<String> createGames() {
+        gameService.createGames();
+        return ResponseEntity.ok("Games created");
     }
 }

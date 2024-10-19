@@ -36,11 +36,14 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
 	table,
 }: DataTableToolbarProps<TData>) {
-  const countries = table.options.data.map((row) => row.country);
-  const uniqueCountries = Array.from(new Set(countries)).map((country) => ({
-    value: country,
-    label: country,
-  }));
+	const countryMap = new Map<string, string>();
+	table.options.data.forEach((row) => {
+		countryMap.set(row.country, row.country);
+	});
+	const uniqueCountries = Array.from(countryMap.values()).map((country) => ({
+		value: country,
+		label: country,
+	}));
 	const isFiltered = table.getState().columnFilters.length > 0;
 
 	return (
@@ -85,7 +88,7 @@ export function DataTableToolbar<TData>({
 						column={table.getColumn("country")}
 						title="Country"
 						options={uniqueCountries}
-            singleSelect={true}
+						singleSelect={true}
 					/>
 				)}
 				{isFiltered && (

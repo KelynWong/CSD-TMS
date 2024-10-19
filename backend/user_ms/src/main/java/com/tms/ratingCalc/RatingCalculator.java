@@ -5,12 +5,13 @@
  * which should have been included as part of the distribution containing this file.
  */
 package com.tms.ratingCalc;
-import com.tms.rating.Rating;
 
-import java.util.List;
+import com.tms.rating.Rating;
+import org.springframework.stereotype.Component;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
-import org.springframework.stereotype.Component;
+import java.util.List;
 
 /**
  * This is the main calculation engine based on the contents of Glickman's paper.

@@ -1,15 +1,7 @@
 "use client";
 
 import "../../tournaments/styles.css";
-import { useRouter, useParams } from 'next/navigation';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { useParams } from 'next/navigation';
 import {
     AlertDialog,
     AlertDialogContent,
@@ -21,11 +13,10 @@ import {
 import { Pencil } from "lucide-react";
 import SetEditForm from "../_components/SetEditForm";
 import CarouselComponent from "../_components/CarouselComponent";
-import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
+import { fetchTournamentById } from "@/api/tournaments/api";
 import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
-import { fetchPlayer } from "@/api/users/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
 import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
 import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
@@ -43,129 +34,88 @@ function countMatches(rootMatch: RootMatch | null): number {
 }
 
 export default function TournamentDetails() {
-    const router = useRouter();
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
     const [tournamentDetails, setTournamentDetails] = useState<TournamentDetails | null>(null);
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            // Fetch tournament details
+            const tournamentData = await fetchTournamentById(Number(id));
+
+            let tournamentDetails = {
+                id: tournamentData.id,
+                tournamentName: tournamentData.tournamentName,
+                startDT: tournamentData.startDT ? new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset).toISOString() : "hi",
+                endDT: new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+                regStartDT: new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+                regEndDT: new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+                status: tournamentData.status,
+                organizer: tournamentData.createdBy,
+                rootMatch: null, // Initialize rootMatch as empty
+                players: [], // Initialize players as empty
+                matches: [] as Match[], // Initialize matches with explicit type
+            };
+
+            const isTournamentActive = tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
+
+            if (isTournamentActive) {
+                const mmData = await fetchMatchMakingByTournamentId(Number(id));
+                const matchesData = await fetchMatchByTournamentId(Number(id));
+            
+                const enrichedMatches = await Promise.all(
+                    matchesData.map(async (match) => {
+                        const games = await fetchGamesByMatchId(match.id);
+                        return {
+                            id: match.id,
+                            tournamentId: match.tournamentId,
+                            player1Id: match.player1Id,
+                            player2Id: match.player2Id,
+                            winnerId: match.winnerId,
+                            left: match.left,
+                            right: match.right,
+                            games: games.map((game) => ({
+                                id: game.id,
+                                setNum: game.setNum,
+                                player1Score: game.player1Score,
+                                player2Score: game.player2Score,
+                            })),
+                        };
+                    })
+                );
+            
+                // Add matchmaking and match details without resetting dates unnecessarily
+                tournamentDetails = {
+                    ...tournamentDetails,
+                    ...mmData,
+                    matches: enrichedMatches, // Add matches with sets
+                };
+            }                
+
+            console.log(tournamentDetails);
+            setTournamentDetails(tournamentDetails);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+        setLoading(false);
+    };
+    
+
     // Fetching data
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                // Fetch tournament details
-                const tournamentData = await fetchTournamentById(Number(id));
-
-                // Adjust dates for timezone
-                const formattedStartDT = new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset);
-                const startDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedStartDT);
-                const startTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedStartDT);
-
-                const formattedEndDT = new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset);
-                const endDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedEndDT);
-                const endTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedEndDT);
-
-                const formattedRegStartDT = new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset);
-                const regStartDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedRegStartDT);
-                const regStartTime: string = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedRegStartDT);
-
-                const formattedRegEndDT = new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset);
-                const regEndDate = new Intl.DateTimeFormat('en-GB', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                }).format(formattedRegEndDT);
-                const regEndTime = new Intl.DateTimeFormat('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true,
-                }).format(formattedRegEndDT);
-
-                let tournamentDetails = {
-                    id: tournamentData.id,
-                    tournamentName: tournamentData.tournamentName,
-                    startDT: `${formattedStartDT}`,
-                    endDT: `${formattedEndDT}`,
-                    regStartDT: `${formattedRegStartDT}`,
-                    regEndDT: `${formattedRegEndDT}`,
-                    status: tournamentData.status,
-                    organizer: tournamentData.createdBy,
-                    rootMatch: null, // Initialize rootMatch as empty
-                    players: [], // Initialize players as empty
-                    matches: [] as Match[], // Initialize matches with explicit type
-                };
-
-                if (tournamentData.status === "Ongoing" || tournamentData.status === "Completed") {
-                    const mmData = await fetchMatchMakingByTournamentId(Number(id));
-                    const matchesData = await fetchMatchByTournamentId(Number(id));
-
-                    const enrichedMatches = await Promise.all(
-                        matchesData.map(async (match) => {
-                            const games = await fetchGamesByMatchId(match.id);
-                            return {
-                                id: match.id,
-                                tournamentId: match.tournamentId,
-                                player1Id: match.player1Id,
-                                player2Id: match.player2Id,
-                                winnerId: match.winnerId,
-                                left: match.left,
-                                right: match.right,
-                                games: games.map((game) => ({
-                                    id: game.id,
-                                    setNum: game.setNum,
-                                    player1Score: game.player1Score,
-                                    player2Score: game.player2Score,
-                                })),
-                            };
-                        })
-                    );
-
-                    tournamentDetails = {
-                        ...tournamentDetails,
-                        ...mmData,
-                        matches: enrichedMatches, // Add matches with sets
-                    };
-                }
-
-                console.log(tournamentDetails);
-                setTournamentDetails(tournamentDetails);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-            setLoading(false);
-        };
-
         fetchData();
     }, [id]);
+
+    const refreshMatchData = async () => {
+        fetchData();
+    };
+
+    function getPlayerName(playerId: string): string {
+        const player = tournamentDetails?.players?.find((p) => p.id === playerId);
+        return player ? player.fullname : 'Unknown Player';
+    }
 
     if (loading) {
         return <Loading />;
@@ -257,308 +207,70 @@ export default function TournamentDetails() {
                                 {tournamentDetails.rootMatch && (
                                     <TournamentResultTable matchResult={tournamentDetails.rootMatch} />
                                 )}
-                                {/* <Table className="font-body text-base">
-                                    <TableHeader>
-                                        <TableRow className="bg-amber-400 hover:bg-amber-400">
-                                            <TableHead className="text-black font-bold text-center px-5">No.</TableHead>
-                                            <TableHead className="text-black font-bold pl-3 w-1/5">Round of {tournamentDetails.matches.length}</TableHead>
-                                            <TableHead className="text-black font-bold pl-3 w-1/5">Quarter-Final</TableHead>
-                                            <TableHead className="text-black font-bold pl-3 w-1/5">Semi-Final</TableHead>
-                                            <TableHead className="text-black font-bold pl-3 w-1/5">Final</TableHead>
-                                            <TableHead className="text-black font-bold pl-3 w-1/5">Winner</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">A1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={4}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={8}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={16}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center bg-slate-100"></TableCell>
-                                            <TableCell className="bg-slate-100"></TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">C1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">D1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">E1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={4}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">F1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">G1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">H1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">I1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={4}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={8}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">J1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">K1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">L1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">M1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={4}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">N1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">O1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell rowSpan={2}>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                        <TableRow className="hover:bg-transparent h-10">
-                                            <TableCell className="text-center">P1</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                    <p>Shi Yu Qi</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table> */}
                             </div>
 
                             <div className="w-full my-5 matches">
                                 <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     {tournamentDetails?.matches?.map((match, matchIndex: number) => (
-                                        <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                                            <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1}`}</h2>
-                                            <div className="text-slate-600">
-                                                {match.games.map((game) => (
-                                                    <>
-                                                        <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
-                                                            <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                            <AlertDialog>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
-                                                                </AlertDialogTrigger>
+                                        getPlayerName(match.player2Id) !== 'Unknown Player' && (
+                                            <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
+                                                <h2 className="text-base border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">{`Match ${matchIndex + 1} - ${getPlayerName(match.player1Id)} vs ${getPlayerName(match.player2Id)}`}</h2>
+                                                <div className="text-slate-600">
+                                                    {match.games
+                                                        .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
+                                                        .map((game) =>
+                                                        <>
+                                                            <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
+                                                                <p className="text-slate-500">{`Set ${game.setNum}`}</p>
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
+                                                                    </AlertDialogTrigger>
 
-                                                                <AlertDialogContent className="bg-white">
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
-                                                                        <AlertDialogDescription>
-                                                                            Enter the updated scores for each player in the set.
-                                                                        </AlertDialogDescription>
-                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogContent className="bg-white">
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle>Update Results for this Set</AlertDialogTitle>
+                                                                            <AlertDialogDescription>
+                                                                                Enter the updated scores for each player in the set.
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
 
-                                                                    <SetEditForm
-                                                                        initialPlayer1Score={game.player1Score ?? 0}
-                                                                        initialPlayer2Score={game.player2Score ?? 0}
-                                                                        player1Name={String(match.player1Id)}
-                                                                        player2Name={String(match.player2Id)}
-                                                                    />
+                                                                        <SetEditForm
+                                                                            matchId={match.id}
+                                                                            game={game}
+                                                                            player1Name={getPlayerName(match.player1Id)} 
+                                                                            player2Name={getPlayerName(match.player2Id)}
+                                                                            onClose={refreshMatchData} // Pass the refresh callback
+                                                                        />
 
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
-                                                        </div>
-                                                        <div className="flex justify-center border-b border-slate-200">
-                                                            <div
-                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
-                                                                    }`}
-                                                            >
-                                                                <p>{match.player1Id}</p>
-                                                                <img src="/images/china.png" className="rounded-full w-6 h-6" />
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
                                                             </div>
-                                                            <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                                                <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                            <div className="flex justify-center border-b border-slate-200">
+                                                                <div
+                                                                    className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
+                                                                        }`}
+                                                                >
+                                                                    <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                    <p>{getPlayerName(match.player1Id)} </p>
+                                                                </div>
+                                                                <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
+                                                                    <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                                </div>
+                                                                <div
+                                                                    className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
+                                                                        }`}
+                                                                >
+                                                                    <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                    <p>{getPlayerName(match.player2Id)} </p>
+                                                                </div>
                                                             </div>
-                                                            <div
-                                                                className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
-                                                                    }`}
-                                                            >
-                                                                <img src="/images/china.png" className="rounded-full w-6 h-6" />
-                                                                <p>{match.player2Id}</p>
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                ))}
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
+                                        )
                                     ))}
                                 </div>
                             </div>

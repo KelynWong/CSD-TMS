@@ -155,36 +155,32 @@ export const withdrawTournament = async (
 	}
 };
 
-export const createTournaments = async (
-	tournamentData: Partial<Tournament>
-): Promise<boolean> => {
-	try {
-		// console.log(`${URL}/tournaments`);
+export const createTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
+    try {
+        console.log(`${URL}/tournaments`);
 		console.log(tournamentData);
 
-		const response = await axios.post(`${URL}/tournaments`, tournamentData, {
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
+        const response = await axios.post(`${URL}/tournaments`, tournamentData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-		return response.status === 201;
-	} catch (error) {
-		console.error("Error creating tournaments", error);
-		return false;
-	}
+		console.log(response)
+
+        return response.status === 201; 
+    } catch (error) {
+        console.error("Error creating tournaments", error);
+        return false;
+    }
 };
 
-export const updateTournaments = async (
-	tournamentData: Partial<Tournament>
-): Promise<boolean> => {
+
+export const updateTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
 	try {
 		// console.log(`${URL}/tournaments/${tournamentData.id}`);
 
-		const response = await axios.put(
-			`${URL}/tournaments/${tournamentData.id}`,
-			tournamentData,
-			{
+		const response = await axios.put(`${URL}/tournaments/${tournamentData.id}`, tournamentData, {
 				headers: {
 					"Content-Type": "application/json",
 				},

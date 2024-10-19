@@ -1,69 +1,47 @@
 package com.tms.rating;
 
+import com.tms.exception.RatingNotFoundException;
+import com.tms.ratingCalc.RatingCalculator;
+import com.tms.ratingCalc.RatingPeriodResults;
+import com.tms.user.User;
+import com.tms.user.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
-import java.time.LocalDate;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import com.tms.exceptions.RatingNotFoundException;
-import com.tms.ratingCalc.RatingCalculator;
-import com.tms.ratingCalc.RatingPeriodResults;
 
 @Service
 public class RatingService {
 
     private final RatingRepository ratingRepo;
     private final RatingCalculator ratingCalc;
+    private final UserRepository userRepo;
 
-    public RatingService(RatingRepository ratingRepo, RatingCalculator ratingCalc) {
+    public RatingService(RatingRepository ratingRepo, RatingCalculator ratingCalc, UserRepository userRepository) {
         this.ratingRepo = ratingRepo;
         this.ratingCalc = ratingCalc;
+        this.userRepo = userRepository;
     }
 
-    public List<Rating> getAllRatings() {
-        return ratingRepo.findAll();
-    }
-
-    public Optional<Rating> getRatingById(String playerIds) {
-        return ratingRepo.findById(playerIds);
-    }
-
-    public List<Rating> getRatingsByIds(List<String> playerIds) {
-        return ratingRepo.findAllByIdOrderByRatingDesc(playerIds);
-    }
-
-    public Page<Rating> getTopRatings(Pageable pageable) {
-        Pageable sortedByRatingDesc = PageRequest.of(
-            pageable.getPageNumber(), 
-            pageable.getPageSize(), 
-            Sort.by("rating").descending()
-        );
-        return ratingRepo.findAll(sortedByRatingDesc);
-    }
-
-    public Rating initRating(RatingDTO ratingDTO) {
+    public Rating initRating(String userId) {
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
-        Rating rating = new Rating(ratingDTO.getId(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        Optional<User> optionalUser = userRepo.findById(userId);
+        if (!optionalUser.isPresent()) {
+            throw new RatingNotFoundException(userId);
+        }
+        Rating rating = new Rating(optionalUser.get(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
     }
 
     public List<Rating> initRatings(int start, int end) {
         ArrayList<Rating> ratingList = new ArrayList<>();
         for (int i = start; i <= end; i++) {
-            ratingList.add(initRating(new RatingDTO("user" + i)));
+            ratingList.add(initRating("user" + i));
         }
         return ratingList;
-    }
-
-    public Rating addRating(Rating rating) {
-        return ratingRepo.save(rating);
     }
 
     public List<Rating> calcRating(ResultsDTO match) {
@@ -75,9 +53,9 @@ public class RatingService {
         if (!winner.isPresent() || !loser.isPresent()) {
             throw new RatingNotFoundException(match.getWinnerId() + " or " + match.getLoserId());
         }
-        
+
         Rating winnerRating = winner.get();
-        Rating loserRating = loser.get(); 
+        Rating loserRating = loser.get();
 
         processRating(winnerRating, match.getTournamentEndDate(), now);
         processRating(loserRating, match.getTournamentEndDate(), now);
