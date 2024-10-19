@@ -67,7 +67,7 @@ export default function TournamentDetails() {
             let tournamentDetails = {
                 id: tournamentData.id,
                 tournamentName: tournamentData.tournamentName,
-                startDT: tournamentData.startDT ? new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset).toISOString() : "hi",
+                startDT: new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset).toISOString(),
                 endDT: new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset).toISOString(),
                 regStartDT: new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
                 regEndDT: new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
@@ -120,7 +120,6 @@ export default function TournamentDetails() {
         }
         setLoading(false);
     };
-    
 
     // Fetching data
     useEffect(() => {
@@ -142,6 +141,62 @@ export default function TournamentDetails() {
 
     const totalMatches = countMatches(tournamentDetails?.rootMatch ?? null);
 
+    const formattedStartDT = tournamentDetails?.startDT ? new Date(tournamentDetails.startDT) : new Date();
+    const startDate = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(formattedStartDT);
+    const formattedStartDate = startDate.replace(/(\w+) (\d+)/, '$1, $2'); // "Thursday, 10 October 2024"
+    const startTime = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(formattedStartDT); // "12:30 PM"
+
+    const formattedEndDT = tournamentDetails?.endDT ? new Date(tournamentDetails.endDT) : new Date();
+    const endDate = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(formattedEndDT);
+    const formattedEndDate = endDate.replace(/(\w+) (\d+)/, '$1, $2');
+    const endTime = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(formattedEndDT);
+
+    const formattedRegStartDT = tournamentDetails?.regStartDT ? new Date(tournamentDetails.regStartDT) : new Date();
+    const regStartDate = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(formattedRegStartDT);
+    const formattedRegStartDate = regStartDate.replace(/(\w+) (\d+)/, '$1, $2');
+    const regStartTime = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(formattedRegStartDT);
+
+    const formattedRegEndDT = tournamentDetails?.regEndDT ? new Date(tournamentDetails.regEndDT) : new Date();
+    const regEndDate = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(formattedRegEndDT);
+    const formattedRegEndDate = regEndDate.replace(/(\w+) (\d+)/, '$1, $2');
+    const regEndTime = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    }).format(formattedRegEndDT);
+
     return (
         tournamentDetails ? (
             <div className="w-full">
@@ -160,11 +215,11 @@ export default function TournamentDetails() {
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Registration Dates:</span>
-                                <span className="w-3/12">{tournamentDetails.regStartDT} - {tournamentDetails.regEndDT}</span>
+                                <span className="w-3/12">{formattedRegStartDate}, {regStartTime} - {formattedRegEndDate}, {regEndTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Tournament Dates:</span>
-                                <span className="w-3/12">{tournamentDetails.startDT} - {tournamentDetails.endDT}</span>
+                                <span className="w-3/12">{formattedStartDate}, {startTime} - {formattedEndDate}, {endTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-9/12">Status: </span>

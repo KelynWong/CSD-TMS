@@ -33,9 +33,10 @@ interface TournamentCardProps {
 export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, role }: TournamentCardProps) {
     const { user } = useUserContext();
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
-    const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+    const [isRegistered, setIsRegistered] = useState(false);
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [showRegisterButton, setShowRegisterButton] = useState(false);
     
     const formattedStartDT = new Date(startDT);
     const startDate = new Intl.DateTimeFormat('en-GB', {
@@ -135,6 +136,17 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }, []);
 
     useEffect(() => {
+        const currentDate = new Date();
+        console.log(currentDate, formattedStartDT, formattedEndDT);
+    
+        if (currentDate >= formattedStartDT && currentDate <= formattedEndDT) {
+          setShowRegisterButton(true);
+        } else {
+          setShowRegisterButton(false);
+        }
+    }, [formattedStartDT, formattedEndDT]);
+
+    useEffect(() => {
         if (status === 'Registration Close') {
             setAvailForMatchMake(true);
         } else {
@@ -145,6 +157,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const matchMake = async () => {
         try {
             await matchMakeByTournamentId(id);
+            // TODO: update tournament status to ongoing when matchmake done
             alert('Matchmaking started successfully! :)');
             window.location.reload();
         } catch (err) {
@@ -218,7 +231,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
-                        {isRegistered !== null && (
+                        {showRegisterButton && isRegistered !== null && (
                             isRegistered ? (
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
@@ -300,7 +313,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
-                                {/* <Button className="bg-gray-300 hover:bg-gray-300 text-gray-400">MatchMake</Button> */}
                             </div>
                         )}
                     </div>
