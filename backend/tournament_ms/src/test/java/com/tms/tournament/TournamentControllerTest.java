@@ -18,13 +18,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import com.tms.TournamentServiceApplication;
 import com.tms.tournamentplayer.Player;
 
 import lombok.extern.slf4j.Slf4j;
 
 // Using Spring Boot Integration Test Libraries
 /** Start an actual HTTP server listening at a random port */
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = TournamentServiceApplication.class)
 @Slf4j
 class TournamentControllerTest {
 
