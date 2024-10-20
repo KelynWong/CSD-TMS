@@ -341,6 +341,18 @@ jobs:
           --resource-group tms \
           --name appGatewayNSG
 
+        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
+        az network nsg rule create \
+          --resource-group tms \
+          --nsg-name appGatewayNSG \
+          --name AllowAppGatewayPorts \
+          --protocol Tcp \
+          --priority 101 \
+          --source-address-prefixes '*' \
+          --destination-port-ranges 65200-65535 \
+          --access Allow \
+          --direction Inbound
+
         # Resolve the public IP of the APIM instance
         apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
 
@@ -353,18 +365,6 @@ jobs:
           --priority 100 \
           --source-address-prefixes ${apim_public_ip} \
           --destination-port-ranges 80 \
-          --access Allow \
-          --direction Inbound
-
-        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
-        az network nsg rule create \
-          --resource-group tms \
-          --nsg-name appGatewayNSG \
-          --name AllowAppGatewayPorts \
-          --protocol Tcp \
-          --priority 101 \
-          --source-address-prefixes '*' \
-          --destination-port-ranges 65200-65535 \
           --access Allow \
           --direction Inbound
 
