@@ -37,7 +37,7 @@ export type UserResponse = {
 
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
-		const response = await axios.get(`${URL}/users`);
+		const response = await axios.get(`${URL}`);
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
 			username: user.username,
@@ -58,7 +58,7 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
-		const response = await axios.get(`${URL}/users/${id}`);
+		const response = await axios.get(`${URL}/${id}`);
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -81,7 +81,7 @@ export const fetchUserByRoles = async (
 	role: string
 ): Promise<PlayerResponse[] | AdminResponse[]> => {
 	try {
-		const response = await axios.get(`${URL}/users/role/${role}`);
+		const response = await axios.get(`${URL}/role/${role}`);
 		if (role === "player") {
 			return response.data.map((player: any) => ({
 				id: player.id,
@@ -114,7 +114,7 @@ export const fetchUserByRoles = async (
 //TODO update this
 const updateUser = async (id: string, formData: FormData) => {
   try {
-    const response = await axios.put(`${URL}/users/${id}`, formData);
+    const response = await axios.put(`${URL}/${id}`, formData);
     console.log(response.data);
     return response.data;
   } catch (error) {

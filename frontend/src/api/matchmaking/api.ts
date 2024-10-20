@@ -12,20 +12,7 @@ type Games = Game[];
 
 export const fetchMatchMakingByTournamentId = async (tournament_id: number): Promise<any[]> => {
 	try {
-		// console.log(`${URL}/matchmaking/${tournament_id}`);
-
-		const response = await axios.get(`${URL}/matchmaking/${tournament_id}`);
-		// const formattedData: MatchResponse[] = response.data.map((match: any) => ({
-		// 	id: match.id,
-		// 	tournamentId: match.tournamentId,
-		// 	player1Id: match.player1Id,
-		// 	player2Id: match.player2Id,
-		// 	winnerId: match.winnerId,
-		// 	left: match.left,
-		// 	right: match.right,
-		// 	games: match.games
-		// }));
-		
+		const response = await axios.get(`${URL}/${tournament_id}`);
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournament matchemaking data", error);
@@ -35,8 +22,7 @@ export const fetchMatchMakingByTournamentId = async (tournament_id: number): Pro
 
 export const matchMakeByTournamentId = async (tournament_id: number): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/matchmaking/${tournament_id}`);
-		const response = await axios.post(`${URL}/matchmaking/${tournament_id}`);
+		const response = await axios.post(`${URL}/${tournament_id}`);
 		console.log(response);
 		return response.status === 200; 
 	} catch (error: unknown) {
@@ -59,8 +45,8 @@ export const matchMakeByTournamentId = async (tournament_id: number): Promise<bo
 
 export const addGamesByMatchId = async (match_id: number, gamesData: Games): Promise<boolean> => {
 	try {
-		console.log(`${URL}/matchmaking/result/${match_id}`);
-		const response = await axios.post(`${URL}/matchmaking/result/${match_id}`, gamesData, {
+		console.log(`${URL}/result/${match_id}`);
+		const response = await axios.post(`${URL}/result/${match_id}`, gamesData, {
 			headers: {
 				'Content-Type': 'application/json',
 			},

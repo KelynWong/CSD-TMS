@@ -16,9 +16,7 @@ export interface tournamentResponse {
 
 export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
 	try {
-		// console.log(`${URL}/tournaments`);
-
-		const response = await axios.get(`${URL}/tournaments`);
+		const response = await axios.get(`${URL}`);
 		const formattedData: tournamentResponse[] = response.data.map(
 			(tournament: any) => ({
 				id: tournament.id,
@@ -42,7 +40,7 @@ export const fetchTournamentByPlayerId = async (
 	player_id: string
 ): Promise<tournamentResponse[]> => {
 	try {
-		const response = await axios.get(`${URL}/tournaments/players/${player_id}`);
+		const response = await axios.get(`${URL}/players/${player_id}`);
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
 			(tournament: tournamentResponse) => ({
@@ -67,9 +65,7 @@ export const fetchTournamentById = async (
 	tournament_id: number
 ): Promise<Tournament> => {
 	try {
-		// console.log(`${URL}/tournaments/id/${tournament_id}`);
-
-		const response = await axios.get(`${URL}/tournaments/id/${tournament_id}`);
+		const response = await axios.get(`${URL}/id/${tournament_id}`);
 		return response.data;
 	} catch (error) {
 		console.error(`Error fetching tournament ${tournament_id}`, error);
@@ -81,10 +77,10 @@ export const fetchAllPlayersByTournament = async (
 	tournament_id: number
 ): Promise<any[]> => {
 	try {
-		console.log(`${URL}/tournaments/${tournament_id}/players`);
+		console.log(`${URL}/${tournament_id}/players`);
 
 		const response = await axios.get(
-			`${URL}/tournaments/${tournament_id}/players`
+			`${URL}/${tournament_id}/players`
 		);
 
 		// Check if the response has data and return the array of players
@@ -104,11 +100,8 @@ export const fetchPlayerRegistrationStatus = async (
 	user_id: string
 ): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/tournaments/${tournament_id}/players/${user_id}`);
-		// console.log(user_id);
-
 		const response = await axios.get(
-			`${URL}/tournaments/${tournament_id}/players/${user_id}`
+			`${URL}/${tournament_id}/players/${user_id}`
 		);
 		return response.data.IsRegistered;
 	} catch (error) {
@@ -122,10 +115,8 @@ export const registerTournament = async (
 	user_id: string
 ): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/tournaments/${tournament_id}/players/${user_id}/register`);
-
 		const response = await axios.post(
-			`${URL}/tournaments/${tournament_id}/players/${user_id}/register`
+			`${URL}/${tournament_id}/players/${user_id}/register`
 		);
 		console.log(response);
 		return response.status === 200;
@@ -141,11 +132,11 @@ export const withdrawTournament = async (
 ): Promise<boolean> => {
 	try {
 		console.log(
-			`${URL}/tournaments/${tournament_id}/players/${user_id}/deregister`
+			`${URL}/${tournament_id}/players/${user_id}/deregister`
 		);
 
 		const response = await axios.put(
-			`${URL}/tournaments/${tournament_id}/players/${user_id}/deregister`
+			`${URL}/${tournament_id}/players/${user_id}/deregister`
 		);
 		console.log(response);
 		return response.status === 200;
@@ -157,10 +148,10 @@ export const withdrawTournament = async (
 
 export const createTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
     try {
-        console.log(`${URL}/tournaments`);
+        console.log(`${URL}`);
 		console.log(tournamentData);
 
-        const response = await axios.post(`${URL}/tournaments`, tournamentData, {
+        const response = await axios.post(`${URL}`, tournamentData, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -178,9 +169,7 @@ export const createTournaments = async (tournamentData: Partial<Tournament>): Pr
 
 export const updateTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/tournaments/${tournamentData.id}`);
-
-		const response = await axios.put(`${URL}/tournaments/${tournamentData.id}`, tournamentData, {
+		const response = await axios.put(`${URL}/${tournamentData.id}`, tournamentData, {
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -198,9 +187,7 @@ export const deleteTournament = async (
 	tournament_id: number
 ): Promise<boolean> => {
 	try {
-		// console.log(`${URL}/tournaments/${id}`);
-
-		const response = await axios.delete(`${URL}/tournaments/${tournament_id}`);
+		const response = await axios.delete(`${URL}/${tournament_id}`);
 
 		return response.status === 204;
 	} catch (error) {
