@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = "http://localhost:8081";
+const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
 
 type Game = {
 	setNum: number;

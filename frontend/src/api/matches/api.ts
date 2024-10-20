@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const URL = "http://localhost:8080";
+const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
 
 type GameResponse = {
 	id: number;

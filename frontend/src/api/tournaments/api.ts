@@ -1,7 +1,7 @@
 import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
-const URL = "http://localhost:8082";
+const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
 
 export interface tournamentResponse {
 	id: number;
@@ -42,7 +42,7 @@ export const fetchTournamentByPlayerId = async (
 	player_id: string
 ): Promise<tournamentResponse[]> => {
 	try {
-		const response = await axios.get(`${URL}/players/${player_id}`);
+		const response = await axios.get(`${URL}/tournaments/players/${player_id}`);
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
 			(tournament: tournamentResponse) => ({

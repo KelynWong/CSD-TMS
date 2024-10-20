@@ -137,7 +137,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
 
     useEffect(() => {
         const currentDate = new Date();
-        console.log(currentDate, formattedStartDT, formattedEndDT);
+        // console.log(currentDate, formattedStartDT, formattedEndDT);
     
         if (currentDate >= formattedStartDT && currentDate <= formattedEndDT) {
           setShowRegisterButton(true);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = "http://localhost:8083";
+const URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
 export type PlayerResponse = {
 	id: string;
