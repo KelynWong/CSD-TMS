@@ -26,3 +26,10 @@ services:
       - "8083:8083"
     env_file:
       - ./user_ms/.env
+
+  # rating-ms:
+  #   build: ./rating_ms
+  #   ports:
+  #     - "8084:8084"
+  #   env_file:
+  #     - ./rating_ms/.env
