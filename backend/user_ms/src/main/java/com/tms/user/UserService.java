@@ -48,8 +48,9 @@ public class UserService {
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
-        ratingService.initRating(user.getId());
-        return userRepository.save(user);
+        User createdUser = userRepository.save(user);
+        ratingService.initRating(createdUser.getId());
+        return createdUser;
     }
 
     public User updateUser(String id, User updatedUser, MultipartFile profilePicture) { 
