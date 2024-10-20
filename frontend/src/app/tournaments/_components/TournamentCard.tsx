@@ -221,9 +221,9 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 </div>
                 {/* <p className={`my-1 ${status === 'Completed' || status === 'Ongoing' ? '' : 'italic'}`}>{status}</p> */}
                 {status === 'Completed' || status === 'Ongoing' ? (
-                    <p className="my-1">{numMatches} Matches</p>
+                    <p className={`my-1 ${status === 'Ongoing' ? 'text-yellow-500' : 'text-black-600'}`}>{status} ({numMatches} Matches)</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration  Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
                 )}
             </CardContent>
             <CardFooter>
