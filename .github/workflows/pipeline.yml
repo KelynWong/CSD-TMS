@@ -45,13 +45,6 @@ jobs:
     #       --build-arg DB_PW="${{ secrets.DB_PW }}"
     #     docker push csdtms.azurecr.io/match_ms:latest
 
-    #     # Build and push rating_ms
-    #     docker build -t csdtms.azurecr.io/rating_ms:latest ./backend/rating_ms \
-    #       --build-arg DB_URL="${{ secrets.DB_URL }}" \
-    #       --build-arg DB_USER="${{ secrets.DB_USER }}" \
-    #       --build-arg DB_PW="${{ secrets.DB_PW }}"
-    #     docker push csdtms.azurecr.io/rating_ms:latest
-
     - name: Log in to Azure
       run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
@@ -72,29 +65,22 @@ jobs:
     #     --vnet tmsVNet \
     #     --subnet aciSubnet 
 
-    #     # Deploy rating_ms
-    #     az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-    #     --vnet tmsVNet \
-    #     --subnet aciSubnet 
-
     # - name: Build and Deploy Matchmaking MS
     #   run: |
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
 
     #     # Build and push matchmaking
     #     docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
     #       --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
     #       --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
-    #       --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
-    #       --build-arg RATING_URL="http://$RATING_MS_IP:8084/ratings"
+    #       --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" 
     #     docker push csdtms.azurecr.io/matchmaking:latest
 
     #     # Deploy matchmaking MS
     #     az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-    #     --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" RATING_URL="http://$RATING_MS_IP:8084/ratings" \
+    #     --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" \
     #     --vnet tmsVNet \
     #     --subnet aciSubnet
 
@@ -128,7 +114,6 @@ jobs:
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
     #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
     #     # Add backend pools for each microservice
@@ -153,12 +138,6 @@ jobs:
     #     az network application-gateway address-pool create \
     #       --resource-group tms \
     #       --gateway-name appGateway \
-    #       --name ratingMSBackendPool \
-    #       --servers $RATING_MS_IP
-
-    #     az network application-gateway address-pool create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
     #       --name matchmakingMSBackendPool \
     #       --servers $MATCHMAKING_MS_IP
 
@@ -168,7 +147,6 @@ jobs:
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
     #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
     #     # Create health probes using HTTP settings
@@ -199,16 +177,6 @@ jobs:
     #       --name matchMSHealthProbe \
     #       --protocol Http \
     #       --path /matches/health \
-    #       --timeout 20 \
-    #       --interval 30 \
-    #       --from-http-settings true
-
-    #     az network application-gateway probe create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --name ratingMSHealthProbe \
-    #       --protocol Http \
-    #       --path /ratings/health \
     #       --timeout 20 \
     #       --interval 30 \
     #       --from-http-settings true
@@ -255,17 +223,7 @@ jobs:
     #       --host-name-from-backend-pool true \
     #       --probe matchMSHealthProbe
 
-    #     # HTTP settings for rating-ms
-    #     az network application-gateway http-settings create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --name ratingMSHttpSetting \
-    #       --port 8084 \
-    #       --protocol Http \
-    #       --host-name-from-backend-pool true \
-    #       --probe ratingMSHealthProbe
-
-    #     # HTTP settings for rating-ms
+    #     # HTTP settings for matchmaking-ms
     #     az network application-gateway http-settings create \
     #       --resource-group tms \
     #       --gateway-name appGateway \
@@ -333,24 +291,6 @@ jobs:
     #       --paths /matches \
     #       --address-pool matchMSBackendPool \
     #       --http-settings matchMSHttpSetting
-
-    #     az network application-gateway url-path-map rule create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --path-map-name myPathMap \
-    #       --name ratingMSRule \
-    #       --paths /ratings/* \
-    #       --address-pool ratingMSBackendPool \
-    #       --http-settings ratingMSHttpSetting
-
-    #     az network application-gateway url-path-map rule create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --path-map-name myPathMap \
-    #       --name rating \
-    #       --paths /ratings \
-    #       --address-pool ratingMSBackendPool \
-    #       --http-settings ratingMSHttpSetting
 
     #     az network application-gateway url-path-map rule create \
     #       --resource-group tms \
