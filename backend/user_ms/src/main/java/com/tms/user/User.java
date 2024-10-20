@@ -2,10 +2,14 @@ package com.tms.user;
 
 import com.tms.rating.Rating;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "\"user\"", schema = "\"user\"")
 public class User {
     @Id
@@ -23,7 +27,7 @@ public class User {
 
     private String role;
     
-    private String country; 
+    private String country;
 
     private String profilePicture;
 
