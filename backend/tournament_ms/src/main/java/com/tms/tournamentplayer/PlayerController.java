@@ -48,11 +48,7 @@ public class PlayerController {
         
         // else, return list of tournaments 
         return players.findById(playerId).map(player -> {
-            List<Tournament> tournamentList = player.getTournaments();
-            for (Tournament t : tournamentList) {
-                // Output Preparation
-                t.setStatus(addSpacingBetweenWords(t.getStatus()));
-            }         
+            List<Tournament> tournamentList = player.getTournaments();     
             return tournamentList;
         }).orElse(null);
     }
@@ -139,29 +135,5 @@ public class PlayerController {
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
-
-    // Add Spacing to string
-    public String addSpacingBetweenWords(String stringWithoutSpacing) {
-
-        log.info("[INFO] = "+stringWithoutSpacing);
-        if (stringWithoutSpacing.isEmpty() || stringWithoutSpacing == null) {
-            return ""; // not supposed to happen but if it happens
-        }
-
-        String stringWithSpacing = "" + stringWithoutSpacing.charAt(0);
-        // skip the first letter
-        for (int i = 1; i < stringWithoutSpacing.length(); i++) {
-
-            if (Character.isUpperCase(stringWithoutSpacing.charAt(i))) {
-                stringWithSpacing += " ";
-            }
-
-            stringWithSpacing += stringWithoutSpacing.charAt(i);
-        }
-
-        return stringWithSpacing;
-
-    }
-
 
 }

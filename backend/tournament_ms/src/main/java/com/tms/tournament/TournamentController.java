@@ -49,14 +49,7 @@ public class TournamentController {
     @GetMapping
     public List<Tournament> getAllTournaments() {
 
-        List<Tournament> tournamentList = tournamentService.listTournaments();
-
-        for (Tournament t : tournamentList) {
-            // Output Preparation
-            t.setStatus(addSpacingBetweenWords(t.getStatus()));
-        }
-
-        return tournamentList;
+        return tournamentService.listTournaments();
     }
 
     /* Get tournament by Id */
@@ -67,9 +60,6 @@ public class TournamentController {
         // handle "tournament not found 404" error
         if (tournament == null)
             throw new TournamentNotFoundException(id);
-        
-        // Output Preparation
-        tournament.setStatus(addSpacingBetweenWords(tournament.getStatus()));
 
         return tournamentService.getTournament(id);
 
@@ -78,11 +68,22 @@ public class TournamentController {
     /* Get tournaments by Status */
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
+        // Status - only hv {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
+        List<String> statusList = Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed");
+
+        // if (!statusList.contains(status)) {
+        //     throw 
+        // }
+
+
         List<Tournament> tournaments = tournamentService.listTournaments();
         List<Tournament> filteredTournaments = new ArrayList<>();
 
+        
+
+
         for (Tournament t : tournaments) {
-            if (t.getStatus().equals(status)) {
+            if (t.getStatus().replace(" ", "").equals(status)) {
                 filteredTournaments.add(t);
             }
         }
@@ -100,9 +101,6 @@ public class TournamentController {
         if (!tournamentInputValidation(tournament)) {
             throw new TournamentInvalidInputException("creation");
         }
-
-        // Input Preparation
-        tournament.setStatus(tournament.getStatus().replace(" ", ""));
 
         // Add tournament
         Tournament savedTournament = tournamentService.addTournament(tournament);
@@ -124,9 +122,6 @@ public class TournamentController {
             throw new TournamentInvalidInputException("modification");
         }
 
-        // Input Preparation
-        newTournament.setStatus(newTournament.getStatus().replace(" ", ""));
-
         // Update tournament
         Tournament tournament = tournamentService.updateTournament(id, newTournament);
 
@@ -143,11 +138,13 @@ public class TournamentController {
 
         try {
 
+            // retrieve the specified tournament 
             Tournament tournament = tournamentService.getTournament(id);
+            // get the players map to this tournament
             List<Player> playerList = tournament.getPlayers();
-
+            // loop thr the palyers
             for (Player p : playerList) {
-
+                // remove the mappings
                 p.getTournaments().remove(tournament);
                 playerRepository.save(p);
 
@@ -155,7 +152,7 @@ public class TournamentController {
 
             tournamentService.deleteTournament(id);
 
-        } catch (EmptyResultDataAccessException e) {
+        } catch (Exception e) {
             throw new TournamentNotFoundException(id);
         }
     }
@@ -186,40 +183,17 @@ public class TournamentController {
             return false;
         }
 
-        // Status - only hv {"Scheduled", "RegistrationStart", "RegistrationClose",
+        // Status - only hv {"Scheduled", "Registration Start", "Registration Close",
         // "Ongoing", "Completed"}
         List<String> statusList = new ArrayList<>(
-                Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed"));
+                Arrays.asList("Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"));
 
-        if (!statusList.contains(tournament.getStatus().replace(" ", ""))) {
+        if (!statusList.contains(tournament.getStatus())) {
             log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
             return false;
         }
 
         return true;
-    }
-
-    // Add Spacing to string
-    public String addSpacingBetweenWords(String stringWithoutSpacing) {
-
-        log.info("[INFO] = "+stringWithoutSpacing);
-        if (stringWithoutSpacing.isEmpty() || stringWithoutSpacing == null) {
-            return ""; // not supposed to happen but if it happens
-        }
-
-        String stringWithSpacing = "" + stringWithoutSpacing.charAt(0);
-        // skip the first letter
-        for (int i = 1; i < stringWithoutSpacing.length(); i++) {
-
-            if (Character.isUpperCase(stringWithoutSpacing.charAt(i))) {
-                stringWithSpacing += " ";
-            }
-
-            stringWithSpacing += stringWithoutSpacing.charAt(i);
-        }
-
-        return stringWithSpacing;
-
     }
 
 }
