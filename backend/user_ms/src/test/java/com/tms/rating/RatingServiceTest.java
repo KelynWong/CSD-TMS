@@ -1,5 +1,7 @@
 package com.tms.rating;
 
+import com.tms.exception.RatingAlreadyExistsException;
+import com.tms.exception.UserNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -33,7 +36,7 @@ public class RatingServiceTest {
     private RatingService ratingService;
 
     @Test
-    void addUser_NewUser_ReturnDefaultRating() {
+    void initRating_UserExists_ReturnDefaultRating() {
         User user = new User(
                 "user1",
                 "user1",
@@ -65,7 +68,71 @@ public class RatingServiceTest {
         verify(ratingCalc, times(2)).getDefaultRating();
         verify(ratingCalc, times(2)).getDefaultRatingDeviation();
         verify(ratingCalc, times(2)).getDefaultVolatility();
+    }
 
+    @Test
+    void initRating_UserDoesNotExist_ThrowsException() {
+        User user = new User(
+                "user1",
+                "user1",
+                "New User",
+                "Male",
+                "newuser@example.com",
+                "Player",
+                "Singapore",
+                null,
+                null
+        );
+
+        when(ratingCalc.getDefaultRating()).thenReturn(1500.0);
+        when(ratingCalc.getDefaultRatingDeviation()).thenReturn(350.0);
+        when(ratingCalc.getDefaultVolatility()).thenReturn(0.06);
+
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+
+        when(userRepo.findById(user.getId())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            ratingService.initRating(user.getId());
+        });
+
+        verify(userRepo, times(1)).findById(user.getId());
+        verify(ratingRepo, never()).save(rating);
+    }
+
+    @Test
+    void initRating_RatingAlreadyInit_ThrowsException() {
+        User user = new User(
+                "user1",
+                "user1",
+                "New User",
+                "Male",
+                "newuser@example.com",
+                "Player",
+                "Singapore",
+                null,
+                null
+        );
+
+        when(ratingCalc.getDefaultRating()).thenReturn(1500.0);
+        when(ratingCalc.getDefaultRatingDeviation()).thenReturn(350.0);
+        when(ratingCalc.getDefaultVolatility()).thenReturn(0.06);
+
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+
+        when(userRepo.findById(user.getId())).thenReturn(Optional.of(user));
+        when(ratingRepo.existsById(user.getId())).thenReturn(true);
+
+        assertThrows(RatingAlreadyExistsException.class, () -> {
+            ratingService.initRating(user.getId());
+        });
+
+        verify(userRepo, times(1)).findById(user.getId());
+        verify(ratingRepo, never()).save(rating);
     }
 
 }

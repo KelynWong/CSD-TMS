@@ -1,5 +1,6 @@
 package com.tms.user;
 
+import com.tms.exception.UserAlreadyExistsException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,9 @@ public class UserService {
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
+        userRepository.findById(user.getId()).ifPresent(u -> {
+            throw new UserAlreadyExistsException("User with id " + u.getId() + " already exists");
+        });
         User createdUser = userRepository.save(user);
         ratingService.initRating(createdUser.getId());
         return createdUser;

@@ -1,5 +1,6 @@
 package com.tms.rating;
 
+import com.tms.exception.RatingAlreadyExistsException;
 import com.tms.exception.RatingNotFoundException;
 import com.tms.exception.UserNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
@@ -28,12 +29,18 @@ public class RatingService {
     }
 
     public Rating initRating(String userId) {
-        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
-        Optional<User> optionalUser = userRepo.findById(userId);
-        if (!optionalUser.isPresent()) {
+        Optional<User> user = userRepo.findById(userId);
+        if (user.isEmpty()) {
             throw new UserNotFoundException("User not found for userId " + userId);
         }
-        Rating rating = new Rating(optionalUser.get(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+
+        if (ratingRepo.existsById(userId)) {
+            throw new RatingAlreadyExistsException(userId);
+        }
+
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user.get(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
     }
 
