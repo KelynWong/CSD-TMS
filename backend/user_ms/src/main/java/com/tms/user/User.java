@@ -33,4 +33,8 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Rating rating;
+
+    public User(String id) {
+        this.id = id;
+    }
 }

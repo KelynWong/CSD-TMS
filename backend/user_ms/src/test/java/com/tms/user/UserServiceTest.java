@@ -29,17 +29,7 @@ public class UserServiceTest {
 
     @Test
     void addUser_NewUser_ReturnSavedUserAndRating() {
-        User user = new User(
-                "user1",
-                "user1",
-                "New User",
-                "Male",
-                "newuser@example.com",
-                "Player",
-                "Singapore",
-                null,
-                null
-        );
+        User user = new User("user1");
 
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(ratingService.initRating(user.getId())).thenReturn(user.getRating());
@@ -53,17 +43,7 @@ public class UserServiceTest {
 
     @Test
     void addUser_ExistingUser_ThrowException() {
-        User user = new User(
-                "user1",
-                "user1",
-                "New User",
-                "Male",
-                "newuser@example.com",
-                "Player",
-                "Singapore",
-                null,
-                null
-        );
+        User user = new User("user1");
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
