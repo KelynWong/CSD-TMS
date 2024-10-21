@@ -54,7 +54,7 @@ public class PlayerController {
     }
 
     @GetMapping("/{tournamentId}/players/{playerId}")
-    public Map<String,Boolean> IsRegister(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
+    public Map<String,Boolean> IsRegistered(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
         Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
         Map<String,Boolean> result = new HashMap<>();
         
@@ -90,6 +90,8 @@ public class PlayerController {
                 tournament.getPlayers().add(player); // need to update the tournament side oso
             }
 
+            // [WARN] currently, if player is already registered, no err will be thrown. It just dont update anything
+
             return players.save(player); // save - adds if player dont exist or updates if player exist
         }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     
@@ -111,25 +113,23 @@ public class PlayerController {
 
     }
 
-    /* Update tournament Player */
-    // @PutMapping("/tournaments/{tournamentId}/players/{playerId}")
-    // public Player updateTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId,
-    //                              @PathVariable (value = "playerId") String playerId,
-    //                              @RequestBody Player newPlayer) {
-
-    //     return players.findById(playerId).map(player -> {
-    //         player.setTournaments(newPlayer.getTournaments());
-    //         player.setId(newPlayer.getId());
-    //         return players.save(player);
-    //     }).orElseThrow(() -> new PlayerNotFoundException(playerId, tournamentId));
-    // }
-
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
-    @DeleteMapping("/{tournamentId}/players/{playerId}")
+    @DeleteMapping("/players/{playerId}")
     public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") String playerId) {
         
         return players.findById(playerId).map(player -> {
+
+            for (Tournament t : player.getTournaments()) {
+                List<Player> p_list = t.getPlayers();
+                p_list.remove(player);
+                t.setPlayers(p_list);
+                tournaments.save(t);
+            }
+
+            player.setTournaments(new ArrayList<>());
+            players.save(player);
+
             players.delete(player);
             return ResponseEntity.ok().build();
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));

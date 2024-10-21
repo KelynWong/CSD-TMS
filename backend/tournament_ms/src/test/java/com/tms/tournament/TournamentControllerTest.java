@@ -50,13 +50,6 @@ class TournamentControllerTest {
 	@Autowired
 	private PlayerRepository players;
 
-	// @AfterEach
-	// void tearDown() {
-
-	// // clear the database after each test
-	// tournaments.deleteAll();
-	// players.deleteAll();
-	// }
 
 	/* HELPER METHODS */
 	public Tournament mockTournament(String typeOfErr) { // no err - input "noError"
