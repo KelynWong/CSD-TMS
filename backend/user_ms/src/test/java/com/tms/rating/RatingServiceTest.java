@@ -1,8 +1,10 @@
 package com.tms.rating;
 
 import com.tms.exception.RatingAlreadyExistsException;
+import com.tms.exception.RatingNotFoundException;
 import com.tms.exception.UserNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
+import com.tms.ratingCalc.RatingPeriodResults;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -115,9 +117,6 @@ public class RatingServiceTest {
 
         for (int i = start; i <= end; i++) {
             User user = new User("user1");
-
-            Rating rating = new Rating(user, 1500.0, 350.0, 0.06, 0, LocalDate.now().withDayOfYear(1).atStartOfDay());
-
             when(userRepo.findById("user" + i)).thenReturn(Optional.of(user));
         }
         when(ratingRepo.save(any(Rating.class))).thenReturn(new Rating());
@@ -170,6 +169,48 @@ public class RatingServiceTest {
 
         verify(ratingRepo, times(1)).findById(userId);
         verify(ratingRepo, never()).delete(any(Rating.class));
+    }
+
+    // todo: fix this test
+    @Test
+    void calcRating_ValidMatch_ReturnsUpdatedRatings() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime now = today.atStartOfDay();
+
+        ResultsDTO match = new ResultsDTO("winnerId", "loserId", now);
+        User winner = new User("winnerId");
+        User loser = new User("loserId");
+        Rating winnerRating = new Rating(winner, 1500.0, 350.0, 0.06, 0,
+                LocalDate.now().withDayOfYear(1).atStartOfDay());
+        Rating loserRating = new Rating(loser, 1500.0, 350.0, 0.06, 0, LocalDate.now().withDayOfYear(1).atStartOfDay());
+
+        when(ratingRepo.findById("winnerId")).thenReturn(Optional.of(winnerRating));
+        when(ratingRepo.findById("loserId")).thenReturn(Optional.of(loserRating));
+
+        List<Rating> updatedRatings = ratingService.calcRating(match, new RatingPeriodResults());
+
+        assertEquals(2, updatedRatings.size());
+        verify(ratingRepo, times(1)).findById("winnerId");
+        verify(ratingRepo, times(1)).findById("loserId");
+        verify(ratingCalc, times(1)).updateRatings(any(RatingPeriodResults.class));
+        verify(ratingRepo, times(1)).save(winnerRating);
+        verify(ratingRepo, times(1)).save(loserRating);
+    }
+
+    @Test
+    void calcRating_RatingNotFound_ThrowsException() {
+        ResultsDTO match = new ResultsDTO("winnerId", "loserId", LocalDateTime.now());
+
+        when(ratingRepo.findById("winnerId")).thenReturn(Optional.empty());
+        when(ratingRepo.findById("loserId")).thenReturn(Optional.empty());
+
+        assertThrows(RatingNotFoundException.class, () -> {
+            ratingService.calcRating(match, new RatingPeriodResults());
+        });
+
+        verify(ratingRepo, times(1)).findById("winnerId");
+        verify(ratingRepo, times(1)).findById("loserId");
+        verify(ratingCalc, never()).updateRatings(any(RatingPeriodResults.class));
     }
 
 }

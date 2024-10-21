@@ -8,6 +8,7 @@ import com.tms.ratingCalc.RatingPeriodResults;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,13 +53,15 @@ public class RatingService {
         return ratingList;
     }
 
-    public List<Rating> calcRating(ResultsDTO match) {
-        LocalDateTime now = LocalDateTime.now();
-        RatingPeriodResults results = new RatingPeriodResults();
+    @Transactional
+    public List<Rating> calcRating(ResultsDTO match, RatingPeriodResults results) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime now = today.atStartOfDay();
+
         Optional<Rating> winner = ratingRepo.findById(match.getWinnerId());
         Optional<Rating> loser = ratingRepo.findById(match.getLoserId());
 
-        if (!winner.isPresent() || !loser.isPresent()) {
+        if (winner.isEmpty() || loser.isEmpty()) {
             throw new RatingNotFoundException(match.getWinnerId() + " or " + match.getLoserId());
         }
 
@@ -70,9 +73,8 @@ public class RatingService {
 
         results.addResult(winnerRating, loserRating);
         ratingCalc.updateRatings(results);
-
-        updateRating(winnerRating.getId(), winnerRating);
-        updateRating(loserRating.getId(), loserRating);
+        updateRating(winnerRating);
+        updateRating(loserRating);
 
         return List.of(winnerRating, loserRating);
     }
@@ -86,7 +88,8 @@ public class RatingService {
         return rating;
     }
 
-    private Rating updateRating(String ratingId, Rating newRating) {
+    private Rating updateRating(Rating newRating) {
+        String ratingId = newRating.getId();
         return ratingRepo.findById(ratingId).map(rating -> {
             rating.setRating(newRating.getRating());
             rating.setRatingDeviation(newRating.getRatingDeviation());
