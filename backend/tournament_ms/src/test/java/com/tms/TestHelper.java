@@ -66,7 +66,7 @@ public class TestHelper {
             case "wrongStatus":
                 tournament.setStatus("HAHAHAHA WRONG");
                 break;
-            default:
+            case "noError":
                 // no err - tournament is valid
                 tournament.setTournamentName("Tournament Controller Testing - Valid");
                 break;
