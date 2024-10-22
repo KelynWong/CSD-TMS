@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentController {
 
     // constants 
-    // Status - only hv {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
+    // Status - only hv {"Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed"}
     private List<String> validStatusList = Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed");
 
     private TournamentService tournamentService;
@@ -74,7 +74,7 @@ public class TournamentController {
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
        
-        if (!validStatusList.contains(status)) {
+        if (!validStatusList.contains(status.replace(" ", ""))) {
             throw new InvalidTournamentStatusException(status);
         }
 
@@ -134,7 +134,7 @@ public class TournamentController {
     @PutMapping("/{id}/status")
     public Tournament updateStatusByTournamentId(@PathVariable Long id, @RequestBody String status) {
         
-        if (!validStatusList.contains(status)) {
+        if (!validStatusList.contains(status.replace(" ", ""))) {
             throw new InvalidTournamentStatusException(status);
         } 
 
@@ -204,7 +204,7 @@ public class TournamentController {
             return false;
         }
 
-        if (!validStatusList.contains(tournament.getStatus())) {
+        if (!validStatusList.contains(tournament.getStatus().replace(" ", ""))) {
             log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
             return false;
         }
