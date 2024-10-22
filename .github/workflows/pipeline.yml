@@ -45,13 +45,6 @@ jobs:
     #       --build-arg DB_PW="${{ secrets.DB_PW }}"
     #     docker push csdtms.azurecr.io/match_ms:latest
 
-    #     # Build and push rating_ms
-    #     docker build -t csdtms.azurecr.io/rating_ms:latest ./backend/rating_ms \
-    #       --build-arg DB_URL="${{ secrets.DB_URL }}" \
-    #       --build-arg DB_USER="${{ secrets.DB_USER }}" \
-    #       --build-arg DB_PW="${{ secrets.DB_PW }}"
-    #     docker push csdtms.azurecr.io/rating_ms:latest
-
     - name: Log in to Azure
       run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
@@ -72,29 +65,22 @@ jobs:
     #     --vnet tmsVNet \
     #     --subnet aciSubnet 
 
-    #     # Deploy rating_ms
-    #     az container create --resource-group tms --name rating-ms --image csdtms.azurecr.io/rating_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8084 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-    #     --vnet tmsVNet \
-    #     --subnet aciSubnet 
-
     # - name: Build and Deploy Matchmaking MS
     #   run: |
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
 
     #     # Build and push matchmaking
     #     docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
     #       --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
     #       --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
-    #       --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
-    #       --build-arg RATING_URL="http://$RATING_MS_IP:8084/ratings"
+    #       --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" 
     #     docker push csdtms.azurecr.io/matchmaking:latest
 
     #     # Deploy matchmaking MS
     #     az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-    #     --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" RATING_URL="http://$RATING_MS_IP:8084/ratings" \
+    #     --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" \
     #     --vnet tmsVNet \
     #     --subnet aciSubnet
 
@@ -128,7 +114,6 @@ jobs:
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
     #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
     #     # Add backend pools for each microservice
@@ -153,12 +138,6 @@ jobs:
     #     az network application-gateway address-pool create \
     #       --resource-group tms \
     #       --gateway-name appGateway \
-    #       --name ratingMSBackendPool \
-    #       --servers $RATING_MS_IP
-
-    #     az network application-gateway address-pool create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
     #       --name matchmakingMSBackendPool \
     #       --servers $MATCHMAKING_MS_IP
 
@@ -168,7 +147,6 @@ jobs:
     #     USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
     #     TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
     #     MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-    #     RATING_MS_IP=$(az container show --resource-group tms --name rating-ms --query "ipAddress.ip" -o tsv)
     #     MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
 
     #     # Create health probes using HTTP settings
@@ -199,16 +177,6 @@ jobs:
     #       --name matchMSHealthProbe \
     #       --protocol Http \
     #       --path /matches/health \
-    #       --timeout 20 \
-    #       --interval 30 \
-    #       --from-http-settings true
-
-    #     az network application-gateway probe create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --name ratingMSHealthProbe \
-    #       --protocol Http \
-    #       --path /ratings/health \
     #       --timeout 20 \
     #       --interval 30 \
     #       --from-http-settings true
@@ -255,17 +223,7 @@ jobs:
     #       --host-name-from-backend-pool true \
     #       --probe matchMSHealthProbe
 
-    #     # HTTP settings for rating-ms
-    #     az network application-gateway http-settings create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --name ratingMSHttpSetting \
-    #       --port 8084 \
-    #       --protocol Http \
-    #       --host-name-from-backend-pool true \
-    #       --probe ratingMSHealthProbe
-
-    #     # HTTP settings for rating-ms
+    #     # HTTP settings for matchmaking-ms
     #     az network application-gateway http-settings create \
     #       --resource-group tms \
     #       --gateway-name appGateway \
@@ -338,24 +296,6 @@ jobs:
     #       --resource-group tms \
     #       --gateway-name appGateway \
     #       --path-map-name myPathMap \
-    #       --name ratingMSRule \
-    #       --paths /ratings/* \
-    #       --address-pool ratingMSBackendPool \
-    #       --http-settings ratingMSHttpSetting
-
-    #     az network application-gateway url-path-map rule create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --path-map-name myPathMap \
-    #       --name rating \
-    #       --paths /ratings \
-    #       --address-pool ratingMSBackendPool \
-    #       --http-settings ratingMSHttpSetting
-
-    #     az network application-gateway url-path-map rule create \
-    #       --resource-group tms \
-    #       --gateway-name appGateway \
-    #       --path-map-name myPathMap \
     #       --name matchmakingMSRule \
     #       --paths /matchmaking/* \
     #       --address-pool matchmakingMSBackendPool \
@@ -401,6 +341,18 @@ jobs:
           --resource-group tms \
           --name appGatewayNSG
 
+        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
+        az network nsg rule create \
+          --resource-group tms \
+          --nsg-name appGatewayNSG \
+          --name AllowAppGatewayPorts \
+          --protocol Tcp \
+          --priority 101 \
+          --source-address-prefixes '*' \
+          --destination-port-ranges 65200-65535 \
+          --access Allow \
+          --direction Inbound
+
         # Resolve the public IP of the APIM instance
         apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
 
@@ -413,18 +365,6 @@ jobs:
           --priority 100 \
           --source-address-prefixes ${apim_public_ip} \
           --destination-port-ranges 80 \
-          --access Allow \
-          --direction Inbound
-
-        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
-        az network nsg rule create \
-          --resource-group tms \
-          --nsg-name appGatewayNSG \
-          --name AllowAppGatewayPorts \
-          --protocol Tcp \
-          --priority 101 \
-          --source-address-prefixes '*' \
-          --destination-port-ranges 65200-65535 \
           --access Allow \
           --direction Inbound
 
@@ -464,18 +404,18 @@ jobs:
           --operation-id all \
           --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
 
-  build:
+  build-and-analyze-with-sonarcloud:
     name: Build and analyze
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
         with:
@@ -488,8 +428,35 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
+
+      # Build and analyze match_ms
+      - name: Build and analyze match_ms
+        working-directory: backend/match_ms
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_match_ms
+
+      # Build and analyze matchmaking
+      - name: Build and analyze matchmaking
+        working-directory: backend/matchmaking
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_matchmaking
+
+      # Build and analyze tournament_ms
+      - name: Build and analyze tournament_ms
+        working-directory: backend/tournament_ms
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_tournament_ms
+
+      # Build and analyze user_ms
+      - name: Build and analyze user_ms
+        working-directory: backend/user_ms
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_user_ms

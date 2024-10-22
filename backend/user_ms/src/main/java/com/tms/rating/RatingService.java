@@ -1,6 +1,7 @@
 package com.tms.rating;
 
 import com.tms.exception.RatingNotFoundException;
+import com.tms.exception.UserNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
 import com.tms.ratingCalc.RatingPeriodResults;
 import com.tms.user.User;
@@ -30,7 +31,7 @@ public class RatingService {
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Optional<User> optionalUser = userRepo.findById(userId);
         if (!optionalUser.isPresent()) {
-            throw new RatingNotFoundException(userId);
+            throw new UserNotFoundException("User not found for userId " + userId);
         }
         Rating rating = new Rating(optionalUser.get(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(), ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
