@@ -1,0 +1,7 @@
+Raw JSON Response: {"timestamp":"2024-10-20T15:18:10.240+00:00","status":404,"error":"Not Found","path":"/players/user2"}
+Raw JSON Response: [{"id":23,"tournamentName":"SMU BadminFest 2024","startDT":"2024-10-21T10:00:00","endDT":"2024-10-30T10:00:00","status":"Ongoing","regStartDT":"2024-10-01T10:00:00","regEndDT":"2024-10-11T10:00:00","createdBy":null,"winner":null},{"id":34,"tournamentName":"SG Winter Match","startDT":"2024-10-26T00:00:00","endDT":"2024-10-30T10:00:00","status":"Ongoing","regStartDT":"2024-10-16T16:00:00","regEndDT":"2024-10-23T15:59:00","createdBy":"user_2n9unvlmKsNxSKfwISP2XDxxq6a","winner":null},{"id":40,"tournamentName":"DOES THIS WORK?","startDT":"2024-11-11T00:00:00","endDT":"2024-11-16T10:00:00","status":"Ongoing","regStartDT":"2024-10-20T16:00:00","regEndDT":"2024-10-31T15:59:00","createdBy":"user_2n9unvlmKsNxSKfwISP2XDxxq6a","winner":null}]
+Raw JSON Response: {"timestamp":"2024-10-20T16:00:17.876+00:00","status":404,"error":"Not Found","path":"/tournaments/100/players"}
+t_idp_id: 126userTesting234
+Raw JSON Response: {"timestamp":"2024-10-21T09:23:13.998+00:00","status":404,"error":"Not Found","path":"/tournaments/128players/usertesting123"}
+Raw JSON Response: {"IsRegistered":true}
+Raw JSON Response: <404 NOT_FOUND Not Found,Player(id=null, tournaments=null),[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", Transfer-Encoding:"chunked", Date:"Mon, 21 Oct 2024 09:58:56 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
