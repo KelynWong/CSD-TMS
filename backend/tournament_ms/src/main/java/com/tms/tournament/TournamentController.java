@@ -151,11 +151,7 @@ public class TournamentController {
 
         // Update tournament
         Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
-
-        // Check if tournament exist : if yes, throw TournamentExistException, else
-        // return savedTournament
-        if (newTournament == null)
-            throw new TournamentNotFoundException(id);
+        
         return newTournament;
 
     }
