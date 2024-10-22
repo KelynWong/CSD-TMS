@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tms.exception.InvalidTournamentStatusException;
 import com.tms.exception.TournamentExistsException;
 import com.tms.exception.TournamentInvalidInputException;
 import com.tms.exception.TournamentNotFoundException;
@@ -30,6 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/tournaments")
 public class TournamentController {
+
+    // constants 
+    // Status - only hv {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
+    private List<String> validStatusList = Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed");
 
     private TournamentService tournamentService;
     private PlayerRepository playerRepository;
@@ -68,19 +73,13 @@ public class TournamentController {
     /* Get tournaments by Status */
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
-        // Status - only hv {"Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"}
-        List<String> statusList = Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed");
-
-        // if (!statusList.contains(status)) {
-        //     throw 
-        // }
-
+       
+        if (!validStatusList.contains(status)) {
+            throw new InvalidTournamentStatusException(status);
+        }
 
         List<Tournament> tournaments = tournamentService.listTournaments();
         List<Tournament> filteredTournaments = new ArrayList<>();
-
-        
-
 
         for (Tournament t : tournaments) {
             if (t.getStatus().replace(" ", "").equals(status)) {
@@ -183,12 +182,7 @@ public class TournamentController {
             return false;
         }
 
-        // Status - only hv {"Scheduled", "Registration Start", "Registration Close",
-        // "Ongoing", "Completed"}
-        List<String> statusList = new ArrayList<>(
-                Arrays.asList("Scheduled", "Registration Start", "Registration Close", "Ongoing", "Completed"));
-
-        if (!statusList.contains(tournament.getStatus())) {
+        if (!validStatusList.contains(tournament.getStatus())) {
             log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
             return false;
         }

@@ -118,20 +118,26 @@ public class PlayerController {
     @DeleteMapping("/players/{playerId}")
     public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") String playerId) {
         
+        // find player
         return players.findById(playerId).map(player -> {
 
+            // if player found, 
+            // - loop thr player tournaments
             for (Tournament t : player.getTournaments()) {
-                List<Player> p_list = t.getPlayers();
-                p_list.remove(player);
-                t.setPlayers(p_list);
+                List<Player> p_list = t.getPlayers(); // get tournament list of players
+                p_list.remove(player); // remove this player
+                // save changed tournament in db
+                t.setPlayers(p_list); 
                 tournaments.save(t);
             }
 
+            // - delete all tournament mapping from player & save in db
             player.setTournaments(new ArrayList<>());
             players.save(player);
 
-            players.delete(player);
-            return ResponseEntity.ok().build();
+            players.delete(player); // now, delete player
+            return ResponseEntity.ok().build(); // if all ok, return 200 (OK)
+
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
