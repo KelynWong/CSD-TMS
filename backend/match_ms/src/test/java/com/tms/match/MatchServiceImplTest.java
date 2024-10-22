@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -316,9 +315,58 @@ class MatchServiceImplTest {
     }
 
     @Test
-    void addTournament() {
-    }
+    void addTournament_ShouldAddMatchesAndReturnList() {
+        // Arrange
+        int numMatchesAtBase = 2;
 
+        // Create the base matches
+        MatchJson matchJson1 = new MatchJson();
+        matchJson1.setId(100L);
+
+        MatchJson matchJson2 = new MatchJson();
+        matchJson2.setId(101L);
+
+        MatchJson matchJson3 = new MatchJson();
+        matchJson3.setId(102L);
+
+        // Set up tournament matches
+        List<MatchJson> matches = Arrays.asList(matchJson1, matchJson2, matchJson3);
+        CreateTournament tournament = new CreateTournament(matches, numMatchesAtBase);
+
+        // Mock the addMatch method to return predefined matches
+        Match match1 = new Match();
+        match1.setId(1L);
+        Match match2 = new Match();
+        match2.setId(2L);
+        Match match3 = new Match();
+        match3.setId(3L);
+
+        match3.setLeft(match1);
+        match3.setRight(match2);
+
+        // Ensure the correct matches are returned for matchJson1 and matchJson2
+        when(matchService.addMatch(matchJson1)).thenReturn(match1);
+        when(matchService.addMatch(matchJson2)).thenReturn(match2);
+
+        // Mock addMatch for matchJson3 based on left and right matches
+        when(matchService.addMatch(matchJson3)).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(match3.getId());
+            match.setLeft(match1);
+            match.setRight(match2);
+            return match;
+        });
+
+        // Act
+        List<Match> actualMatches = matchService.addTournament(tournament);
+
+        // Assert
+        assertEquals(3, actualMatches.size());
+        assertEquals(match3, actualMatches.get(0));
+
+
+    }
+    
     @Test
     void setWinnerAndUpdateParent_PresentMatchPlayer1Win_ReturnMatch() {
         // Arrange
