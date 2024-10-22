@@ -13,7 +13,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useEffect, useState } from 'react';
-import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament } from "@/api/tournaments/api";
+import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament, updateTournamentStatusById } from "@/api/tournaments/api";
 import { fetchMatchByTournamentId } from '@/api/matches/api';
 import Loading from "@/components/Loading";
 import { useUserContext } from '@/context/userContext';
@@ -149,7 +149,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const matchMake = async () => {
         try {
             await matchMakeByTournamentId(id);
-            // TODO: update tournament status to ongoing when matchmake done
+            await updateTournamentStatusById(id, "Ongoing");
             message.success('Matchmaking started successfully! :)');
             setTimeout(() => {
                 window.location.reload();
@@ -309,7 +309,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={matchMake}>Start Matchmaking</AlertDialogAction>
+                                            <AlertDialogAction className="bg-red-500 hover:bg-red-700 text-white" onClick={matchMake}>Start Matchmaking</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
