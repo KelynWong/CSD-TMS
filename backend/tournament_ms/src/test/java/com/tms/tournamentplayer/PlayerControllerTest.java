@@ -102,7 +102,7 @@ public class PlayerControllerTest {
 	public void getTournamentsByPlayer_ValidPlayerId_Success() throws Exception {
 
 		// input - valid player id (create player and tournament -> map them)
-		Player player = players.save(new Player("usertesting123", new ArrayList<>()));
+		Player player = players.save(helper.createTestPlayer());
 		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
 
 		helper.mapTournamentPlayer(tournament, player);
@@ -125,7 +125,7 @@ public class PlayerControllerTest {
 	public void getTournamentsByPlayer_InvalidPlayerId_Failure() throws Exception {
 
 		// input - invalid player id (create player -> del it)
-		Player player = players.save(new Player("usertesting123", new ArrayList<>()));
+		Player player = players.save(helper.createTestPlayer());
 		players.deleteById(player.getId());
 
 		// call the api 
@@ -142,7 +142,7 @@ public class PlayerControllerTest {
 		
 		// input - all valid and got mapping (create tournament and player -> map them)
 		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
-		Player player = players.save(new Player("usertesting123", new ArrayList<>()));
+		Player player = players.save(helper.createTestPlayer());
 
 		Long t_id = tournament.getId();
 		String p_id = player.getId();
@@ -167,7 +167,7 @@ public class PlayerControllerTest {
 		
 		// input - all valid but no mapping (create tournament and player) 
 		Long t_id = tournaments.save(helper.createTestTournament("noError")).getId();
-		String p_id = players.save(new Player("usertesting123", new ArrayList<>())).getId();
+		String p_id = players.save(helper.createTestPlayer()).getId();
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
@@ -187,7 +187,7 @@ public class PlayerControllerTest {
 		
 		// input - invalid tournament id (create tournament and player -> del tournament)
 		Long t_id = tournaments.save(helper.createTestTournament("noError")).getId();
-		String p_id = players.save(new Player("usertesting123", new ArrayList<>())).getId();
+		String p_id = players.save(helper.createTestPlayer()).getId();
 
 		tournaments.deleteById(t_id);
 
@@ -356,7 +356,7 @@ public class PlayerControllerTest {
 	public void deletePlayer_ValidPlayerId_Success() throws Exception {
 		
 		// input - valid player id (create player)
-		Player player = new Player("usertesting123", new ArrayList<>());
+		Player player = helper.createTestPlayer();
 		String p_id = players.save(player).getId();
 
 		// call api
@@ -373,7 +373,7 @@ public class PlayerControllerTest {
 	public void deletePlayer_ValidPlayerIdWithTournamentMapping_Success() throws Exception {
 		
 		// input - valid player w mapping (create both player and tournament -> map them)
-		Player player = new Player("usertesting123", new ArrayList<>());
+		Player player = helper.createTestPlayer();
 		String p_id = players.save(player).getId();
 
 		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
@@ -393,7 +393,7 @@ public class PlayerControllerTest {
 	public void deletePlayer_InvalidPlayerId_Failure() throws Exception {
 		
 		// input - invalid player id (create new player -> delete it)
-		Player player = new Player("usertesting123", new ArrayList<>());
+		Player player = helper.createTestPlayer();
 		String p_id = players.save(player).getId();
 		players.deleteById(p_id);
 

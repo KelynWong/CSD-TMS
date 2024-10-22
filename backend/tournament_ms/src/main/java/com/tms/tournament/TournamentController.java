@@ -131,6 +131,28 @@ public class TournamentController {
         return tournament;
     }
 
+    @PutMapping("/{id}/status")
+    public Tournament updateStatusByTournamentId(@PathVariable Long id, @RequestBody String status) {
+        
+        if (!validStatusList.contains(status)) {
+            throw new InvalidTournamentStatusException(status);
+        } 
+
+        // Get tournament
+        Tournament oldTournament = tournamentService.getTournament(id);
+        oldTournament.setStatus(status);
+
+        // Update tournament
+        Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
+
+        // Check if tournament exist : if yes, throw TournamentExistException, else
+        // return savedTournament
+        if (newTournament == null)
+            throw new TournamentNotFoundException(id);
+        return newTournament;
+
+    }
+
     /* Delete tournament */
     @DeleteMapping("/{id}")
     public void deleteTournament(@PathVariable Long id) {
