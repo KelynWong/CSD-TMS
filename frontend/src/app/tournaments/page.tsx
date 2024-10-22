@@ -85,7 +85,7 @@ export default function Tournaments() {
     const categorizeTournaments = (data: Tournament[]) => {
         const completed = data.filter(tournament => tournament.status === 'Completed');
         const ongoing = data.filter(tournament => tournament.status === 'Ongoing');
-        const upcoming = data.filter(tournament => tournament.status === 'Scheduled' || tournament.status === 'Registration  Start' || tournament.status === 'Registration Close');
+        const upcoming = data.filter(tournament => tournament.status === 'Scheduled' || tournament.status === 'Registration Start' || tournament.status === 'Registration Close');
         const all = data;
 
         setCategorizedTournaments({

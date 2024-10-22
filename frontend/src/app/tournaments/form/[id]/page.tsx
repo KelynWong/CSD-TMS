@@ -29,6 +29,7 @@ import { TimePicker } from "../../_components/TimePicker";
 import { createTournaments, updateTournaments, fetchTournaments } from "@/api/tournaments/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
+import { message } from "antd";
 
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
@@ -142,11 +143,11 @@ export default function TournamentForm() {
         if (response) {
             console.log(response)
             setLoading(false);
-            alert(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
+            message.success(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
             router.push('/tournaments');
         } else {
             setLoading(false);
-            alert(`Failed to ${isEditing ? 'update' : 'create'} tournament`);
+            message.error(`Failed to ${isEditing ? 'update' : 'create'} tournament`);
         }
     };    
 

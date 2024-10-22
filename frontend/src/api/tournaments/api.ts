@@ -96,18 +96,24 @@ export const fetchAllPlayersByTournament = async (
 };
 
 export const fetchPlayerRegistrationStatus = async (
-	tournament_id: number,
-	user_id: string
+    tournament_id: number,
+    user_id: string
 ): Promise<boolean> => {
-	try {
-		const response = await axios.get(
-			`${URL}/${tournament_id}/players/${user_id}`
-		);
-		return response.data.IsRegistered;
-	} catch (error) {
-		console.error("Error fetching player registration status", error);
+    try {
+        const response = await axios.get(
+            `${URL}/${tournament_id}/players/${user_id}`
+        );
+        // Return true if the user is found and registered
+        return response.data.IsRegistered;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            // If player is not found, simply return false
+            return false;
+        }
+        // Log unexpected errors only
+        console.error("Unexpected error fetching player registration status", error);
 		return false;
-	}
+    }
 };
 
 export const registerTournament = async (
