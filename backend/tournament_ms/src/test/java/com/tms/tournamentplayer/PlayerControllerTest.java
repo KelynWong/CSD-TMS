@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.io.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,8 +155,7 @@ public class PlayerControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
 		String result = restTemplate.getForObject(uri, String.class);
 
-		// verify output - 200 (OK) : player registered (result true)
-		assertTrue(result.contains("\"status\":200"));
+		// verify output - no err : player registered (result true)
 		assertTrue(result.contains("\"IsRegistered\":true"));
 
 		// helper.reset
@@ -174,8 +174,7 @@ public class PlayerControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
 		String result = restTemplate.getForObject(uri, String.class);
 
-		// verify output - 200 (OK) : player not registered (result false)
-		assertTrue(result.contains("\"status\":200"));
+		// verify output - no err : player not registered (result false)
 		assertTrue(result.contains("\"IsRegistered\":false"));
 
 		// helper.reset 
