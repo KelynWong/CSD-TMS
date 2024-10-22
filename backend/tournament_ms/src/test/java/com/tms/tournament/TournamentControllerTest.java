@@ -293,6 +293,30 @@ class TournamentControllerTest {
 
 	// updateTournament - case 4 : same name (ie tournament exist exception)
 
+	@Test 
+	public void updateStatusByTournamentId_ValidStatus_Success() throws Exception {
+		
+		// input - all valid (create tournament w no err -> save it in db -> modify it)
+		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = newTournament.getId();
+
+		String newStatus = "Registration Start";
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/status");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(newStatus), Tournament.class);
+
+		// verify the output - 200 (OK) : update successful (make sure the change in
+		// tournament name was saved in db correctly)
+		assertEquals(200, result.getStatusCode().value());
+		assertEquals(newStatus, result.getBody().getStatus());
+
+		// reset
+		helper.reset(t_id, null);
+
+	}
+
 	@Test // deleteTournament - case 1 : valid tournament id with player mapping
 	public void deleteTournamnet_ValidTournamentId_Success() throws Exception {
 

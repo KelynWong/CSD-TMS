@@ -131,15 +131,22 @@ public class TournamentController {
         return tournament;
     }
 
+    /* Update just tournament status */
     @PutMapping("/{id}/status")
     public Tournament updateStatusByTournamentId(@PathVariable Long id, @RequestBody String status) {
-        
+
+        status = status.replace("\"","");
+
         if (!validStatusList.contains(status.replace(" ", ""))) {
             throw new InvalidTournamentStatusException(status);
         } 
 
         // Get tournament
         Tournament oldTournament = tournamentService.getTournament(id);
+        if (oldTournament == null) {
+            throw new TournamentNotFoundException(id);
+        }
+
         oldTournament.setStatus(status);
 
         // Update tournament

@@ -9,6 +9,6 @@ public class InvalidTournamentStatusException extends RuntimeException{
     private static final long serialVersionUID = 1L;
 
     public InvalidTournamentStatusException(String status) {
-        super("Tournament status \"" + status + "\" is invalid!");
+        super("Tournament status '" + status + "' is invalid!");
     }
 }
