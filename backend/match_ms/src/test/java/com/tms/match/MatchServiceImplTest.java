@@ -469,14 +469,26 @@ class MatchServiceImplTest {
     }
 
     @Test
-    void deleteMatch() {
+    void deleteMatch_MatchFound() {
         // Arrange
         Long matchId = 1L;
+        when(matchRepository.existsById(matchId)).thenReturn(true);
 
         // Act
         matchService.deleteMatch(matchId);
 
         // Assert
         verify(matchRepository).deleteById(matchId);
+    }
+
+    @Test
+    void deleteMatch_NotFound_ThrowMatchNotFoundException() {
+        // Arrange
+        Long matchId = 1L;
+        when(matchRepository.existsById(matchId)).thenReturn(false);
+
+        // Act Assert
+        assertThrows(MatchNotFoundException.class, () ->
+            matchService.deleteMatch(matchId));
     }
 }
