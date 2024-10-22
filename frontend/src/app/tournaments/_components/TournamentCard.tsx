@@ -153,7 +153,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             message.success('Matchmaking started successfully! :)');
             setTimeout(() => {
                 window.location.reload();
-            }, 1000); // Delay of 1 seconds before reloading
+            }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to start matchmaking :( \n' + err);
             console.log(err);
@@ -166,7 +166,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             message.success('Registration successful!');
             setTimeout(() => {
                 window.location.reload();
-            }, 1000); // Delay of 1 seconds before reloading
+            }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Registration failed :(');
             console.error("Failed to register for tournament:", err);
@@ -179,7 +179,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             message.success('Successfully withdrawn from tournament! :)');
             setTimeout(() => {
                 window.location.reload();
-            }, 1000); // Delay of 1 seconds before reloading
+            }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to withdraw from tournament :(');
             console.error("Failed to register for tournament:", err);
@@ -192,7 +192,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             message.success('Tournament deleted successfully! :)');
             setTimeout(() => {
                 window.location.reload();
-            }, 1000); // Delay of 1 seconds before reloading
+            }, 500); // Delay of 0.5 seconds before reloading
         } catch (error) {
             console.error('Failed to delete tournament:', error);
             message.error('Failed to delete tournament :(');

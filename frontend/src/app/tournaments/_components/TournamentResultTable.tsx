@@ -77,7 +77,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     // console.log("Winners:", winners);
 
     // Calculate total rounds needed based on number of players
-    const totalRounds = Math.ceil(Math.log2(players.length));
+    const totalRounds = Math.floor(Math.log2(players.length));
     // console.log("Total Rounds:", totalRounds);
 
     const columnHeaders = useMemo(() => {

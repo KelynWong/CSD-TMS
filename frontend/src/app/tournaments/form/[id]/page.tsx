@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { TimePicker } from "../../_components/TimePicker";
-import { createTournaments, updateTournaments, fetchTournaments } from "@/api/tournaments/api";
+import { createTournaments, updateTournaments, fetchTournaments, fetchTournamentById } from "@/api/tournaments/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { message } from "antd";
@@ -77,8 +77,6 @@ export default function TournamentForm() {
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
             tournamentName: "",
-            // location: "",
-            // description: "",
             startDT: defaultStart,
             endDT: defaultEnd,
             status: "Scheduled",
@@ -93,20 +91,21 @@ export default function TournamentForm() {
             setLoading(true);
             const getTournamentsData = async () => {
                 try {
-                    const data = await fetchTournaments();
-                    
-                    const selectedTournament = data.find((tournament) => tournament.id === Number(id));
-                    if (selectedTournament) {
-                        setInitialData({
-                            ...selectedTournament,
-                            startDT: new Date(new Date(selectedTournament.startDT).getTime() + sgTimeZoneOffset),
-                            endDT: new Date(new Date(selectedTournament.endDT).getTime() + sgTimeZoneOffset),
-                            regStartDT: new Date(new Date(selectedTournament.regStartDT).getTime() + sgTimeZoneOffset),
-                            regEndDT: new Date(new Date(selectedTournament.regEndDT).getTime() + sgTimeZoneOffset),
-                        });
-                    } else {
-                        console.error("Tournament not found");
-                    }
+                    // const data = await fetchTournaments();
+                    const data = await fetchTournamentById(Number(id));
+                    console.log(data)
+                    // const selectedTournament = data.find((tournament) => tournament.id === Number(id));
+                    // if (selectedTournament) {
+                    setInitialData({
+                        ...data,
+                        startDT: new Date(new Date(data.startDT).getTime() + sgTimeZoneOffset),
+                        endDT: new Date(new Date(data.endDT).getTime() + sgTimeZoneOffset),
+                        regStartDT: new Date(new Date(data.regStartDT).getTime() + sgTimeZoneOffset),
+                        regEndDT: new Date(new Date(data.regEndDT).getTime() + sgTimeZoneOffset),
+                    });
+                    // } else {
+                    //     console.error("Tournament not found");
+                    // }
                 } catch (err) {
                     console.error("Failed to fetch tournaments:", err);
                 }
@@ -126,18 +125,23 @@ export default function TournamentForm() {
         setLoading(true);
 
         console.log(user.id);
+        console.log("data: ", data);
         
         const payload = {
-            ...data,
+            ...data, // Include form data
             startDT: data.startDT.toISOString(),
             endDT: data.endDT.toISOString(),
             regStartDT: data.regStartDT.toISOString(),
             regEndDT: data.regEndDT.toISOString(),
-            ...(isEditing && { id: id }),
-            ...(!isEditing && { createdBy: user.id })
+            ...(isEditing && initialData && { // Merge initialData if editing
+                ...initialData,
+                ...data, // Override with form data
+                id: id // Ensure id is included
+            }),
+            ...(!isEditing && { createdBy: user.id }) // Include createdBy if not editing
         };
     
-        console.log(payload);
+        console.log("payload: ", payload);
         const response = await (isEditing ? updateTournaments(payload) : createTournaments(payload));
     
         if (response) {
@@ -153,22 +157,14 @@ export default function TournamentForm() {
 
     // Handle form reset manually
     const handleReset = () => {
-        // form.reset(initialData || {
-        //     tournamentName: "",
-        //     // location: "",
-        //     // description: "",
-        //     startDT: defaultStart,
-        //     endDT: defaultEnd,
-        //     status: "Scheduled",
-        //     regStartDT: defaultStart,
-        //     regEndDT: defaultEnd
-        // });
         router.push("/tournaments");
     };
 
     if (loading) {
 		return <Loading />;
 	}
+
+    console.log("initialData: ", initialData)
 
     return (
         <div className="w-[80%] mx-auto py-16">
@@ -191,40 +187,6 @@ export default function TournamentForm() {
                             </FormItem>
                         )}
                     />
-
-                    {/* <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-lg block">Tournament Description</FormLabel>
-                                <FormControl className="block">
-                                    <Textarea className="font-body bg-white" placeholder="Provide details about the tournament" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Add a brief description of the tournament (optional).
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    /> */}
-
-                    {/* <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-lg block">Location</FormLabel>
-                                <FormControl className="block">
-                                    <Input placeholder="Enter location" {...field} className="font-body bg-white" />
-                                </FormControl>
-                                <FormDescription>
-                                    Specify the location for the tournament.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    /> */}
 
                     <div className="grid grid-cols-2 gap-16">
                         <FormField
