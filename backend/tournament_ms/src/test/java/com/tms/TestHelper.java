@@ -4,19 +4,29 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+
 import com.tms.tournament.Tournament;
 import com.tms.tournament.TournamentRepository;
 import com.tms.tournamentplayer.Player;
 import com.tms.tournamentplayer.PlayerRepository;
 
 /* Class containing all test helper methods */
+@Component
 public class TestHelper {
 
-    private TournamentRepository tournaments;
-    private PlayerRepository players;
+    @Autowired
+	private TournamentRepository tournaments;
+	@Autowired
+	private PlayerRepository players;
 
-    public TestHelper(TournamentRepository ts, PlayerRepository pr) {
-        this.tournaments = ts;
+    @Autowired
+    public TestHelper(TournamentRepository tr, PlayerRepository pr) {
+        this.tournaments = tr;
         this.players = pr;
     }
 

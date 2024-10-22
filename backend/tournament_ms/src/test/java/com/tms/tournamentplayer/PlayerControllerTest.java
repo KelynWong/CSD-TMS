@@ -49,7 +49,8 @@ public class PlayerControllerTest {
 	private PlayerRepository players;
 
 	/* HELPER CLASS */
-	private TestHelper helper = new TestHelper(tournaments, players);
+	@Autowired
+	private TestHelper helper;
 
 	/* START OF TESTING */
 	@Test // getAllRegisteredPlayerByTournamentId - case 1 : valid tournament id

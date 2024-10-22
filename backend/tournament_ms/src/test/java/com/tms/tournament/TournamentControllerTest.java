@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -54,7 +51,8 @@ class TournamentControllerTest {
 	private PlayerRepository players;
 
 	/* HELPER CLASS */
-	private TestHelper helper = new TestHelper(tournaments, players);
+	@Autowired
+	private TestHelper helper;
 	
 	/* START OF TESTING */
 	@Test // getTournaments - case 1 : success (only one case)
