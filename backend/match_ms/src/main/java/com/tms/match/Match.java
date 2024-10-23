@@ -1,19 +1,18 @@
 package com.tms.match;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.tms.game.Game;
-
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Match {
@@ -45,8 +44,19 @@ public class Match {
         this.player1Id = player1Id;
         this.player2Id = player2Id;
 
-        this.id = null;
         this.winnerId = null;
+        this.left = null;
+        this.right = null;
+        this.games = null;
+    }
+
+    public Match(Long tournamentId, String player1Id, String player2Id, String winnerId) {
+        this.tournamentId = tournamentId;
+        this.player1Id = player1Id;
+        this.player2Id = player2Id;
+        this.winnerId = winnerId;
+
+        this.id = null;
         this.left = null;
         this.right = null;
         this.games = null;

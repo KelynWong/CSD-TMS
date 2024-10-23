@@ -121,7 +121,7 @@ public class MatchmakeService {
     }
 
     private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
-        String player1 = null;
+        String player1;
         String player2 = null;
 
         if (matchPlayers.size() == 2) {
@@ -152,30 +152,6 @@ public class MatchmakeService {
 
         if (res.getStatusCode() != HttpStatus.CREATED) {
             throw new MatchCreationException("Error creating matches");
-        }
-    }
-
-    public void inOrderTraversal(Match root) {
-        if (root == null) {
-            return;
-        }
-
-        ArrayDeque<Match> queue = new ArrayDeque<>();
-        queue.add(root);
-
-        while (!queue.isEmpty()) {
-            int levelSize = queue.size();
-            for (int i = 0; i < levelSize; i++) {
-                Match node = queue.poll();
-                System.out.print(node.getId() + " ");
-                if (node.getLeft() != null) {
-                    queue.add(node.getLeft());
-                }
-                if (node.getRight() != null) {
-                    queue.add(node.getRight());
-                }
-            }
-            System.out.println();
         }
     }
 

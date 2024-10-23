@@ -1,22 +1,15 @@
 package com.tms.match;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.tms.exceptions.MatchNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tms.exceptions.MatchNotFoundException;
+import java.util.*;
 
 @Service
 public class MatchServiceImpl implements MatchService {
 
-    private MatchRepository matches;
+    private final MatchRepository matches;
 
     public MatchServiceImpl(MatchRepository matches) {
         this.matches = matches;
@@ -60,7 +53,7 @@ public class MatchServiceImpl implements MatchService {
         List<Match> winningMatches = this.matches.findByWinnerId(playerId);
         List<Match> allMatches = this.matches.findMatchesPlayedByPlayer(playerId);
 
-        if (allMatches.size() == 0) {
+        if (allMatches.isEmpty()) {
             return 0.0; // Avoid division by zero
         }
         
@@ -69,8 +62,8 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public Match addMatch(MatchJson match) {
-        Match newMatch = new Match(match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id());
-        
+        Match newMatch = new Match(match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id(), match.getWinnerId());
+
         Long leftId = match.getLeft();
         Long rightId = match.getRight();
 
@@ -102,26 +95,53 @@ public class MatchServiceImpl implements MatchService {
         Deque<Match> q = new ArrayDeque<>();
 
         int numMatchesAtBase = (int) tournament.getNumMatchesAtBase();
+        addBaseMatches(tournament, res, q, numMatchesAtBase);
+        addRemainingMatches(tournament, res, q, numMatchesAtBase);
 
+        return res;
+    }
+
+    private void addBaseMatches(CreateTournament tournament, List<Match> res, Deque<Match> q, int numMatchesAtBase) {
         for (int i = 0; i < numMatchesAtBase; i++) {
-            Match match = this.addMatch(tournament.getMatches().get(i));
+            MatchJson newMatch = tournament.getMatches().get(i);
+
+            // if player given bye, automatically set as winner.
+            // Only applies at base layer
+            if (newMatch.getPlayer2Id() == null) {
+                newMatch.setWinnerId(newMatch.getPlayer1Id());
+            }
+
+            Match match = this.addMatch(newMatch);
             res.add(match);
             q.add(match);
         }
+    }
 
+    private void addRemainingMatches(CreateTournament tournament, List<Match> res, Deque<Match> q, int numMatchesAtBase) {
         for (int i = numMatchesAtBase; i < tournament.getMatches().size(); i++) {
-            Long left = q.poll().getId();
-            Long right = q.poll().getId();
-            MatchJson matchToAdd = tournament.getMatches().get(i);
-            matchToAdd.setLeft(left);
-            matchToAdd.setRight(right);
+            Match leftMatch = q.poll();
+            Match rightMatch = q.poll();
 
+            MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
             Match match = this.addMatch(matchToAdd);
             res.add(match);
             q.add(match);
         }
+    }
 
-        return res;
+    private MatchJson setChildMatchesAndPlayers(MatchJson matchToAdd, Match leftMatch, Match rightMatch) {
+        matchToAdd.setLeft(leftMatch.getId());
+        matchToAdd.setRight(rightMatch.getId());
+
+        if (leftMatch.getWinnerId() != null) {
+            matchToAdd.setPlayer1Id(leftMatch.getWinnerId());
+        }
+
+        if (rightMatch.getWinnerId() != null) {
+            matchToAdd.setPlayer2Id(rightMatch.getWinnerId());
+        }
+
+        return matchToAdd;
     }
 
     @Override
