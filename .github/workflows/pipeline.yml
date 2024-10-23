@@ -211,6 +211,50 @@ jobs:
           --service-url "http://${appgw_public_ip}" \
           --protocols https
 
+        # Create GET operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id getOperation \
+          --display-name "GET Operation" \
+          --method GET \
+          --url-template "/" \
+          --response-status-code 200
+        
+        # Create POST operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id postOperation \
+          --display-name "POST Operation" \
+          --method POST \
+          --url-template "/" \
+          --response-status-code 201
+        
+        # Create PUT operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id putOperation \
+          --display-name "PUT Operation" \
+          --method PUT \
+          --url-template "/" \
+          --response-status-code 200
+        
+        # Create DELETE operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id deleteOperation \
+          --display-name "DELETE Operation" \
+          --method DELETE \
+          --url-template "/" \
+          --response-status-code 204
+        
         # Set up JWT validation in APIM for the API
         az apim api operation policy update \
           --resource-group tms \
