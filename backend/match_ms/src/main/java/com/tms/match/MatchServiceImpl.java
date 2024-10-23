@@ -162,6 +162,32 @@ public class MatchServiceImpl implements MatchService {
         return match;
     }
 
+    private void updateParentMatch(Match match, String winnerId) {
+        List<Match> tournamentMatches = this.matches.findByTournamentIdOrderByIdAsc(match.getTournamentId());
+        Match parentMatch = findParentMatch(tournamentMatches, match.getId());
+
+        if (parentMatch != null) {
+            String player1Id = parentMatch.getPlayer1Id();
+            String player2Id = parentMatch.getPlayer2Id();
+            if (player1Id == null) {
+                parentMatch.setPlayer1Id(winnerId);
+            } else if (!player1Id.equals(winnerId) && player2Id == null) {
+                parentMatch.setPlayer2Id(winnerId);
+            }
+            this.matches.save(parentMatch);
+        }
+    }
+
+    private Match findParentMatch(List<Match> matches, Long matchId) {
+        for (Match match : matches) {
+            if ((match.getLeft() != null && match.getLeft().getId().equals(matchId)) ||
+                    (match.getRight() != null && match.getRight().getId().equals(matchId))) {
+                return match;
+            }
+        }
+        return null;
+    }
+
     @Override
     @Transactional
     public void generateWinners(Long tournamentId) {
@@ -205,33 +231,5 @@ public class MatchServiceImpl implements MatchService {
             }else {
             throw new MatchNotFoundException(id);
         }
-    }
-
-    private Match findParentMatch(List<Match> matches, Long matchId) {
-        for (Match match : matches) {
-            if ((match.getLeft() != null && match.getLeft().getId().equals(matchId)) ||
-                (match.getRight() != null && match.getRight().getId().equals(matchId))) {
-                return match;
-            }
-        }
-        return null;
-    }
-
-    private boolean updateParentMatch(Match match, String winnerId) {
-        List<Match> tournamentMatches = this.matches.findByTournamentIdOrderByIdAsc(match.getTournamentId());
-        Match parentMatch = findParentMatch(tournamentMatches, match.getId());
-        
-        if (parentMatch != null) {
-            String player1Id = parentMatch.getPlayer1Id();
-            String player2Id = parentMatch.getPlayer2Id();
-            if (player1Id == null) {
-                parentMatch.setPlayer1Id(winnerId);
-            } else if (!player1Id.equals(winnerId) && player2Id == null) {
-                parentMatch.setPlayer2Id(winnerId);
-            }
-            this.matches.save(parentMatch);
-            return true;
-        }
-        return false;
     }
 }
