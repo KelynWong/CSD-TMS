@@ -126,10 +126,6 @@ export default function TournamentDetails() {
         fetchData();
     }, [id]);
 
-    const refreshMatchData = async () => {
-        fetchData();
-    };
-
     function getPlayerName(playerId: string): string {
         const player = tournamentDetails?.players?.find((p) => p.id === playerId);
         return player ? player.fullname : 'Unknown Player';
@@ -243,8 +239,7 @@ export default function TournamentDetails() {
                                 <p className="mb-2">Participants</p>
                                 <ul className="ml-3 list-disc list-inside">
                                     <li>There is no limit on how many players/teams participate in the tournament</li>
-                                    <li>Top 8 seeds based on the BWF World Rankings</li>
-                                    <li>Wild card entries and qualifiers fill remaining slots</li>
+                                    <li>Players/teams are paired randomly for the first round, regardless of ranking or past performance.</li>
                                 </ul>
 
                                 <p className="my-2">Format</p>
@@ -257,8 +252,9 @@ export default function TournamentDetails() {
 
                                 <p className="my-2">Qualification to Next Events</p>
                                 <ul className="ml-3 list-disc list-inside">
-                                    <li>The winner qualifies directly for the next Super Series tournament</li>
-                                    <li>Top 8 players/teams qualify for the BWF World Tour Finals</li>
+                                    <li>First-round matchups are either random or determined based on entry order, with no predefined seeding.</li>
+                                    <li>Subsequent rounds continue in a single-elimination format, with the winners advancing to the next stage.</li>
+                                    <li>The winner qualifies directly for the next round or a higher-level tournament.</li>
                                 </ul>
                             </div>
                         </div>
@@ -312,7 +308,6 @@ export default function TournamentDetails() {
                                                                     // game={game}
                                                                     player1Name={getPlayerName(match.player1Id)} 
                                                                     player2Name={getPlayerName(match.player2Id)}
-                                                                    onClose={refreshMatchData} // Pass the refresh callback
                                                                 />
 
                                                             </SheetContent>

@@ -52,7 +52,7 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 			},
 		});
 		console.log(response);
-		return response.status === 200; 
+		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
 		if (axios.isAxiosError(error)) {
 			// TypeScript now knows that `error` is an AxiosError

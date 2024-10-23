@@ -19,6 +19,7 @@ import Loading from "@/components/Loading";
 import { useUserContext } from '@/context/userContext';
 import { matchMakeByTournamentId } from '@/api/matchmaking/api';
 import { message } from "antd";
+import { useRouter } from 'next/navigation';
 
 interface TournamentCardProps {
     id: number;
@@ -32,6 +33,7 @@ interface TournamentCardProps {
 }
 
 export default function TournamentCard({ id, tournamentName, startDT, endDT, status, regStartDT, regEndDT, role }: TournamentCardProps) {
+    const router = useRouter();
     const { user } = useUserContext();
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
     const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
@@ -152,7 +154,8 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             await updateTournamentStatusById(id, "Ongoing");
             message.success('Matchmaking started successfully! :)');
             setTimeout(() => {
-                window.location.reload();
+                // window.location.reload();
+                router.push(`/tournaments/${id}`);
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to start matchmaking :( \n' + err);
