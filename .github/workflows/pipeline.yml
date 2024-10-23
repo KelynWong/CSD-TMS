@@ -98,18 +98,36 @@ jobs:
 
     - name: Create NSG and allow only APIM to access Application Gateway
       run: |
+        # Check if NSG is already attached to the subnet
+        existing_nsg=$(az network vnet subnet show \
+          --resource-group tms \
+          --vnet-name tmsVNet \
+          --name tmsSubnet \
+          --query "networkSecurityGroup.id" \
+          --output tsv)
+    
+        # If NSG is attached, detach it
+        if [ -n "$existing_nsg" ]; then
+          echo "Detaching existing NSG from the subnet..."
+          az network vnet subnet update \
+            --resource-group tms \
+            --vnet-name tmsVNet \
+            --name tmsSubnet \
+            --remove networkSecurityGroup
+        fi
+    
         # Create Network Security Group (NSG) if it doesn't exist
         az network nsg create \
           --resource-group tms \
           --name appGatewayNSG
-
+    
         # Check if NSG rule exists
         rule_exists=$(az network nsg rule list \
           --resource-group tms \
           --nsg-name appGatewayNSG \
           --query "[?name=='AllowAppGatewayPorts']" \
           --output tsv)
-        
+    
         if [ -z "$rule_exists" ]; then
           # If rule does not exist, create it
           az network nsg rule create \
@@ -125,10 +143,10 @@ jobs:
         else
           echo "NSG rule AllowAppGatewayPorts already exists, skipping creation."
         fi
-
+    
         # Resolve the public IP of the APIM instance
         apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
-
+    
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
           --resource-group tms \
