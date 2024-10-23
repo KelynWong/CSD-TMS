@@ -92,8 +92,8 @@ jobs:
           --resource-group tms \
           --location eastus \
           --sku-name Developer \
-          --publisher-email kelyn.wong.2022@scis.smu.edu.sg \
-          --publisher-name kelyn \
+          --publisher-email lynettetay.2022@scis.smu.edu.sg \
+          --publisher-name lynette \
           --public-network-access true
 
     - name: Create NSG and allow only APIM to access Application Gateway
