@@ -139,6 +139,30 @@ jobs:
           --name tmsSubnet \
           --network-security-group appGatewayNSG
 
+    - name: Create Application Gateway
+      run: |
+        # Create Public IP for the Application Gateway
+        az network public-ip create \
+          --resource-group tms \
+          --name appGatewayPublicIP \
+          --sku Standard
+
+        # Create Application Gateway
+        az network application-gateway create \
+          --resource-group tms \
+          --name appGateway \
+          --sku Standard_v2 \
+          --frontend-port 80 \
+          --public-ip-address appGatewayPublicIP \
+          --vnet-name tmsVNet \
+          --subnet tmsSubnet \
+          --http-settings-cookie-based-affinity Disabled \
+          --routing-rule-type Basic \
+          --priority 1000
+
+        # Wait for the Application Gateway to be fully provisioned
+        az network application-gateway wait --created --name appGateway --resource-group tms
+
     - name: Create API in APIM with JWT Validation
       run: |
         # Retrieve the private IP of the Application Gateway
@@ -166,29 +190,6 @@ jobs:
           --operation-id all \
           --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
 
-    - name: Create Application Gateway
-      run: |
-        # Create Public IP for the Application Gateway
-        az network public-ip create \
-          --resource-group tms \
-          --name appGatewayPublicIP \
-          --sku Standard
-
-        # Create Application Gateway
-        az network application-gateway create \
-          --resource-group tms \
-          --name appGateway \
-          --sku Standard_v2 \
-          --frontend-port 80 \
-          --public-ip-address appGatewayPublicIP \
-          --vnet-name tmsVNet \
-          --subnet tmsSubnet \
-          --http-settings-cookie-based-affinity Disabled \
-          --routing-rule-type Basic \
-          --priority 1000
-
-        # Wait for the Application Gateway to be fully provisioned
-        az network application-gateway wait --created --name appGateway --resource-group tms
 
     # - name: Configure Backend Pools
     #   run: |
