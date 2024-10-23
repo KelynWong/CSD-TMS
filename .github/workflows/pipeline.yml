@@ -204,7 +204,7 @@ jobs:
         # Create API in APIM with private IP of Application Gateway
         az apim api create \
           --resource-group tms \
-          --service-name myApiManagement \
+          --service-name csdtmsAPI \
           --api-id myApi \
           --path / \
           --display-name "TMS API" \
@@ -214,7 +214,7 @@ jobs:
         # Set up JWT validation in APIM for the API
         az apim api operation policy update \
           --resource-group tms \
-          --service-name myApiManagement \
+          --service-name csdtmsAPI \
           --api-id myApi \
           --operation-id all \
           --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
