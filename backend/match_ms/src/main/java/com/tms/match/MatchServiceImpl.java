@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -179,7 +180,11 @@ public class MatchServiceImpl implements MatchService {
      */
     @Override
     public void deleteMatch(Long id) {
-        this.matches.deleteById(id);
+            if (this.matches.existsById(id)) {
+                this.matches.deleteById(id);
+            }else {
+            throw new MatchNotFoundException(id);
+        }
     }
 
     private Match findParentMatch(List<Match> matches, Long matchId) {

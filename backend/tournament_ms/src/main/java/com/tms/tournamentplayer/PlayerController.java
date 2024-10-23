@@ -48,17 +48,13 @@ public class PlayerController {
         
         // else, return list of tournaments 
         return players.findById(playerId).map(player -> {
-            List<Tournament> tournamentList = player.getTournaments();
-            for (Tournament t : tournamentList) {
-                // Output Preparation
-                t.setStatus(addSpacingBetweenWords(t.getStatus()));
-            }         
+            List<Tournament> tournamentList = player.getTournaments();     
             return tournamentList;
         }).orElse(null);
     }
 
     @GetMapping("/{tournamentId}/players/{playerId}")
-    public Map<String,Boolean> IsRegister(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
+    public Map<String,Boolean> IsRegistered(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
         Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
         Map<String,Boolean> result = new HashMap<>();
         
@@ -94,6 +90,8 @@ public class PlayerController {
                 tournament.getPlayers().add(player); // need to update the tournament side oso
             }
 
+            // [WARN] currently, if player is already registered, no err will be thrown. It just dont update anything
+
             return players.save(player); // save - adds if player dont exist or updates if player exist
         }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     
@@ -115,53 +113,33 @@ public class PlayerController {
 
     }
 
-    /* Update tournament Player */
-    // @PutMapping("/tournaments/{tournamentId}/players/{playerId}")
-    // public Player updateTournamentPlayer(@PathVariable (value = "tournamentId") Long tournamentId,
-    //                              @PathVariable (value = "playerId") String playerId,
-    //                              @RequestBody Player newPlayer) {
-
-    //     return players.findById(playerId).map(player -> {
-    //         player.setTournaments(newPlayer.getTournaments());
-    //         player.setId(newPlayer.getId());
-    //         return players.save(player);
-    //     }).orElseThrow(() -> new PlayerNotFoundException(playerId, tournamentId));
-    // }
-
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
-    @DeleteMapping("/{tournamentId}/players/{playerId}")
+    @DeleteMapping("/players/{playerId}")
     public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") String playerId) {
         
+        // find player
         return players.findById(playerId).map(player -> {
-            players.delete(player);
-            return ResponseEntity.ok().build();
+
+            // if player found, 
+            // - loop thr player tournaments
+            for (Tournament t : player.getTournaments()) {
+                List<Player> p_list = t.getPlayers(); // get tournament list of players
+                p_list.remove(player); // remove this player
+                // save changed tournament in db
+                t.setPlayers(p_list); 
+                tournaments.save(t);
+            }
+
+            // - delete all tournament mapping from player & save in db
+            player.setTournaments(new ArrayList<>());
+            players.save(player);
+
+            players.delete(player); // now, delete player
+            return ResponseEntity.ok().build(); // if all ok, return 200 (OK)
+
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
-
-    // Add Spacing to string
-    public String addSpacingBetweenWords(String stringWithoutSpacing) {
-
-        log.info("[INFO] = "+stringWithoutSpacing);
-        if (stringWithoutSpacing.isEmpty() || stringWithoutSpacing == null) {
-            return ""; // not supposed to happen but if it happens
-        }
-
-        String stringWithSpacing = "" + stringWithoutSpacing.charAt(0);
-        // skip the first letter
-        for (int i = 1; i < stringWithoutSpacing.length(); i++) {
-
-            if (Character.isUpperCase(stringWithoutSpacing.charAt(i))) {
-                stringWithSpacing += " ";
-            }
-
-            stringWithSpacing += stringWithoutSpacing.charAt(i);
-        }
-
-        return stringWithSpacing;
-
-    }
-
 
 }

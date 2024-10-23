@@ -1,11 +1,10 @@
 package com.tms.tournament;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.*;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -18,8 +17,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import com.tms.TestHelper;
 import com.tms.TournamentServiceApplication;
 import com.tms.tournamentplayer.Player;
+import com.tms.tournamentplayer.PlayerRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,236 +47,319 @@ class TournamentControllerTest {
 
 	@Autowired
 	private TournamentRepository tournaments;
+	@Autowired
+	private PlayerRepository players;
 
-	// @Autowired
-	// private PlayerRepository players;
+	/* HELPER CLASS */
+	@Autowired
+	private TestHelper helper;
 
-	// @AfterEach
-	// void tearDown() {
-
-	// // clear the database after each test
-	// tournaments.deleteAll();
-	// players.deleteAll();
-	// }
-
-	@Test
+	/* START OF TESTING */
+	@Test // getTournaments - case 1 : success (only one case)
 	public void getTournaments_Success() throws Exception {
-		URI uri = new URI(baseURL + port + "/tournaments");
-		// Tournaments.save(new Tournament("Gone With The Wind"));
 
-		// Need to use array with a ReponseEntity here
-		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class);
-		Tournament[] tournamentList = result.getBody();
+		// input - current # of tournaments in db before adding & add 1 tournament to db
+		Long currentCount = tournaments.count();
 
-		assertEquals(200, result.getStatusCode().value());
-		assertEquals(6, tournamentList.length); // [TBC] 6 is hardcode, need to change
-	}
-
-	@Test
-	public void getTournament_ValidTournamentId_Success() throws Exception {
-		// - mock objects
-		Long id = Long.valueOf(0);
-		String tournamentName = "New Badminton Tournament";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
-		List<Player> players = new ArrayList<>();
-
-		Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-				createdBy, winner, players);
-
+		Tournament tournament = helper.createTestTournament("noError");
 		Long t_id = tournaments.save(tournament).getId();
-		log.info("t_id" + t_id);
-		URI uri = new URI(baseURL + port + "/tournaments/id/" + t_id);
 
-		ResponseEntity<Tournament> result = restTemplate.getForEntity(uri, Tournament.class);
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments");
+		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); // need to use array
+																									// with a
+																									// ReponseEntity
+																									// here
+		Tournament[] tournamentArr = result.getBody();
 
+		// verify the output - 200 (OK) : check if current count got increase aft adding
+		// 1 more tournament
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals("New Badminton Tournament", result.getBody().getTournamentName());
+		assertEquals(currentCount + 1, tournamentArr.length);
 
-		// delete (not working)
-		tournaments.deleteById(id);
+		// reset
+		helper.reset(t_id, null);
+
 	}
 
-	@Test
-	public void getTournament_InvalidTournamentId_Failure() throws Exception {
-		URI uri = new URI(baseURL + port + "/tournaments/id/4"); // [TBC] 4 is hardcoded but it is a invalid id
-																	// currently
+	@Test // getTournamentById - case 1 : valid tournament id
+	public void getTournamentById_ValidTournamentId_Success() throws Exception {
 
+		// input - get a valid tournament id (create tournament -> save in db)
+		Tournament tournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(tournament).getId();
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/id/" + t_id);
 		ResponseEntity<Tournament> result = restTemplate.getForEntity(uri, Tournament.class);
 
+		// verify the output - 200 (OK) : check if returned name is same as added name
+		assertEquals(200, result.getStatusCode().value());
+		assertEquals("Tournament Controller Testing - Valid", result.getBody().getTournamentName());
+
+		// reset
+		helper.reset(t_id, null);
+	}
+
+	@Test // getTournamentById - case 2 : invalid tournament id
+	public void getTournamentById_InvalidTournamentId_Failure() throws Exception {
+		// input - invalid tournament id (create tournament -> save in db -> del it in
+		// db)
+		Tournament tournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(tournament).getId();
+		tournaments.deleteById(t_id);
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/id/" + t_id); // form the uri of the api
+		ResponseEntity<Tournament> result = restTemplate.getForEntity(uri, Tournament.class); // call the api
+
+		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 	}
 
-	@Test
+	@Test // getTournamentsByStatus - case 1 : valid status
+	public void getTournamentsByStatus_ValidStatus_Success() throws Exception {
+
+		// input - valid tournament id (create tournament w no err)
+		Tournament tournament = helper.createTestTournament("noError"); // tournament status : Registration Start
+		Tournament savedTournament = tournaments.save(tournament);
+
+		Long t_id = savedTournament.getId();
+		String t_status = savedTournament.getStatus();
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/status/" + t_status.replace(" ", "")); // del the spacing from status
+
+		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class);
+		Tournament[] tournamentArr = result.getBody();
+
+		// verify the output - 200 (OK) : check tt tournament arr returned is not empty
+		assertEquals(200, result.getStatusCode().value());
+		assertTrue(tournamentArr.length > 0);
+
+		// reset
+		helper.reset(t_id, null);
+	}
+
+	@Test // getTournamentsByStatus - case 2 : invalid status
+	public void getTournamentsByStatus_InvalidStatus_Failure() throws Exception {
+
+		// input - invalid status
+		String wrongStatus = "HahahahaWRONG";
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/status/" + wrongStatus);
+		String result = restTemplate.getForObject(uri, String.class);
+
+		// verify output - 409 (InvalidTournamentStatusException)
+		assertTrue(result.contains("\"status\":409"));
+
+	}
+
+	@Test // addTournament - case 1 : valid input
 	public void addTournament_ValidInput_Success() throws Exception {
+
+		// input - valid tournament w no error (create tournament w no err)
+		Tournament tournament = helper.createTestTournament("noError");
+
+		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
-
-		// - mock objects
-		// Long id = Long.valueOf(0);
-		String tournamentName = "Tournament Integration Testing ";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
-		// List<Player> players = new ArrayList<>();
-
-		Tournament tournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-				winner);
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
-		// Long t_id = result.getBody().getId();
+		Long t_id = result.getBody().getId();
 
+		// verify the output - 201 (Created) : tournament creation successful (check if
+		// the name of returned tournament is same as the one saved)
 		assertEquals(201, result.getStatusCode().value());
 		assertEquals(tournament.getTournamentName(), result.getBody().getTournamentName());
 
-		// After test
-		// tournaments.deleteById(t_id);
+		// reset
+		helper.reset(t_id, null);
 	}
 
-	@Test
+	@Test // addTournament - case 2 : invalid input
 	public void addTournament_InvalidInput_Failure() throws Exception {
+
+		// format the uri
 		URI uri = new URI(baseURL + port + "/tournaments");
+		// list the possible input errors
+		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
+				"wrongStatus" };
 
-		// - mock objects
-		// Long id = Long.valueOf(0);
-		String tournamentName = "Tournament Integration Testing ";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
-		// List<Player> players = new ArrayList<>();
+		// loop thr the errors
+		for (String err : errArr) {
+			// input - tournament with specified err
+			Tournament tournament = helper.createTestTournament(err);
+			// call the api
+			ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
+			// verify the output - 409 (TournamentInvalidInputException)
+			assertEquals(409, result.getStatusCode().value());
 
-		Tournament tournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-				winner);
+		}
+
+	}
+
+	@Test // addTournament - case 3 : same name (ie tournament exist exception)
+	public void addTournament_SameName_Failure() throws Exception {
+
+		// input - save a tournament in db first (create tournament -> save in db)
+		Tournament tournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(tournament).getId();
+
+		// call the api - try to re-add the same tournament
+		URI uri = new URI(baseURL + port + "/tournaments");
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
-		// Long t_id = result.getBody().getId();
 
+		// verify the output - 409 (TournamentExistException)
 		assertEquals(409, result.getStatusCode().value());
 
+		// reset
+		helper.reset(t_id, null);
+
 	}
 
-	@Test
+	@Test // updateTournament - case 1 : valid tournament id and input
 	public void updateTournament_Success() throws Exception {
-		// - mock objects
-		String tournamentName = "Tournament 1";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Registration Start";
-		String createdBy = "admin1";
-		String winner = null;
 
-		Tournament newTournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-				winner);
+		// input - all valid (create tournament w no err -> save it in db -> modify it)
+		Tournament newTournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(newTournament).getId();
 
-		URI put_uri = new URI(baseURL + port + "/tournaments/1"); // [tbc]hardcode
+		newTournament.setTournamentName("Tournament Controller Testing - Updated");
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id);
 		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
 				new HttpEntity<>(newTournament), Tournament.class);
 
+		// verify the output - 200 (OK) : update successful (make sure the change in
+		// tournament name was saved in db correctly)
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals(newTournament.getTournamentName(), result.getBody().getTournamentName());
+		assertEquals("Tournament Controller Testing - Updated", result.getBody().getTournamentName());
+
+		// reset
+		helper.reset(t_id, null);
+
 	}
 
-	@Test
+	@Test // updateTournament - case 2 : invalid tournament id
 	public void updateTournament_InvalidId_Failure() throws Exception {
-		URI uri = new URI(baseURL + port + "/tournaments/100"); // [tbc]hardcode
-		String tournamentName = "Tournament 1";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
 
-		Tournament newTournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-				winner);
-		newTournament.setId(Long.valueOf(1));
-		ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(newTournament), Tournament.class);
+		// input - invalid tournament id (create tournament -> del it)
+		Tournament newTournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(newTournament).getId();
 
+		tournaments.deleteById(t_id);
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id);
+		ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(newTournament),
+				Tournament.class);
+
+		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 	}
 
-	@Test
+	@Test // updateTournament - case 3 : invalid input
 	public void updateTournament_InvalidInput_Failure() throws Exception {
-		URI uri = new URI(baseURL + port + "/tournaments/1");
-		String tournamentName = "Tournament 1";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
 
-		Tournament newTournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-				winner);
-		newTournament.setId(Long.valueOf(1));
-		ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(newTournament), Tournament.class);
+		// preparation (create a valid tournament to update)
+		Tournament tournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(tournament).getId();
 
-		assertEquals(409, result.getStatusCode().value());
+		// format the uri
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id);
+
+		// list of possible input errors
+		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
+				"wrongStatus" };
+
+		// loop thr each error
+		for (String err : errArr) {
+			// input - invalid tournament (create tournament with specified err)
+			Tournament newTournament = helper.createTestTournament(err);
+
+			// call the api
+			ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT,
+					new HttpEntity<>(newTournament), Tournament.class);
+
+			// verify the output - 409 (TournamentInvalidInputException)
+			assertEquals(409, result.getStatusCode().value());
+		}
+
+		// reset
+		helper.reset(t_id, null);
+
 	}
 
-	@Test
+	// updateTournament - case 4 : same name (ie tournament exist exception)
+
+	@Test 
+	public void updateStatusByTournamentId_ValidStatus_Success() throws Exception {
+		
+		// input - all valid (create tournament w no err -> save it in db -> modify it)
+		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = newTournament.getId();
+
+		String newStatus = "Registration Start";
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/status");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(newStatus), Tournament.class);
+
+		// verify the output - 200 (OK) : update successful (make sure the change in
+		// tournament name was saved in db correctly)
+		assertEquals(200, result.getStatusCode().value());
+		assertEquals(newStatus, result.getBody().getStatus());
+
+		// reset
+		helper.reset(t_id, null);
+
+	}
+
+	@Test // deleteTournament - case 1 : valid tournament id with player mapping
 	public void deleteTournamnet_ValidTournamentId_Success() throws Exception {
 
-		// - mock objects
-		// Long id = Long.valueOf(1);
-		String tournamentName = "Tournament Test delete1";
-		LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		String status = "Scheduled";
-		String createdBy = "admin1";
-		String winner = null;
+		// input - valid tournament id (create tournament and player -> map them)
+		Tournament tournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(tournament).getId();
 
-		Tournament tournament = tournaments
-				.save(new Tournament(tournamentName, regStartDT, regEndDT, status, startDT, endDT,
-						createdBy, winner));
-		URI uri = new URI(baseURL + port + "/tournaments/" + tournament.getId());
+		Player player = helper.createTestPlayer();
+		String p_id = player.getId();
 
+		helper.mapTournamentPlayer(tournament, player);
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id);
 		ResponseEntity<Void> result = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
 
+		// verify the output - 200 (OK) : tournament deleted successfully (Empty
+		// optional shld be returned aft deletion)
 		assertEquals(200, result.getStatusCode().value());
-		// An empty Optional should be returned by "findById" after deletion
 		Optional<Tournament> emptyValue = Optional.empty();
-		assertEquals(emptyValue, tournaments.findById(tournament.getId()));
+		assertEquals(emptyValue, tournaments.findById(t_id));
+
+		// reset
+		helper.reset(null, p_id);
+
 	}
 
-	@Test
+	// deleteTournament - case # : valid tournament with no mapping
+
+	@Test // deleteTournament - case 2 : invalid tournament id
 	public void deleteTournamnet_InValidTournamentId_Failure() throws Exception {
 
-		// - mock objects
-		// Long id = Long.valueOf(1);
-		// String tournamentName = "Tournament Test delete1";
-		// LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-		// LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-		// LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-		// LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-		// String status = "Scheduled";
-		// String createdBy = "admin1";
-		// String winner = null;
+		// input - invalid tournament id (create tournament -> del it)
+		Tournament newTournament = helper.createTestTournament("noError");
+		Long t_id = tournaments.save(newTournament).getId();
 
-		// Tournament tournament = tournaments.save(new Tournament(tournamentName,
-		// regStartDT, regEndDT, status, startDT, endDT,
-		// createdBy, winner));
-		Long id = Long.valueOf(100);
-		URI uri = new URI(baseURL + port + "/tournaments/" + id);
+		tournaments.deleteById(t_id);
 
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id);
 		ResponseEntity<Void> result = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
 
-		assertEquals(500, result.getStatusCode().value()); // [TBC] suppose to be 404
+		// verify the output - 404 (TournamentNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
 	}
 }

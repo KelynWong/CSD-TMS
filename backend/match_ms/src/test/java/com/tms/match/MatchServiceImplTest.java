@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -213,19 +212,23 @@ class MatchServiceImplTest {
 
         when(matchRepository.findById(2L)).thenReturn(Optional.of(leftMatch));
         when(matchRepository.findById(3L)).thenReturn(Optional.of(rightMatch));
+        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(1L); // Simulate database ID assignment
+            return match;
+        });
 
         // Act
         Match actualMatch = matchService.addMatch(matchJson);
 
         // Assert
-        ArgumentCaptor<Match> matchCaptor = forClass(Match.class);
-        verify(matchRepository).save(matchCaptor.capture());
-        Match savedMatch = matchCaptor.getValue();
-        assertNull(savedMatch.getId());
-        assertEquals(leftMatch, savedMatch.getLeft());
-        assertEquals(rightMatch, savedMatch.getRight());
+        assertEquals(1L, actualMatch.getId());
+        assertEquals(leftMatch, actualMatch.getLeft());
+        assertEquals(rightMatch, actualMatch.getRight());
         verify(matchRepository).findById(2L);
         verify(matchRepository).findById(3L);
+        verify(matchRepository).save(actualMatch);
+
     }
 
     @Test
@@ -240,22 +243,21 @@ class MatchServiceImplTest {
         leftMatch.setId(2L);
 
         when(matchRepository.findById(2L)).thenReturn(Optional.of(leftMatch));
+        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(1L); // Simulate database ID assignment
+            return match;
+        });
 
         // Act
         Match actualMatch = matchService.addMatch(matchJson);
 
         // Assert
-        ArgumentCaptor<Match> matchCaptor = forClass(Match.class);
-        verify(matchRepository).save(matchCaptor.capture());
-        Match savedMatch = matchCaptor.getValue();
-
-        assertNull(savedMatch.getId());
-        assertEquals(leftMatch, savedMatch.getLeft());
-        assertNull(savedMatch.getRight());
+        assertEquals(1L, actualMatch.getId());
+        assertEquals(leftMatch, actualMatch.getLeft());
+        assertNull(actualMatch.getRight());
         verify(matchRepository).findById(2L);
-
-        Optional<Match> leftMatchOptional = matchRepository.findById(2L);
-        assertTrue(leftMatchOptional.isPresent());
+        verify(matchRepository).save(actualMatch);
     }
 
     @Test
@@ -270,22 +272,22 @@ class MatchServiceImplTest {
         rightMatch.setId(2L);
 
         when(matchRepository.findById(2L)).thenReturn(Optional.of(rightMatch));
+        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(1L); // Simulate database ID assignment
+            return match;
+        });
 
         // Act
         Match actualMatch = matchService.addMatch(matchJson);
 
         // Assert
-        ArgumentCaptor<Match> matchCaptor = forClass(Match.class);
-        verify(matchRepository).save(matchCaptor.capture());
-        Match savedMatch = matchCaptor.getValue();
-
-        assertNull(savedMatch.getId());
-        assertEquals(rightMatch, savedMatch.getRight());
-        assertNull(savedMatch.getLeft());
+        assertEquals(1L, actualMatch.getId());
+        assertEquals(rightMatch, actualMatch.getRight());
+        assertNull(actualMatch.getLeft());
         verify(matchRepository).findById(2L);
-
-        Optional<Match> rightMatchOptional = matchRepository.findById(2L);
-        assertTrue(rightMatchOptional.isPresent());
+        verify(matchRepository).save(actualMatch);
+        
     }
 
     @Test
@@ -295,25 +297,76 @@ class MatchServiceImplTest {
         matchJson.setId(1L);
         matchJson.setRight(null);
         matchJson.setLeft(null);
+        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(1L); // Simulate database ID assignment
+            return match;
+        });
 
         // Act
         Match actualMatch = matchService.addMatch(matchJson);
 
         // Assert
-        ArgumentCaptor<Match> matchCaptor = forClass(Match.class);
-        verify(matchRepository).save(matchCaptor.capture());
-        Match savedMatch = matchCaptor.getValue();
-
-        assertNull(savedMatch.getId());
-        assertNull(savedMatch.getLeft());
-        assertNull(savedMatch.getRight());
+        verify(matchRepository).save(actualMatch);
+        assertEquals(1L, actualMatch.getId());
+        assertNull(actualMatch.getLeft());
+        assertNull(actualMatch.getRight());
 
     }
 
     @Test
-    void addTournament() {
-    }
+    void addTournament_ShouldAddMatchesAndReturnList() {
+        // Arrange
+        int numMatchesAtBase = 2;
 
+        // Create the base matches
+        MatchJson matchJson1 = new MatchJson();
+        matchJson1.setId(100L);
+
+        MatchJson matchJson2 = new MatchJson();
+        matchJson2.setId(101L);
+
+        MatchJson matchJson3 = new MatchJson();
+        matchJson3.setId(102L);
+
+        // Set up tournament matches
+        List<MatchJson> matches = Arrays.asList(matchJson1, matchJson2, matchJson3);
+        CreateTournament tournament = new CreateTournament(matches, numMatchesAtBase);
+
+        // Mock the addMatch method to return predefined matches
+        Match match1 = new Match();
+        match1.setId(1L);
+        Match match2 = new Match();
+        match2.setId(2L);
+        Match match3 = new Match();
+        match3.setId(3L);
+
+        match3.setLeft(match1);
+        match3.setRight(match2);
+
+        // Ensure the correct matches are returned for matchJson1 and matchJson2
+        when(matchService.addMatch(matchJson1)).thenReturn(match1);
+        when(matchService.addMatch(matchJson2)).thenReturn(match2);
+
+        // Mock addMatch for matchJson3 based on left and right matches
+        when(matchService.addMatch(matchJson3)).thenAnswer(invocation -> {
+            Match match = invocation.getArgument(0);
+            match.setId(match3.getId());
+            match.setLeft(match1);
+            match.setRight(match2);
+            return match;
+        });
+
+        // Act
+        List<Match> actualMatches = matchService.addTournament(tournament);
+
+        // Assert
+        assertEquals(3, actualMatches.size());
+        assertEquals(match3, actualMatches.get(0));
+
+
+    }
+    
     @Test
     void setWinnerAndUpdateParent_PresentMatchPlayer1Win_ReturnMatch() {
         // Arrange
@@ -416,14 +469,26 @@ class MatchServiceImplTest {
     }
 
     @Test
-    void deleteMatch() {
+    void deleteMatch_MatchFound() {
         // Arrange
         Long matchId = 1L;
+        when(matchRepository.existsById(matchId)).thenReturn(true);
 
         // Act
         matchService.deleteMatch(matchId);
 
         // Assert
         verify(matchRepository).deleteById(matchId);
+    }
+
+    @Test
+    void deleteMatch_NotFound_ThrowMatchNotFoundException() {
+        // Arrange
+        Long matchId = 1L;
+        when(matchRepository.existsById(matchId)).thenReturn(false);
+
+        // Act Assert
+        assertThrows(MatchNotFoundException.class, () ->
+            matchService.deleteMatch(matchId));
     }
 }
