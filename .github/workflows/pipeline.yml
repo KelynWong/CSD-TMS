@@ -219,8 +219,7 @@ jobs:
           --operation-id getOperation \
           --display-name "GET Operation" \
           --method GET \
-          --url-template "/" \
-          --response-status-code 200
+          --url-template "/" 
         
         # Create POST operation
         az apim api operation create \
@@ -230,8 +229,7 @@ jobs:
           --operation-id postOperation \
           --display-name "POST Operation" \
           --method POST \
-          --url-template "/" \
-          --response-status-code 201
+          --url-template "/" 
         
         # Create PUT operation
         az apim api operation create \
@@ -241,8 +239,7 @@ jobs:
           --operation-id putOperation \
           --display-name "PUT Operation" \
           --method PUT \
-          --url-template "/" \
-          --response-status-code 200
+          --url-template "/" 
         
         # Create DELETE operation
         az apim api operation create \
@@ -252,8 +249,7 @@ jobs:
           --operation-id deleteOperation \
           --display-name "DELETE Operation" \
           --method DELETE \
-          --url-template "/" \
-          --response-status-code 204
+          --url-template "/" 
         
         # Set up JWT validation in APIM for the API
         az apim api operation policy update \
