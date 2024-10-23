@@ -165,11 +165,11 @@ jobs:
 
     - name: Create API in APIM with JWT Validation
       run: |
-        # Retrieve the private IP of the Application Gateway
-        appgw_private_ip=$(az network application-gateway show \
+        # Retrieve the public IP of the Application Gateway
+        appgw_public_ip=$(az network application-gateway show \
           --resource-group tms \
           --name appGateway \
-          --query "frontendIPConfigurations[?contains(privateIPAddress, '')].privateIPAddress" \
+          --query "frontendIPConfigurations[?publicIPAddress != null].publicIPAddress.id" \
           --output tsv)
 
         # Create API in APIM with private IP of Application Gateway
@@ -179,7 +179,7 @@ jobs:
           --api-id myApi \
           --path / \
           --display-name "TMS API" \
-          --service-url "http://${appgw_private_ip}" \
+          --service-url "http://${appgw_public_ip}" \
           --protocols https
 
         # Set up JWT validation in APIM for the API
