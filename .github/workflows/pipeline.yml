@@ -88,7 +88,7 @@ jobs:
       run: |
         # Create API Management instance
         az apim create \
-          --name tmsAPI \
+          --name csdtmsAPI \
           --resource-group tms \
           --location eastus \
           --sku-name Developer \
@@ -116,7 +116,7 @@ jobs:
           --direction Inbound
 
         # Resolve the public IP of the APIM instance
-        apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
+        apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
 
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
