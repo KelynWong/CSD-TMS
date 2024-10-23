@@ -103,17 +103,28 @@ jobs:
           --resource-group tms \
           --name appGatewayNSG
 
-        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
-        az network nsg rule create \
+        # Check if NSG rule exists
+        rule_exists=$(az network nsg rule list \
           --resource-group tms \
           --nsg-name appGatewayNSG \
-          --name AllowAppGatewayPorts \
-          --protocol Tcp \
-          --priority 101 \
-          --source-address-prefixes '*' \
-          --destination-port-ranges 65200-65535 \
-          --access Allow \
-          --direction Inbound
+          --query "[?name=='AllowAppGatewayPorts']" \
+          --output tsv)
+        
+        if [ -z "$rule_exists" ]; then
+          # If rule does not exist, create it
+          az network nsg rule create \
+            --resource-group tms \
+            --nsg-name appGatewayNSG \
+            --name AllowAppGatewayPorts \
+            --protocol Tcp \
+            --priority 101 \
+            --source-address-prefixes '*' \
+            --destination-port-ranges 65200-65535 \
+            --access Allow \
+            --direction Inbound
+        else
+          echo "NSG rule AllowAppGatewayPorts already exists, skipping creation."
+        fi
 
         # Resolve the public IP of the APIM instance
         apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
