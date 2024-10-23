@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
+import Link from "next/link";
 
 const ITEMS_PER_PAGE = 16;
 
@@ -41,14 +42,16 @@ const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
                 <CarouselContent className="m-0">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {currentItems.map((player, index) => (
-                            <CarouselItem key={index} className="m-0 p-0">
-                                <Card className="border-2 border-yellow-400 rounded-lg">
-                                    <CardContent className="flex flex-col items-center justify-items-center py-4 px-3">
-                                        <img src={player.profilePicture ?? '/public/images/player.png'} alt={player.username} className="rounded-full w-6 h-6" />
-                                        <p className="w-full text-center font-medium truncate pt-1.5">{player.username}</p>
-                                    </CardContent>
-                                </Card>
-                            </CarouselItem>
+                            <Link href={`/players/${player.id}`}>
+                                <CarouselItem key={index} className="m-0 p-0">
+                                    <Card className="border-2 border-yellow-400 rounded-lg">
+                                        <CardContent className="flex flex-col items-center justify-items-center py-4 px-3">
+                                            <img src={player.profilePicture ?? '/public/images/player.png'} alt={player.fullname} className="rounded-full w-6 h-6" />
+                                            <p className="w-full text-center font-medium truncate pt-1.5">{player.fullname}</p>
+                                        </CardContent>
+                                    </Card>
+                                </CarouselItem>
+                            </Link>
                         ))}
                     </div>
                 </CarouselContent>
