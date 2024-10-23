@@ -195,13 +195,13 @@ jobs:
     - name: Create API in APIM with JWT Validation
       run: |
         # Retrieve the public IP of the Application Gateway
-        appgw_public_ip=$(az network application-gateway show \
+        appgw_public_ip=$(az network public-ip show \
           --resource-group tms \
-          --name appGateway \
-          --query "frontendIPConfigurations[?publicIPAddress != null].publicIPAddress.id" \
+          --name appGatewayPublicIP \
+          --query "ipAddress" \
           --output tsv)
 
-        # Create API in APIM with private IP of Application Gateway
+        # Create API in APIM with public IP of Application Gateway
         az apim api create \
           --resource-group tms \
           --service-name csdtmsAPI \
