@@ -53,22 +53,35 @@ jobs:
         # Create Resource Group
         az group create --name tms --location eastus
     
-    - name: Create Virtual Network and Subnets
+    - name: Create Virtual Network and Subnets (if not exists)
       run: |
-        # Create VNet with two subnets
-        az network vnet create \
+        # Check if VNet exists
+        vnet_exists=$(az network vnet show \
           --resource-group tms \
           --name tmsVNet \
-          --address-prefix 10.0.0.0/16 \
-          --subnet-name tmsSubnet \
-          --subnet-prefix 10.0.2.0/24
+          --query "id" \
+          --output tsv || echo "VNetNotFound")
+        
+        if [ "$vnet_exists" == "VNetNotFound" ]; then
+          echo "Creating VNet and Subnets..."
+          
+          # Create VNet with two subnets
+          az network vnet create \
+            --resource-group tms \
+            --name tmsVNet \
+            --address-prefix 10.0.0.0/16 \
+            --subnet-name tmsSubnet \
+            --subnet-prefix 10.0.2.0/24
 
-        # Create the second subnet (aciSubnet)
-        az network vnet subnet create \
-          --resource-group tms \
-          --vnet-name tmsVNet \
-          --name aciSubnet \
-          --address-prefix 10.0.1.0/24
+          # Create the second subnet (aciSubnet)
+          az network vnet subnet create \
+            --resource-group tms \
+            --vnet-name tmsVNet \
+            --name aciSubnet \
+            --address-prefix 10.0.1.0/24
+        else
+          echo "VNet already exists, skipping creation."
+        fi
 
     - name: Deploy other Microservices
       run: |
