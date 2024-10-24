@@ -7,11 +7,11 @@ import com.tms.ratingCalc.RatingCalculator;
 import com.tms.ratingCalc.RatingPeriodResults;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -34,44 +33,39 @@ public class RatingServiceTest {
     @Mock
     private UserRepository userRepo;
 
-    @Mock
     private RatingCalculator ratingCalc;
 
-    @InjectMocks
     private RatingService ratingService;
+
+    @BeforeEach
+    void setUp() {
+        ratingCalc = new RatingCalculator(); // Use the actual implementation
+        ratingService = new RatingService(ratingRepo, ratingCalc, userRepo);
+    }
 
     @Test
     void initRating_UserExists_ReturnDefaultRating() {
         User user = new User("user1");
-
-        when(ratingCalc.getDefaultRating()).thenReturn(1500.0);
-        when(ratingCalc.getDefaultRatingDeviation()).thenReturn(350.0);
-        when(ratingCalc.getDefaultVolatility()).thenReturn(0.06);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
                 ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
 
         when(userRepo.findById(user.getId())).thenReturn(Optional.of(user));
-        when(ratingRepo.save(any(Rating.class))).thenReturn(rating);
+        when(ratingRepo.existsById(user.getId())).thenReturn(false);
+        when(ratingRepo.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Rating createdRating = ratingService.initRating(user.getId());
 
-        assertEquals(rating, createdRating);
+        assertTrue(rating.propertiesEqual(createdRating));
         verify(userRepo, times(1)).findById(user.getId());
-        verify(ratingRepo, times(1)).save(rating);
-        verify(ratingCalc, times(2)).getDefaultRating();
-        verify(ratingCalc, times(2)).getDefaultRatingDeviation();
-        verify(ratingCalc, times(2)).getDefaultVolatility();
+        verify(ratingRepo, times(1)).existsById(user.getId());
+        verify(ratingRepo, times(1)).save(argThat(argRating -> argRating.propertiesEqual(createdRating)));
     }
 
     @Test
     void initRating_UserDoesNotExist_ThrowsException() {
         User user = new User("user1");
-
-        when(ratingCalc.getDefaultRating()).thenReturn(1500.0);
-        when(ratingCalc.getDefaultRatingDeviation()).thenReturn(350.0);
-        when(ratingCalc.getDefaultVolatility()).thenReturn(0.06);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
@@ -90,10 +84,6 @@ public class RatingServiceTest {
     @Test
     void initRating_RatingAlreadyInit_ThrowsException() {
         User user = new User("user1");
-
-        when(ratingCalc.getDefaultRating()).thenReturn(1500.0);
-        when(ratingCalc.getDefaultRatingDeviation()).thenReturn(350.0);
-        when(ratingCalc.getDefaultVolatility()).thenReturn(0.06);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
@@ -171,31 +161,38 @@ public class RatingServiceTest {
         verify(ratingRepo, never()).delete(any(Rating.class));
     }
 
-    // todo: fix this test
-    // @Test
-    // void calcRating_ValidMatch_ReturnsUpdatedRatings() {
-    //     LocalDate today = LocalDate.now();
-    //     LocalDateTime now = today.atStartOfDay();
+     @Test
+     void calcRating_ValidMatch_ReturnsUpdatedRatings() {
+         int currentYear = LocalDate.now().getYear();
+         LocalDate today = LocalDate.of(currentYear, 10, 24);
+         LocalDateTime now = today.atTime(12, 0);
 
-    //     ResultsDTO match = new ResultsDTO("winnerId", "loserId", now);
-    //     User winner = new User("winnerId");
-    //     User loser = new User("loserId");
-    //     Rating winnerRating = new Rating(winner, 1500.0, 350.0, 0.06, 0,
-    //             LocalDate.now().withDayOfYear(1).atStartOfDay());
-    //     Rating loserRating = new Rating(loser, 1500.0, 350.0, 0.06, 0, LocalDate.now().withDayOfYear(1).atStartOfDay());
+         ResultsDTO match = new ResultsDTO("winnerId", "loserId", now);
+         User winner = new User("winnerId");
+         User loser = new User("loserId");
 
-    //     when(ratingRepo.findById("winnerId")).thenReturn(Optional.of(winnerRating));
-    //     when(ratingRepo.findById("loserId")).thenReturn(Optional.of(loserRating));
+         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+         Rating winnerRating = new Rating(winner, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                 ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+         Rating loserRating = new Rating(loser, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                 ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
 
-    //     List<Rating> updatedRatings = ratingService.calcRating(match, new RatingPeriodResults());
+         when(ratingRepo.findById("winnerId")).thenReturn(Optional.of(winnerRating));
+         when(ratingRepo.findById("loserId")).thenReturn(Optional.of(loserRating));
 
-    //     assertEquals(2, updatedRatings.size());
-    //     verify(ratingRepo, times(1)).findById("winnerId");
-    //     verify(ratingRepo, times(1)).findById("loserId");
-    //     verify(ratingCalc, times(1)).updateRatings(any(RatingPeriodResults.class));
-    //     verify(ratingRepo, times(1)).save(winnerRating);
-    //     verify(ratingRepo, times(1)).save(loserRating);
-    // }
+         when(ratingRepo.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+         List<Rating> updatedRatings = ratingService.calcRating(match, new RatingPeriodResults());
+
+         assertEquals(2, updatedRatings.size());
+
+         Rating updatedWinnerRating = new Rating(winner, 1663.0585888305718, 291.30440579432036, 0.0599992718190158,
+                 1, now);
+         Rating updatedLoserRating = new Rating(loser, 1336.9414111694282, 291.30440579432036, 0.0599992718190158,
+                 1, now);
+         assertTrue(updatedWinnerRating.propertiesEqual(updatedRatings.get(0)));
+         assertTrue(updatedLoserRating.propertiesEqual(updatedRatings.get(1)));
+     }
 
     @Test
     void calcRating_RatingNotFound_ThrowsException() {
@@ -210,7 +207,6 @@ public class RatingServiceTest {
 
         verify(ratingRepo, times(1)).findById("winnerId");
         verify(ratingRepo, times(1)).findById("loserId");
-        verify(ratingCalc, never()).updateRatings(any(RatingPeriodResults.class));
     }
 
 }

@@ -61,7 +61,7 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/create-games")
+    @PostMapping("/data")
     public ResponseEntity<String> createGames() {
         gameService.createGames();
         return ResponseEntity.ok("Games created");
