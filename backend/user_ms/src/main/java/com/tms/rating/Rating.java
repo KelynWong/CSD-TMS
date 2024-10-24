@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tms.ratingCalc.RatingCalculator;
 import com.tms.user.User;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode
 @Table(name = "\"rating\"", schema = "\"user\"")
 public class Rating {
 	@Id
