@@ -61,15 +61,15 @@ jobs:
           --name tmsVNet \
           --address-prefix 10.0.0.0/16 \
           --subnet-name tmsSubnet \
-          --subnet-prefix 10.0.1.0/24
+          --subnet-prefix 10.0.2.0/24
 
         # Create the second subnet (aciSubnet)
         az network vnet subnet create \
           --resource-group tms \
           --vnet-name tmsVNet \
           --name aciSubnet \
-          --address-prefix 10.0.2.0/24
-          
+          --address-prefix 10.0.1.0/24
+
     # - name: Deploy other Microservices
     #   run: |
     #     # Deploy user_ms
