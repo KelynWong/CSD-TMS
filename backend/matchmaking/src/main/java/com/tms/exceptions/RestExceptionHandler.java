@@ -82,4 +82,11 @@ public class RestExceptionHandler{
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(TournamentWinnerUpdateException.class)
+    public ResponseEntity<Object> handleTournamentWinnerUpdateException(TournamentWinnerUpdateException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

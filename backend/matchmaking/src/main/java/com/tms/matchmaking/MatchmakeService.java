@@ -157,23 +157,23 @@ public class MatchmakeService {
     }
 
     public MatchJson updateMatchRes(Long matchId, List<Game> games) {
+        // update games in match ms
         MatchJson match = updateGames(matchId, games);
 
+        // update player ratings
         String winnerId = match.getWinnerId();
         String loserId = match.getPlayer1Id().equals(winnerId) ? match.getPlayer2Id()
                 : match.getPlayer1Id();
-
         Tournament tournament = fetchTournamentData(match.getTournamentId());
         LocalDateTime endDT = tournament.getEndDT();
         updateRating(new ResultsDTO(winnerId, loserId, endDT));
 
-//         todo: update tournament winner
-//         check if match is final match.
-//         if so, update tournament winner.
-//        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
-//        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
-//
-//        }
+        // check if match is final match.
+        // if so, update tournament winner.
+        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
+        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
+            updateTournamentWinner(match.getTournamentId(), winnerId);
+        }
 
         return match;
     }
@@ -261,8 +261,15 @@ public class MatchmakeService {
         }
     }
 
-    // todo: add code to call tournament ms to update tournament winner
-    private void updateTournamentWinner() {
+    private void updateTournamentWinner(Long id, String userId) {
+        ResponseEntity<String> res = restClient.put()
+                .uri(TOURNAMENT_URL + "/{id}/winner", id)
+                .body(userId)
+                .retrieve()
+                .toEntity(String.class);
 
+        if (res.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentWinnerUpdateException(id, userId);
+        }
     }
 }
