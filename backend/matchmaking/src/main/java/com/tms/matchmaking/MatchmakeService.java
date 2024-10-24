@@ -191,12 +191,13 @@ public class MatchmakeService {
         LocalDateTime endDT = tournament.getEndDT();
         updateRating(new ResultsDTO(winnerId, loserId, endDT));
 
-        // check if match is final match.
-        // if so, update tournament winner.
-        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
-        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
-            // todo: update tournament winner
-        }
+//         todo: update tournament winner
+//         check if match is final match.
+//         if so, update tournament winner.
+//        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
+//        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
+//
+//        }
 
         return match;
     }
