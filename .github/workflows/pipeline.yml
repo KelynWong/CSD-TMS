@@ -70,8 +70,8 @@ jobs:
             --resource-group tms \
             --name tmsVNet \
             --address-prefix 10.0.0.0/16 \
-            --subnet-name tmsSubnet \
-            --subnet-prefix 10.0.2.0/24
+            --subnet-name tmsSubnet2 \
+            --subnet-prefix 10.0.3.0/24
 
           # Create the second subnet (aciSubnet2)
           az network vnet subnet create \
@@ -137,7 +137,7 @@ jobs:
         existing_nsg=$(az network vnet subnet show \
           --resource-group tms \
           --vnet-name tmsVNet \
-          --name tmsSubnet \
+          --name tmsSubnet2 \
           --query "networkSecurityGroup.id" \
           --output tsv)
     
@@ -147,7 +147,7 @@ jobs:
           az network vnet subnet update \
             --resource-group tms \
             --vnet-name tmsVNet \
-            --name tmsSubnet \
+            --name tmsSubnet2 \
             --remove networkSecurityGroup
         fi
     
@@ -200,7 +200,7 @@ jobs:
         az network vnet subnet update \
           --resource-group tms \
           --vnet-name tmsVNet \
-          --name tmsSubnet \
+          --name tmsSubnet2 \
           --network-security-group appGatewayNSG
 
     - name: Create Application Gateway
@@ -219,7 +219,7 @@ jobs:
           --frontend-port 80 \
           --public-ip-address appGatewayPublicIP \
           --vnet-name tmsVNet \
-          --subnet tmsSubnet \
+          --subnet tmsSubnet2 \
           --http-settings-cookie-based-affinity Disabled \
           --routing-rule-type Basic \
           --priority 1000
