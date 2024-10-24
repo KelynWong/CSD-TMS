@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Table(name = "\"rating\"", schema = "\"user\"")
-public class Rating {
+public class Rating implements Cloneable {
 	@Id
 	private String id;
 
@@ -54,10 +54,6 @@ public class Rating {
 	@JsonIgnore
 	private double workingVolatility;
 
-	public Rating(User user, double initRating, double initRatingDeviation, double initVolatility, int nbResults) {
-		this(user, initRating, initRatingDeviation, initVolatility, nbResults, null);
-	}
-
 	public Rating(User user, double initRating, double initRatingDeviation, double initVolatility, int nbResults, LocalDateTime lastRatingPeriodEndDate) {
 		this.user = user;
 		this.rating = initRating;
@@ -69,6 +65,27 @@ public class Rating {
 
 	public String getId() {
 		return this.user.getId();
+	}
+
+	@Override
+	protected Rating clone() {
+		try {
+			return (Rating) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(); // Can't happen
+		}
+	}
+
+	public boolean equals(Rating other) {
+		return this.user.getId().equals(other.user.getId());
+	}
+
+	public boolean propertiesEqual(Rating other) {
+		 return (this.user.getId().equals(other.user.getId())) &&
+				 (this.rating == other.rating) &&
+				(this.ratingDeviation == other.ratingDeviation) &&
+				(this.volatility == other.volatility) &&
+				(this.numberOfResults == other.numberOfResults);
 	}
 
 	/**

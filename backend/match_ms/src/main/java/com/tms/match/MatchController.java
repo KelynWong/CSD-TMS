@@ -1,22 +1,23 @@
 package com.tms.match;
 
-import java.util.List;
-
+import com.tms.exceptions.MatchNotFoundException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tms.exceptions.MatchNotFoundException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/matches")
 public class MatchController {
-    private MatchService matchService;
+    private final MatchService matchService;
 
     public MatchController(MatchService bs){
         this.matchService = bs;
     }
+
+
 
     // Health check endpoint
     @GetMapping("/health")
@@ -112,7 +113,7 @@ public class MatchController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/generateWinners/{tournamentId}")
+    @PutMapping("/data/{tournamentId}")
     public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
         matchService.generateWinners(tournamentId);
         return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
@@ -127,8 +128,9 @@ public class MatchController {
     public void deleteMatch(@PathVariable Long id){
         try{
             matchService.deleteMatch(id);
-         }catch(EmptyResultDataAccessException e) {
+         }catch(MatchNotFoundException e) {
             throw new MatchNotFoundException(id);
          }
     }
+
 }
