@@ -56,7 +56,7 @@ public class RatingService {
     @Transactional
     public List<Rating> calcRating(ResultsDTO match, RatingPeriodResults results) {
         LocalDate today = LocalDate.now();
-        LocalDateTime now = today.atStartOfDay();
+        LocalDateTime now = today.atTime(12, 0);
 
         Optional<Rating> winner = ratingRepo.findById(match.getWinnerId());
         Optional<Rating> loser = ratingRepo.findById(match.getLoserId());
@@ -68,29 +68,38 @@ public class RatingService {
         Rating winnerRating = winner.get();
         Rating loserRating = loser.get();
 
-        processRating(winnerRating, match.getTournamentEndDate(), now);
-        processRating(loserRating, match.getTournamentEndDate(), now);
+        Rating newWinnerRating = updateRatingSd(winnerRating, match.getTournamentEndDate());
+        Rating newLoserRating = updateRatingSd(loserRating, match.getTournamentEndDate());
 
-        results.addResult(winnerRating, loserRating);
+        results.addResult(newWinnerRating, newLoserRating);
         ratingCalc.updateRatings(results);
-        updateRating(winnerRating);
-        updateRating(loserRating);
 
-        return List.of(winnerRating, loserRating);
+        newWinnerRating = updateRatingLastUpdatedTime(newWinnerRating, now);
+        newLoserRating = updateRatingLastUpdatedTime(newLoserRating, now);
+
+        updateRatingInDb(newWinnerRating);
+        updateRatingInDb(newLoserRating);
+
+        return List.of(newWinnerRating, newLoserRating);
     }
 
-    private Rating processRating(Rating rating, LocalDateTime currTournamentDate, LocalDateTime currDateTime) {
-        double rd = ratingCalc.previewDeviation(rating, currTournamentDate, false);
-        if (rd != rating.getRatingDeviation()) {
-            rating.setRatingDeviation(rd);
-        }
-        rating.setLastRatingPeriodEndDate(currDateTime);
-        return rating;
+    private Rating updateRatingSd(Rating rating, LocalDateTime currTournamentDate) {
+        Rating newRating = rating.clone();
+        double rd = ratingCalc.previewDeviation(newRating, currTournamentDate, false);
+        newRating.setRatingDeviation(rd);
+        return newRating;
     }
 
-    private Rating updateRating(Rating newRating) {
+    private Rating updateRatingLastUpdatedTime(Rating rating, LocalDateTime ratingLastUpdatedTime) {
+        Rating newRating = rating.clone();
+        newRating.setLastRatingPeriodEndDate(ratingLastUpdatedTime);
+        return newRating;
+    }
+
+    private void updateRatingInDb(Rating newRating) {
         String ratingId = newRating.getId();
-        return ratingRepo.findById(ratingId).map(rating -> {
+
+        ratingRepo.findById(ratingId).map(rating -> {
             rating.setRating(newRating.getRating());
             rating.setRatingDeviation(newRating.getRatingDeviation());
             rating.setVolatility(newRating.getVolatility());
