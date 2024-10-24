@@ -39,7 +39,6 @@ public class MatchmakeService {
     }
 
     public void matchmake(Long tournamentId) {
-        List<Player> playerIds = fetchTournamentPlayerIds(tournamentId);
         try {
             List<MatchJson> tournaments = null;
             tournaments = getTournamentMatches(tournamentId);
@@ -48,6 +47,7 @@ public class MatchmakeService {
             }
         } catch (TournamentNotFoundException e) {
             System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
+            List<Player> playerIds = fetchTournamentPlayerIds(tournamentId);
             int n = playerIds.size();
             int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
 

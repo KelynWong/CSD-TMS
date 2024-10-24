@@ -1,22 +1,15 @@
 package com.tms.match;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.tms.exceptions.MatchNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tms.exceptions.MatchNotFoundException;
+import java.util.*;
 
 @Service
 public class MatchServiceImpl implements MatchService {
 
-    private MatchRepository matches;
+    private final MatchRepository matches;
 
     public MatchServiceImpl(MatchRepository matches) {
         this.matches = matches;
