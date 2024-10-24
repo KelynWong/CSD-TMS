@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tms.exception.InvalidTournamentStatusException;
+import com.tms.exception.PlayerNotFoundException;
 import com.tms.exception.TournamentExistsException;
 import com.tms.exception.TournamentInvalidInputException;
 import com.tms.exception.TournamentNotFoundException;
@@ -148,6 +149,38 @@ public class TournamentController {
         }
 
         oldTournament.setStatus(status);
+
+        // Update tournament
+        Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
+        
+        return newTournament;
+
+    }
+
+    /* Update just tournament winner */
+    @PutMapping("/{id}/winner")
+    public Tournament updateWinnerByTournamentId(@PathVariable Long id, @RequestBody String winner) {
+
+        winner = winner.replace("\"","").replace(" ","");
+
+        // Get tournament
+        Tournament oldTournament = tournamentService.getTournament(id);
+        if (oldTournament == null) {
+            throw new TournamentNotFoundException(id);
+        }
+
+        boolean foundWinner = false;
+
+        for (Player p : oldTournament.getPlayers()) {
+            if (p.getId().equals(winner)) {
+                oldTournament.setWinner(winner);
+                foundWinner = true;
+            }
+        }
+
+        if (!foundWinner) {
+            throw new PlayerNotFoundException(winner, id);
+        }
 
         // Update tournament
         Tournament newTournament = tournamentService.updateTournament(id, oldTournament);

@@ -47,8 +47,6 @@ class TournamentControllerTest {
 
 	@Autowired
 	private TournamentRepository tournaments;
-	@Autowired
-	private PlayerRepository players;
 
 	/* HELPER CLASS */
 	@Autowired
@@ -66,14 +64,10 @@ class TournamentControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
-		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); // need to use array
-																									// with a
-																									// ReponseEntity
-																									// here
+		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); // need to use array with a ReponseEntity here
 		Tournament[] tournamentArr = result.getBody();
 
-		// verify the output - 200 (OK) : check if current count got increase aft adding
-		// 1 more tournament
+		// verify the output - 200 (OK) : check if current count got increase aft adding 1 more tournament
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(currentCount + 1, tournamentArr.length);
 
