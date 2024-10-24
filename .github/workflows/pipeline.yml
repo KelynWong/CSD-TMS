@@ -46,7 +46,7 @@ jobs:
     #     docker push csdtms.azurecr.io/match_ms:latest
 
     - name: Log in to Azure
-      run: az login --username kelyn.wong.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
+      run: az login --username lynettetay.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
     # - name: Deploy other Microservices
     #   run: |
@@ -88,36 +88,65 @@ jobs:
       run: |
         # Create API Management instance
         az apim create \
-          --name tmsAPI \
+          --name csdtmsAPI \
           --resource-group tms \
           --location eastus \
           --sku-name Developer \
-          --publisher-email kelyn.wong.2022@scis.smu.edu.sg \
-          --publisher-name kelyn \
+          --publisher-email lynettetay.2022@scis.smu.edu.sg \
+          --publisher-name lynette \
           --public-network-access true
 
     - name: Create NSG and allow only APIM to access Application Gateway
       run: |
+        # Check if NSG is already attached to the subnet
+        existing_nsg=$(az network vnet subnet show \
+          --resource-group tms \
+          --vnet-name tmsVNet \
+          --name tmsSubnet \
+          --query "networkSecurityGroup.id" \
+          --output tsv)
+    
+        # If NSG is attached, detach it
+        if [ -n "$existing_nsg" ]; then
+          echo "Detaching existing NSG from the subnet..."
+          az network vnet subnet update \
+            --resource-group tms \
+            --vnet-name tmsVNet \
+            --name tmsSubnet \
+            --remove networkSecurityGroup
+        fi
+    
         # Create Network Security Group (NSG) if it doesn't exist
         az network nsg create \
           --resource-group tms \
           --name appGatewayNSG
-
-        # Allow traffic on the ports required for Application Gateway V2 (65200-65535)
-        az network nsg rule create \
+    
+        # Check if NSG rule exists
+        rule_exists=$(az network nsg rule list \
           --resource-group tms \
           --nsg-name appGatewayNSG \
-          --name AllowAppGatewayPorts \
-          --protocol Tcp \
-          --priority 101 \
-          --source-address-prefixes '*' \
-          --destination-port-ranges 65200-65535 \
-          --access Allow \
-          --direction Inbound
-
+          --query "[?name=='AllowAppGatewayPorts']" \
+          --output tsv)
+    
+        if [ -z "$rule_exists" ]; then
+          # If rule does not exist, create it
+          az network nsg rule create \
+            --resource-group tms \
+            --nsg-name appGatewayNSG \
+            --name AllowAppGatewayPorts \
+            --protocol Tcp \
+            --priority 101 \
+            --source-address-prefixes '*' \
+            --destination-port-ranges 65200-65535 \
+            --access Allow \
+            --direction Inbound
+        else
+          echo "NSG rule AllowAppGatewayPorts already exists, skipping creation."
+        fi
+    
         # Resolve the public IP of the APIM instance
-        apim_public_ip=$(nslookup tmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
-
+        apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
+    
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
           --resource-group tms \
@@ -138,33 +167,6 @@ jobs:
           --vnet-name tmsVNet \
           --name tmsSubnet \
           --network-security-group appGatewayNSG
-
-    - name: Create API in APIM with JWT Validation
-      run: |
-        # Retrieve the private IP of the Application Gateway
-        appgw_private_ip=$(az network application-gateway show \
-          --resource-group tms \
-          --name appGateway \
-          --query "frontendIPConfigurations[?contains(privateIPAddress, '')].privateIPAddress" \
-          --output tsv)
-
-        # Create API in APIM with private IP of Application Gateway
-        az apim api create \
-          --resource-group tms \
-          --service-name myApiManagement \
-          --api-id myApi \
-          --path / \
-          --display-name "TMS API" \
-          --service-url "http://${appgw_private_ip}" \
-          --protocols https
-
-        # Set up JWT validation in APIM for the API
-        az apim api operation policy update \
-          --resource-group tms \
-          --service-name myApiManagement \
-          --api-id myApi \
-          --operation-id all \
-          --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
 
     - name: Create Application Gateway
       run: |
@@ -189,6 +191,74 @@ jobs:
 
         # Wait for the Application Gateway to be fully provisioned
         az network application-gateway wait --created --name appGateway --resource-group tms
+
+    - name: Create API in APIM with JWT Validation
+      run: |
+        # Retrieve the public IP of the Application Gateway
+        appgw_public_ip=$(az network public-ip show \
+          --resource-group tms \
+          --name appGatewayPublicIP \
+          --query "ipAddress" \
+          --output tsv)
+
+        # Create API in APIM with public IP of Application Gateway
+        az apim api create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --path / \
+          --display-name "TMS API" \
+          --service-url "http://${appgw_public_ip}" \
+          --protocols https
+
+        # Create GET operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id getOperation \
+          --display-name "GET Operation" \
+          --method GET \
+          --url-template "/" 
+        
+        # Create POST operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id postOperation \
+          --display-name "POST Operation" \
+          --method POST \
+          --url-template "/" 
+        
+        # Create PUT operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id putOperation \
+          --display-name "PUT Operation" \
+          --method PUT \
+          --url-template "/" 
+        
+        # Create DELETE operation
+        az apim api operation create \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id deleteOperation \
+          --display-name "DELETE Operation" \
+          --method DELETE \
+          --url-template "/" 
+        
+        # Set up JWT validation in APIM for the API
+        az apim api operation policy update \
+          --resource-group tms \
+          --service-name csdtmsAPI \
+          --api-id myApi \
+          --operation-id all \
+          --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
+
 
     # - name: Configure Backend Pools
     #   run: |
