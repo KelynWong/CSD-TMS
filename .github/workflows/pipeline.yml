@@ -257,7 +257,7 @@ jobs:
           --operation-id getOperation \
           --display-name "GET Operation" \
           --method GET \
-          --url-template "/" 
+          --url-template "/{*path}"
         
         # Create POST operation
         az apim api operation create \
@@ -267,8 +267,8 @@ jobs:
           --operation-id postOperation \
           --display-name "POST Operation" \
           --method POST \
-          --url-template "/" 
-        
+          --url-template "/{*path}"
+
         # Create PUT operation
         az apim api operation create \
           --resource-group tms \
@@ -277,7 +277,7 @@ jobs:
           --operation-id putOperation \
           --display-name "PUT Operation" \
           --method PUT \
-          --url-template "/" 
+          --url-template "/{*path}"
         
         # Create DELETE operation
         az apim api operation create \
@@ -287,7 +287,7 @@ jobs:
           --operation-id deleteOperation \
           --display-name "DELETE Operation" \
           --method DELETE \
-          --url-template "/" 
+          --url-template "/{*path}"
         
         # # Set up JWT validation in APIM for the API
         # az apim api operation policy update \
