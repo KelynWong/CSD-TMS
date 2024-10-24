@@ -96,18 +96,24 @@ export const fetchAllPlayersByTournament = async (
 };
 
 export const fetchPlayerRegistrationStatus = async (
-	tournament_id: number,
-	user_id: string
+    tournament_id: number,
+    user_id: string
 ): Promise<boolean> => {
-	try {
-		const response = await axios.get(
-			`${URL}/${tournament_id}/players/${user_id}`
-		);
-		return response.data.IsRegistered;
-	} catch (error) {
-		console.error("Error fetching player registration status", error);
+    try {
+        const response = await axios.get(
+            `${URL}/${tournament_id}/players/${user_id}`
+        );
+        // Return true if the user is found and registered
+        return response.data.IsRegistered;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            // If player is not found, simply return false
+            return false;
+        }
+        // Log unexpected errors only
+        console.error("Unexpected error fetching player registration status", error);
 		return false;
-	}
+    }
 };
 
 export const registerTournament = async (
@@ -166,7 +172,6 @@ export const createTournaments = async (tournamentData: Partial<Tournament>): Pr
     }
 };
 
-
 export const updateTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
 	try {
 		const response = await axios.put(`${URL}/${tournamentData.id}`, tournamentData, {
@@ -179,6 +184,22 @@ export const updateTournaments = async (tournamentData: Partial<Tournament>): Pr
 		return response.status === 200;
 	} catch (error) {
 		console.error("Error updating tournaments", error);
+		return false;
+	}
+};
+
+export const updateTournamentStatusById = async (tournament_id: number, status: String): Promise<boolean> => {
+	try {
+		const response = await axios.put(`${URL}/${tournament_id}/status`, status, {
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
+		);
+
+		return response.status === 200;
+	} catch (error) {
+		console.error("Error updating tournament status", error);
 		return false;
 	}
 };

@@ -5,19 +5,18 @@ import { addGamesByMatchId } from '@/api/matchmaking/api';
 import Loading from '@/components/Loading';
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { message } from 'antd';
 
 interface SetEditFormProps {
   matchId: number;
   player1Name: string;
   player2Name: string;
-  onClose: () => void;
 }
 
 export default function SetEditForm({
   matchId,
   player1Name,
   player2Name,
-  onClose,
 }: SetEditFormProps) {
   const [player1Scores, setPlayer1Scores] = useState([0, 0, 0]);
   const [player2Scores, setPlayer2Scores] = useState([0, 0, 0]);
@@ -55,15 +54,16 @@ export default function SetEditForm({
 
     console.log(payload);
     const response = await addGamesByMatchId(matchId, payload);
+    setLoading(false);
 
     if (response) {
       console.log(response);
-      setLoading(false);
-      ("match games added successful!");
-      onClose();
+      message.success("match games added successful!");
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Delay of 0.5 seconds before reloading
     } else {
-      setLoading(false);
-      ("Failed to update match games");
+      message.error("Failed to update match games");
     }
   };
 
@@ -85,7 +85,7 @@ export default function SetEditForm({
 
   return (
     <form onSubmit={onSubmit}>
-      <ScrollArea className="max-h-[75vh] overflow-y-auto">
+      <ScrollArea className="max-h-[65vh] overflow-y-auto">
         {[...Array(numSets)].map((_, index) => (
           <div key={index} className="flex flex-col gap-4 font-body">
             <h2 className="text-lg font-bold">Game No. {index + 1}</h2>
