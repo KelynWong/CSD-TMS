@@ -21,9 +21,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import com.tms.TestHelper;
 import com.tms.TournamentServiceApplication;
 import com.tms.tournamentplayer.Player;
 
@@ -40,6 +42,9 @@ public class TournamentServiceTest {
     @InjectMocks
     private TournamentServiceImpl tournamentService;
 
+    @Autowired
+	private TestHelper helper;
+
     /* Unit Testing */
 
     /* listTournaments() */
@@ -47,19 +52,7 @@ public class TournamentServiceTest {
     void listTournaments_ReturnTournaments() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
-
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
+        Tournament tournament = helper.createTestTournament("noError");
 
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
@@ -86,19 +79,8 @@ public class TournamentServiceTest {
     void getTournament_Found_ReturnTournament() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
-
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
+        Tournament tournament = helper.createTestTournament("noError");
+        Long id = tournament.getId();
 
         Optional<Tournament> optTournament = Optional.of(tournament);
 
@@ -119,7 +101,7 @@ public class TournamentServiceTest {
     void getTournament_NotFound_ReturnNull() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
+        Long id = 0L;
 
         // - mock methods/operations
         when(tournaments.findById(id)).thenReturn(Optional.empty());
@@ -143,19 +125,7 @@ public class TournamentServiceTest {
     void addTournament_NewName_ReturnSavedTournament() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
-
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
+        Tournament tournament = helper.createTestTournament("noError");
 
         // - mock methods/operations
         when(tournaments.findByTournamentName(any(String.class))).thenReturn(new ArrayList<Tournament>());
@@ -178,19 +148,8 @@ public class TournamentServiceTest {
     void addTournament_SameName_ReturnNull() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
+        Tournament tournament = helper.createTestTournament("noError");
 
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
         List<Tournament> tournamentOfSameName = new ArrayList<>();
         tournamentOfSameName.add(tournament);
 
@@ -216,19 +175,8 @@ public class TournamentServiceTest {
     void updateTournament_Found_ReturnSavedTournament() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
-
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
+        Tournament tournament = helper.createTestTournament("noError");
+        Long id = tournament.getId();
 
         Optional<Tournament> optTournament = Optional.of(tournament);
 
@@ -252,19 +200,8 @@ public class TournamentServiceTest {
     void updateTournament_NotFound_ReturnNull() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
-        String tournamentName = "New Badminton Tournament";
-        LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-        LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-        LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-        LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Scheduled";
-        String createdBy = "admin1";
-        String winner = null;
-        List<Player> players = new ArrayList<>();
-
-        Tournament tournament = new Tournament(id, tournamentName, startDT, endDT, status, regStartDT, regEndDT,
-                createdBy, winner, players);
+        Tournament tournament = helper.createTestTournament("noError");
+        Long id = tournament.getId();
 
         // - mock methods/operations
         when(tournaments.findById(id)).thenReturn(Optional.empty());
@@ -288,7 +225,7 @@ public class TournamentServiceTest {
     void deleteTournament_Found_ReturnNothing() {
         // Arrange
         // - mock objects
-        Long id = Long.valueOf(0);
+        Long id = 0L;
 
         // - mock methods/operations
         doNothing().when(tournaments).deleteById(id);
