@@ -121,6 +121,35 @@ public class MatchmakeService {
         return shuffledRatings;
     }
 
+    private List<Player> fetchTournamentPlayerIds(Long tournamentId) {
+        ResponseEntity<List<Player>> playerIdRes = restClient.get()
+                .uri(TOURNAMENT_URL + "/{tournamentId}/players", tournamentId)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
+
+        if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
+            throw new NoPlayersRegisteredException("No players registered for tournament");
+        }
+
+        return playerIdRes.getBody();
+    }
+
+    private List<Player> fetchPlayerData(List<Player> playerIds) {
+        ResponseEntity<List<Player>> playerRes = restClient.post()
+                .uri(PLAYER_URL + "/ids")
+                .body(playerIds)
+                .retrieve()
+                .toEntity(new ParameterizedTypeReference<>() {
+                });
+
+        if (playerRes.getStatusCode() != HttpStatus.OK) {
+            throw new PlayerNotFoundException("Player ID not registered in database.");
+        }
+
+        return playerRes.getBody();
+    }
+
     private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
         String player1;
         String player2 = null;
@@ -178,48 +207,6 @@ public class MatchmakeService {
         return match;
     }
 
-    private Tournament fetchTournamentData(Long tournamentId) {
-        ResponseEntity<Tournament> tournamentRes = restClient.get()
-                .uri(TOURNAMENT_URL + "/id/{tournamentId}", tournamentId)
-                .retrieve()
-                .toEntity(Tournament.class);
-
-        if (tournamentRes.getStatusCode() != HttpStatus.OK) {
-            throw new TournamentNotFoundException(tournamentId);
-        }
-
-        return tournamentRes.getBody();
-    }
-
-    private List<Player> fetchTournamentPlayerIds(Long tournamentId) {
-        ResponseEntity<List<Player>> playerIdRes = restClient.get()
-                .uri(TOURNAMENT_URL + "/{tournamentId}/players", tournamentId)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
-
-        if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
-            throw new NoPlayersRegisteredException("No players registered for tournament");
-        }
-
-        return playerIdRes.getBody();
-    }
-
-    private List<Player> fetchPlayerData(List<Player> playerIds) {
-        ResponseEntity<List<Player>> playerRes = restClient.post()
-                .uri(PLAYER_URL + "/ids")
-                .body(playerIds)
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {
-                });
-
-        if (playerRes.getStatusCode() != HttpStatus.OK) {
-            throw new PlayerNotFoundException("Player ID not registered in database.");
-        }
-
-        return playerRes.getBody();
-    }
-
     private List<MatchJson> getTournamentMatches(Long tournamentId) {
         ResponseEntity<List<MatchJson>> matchRes = restClient.get()
                 .uri(MATCH_URL + "/tournament/{tournamentId}", tournamentId)
@@ -232,6 +219,19 @@ public class MatchmakeService {
         }
 
         return matchRes.getBody();
+    }
+
+    private Tournament fetchTournamentData(Long tournamentId) {
+        ResponseEntity<Tournament> tournamentRes = restClient.get()
+                .uri(TOURNAMENT_URL + "/id/{tournamentId}", tournamentId)
+                .retrieve()
+                .toEntity(Tournament.class);
+
+        if (tournamentRes.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentNotFoundException(tournamentId);
+        }
+
+        return tournamentRes.getBody();
     }
 
     private MatchJson updateGames(Long matchId, List<Game> games) {
