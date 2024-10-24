@@ -17,6 +17,8 @@ public class MatchController {
         this.matchService = bs;
     }
 
+
+
     // Health check endpoint
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
@@ -126,8 +128,9 @@ public class MatchController {
     public void deleteMatch(@PathVariable Long id){
         try{
             matchService.deleteMatch(id);
-         }catch(EmptyResultDataAccessException e) {
+         }catch(MatchNotFoundException e) {
             throw new MatchNotFoundException(id);
          }
     }
+
 }

@@ -91,7 +91,9 @@ public class UserService {
     }
 
     public void deleteUser(String id) { 
-        userRepository.deleteById(id);
-        ratingService.deleteRating(id);
+        if (userRepository.findById(id).isPresent()){
+            userRepository.deleteById(id);
+            ratingService.deleteRating(id);
+        }
     }
 }
