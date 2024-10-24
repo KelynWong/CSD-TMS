@@ -5,9 +5,12 @@
 // import org.mockito.Mock;
 // import org.mockito.Mockito;
 // import org.mockito.MockitoAnnotations;
+// import org.springframework.boot.test.context.SpringBootTest;
 // import org.springframework.http.HttpStatus;
 // import org.springframework.http.ResponseEntity;
 // import org.springframework.web.multipart.MultipartFile;
+
+// import com.tms.UserServiceApplication;
 
 // import java.util.List;
 // import java.util.Map;
@@ -19,6 +22,7 @@
 // import static org.mockito.Mockito.*;
 // import static org.junit.jupiter.api.Assertions.*;
 
+// @SpringBootTest(classes = UserServiceApplication.class)
 // class UserControllerUnitTest {
 
 //     @Mock
