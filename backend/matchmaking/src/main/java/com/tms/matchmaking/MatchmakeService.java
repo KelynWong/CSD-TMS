@@ -3,7 +3,6 @@ package com.tms.matchmaking;
 import com.tms.exceptions.*;
 import com.tms.match.CreateTournament;
 import com.tms.match.Game;
-import com.tms.match.Match;
 import com.tms.match.MatchJson;
 import com.tms.player.Player;
 import com.tms.player.Rating;
@@ -18,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class MatchmakeService {
@@ -40,7 +41,7 @@ public class MatchmakeService {
 
     public void matchmake(Long tournamentId) {
         try {
-            List<MatchJson> tournaments = null;
+            List<MatchJson> tournaments;
             tournaments = getTournamentMatches(tournamentId);
             if (tournaments != null && !tournaments.isEmpty()) {
                 throw new TournamentExistsException(tournamentId);
@@ -155,49 +156,24 @@ public class MatchmakeService {
         }
     }
 
-    public Tournament getTournament(Long tournamentId) {
-        // Get tournament data
-        Tournament tournament = fetchTournamentData(tournamentId);
-
-        // Get player ids for a particular tournament
-        List<Player> playerIds = fetchTournamentPlayerIds(tournamentId);
-
-        // Get player data for a particular tournament
-        List<Player> players = fetchPlayerData(playerIds);
-
-        tournament.setPlayers(players);
-
-        // Get matches of a given tournament id
-        List<MatchJson> matchRes = getTournamentMatches(tournamentId);
-
-        HashMap<String, Player> playerMap = new HashMap<>();
-        for (Player player : tournament.getPlayers()) {
-            playerMap.put(player.getId(), player);
-        }
-        Match rootMatch = constructTournament(matchRes, playerMap);
-        tournament.setRootMatch(rootMatch);
-
-        return tournament;
-    }
-
     public MatchJson updateMatchRes(Long matchId, List<Game> games) {
+        // update games in match ms
         MatchJson match = updateGames(matchId, games);
 
+        // update player ratings
         String winnerId = match.getWinnerId();
         String loserId = match.getPlayer1Id().equals(winnerId) ? match.getPlayer2Id()
                 : match.getPlayer1Id();
-
         Tournament tournament = fetchTournamentData(match.getTournamentId());
         LocalDateTime endDT = tournament.getEndDT();
         updateRating(new ResultsDTO(winnerId, loserId, endDT));
 
-//         todo: update tournament winner
-//         check if match is final match.
-//         if so, update tournament winner.
-//        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
-//        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
-//
-//        }
+        // check if match is final match.
+        // if so, update tournament winner.
+        List<MatchJson> tournamentMatches = getTournamentMatches(match.getTournamentId());
+        if (match.getId().equals(tournamentMatches.get(tournamentMatches.size() - 1).getId())) {
+            updateTournamentWinner(match.getTournamentId(), winnerId);
+        }
 
         return match;
     }
@@ -258,51 +234,6 @@ public class MatchmakeService {
         return matchRes.getBody();
     }
 
-    private Match constructTournament(List<MatchJson> matches, HashMap<String, Player> playerMap) {
-        Map<Long, Match> idToMatch = new HashMap<>();
-
-        for (MatchJson matchJson : matches) {
-            Match match = new Match();
-            match.setId(matchJson.getId());
-            match.setTournamentId(matchJson.getTournamentId());
-            match.setPlayer1(playerMap.get(matchJson.getPlayer1Id()));
-            match.setPlayer2(playerMap.get(matchJson.getPlayer2Id()));
-            match.setWinner(playerMap.get(matchJson.getWinnerId()));
-            match.setGames(matchJson.getGames());
-            idToMatch.put(match.getId(), match);
-        }
-
-        // Link left and right children
-        for (MatchJson matchJson : matches) {
-            Match match = idToMatch.get(matchJson.getId());
-            if (matchJson.getLeft() != null) {
-                Long leftId = matchJson.getLeft();
-                Match left = idToMatch.get(leftId);
-                match.setLeft(left);
-            }
-            if (matchJson.getRight() != null) {
-                Long rightId = matchJson.getRight();
-                Match right = idToMatch.get(rightId);
-                match.setRight(right);
-            }
-        }
-
-        for (MatchJson matchJson : matches) {
-            if (matchJson.getLeft() != null) {
-                idToMatch.remove(matchJson.getLeft());
-            }
-            if (matchJson.getRight() != null) {
-                idToMatch.remove(matchJson.getRight());
-            }
-        }
-
-        if (idToMatch.size() != 1) {
-            return null;
-        }
-
-        return idToMatch.values().iterator().next();
-    }
-
     private MatchJson updateGames(Long matchId, List<Game> games) {
         ResponseEntity<MatchJson> res = restClient.post()
                 .uri(MATCH_URL + "/{matchId}/games", matchId)
@@ -330,8 +261,15 @@ public class MatchmakeService {
         }
     }
 
-    // todo: add code to call tournament ms to update tournament winner
-    private void updateTournamentWinner() {
+    private void updateTournamentWinner(Long id, String userId) {
+        ResponseEntity<String> res = restClient.put()
+                .uri(TOURNAMENT_URL + "/{id}/winner", id)
+                .body(userId)
+                .retrieve()
+                .toEntity(String.class);
 
+        if (res.getStatusCode() != HttpStatus.OK) {
+            throw new TournamentWinnerUpdateException(id, userId);
+        }
     }
 }
