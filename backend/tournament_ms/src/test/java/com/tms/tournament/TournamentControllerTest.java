@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 // Using Spring Boot Integration Test Libraries
 /** Start an actual HTTP server listening at a random port */
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = TournamentServiceApplication.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Slf4j
 class TournamentControllerTest {
 
