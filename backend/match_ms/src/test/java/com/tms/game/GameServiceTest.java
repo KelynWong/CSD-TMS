@@ -317,21 +317,4 @@ class GameServiceTest {
         assertThrows(GameNotFoundException.class, () -> gameService.deleteGame(matchId, gameId));
     }
 
-    @Test
-    void createGames() {
-        // Arrange
-        Match match = new Match();
-        match.setId(1L);
-
-        when(matchRepository.findAll()).thenReturn(List.of(match));
-        when(matchRepository.existsById(1L)).thenReturn(Boolean.TRUE);
-
-        // Act
-        gameService.createGames();
-
-        // Assert
-        verify(matchRepository).findAll();
-        verify(gameRepository).findByMatchId(1L);
-
-    }
 }

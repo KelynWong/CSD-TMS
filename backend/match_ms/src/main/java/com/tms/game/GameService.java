@@ -146,44 +146,4 @@ public class GameService {
         return gameOptional.orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
-    @Transactional
-    public void createGames() {
-        List<Match> matches = this.matches.findAll();
-        Random random = new Random();
-        for (Match match : matches) {
-            List<Game> existingGames = this.getAllGamesByMatchId(match.getId());
-            if (!existingGames.isEmpty()) {
-                continue; // Skip this match if games already exist
-            }
-
-            int numGames = random.nextInt(2) + 2; // 2 or 3 games
-            int player2Win = 0;
-
-            if (numGames == 3) {
-                player2Win = random.nextInt(2); // choose game that player2 wins
-            }
-            for (int i = 0; i < numGames; i++) {
-                Game game = new Game();
-                game.setMatch(match);
-                game.setSetNum((short) (i + 1));
-
-                if (numGames == 2) {
-                    // only player1 can win
-                    game.setPlayer1Score((short) 21);
-                    game.setPlayer2Score((short) (random.nextInt(10) + 10));
-                } else if (numGames == 3) {
-                    if (i == player2Win) {
-                        // Player2 wins this game
-                        game.setPlayer1Score((short) (random.nextInt(10) + 10));
-                        game.setPlayer2Score((short) 21);
-                    } else {
-                        // Player1 wins this game
-                        game.setPlayer1Score((short) 21);
-                        game.setPlayer2Score((short) (random.nextInt(10) + 10));
-                    }
-                }
-                games.save(game);
-            }
-        }
-    }
 }
