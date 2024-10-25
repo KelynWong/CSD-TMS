@@ -41,42 +41,42 @@ public class RestExceptionHandler {
     public ResponseEntity<Object> handleTypeMismatch(PlayerNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TournamentExistsException.class)
     public ResponseEntity<Object> handleTypeMismatch(TournamentExistsException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TournamentNotFoundException.class)
     public ResponseEntity<Object> handleTypeMismatch(TournamentNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(TournamentInvalidInputException.class)
     public ResponseEntity<Object> handleTypeMismatch(TournamentInvalidInputException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidTournamentStatusException.class)
     public ResponseEntity<Object> handleTypeMismatch(InvalidTournamentStatusException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<Object> handleTypeMismatch(InvalidDataAccessApiUsageException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
 

@@ -119,10 +119,10 @@ class TournamentControllerTest {
 		Tournament savedTournament = tournaments.save(tournament);
 
 		Long t_id = savedTournament.getId();
-		String t_status = savedTournament.getStatus();
+		String t_status = savedTournament.getStatus().getStatustStr();
 
 		// call the api
-		URI uri = new URI(baseURL + port + "/tournaments/status/" + t_status.replace(" ", "")); // del the spacing from status
+		URI uri = new URI(baseURL + port + "/tournaments/status/" + t_status.replace(" ", "_")); // del the spacing from status
 
 		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class);
 		Tournament[] tournamentArr = result.getBody();
@@ -143,10 +143,10 @@ class TournamentControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/status/" + wrongStatus);
-		String result = restTemplate.getForObject(uri, String.class);
+		ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
 
 		// verify output - 409 (InvalidTournamentStatusException)
-		assertTrue(result.contains("\"status\":409"));
+		assertEquals(409, result.getStatusCode().value());
 
 	}
 
@@ -304,7 +304,7 @@ class TournamentControllerTest {
 		// verify the output - 200 (OK) : update successful (make sure the change in
 		// tournament name was saved in db correctly)
 		assertEquals(200, result.getStatusCode().value());
-		assertEquals(newStatus, result.getBody().getStatus());
+		assertEquals(newStatus, result.getBody().getStatus().getStatustStr());
 
 		// reset
 		helper.reset(t_id, null);
