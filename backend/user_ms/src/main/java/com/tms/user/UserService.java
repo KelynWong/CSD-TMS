@@ -53,7 +53,9 @@ public class UserService {
             throw new UserAlreadyExistsException("User with id " + u.getId() + " already exists");
         });
         User createdUser = userRepository.save(user);
-        ratingService.initRating(createdUser.getId());
+        if (createdUser.getRole().equals(Role.PLAYER)) {
+            ratingService.initRating(createdUser.getId());
+        }
         return createdUser;
     }
 
@@ -86,8 +88,8 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found"));
     }    
 
-    public List<User> getUsersByRole(String role) {
-        return userRepository.findByRoleIgnoreCase(role);
+    public List<User> getUsersByRole(Role role) {
+        return userRepository.findByRole(role);
     }
 
     public void deleteUser(String id) { 
