@@ -23,7 +23,8 @@ public class MatchmakeService {
         this.apiManager = apiManager;
     }
 
-    public void matchmake(Long tournamentId) {
+    public List<MatchJson> matchmake(Long tournamentId) {
+        List<MatchJson> matches = new ArrayList<>();
         try {
             List<MatchJson> tournaments;
             tournaments = apiManager.getTournamentMatches(tournamentId);
@@ -34,11 +35,9 @@ public class MatchmakeService {
             System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
             List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
             int n = playerIds.size();
-            int k = (int) (Math.ceil(Math.log(n) / Math.log(2)));
+            int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
 
-            List<MatchJson> matches = new ArrayList<>();
             int byes = (int) Math.pow(2, k) - n;
-
             // choose top x players to get byes.
             List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
             playerRatings = shuffleRatings(playerRatings);
@@ -79,7 +78,9 @@ public class MatchmakeService {
             }
 
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
+            return matches;
         }
+        return matches;
     }
 
     private List<Player> shuffleRatings(List<Player> players) {
@@ -118,11 +119,11 @@ public class MatchmakeService {
             throw new IllegalArgumentException("Invalid number of players");
         }
 
-        return new MatchJson(tournamentId, player1, player2, null, null);
+        return new MatchJson(tournamentId, player1, player2);
     }
 
     private MatchJson createMatchWithoutPlayers(Long tournamentId) {
-        return new MatchJson(tournamentId, null, null, null, null);
+        return new MatchJson(tournamentId, null, null);
     }
 
     public MatchJson updateMatchRes(Long matchId, List<Game> games) {
