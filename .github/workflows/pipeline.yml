@@ -552,20 +552,15 @@ jobs:
           DB_PW: ${{ secrets.DB_PW }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
-      # Build and analyze matchmaking
-      - name: Build and analyze matchmaking
-        working-directory: backend/matchmaking
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
-
       # Build and analyze tournament_ms
       - name: Build and analyze tournament_ms
         working-directory: backend/tournament_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PW: ${{ secrets.DB_PW }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
       # Build and analyze user_ms
@@ -574,4 +569,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PW: ${{ secrets.DB_PW }}
+          CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+
+      # Build and analyze matchmaking
+      - name: Build and analyze matchmaking
+        working-directory: backend/matchmaking
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MATCH_URL=https://csdtmsapi.azure-api.net/matches
+          TOURNAMENT_URL=https://csdtmsapi.azure-api.net/tournaments
+          PLAYER_URL=https://csdtmsapi.azure-api.net/users
+          RATING_URL=https://csdtmsapi.azure-api.net/ratings
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+
