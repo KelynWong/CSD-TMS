@@ -1,5 +1,6 @@
 package com.tms.rating;
 
+import com.tms.ratingCalc.RatingPeriodResults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,6 @@ public class RatingController {
 
     @PutMapping("/ratings")
     public List<Rating> updateRating(@RequestBody ResultsDTO match) {
-        return ratingService.calcRating(match);
+        return ratingService.calcRating(match, new RatingPeriodResults());
     }
 }

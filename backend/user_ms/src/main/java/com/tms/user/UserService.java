@@ -1,5 +1,6 @@
 package com.tms.user;
 
+import com.tms.exception.UserAlreadyExistsException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -48,8 +49,13 @@ public class UserService {
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
+        userRepository.findById(user.getId()).ifPresent(u -> {
+            throw new UserAlreadyExistsException("User with id " + u.getId() + " already exists");
+        });
         User createdUser = userRepository.save(user);
-        ratingService.initRating(createdUser.getId());
+        if (createdUser.getRole().equals(Role.PLAYER)) {
+            ratingService.initRating(createdUser.getId());
+        }
         return createdUser;
     }
 
@@ -82,11 +88,14 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found"));
     }    
 
-    public List<User> getUsersByRole(String role) {
-        return userRepository.findByRoleIgnoreCase(role);
+    public List<User> getUsersByRole(Role role) {
+        return userRepository.findByRole(role);
     }
 
     public void deleteUser(String id) { 
-        userRepository.deleteById(id);
+        if (userRepository.findById(id).isPresent()){
+            userRepository.deleteById(id);
+            ratingService.deleteRating(id);
+        }
     }
 }

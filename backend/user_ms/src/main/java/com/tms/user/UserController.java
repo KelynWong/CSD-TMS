@@ -17,10 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.http.HttpHeaders;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -80,7 +77,7 @@ public class UserController {
   // Get users by role
   @GetMapping("/role/{role}")
   public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
-    List<User> users = userService.getUsersByRole(role);
+    List<User> users = userService.getUsersByRole(Role.valueOf(role.toUpperCase()));
     if (!users.isEmpty()) {
       return ResponseEntity.ok(users);
     } else {
@@ -142,9 +139,9 @@ public class UserController {
     try {
       // Convert headers to a format that Svix expects (java.net.http.HttpHeaders)
       HashMap<String, List<String>> headerMap = new HashMap<>();
-      headerMap.put("svix-id", Arrays.asList(headers.get("svix-id")));
-      headerMap.put("svix-timestamp", Arrays.asList(headers.get("svix-timestamp")));
-      headerMap.put("svix-signature", Arrays.asList(headers.get("svix-signature")));
+      headerMap.put("svix-id", Collections.singletonList(headers.get("svix-id")));
+      headerMap.put("svix-timestamp", Collections.singletonList(headers.get("svix-timestamp")));
+      headerMap.put("svix-signature", Collections.singletonList(headers.get("svix-signature")));
 
       HttpHeaders svixHeaders = HttpHeaders.of(headerMap, (key, value) -> true); // Creating java.net.http.HttpHeaders
 
@@ -227,7 +224,7 @@ public class UserController {
       }
 
       // Role
-      user.setRole("Player");
+      user.setRole(Role.PLAYER);
 
       // Country - Since Clerk data doesn't include country, use a default
       user.setCountry(null);
@@ -290,9 +287,10 @@ public class UserController {
 
       // Role
       if (userData.has("public_metadata") && userData.get("public_metadata").has("role")) {
-        user.setRole(userData.get("public_metadata").get("role").asText());
+        String role = userData.get("public_metadata").get("role").asText().toUpperCase();
+        user.setRole(Role.valueOf(role));
       } else {
-        user.setRole("Player");
+        user.setRole(Role.PLAYER);
       }
 
       // Update the user in your system

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, String> { 
     User findByUsername(String username);
-    List<User> findByRoleIgnoreCase(String role);
+    List<User> findByRole(Role role);
     List<User> findByIdIn(List<String> ids);
 
     @Query("SELECT u FROM User u JOIN u.rating r WHERE u.id IN :ids ORDER BY r.rating DESC")

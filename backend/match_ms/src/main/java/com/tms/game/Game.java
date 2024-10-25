@@ -22,4 +22,17 @@ public class Game {
     private short setNum;
     private short player1Score;
     private short player2Score;
+
+    public Game(short setNum, short player1Score, short player2Score) {
+        this.setNum = setNum;
+        this.player1Score = player1Score;
+        this.player2Score = player2Score;
+    }
+
+    public Game(Match match, short setNum, short player1Score, short player2Score) {
+        this.match = match;
+        this.setNum = setNum;
+        this.player1Score = player1Score;
+        this.player2Score = player2Score;
+    }
 }
