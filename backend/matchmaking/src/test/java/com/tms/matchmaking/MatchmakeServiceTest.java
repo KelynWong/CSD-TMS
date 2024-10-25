@@ -3,9 +3,12 @@ package com.tms.matchmaking;
 import com.tms.ListUtils;
 import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
+import com.tms.match.Game;
 import com.tms.match.MatchJson;
 import com.tms.player.Player;
 import com.tms.player.Rating;
+import com.tms.player.ResultsDTO;
+import com.tms.tournament.Tournament;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,4 +168,78 @@ public class MatchmakeServiceTest {
     private boolean isUser1OrUser2(String user) {
         return "user1".equals(user) || "user2".equals(user);
     }
+
+    @Test
+    void updateMatchRes_NotFinalGame_GamesUpdatedRatingUpdated() {
+        Long matchId = 1L;
+        Long tournamentId = 1L;
+        List<Game> games = List.of(
+                new Game((short) 1, (short) 21, (short) 15),
+                new Game((short) 2, (short) 21,
+                (short) 13)
+        );
+        MatchJson match1 = new MatchJson(1L, "user1", "user2");
+        match1.setId(1L);
+        match1.setGames(games);
+
+        MatchJson match2 = new MatchJson(1L, "user3", "user4");
+        match2.setId(2L);
+        match2.setGames(games);
+
+        MatchJson match3 = new MatchJson(1L, "user1", "user3");
+        match3.setId(3L);
+        match3.setGames(games);
+
+        Tournament tournament = new Tournament();
+        tournament.setEndDT(LocalDateTime.now());
+
+        when(apiManager.updateGames(matchId, games)).thenReturn(match1);
+        when(apiManager.fetchTournamentData(tournamentId)).thenReturn(tournament);
+        when(apiManager.getTournamentMatches(tournamentId)).thenReturn(List.of(match1, match2, match3));
+
+        matchmakeService.updateMatchRes(matchId, games);
+
+        verify(apiManager, times(1)).updateGames(matchId, games);
+        verify(apiManager, times(1)).updateRating(any(ResultsDTO.class));
+        verify(apiManager, times(1)).getTournamentMatches(tournamentId);
+        verify(apiManager, never()).updateTournamentWinner(anyLong(), anyString());
+    }
+
+    @Test
+    void updateMatchRes_FinalGame_GamesUpdatedRatingUpdatedTournamentWinnerUpdated() {
+        Long matchId = 3L;
+        Long tournamentId = 1L;
+        List<Game> games = List.of(
+                new Game((short) 1, (short) 21, (short) 15),
+                new Game((short) 2, (short) 21,
+                        (short) 13)
+        );
+        MatchJson match1 = new MatchJson(1L, "user1", "user2");
+        match1.setId(1L);
+        match1.setGames(games);
+
+        MatchJson match2 = new MatchJson(1L, "user3", "user4");
+        match2.setId(2L);
+        match2.setGames(games);
+
+        MatchJson match3 = new MatchJson(1L, "user1", "user3");
+        match3.setId(3L);
+        match3.setGames(games);
+        match3.setWinnerId("user1");
+
+        Tournament tournament = new Tournament();
+        tournament.setEndDT(LocalDateTime.now());
+
+        when(apiManager.updateGames(matchId, games)).thenReturn(match3);
+        when(apiManager.fetchTournamentData(tournamentId)).thenReturn(tournament);
+        when(apiManager.getTournamentMatches(tournamentId)).thenReturn(List.of(match1, match2, match3));
+
+        matchmakeService.updateMatchRes(matchId, games);
+
+        verify(apiManager, times(1)).updateGames(matchId, games);
+        verify(apiManager, times(1)).updateRating(any(ResultsDTO.class));
+        verify(apiManager, times(1)).getTournamentMatches(tournamentId);
+        verify(apiManager, times(1)).updateTournamentWinner(tournamentId, "user1");
+    }
+
 }
