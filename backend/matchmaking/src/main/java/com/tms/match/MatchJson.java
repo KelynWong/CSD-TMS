@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -19,4 +20,14 @@ public class MatchJson {
     private Long right;
     private List<Game> games;
 
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof MatchJson otherMatch)) {
+            throw new IllegalArgumentException("Cannot compare MatchJson with non-MatchJson object");
+        }
+        return (Objects.equals(this.tournamentId, otherMatch.tournamentId)) &&
+                (Objects.equals(this.player1Id, otherMatch.player1Id)) &&
+                (Objects.equals(this.player2Id, otherMatch.player2Id)) &&
+                (Objects.equals(this.winnerId, otherMatch.winnerId));
+    }
 }

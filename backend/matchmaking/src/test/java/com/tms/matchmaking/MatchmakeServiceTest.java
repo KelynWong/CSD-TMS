@@ -8,6 +8,8 @@ import com.tms.player.Player;
 import com.tms.player.Rating;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -36,10 +38,11 @@ public class MatchmakeServiceTest {
         verify(apiManager, times(1)).getTournamentMatches(any(Long.class));
     }
 
-    // test magic number 8 for number of players
-    @Test
-    void matchmake_TournamentNotFound_CreatesMatches() {
-        List<Player> players = createPlayers();
+    // test logic for 7, 8 and 9 players. 8 is a magic number
+    @ParameterizedTest
+    @ValueSource(ints = {7, 8, 9})
+    void matchmake_TournamentNotFound_CreatesMatches(int numPlayers) {
+        List<Player> players = createPlayers(numPlayers);
 
         int n = players.size();
         int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
@@ -47,7 +50,7 @@ public class MatchmakeServiceTest {
         int byes = (int) Math.pow(2, k) - n;
         double numMatchesAtBase = Math.pow(2, k - 1);
 
-        List<MatchJson> expectedMatches = createExpectedMatches(byes, numMatches);
+        List<MatchJson> expectedMatches = createExpectedMatches(byes, numMatches, players);
 
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
@@ -57,15 +60,16 @@ public class MatchmakeServiceTest {
         List<MatchJson> actualMatches = matchmakeService.matchmake(1L);
 
         // assert that strong players are paired with the weaker players
-        for (int i = 0; i < numMatchesAtBase; i++) {
+        for (int i = byes; i < numMatchesAtBase; i++) {
             MatchJson match = actualMatches.get(i);
             String player1 = match.getPlayer1Id();
             String player2 = match.getPlayer2Id();
             assertEquals(player1, "user" + (i + 1));
-            assertEquals(player2, "user" + (n - i));
+            assertEquals(player2, "user" + (n - i + byes));
         }
 
         assertEquals(numMatches, actualMatches.size());
+        // assert correct number of byes are given
         assertTrue(ListUtils.areFirstNItemsEqual(expectedMatches, actualMatches, byes));
 
         verify(apiManager, times(1)).getTournamentMatches(any(Long.class));
@@ -73,9 +77,9 @@ public class MatchmakeServiceTest {
         verify(apiManager, times(1)).fetchPlayerData(anyList());
     }
 
-    private List<Player> createPlayers() {
+    private List<Player> createPlayers(int numPlayers) {
         List<Player> players = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < numPlayers; i++) {
             String userId = "user" + (i + 1);
             Rating rating = new Rating(userId, 1500 - (i * 100));
             players.add(new Player(userId, rating));
@@ -83,13 +87,18 @@ public class MatchmakeServiceTest {
         return players;
     }
 
-    private List<MatchJson> createExpectedMatches(int byes, double numMatches) {
+    private List<MatchJson> createExpectedMatches(int byes, double numMatches, List<Player> players) {
         List<MatchJson> matches = new ArrayList<>();
         for (int i = 0; i < byes; i++) {
-            matches.add(new MatchJson(1L, "user" + i, null));
+            matches.add(new MatchJson(1L, players.get(i).getId(), null));
         }
-        for (int i = byes; i < numMatches; i += 2) {
-            matches.add(new MatchJson(1L, "user" + i, "user" + (i + 1)));
+
+        int l = byes;
+        int r = players.size() - 1;
+        while (l < r) {
+            matches.add(new MatchJson(1L, players.get(byes).getId(), players.get(r).getId()));
+            l++;
+            r--;
         }
         return matches;
     }
