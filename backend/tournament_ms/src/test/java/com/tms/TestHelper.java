@@ -1,19 +1,13 @@
 package com.tms;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.tms.tournament.Tournament;
-import com.tms.tournament.TournamentRepository;
-import com.tms.tournamentplayer.Player;
-import com.tms.tournamentplayer.PlayerRepository;
+import com.tms.tournament.*;
+import com.tms.tournamentplayer.*;
 
 /* Class containing all test helper methods */
 @Component
@@ -63,8 +57,8 @@ public class TestHelper {
                 tournament.setStartDT(endDT);
                 tournament.setEndDT(startDT);
                 break;
-            case "wrongStatus":
-                tournament.setStatus("HAHAHAHA WRONG");
+            case "wrongStatus": //tbc
+                tournament.setStatus(null);
                 break;
             case "noError":
                 // no err - tournament is valid
