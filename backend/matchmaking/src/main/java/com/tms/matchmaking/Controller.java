@@ -2,7 +2,6 @@ package com.tms.matchmaking;
 
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
-import com.tms.tournament.Tournament;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +29,6 @@ public class Controller {
     public ResponseEntity<String> matchMake(@PathVariable Long tournamentId){
         matchmakeService.matchmake(tournamentId);
         return ResponseEntity.status(HttpStatus.CREATED).body("Matches created for tournament ID: " + tournamentId);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{tournamentId}")
-    public ResponseEntity<Tournament> getTournament(@PathVariable Long tournamentId){
-        Tournament tournament = matchmakeService.getTournament(tournamentId);
-        return ResponseEntity.ok(tournament);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
