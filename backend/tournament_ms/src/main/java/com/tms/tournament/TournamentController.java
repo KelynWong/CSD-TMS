@@ -153,7 +153,7 @@ public class TournamentController {
         // Get tournament
         Tournament oldTournament = tournamentService.getTournament(id);
         if (oldTournament == null) {
-            throw new TournamentNotFoundException(id);
+            throw new TournamentNotFoundException(id); //404
         }
 
         boolean foundWinner = false;
@@ -166,7 +166,7 @@ public class TournamentController {
         }
 
         if (!foundWinner) {
-            throw new PlayerNotFoundException(winner, id);
+            throw new PlayerNotFoundException(winner, id); // 404
         }
 
         // Update tournament
