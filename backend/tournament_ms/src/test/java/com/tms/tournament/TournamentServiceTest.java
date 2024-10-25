@@ -41,7 +41,7 @@ public class TournamentServiceTest {
     @InjectMocks
     private TournamentServiceImpl tournamentService;
 
-    @Autowired
+    @InjectMocks
 	private TestHelper helper;
 
     /* Unit Testing */
