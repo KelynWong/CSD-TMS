@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
 class GameServiceTest {
 
     @Mock
@@ -123,6 +122,36 @@ class GameServiceTest {
         verify(gameRepository).save(gamesToAdd.get(0));
         verify(gameRepository).save(gamesToAdd.get(1));
         verify(matchService).setWinnerAndUpdateParent(matchId, true);
+    }
+
+    @Test
+    void addGames_PlayerAlreadyWon_But3Games_ThrowIllegalArgumentException() {
+        // Arrange
+        Long matchId = 1L;
+        Game game1 = new Game();
+        game1.setSetNum((short) 1);
+        game1.setPlayer1Score((short) 21);
+        game1.setPlayer2Score(( short) 19);
+
+        Game game2 = new Game();
+        game2.setSetNum((short) 2);
+        game2.setPlayer1Score((short) 30);
+        game2.setPlayer2Score((short) 29);
+
+        Game game3 = new Game();
+        game3.setSetNum((short) 3);
+        game3.setPlayer1Score((short) 21);
+        game3.setPlayer2Score((short) 19);
+
+        List<Game> gamesToAdd = List.of(game1, game2, game3);
+        when(gameRepository.findByMatchId(matchId)).thenReturn(List.of());
+        when(matchRepository.existsById(matchId)).thenReturn(Boolean.TRUE);
+
+        // Act
+        // Assert
+        assertThrows(IllegalArgumentException.class, () -> gameService.addGames(matchId, gamesToAdd));
+        verify(gameRepository).findByMatchId(matchId);
+        verify(matchRepository).existsById(matchId);
     }
 
     @Test

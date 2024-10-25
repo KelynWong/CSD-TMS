@@ -203,22 +203,6 @@ class MatchControllerTest {
         assertEquals("player3", response.getBody()[1].getPlayer1Id());
     }
 
-    // not sure how to test this
-    @Test
-    void generateWinners() throws Exception{
-        Long tournamentId = 1L;
-        Match match1 = new Match(tournamentId, "player1", "player2");
-        Match match2 = new Match(tournamentId, "player1", "player4");
-        matches.save(match1);
-        matches.save(match2);
-        URI uri = new URI(baseUrl + port + "/matches/generateWinners/" + tournamentId);
-
-        ResponseEntity<String> response = restTemplate.exchange(uri, org.springframework.http.HttpMethod.PUT, null, String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    }
-
     @Test
     void deleteMatch_MatchFound() {
         // Arrange

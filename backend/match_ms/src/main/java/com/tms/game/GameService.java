@@ -26,6 +26,10 @@ public class GameService {
     @Autowired
     private MatchService matchService;
 
+    /**
+     * @param matchId
+     * @return
+     */
     public List<Game> getAllGamesByMatchId(Long matchId) {
         if (!matches.existsById(matchId)) {
             throw new MatchNotFoundException(matchId);
@@ -33,6 +37,11 @@ public class GameService {
         return games.findByMatchId(matchId);
     }
 
+    /**
+     * @param matchId
+     * @param gamesToAdd
+     * @return
+     */
     @Transactional
     public MatchJson addGames(Long matchId, List<Game> gamesToAdd) {
         validateGames(matchId, gamesToAdd);
@@ -48,6 +57,10 @@ public class GameService {
         return new MatchJson(match);
     }
 
+    /**
+     * @param matchId
+     * @param gamesToAdd
+     */
     private void validateGames(Long matchId, List<Game> gamesToAdd) {
         if (!this.getAllGamesByMatchId(matchId).isEmpty()) {
             throw new IllegalArgumentException("Games already exist for this match. Use PUT to update games.");
@@ -60,6 +73,9 @@ public class GameService {
         }
     }
 
+    /**
+     * @param game
+     */
     private void validateGame(Game game) {
         boolean setCheck = game.getSetNum() > 0 && game.getSetNum() <= 3;
 
@@ -77,21 +93,26 @@ public class GameService {
         }
     }
 
+    /**
+     * @param gamesToAdd
+     * @return
+     */
     private boolean checkWinner(List<Game> gamesToAdd) {
         int player1Wins = 0;
         int player2Wins = 0;
 
         for (int i = 0; i < gamesToAdd.size(); i++) {
             Game game = gamesToAdd.get(i);
+            if ((player1Wins == 2 || player2Wins == 2) && i == 2) {
+                throw new IllegalArgumentException("A player has already won in 2 games but 3 games are provided.");
+            }
+
             if (game.getPlayer1Score() > game.getPlayer2Score()) {
                 player1Wins++;
             } else {
                 player2Wins++;
             }
 
-            if ((player1Wins == 2 || player2Wins == 2) && i != 2) {
-                throw new IllegalArgumentException("A player has already won in 2 games but 3 games are provided.");
-            }
         }
 
         return player1Wins > player2Wins;
