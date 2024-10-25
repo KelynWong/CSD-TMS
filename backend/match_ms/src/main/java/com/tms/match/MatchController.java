@@ -112,12 +112,6 @@ public class MatchController {
         return matchService.addTournament(tournament);
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/data/{tournamentId}")
-    public ResponseEntity<String> generateWinners(@PathVariable Long tournamentId){
-        matchService.generateWinners(tournamentId);
-        return ResponseEntity.ok("Winners updated for all matches of tournament " + tournamentId);
-    }
 
     /**
      * Remove a Match with the DELETE request to "/matches/{id}"
