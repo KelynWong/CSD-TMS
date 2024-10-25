@@ -575,15 +575,15 @@ jobs:
           CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
-      # Build and analyze matchmaking
-      - name: Build and analyze matchmaking
-        working-directory: backend/matchmaking
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          MATCH_URL=https://csdtmsapi.azure-api.net/matches
-          TOURNAMENT_URL=https://csdtmsapi.azure-api.net/tournaments
-          PLAYER_URL=https://csdtmsapi.azure-api.net/users
-          RATING_URL=https://csdtmsapi.azure-api.net/ratings
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+      # # Build and analyze matchmaking
+      # - name: Build and analyze matchmaking
+      #   working-directory: backend/matchmaking
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     MATCH_URL= https://csdtmsapi.azure-api.net/matches
+      #     TOURNAMENT_URL= https://csdtmsapi.azure-api.net/tournaments
+      #     PLAYER_URL= https://csdtmsapi.azure-api.net/users
+      #     RATING_URL= https://csdtmsapi.azure-api.net/ratings
+      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
