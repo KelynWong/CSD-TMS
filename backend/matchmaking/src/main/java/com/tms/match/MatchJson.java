@@ -2,23 +2,29 @@ package com.tms.match;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Objects;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class MatchJson {
     private Long id;
-    private final Long tournamentId;
-    private final String player1Id;
-    private final String player2Id;
+    private Long tournamentId;
+    private String player1Id;
+    private String player2Id;
     private String winnerId;
     private Long left;
     private Long right;
     private List<Game> games;
+
+    public MatchJson(Long tournamentId, String player1Id, String player2Id) {
+        this.tournamentId = tournamentId;
+        this.player1Id = player1Id;
+        this.player2Id = player2Id;
+    }
 
     @Override
     public boolean equals(Object other) {

@@ -1,10 +1,14 @@
 package com.tms.exceptions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
@@ -95,6 +99,23 @@ public class RestExceptionHandler{
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<Object> handleHttpClientErrorException(HttpClientErrorException ex) {
+        Map<String, Object> body = new HashMap<>();
+        String errorMessage = ex.getResponseBodyAsString();
+
+        // Extract the error message from the JSON response
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> errorMap = objectMapper.readValue(errorMessage, new TypeReference<Map<String, String>>() {});
+            body.put("error", errorMap.get("error"));
+        } catch (JsonProcessingException e) {
+            body.put("error", "An error occurred while processing the error message.");
+        }
+
+        return new ResponseEntity<>(body, ex.getStatusCode());
     }
 
 }

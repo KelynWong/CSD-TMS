@@ -2,13 +2,13 @@ package com.tms.player;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class Player {
-    private final String id;
+    private String id;
     private String username;
     private String fullname;
     private String gender;
@@ -16,5 +16,10 @@ public class Player {
     private String role;
     private String country;
     private String profilePicture;
-    private final Rating rating;
+    private Rating rating;
+
+    public Player(String id, Rating rating) {
+        this.id = id;
+        this.rating = rating;
+    }
 }

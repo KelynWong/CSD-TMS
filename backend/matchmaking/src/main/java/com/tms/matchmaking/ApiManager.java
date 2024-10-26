@@ -114,10 +114,6 @@ public class ApiManager {
                 .retrieve()
                 .toEntity(MatchJson.class);
 
-        if (res.getStatusCode() != HttpStatus.OK) {
-            throw new MatchUpdateException(matchId);
-        }
-
         return res.getBody();
     }
 
