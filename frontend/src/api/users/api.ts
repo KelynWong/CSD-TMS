@@ -46,11 +46,15 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 				email: user.email,
 				role: user.role,
 				gender: user.gender,
-				rating: Math.floor(user.rating.rating) ? user.rating.rating : 0,
+				rating:
+					user.rating && user.rating.rating
+						? Math.floor(user.rating.rating)
+						: 0,
 				country: user.country,
 				profilePicture: user.profilePicture,
 			})
 		);
+        console.log(formattedData);
 		return formattedData;
 	} catch (error) {
 		console.error("Error fetching players", error);

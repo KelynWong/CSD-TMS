@@ -59,7 +59,7 @@ const PlayerHero = ({ player }: { player: Player }) => {
 					<div className="max-w-8xl mx-auto px-4 grid grid-cols-2 md:grid-cols-6 gap-4">
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Ranking</p>
-							<p className="text-2xl font-bold">3</p>
+							<p className="text-2xl font-bold"></p>
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Rating</p>

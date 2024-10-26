@@ -12,19 +12,17 @@ import {
 import * as React from "react";
 import { UpdateUserModal } from "./UpdateUserModal";
 import { DeleteUserModal } from "./DeleteUserModal";
+import Link from "next/link";
 
 /* eslint-disable */
 export function DataTableRowActions<TData>({ row }: { row: TData }) {
 	/* eslint-enable */
 	const [isUpdateModalOpen, setIsUpdateModalOpen] = React.useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-	const [userData, setUserData] = React.useState(row);
-	const handleSave = (updatedUser: TData) => {
-		setUserData(updatedUser);
-	};
+
 	return (
 		<>
-			<DropdownMenu>
+			<DropdownMenu modal={false}>
 				<DropdownMenuTrigger asChild>
 					<Button
 						variant="ghost"
@@ -34,17 +32,22 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-[160px]">
+					<Link href={`/players/${row.id}`} passHref>
+						<DropdownMenuItem >
+							View User Profile
+						</DropdownMenuItem>
+					</Link>
 					<DropdownMenuItem
 						onClick={() => {
 							setIsUpdateModalOpen(true);
 						}}>
-						Update User
+						Update User Profile
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => {
 							setIsDeleteModalOpen(true);
 						}}>
-						Delete User
+						Delete User Profile
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
@@ -52,15 +55,14 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 				<UpdateUserModal
 					isOpen={isUpdateModalOpen}
 					onClose={() => setIsUpdateModalOpen(false)}
-					userData={userData}
-					onSave={handleSave}
+					userData={row}
 				/>
 			)}
 			{isDeleteModalOpen && (
 				<DeleteUserModal
 					isOpen={isDeleteModalOpen}
 					onClose={() => setIsDeleteModalOpen(false)}
-					userData={userData}
+					userData={row}
 				/>
 			)}
 		</>
