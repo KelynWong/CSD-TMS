@@ -6,9 +6,6 @@ import com.svix.Webhook;
 import com.svix.exceptions.WebhookVerificationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.http.HttpHeaders;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,23 +47,32 @@ public class UserController {
   }
 
   @GetMapping("/top-players")
-  public Page<User> getTopRatings(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return userService.getTopPlayers(pageable);
+  public List<User> getTopRatings() {
+    return userService.getTopPlayers();
+  }
+
+  @GetMapping("/{id}/rank")
+  public ResponseEntity<Integer> getUserRank(@PathVariable String id) {
+      int rank = userService.getUserRank(id);
+      return ResponseEntity.ok(rank);
+  }
+
+  @PostMapping("/ranks")
+  public ResponseEntity<Map<String, Number>> getUserRanks(@RequestBody List<String> userIds) {
+    Map<String, Number> userRanks = userService.getUserRanks(userIds);
+    return ResponseEntity.ok(userRanks);
   }
 
   // Get user by ID
   @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+  public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
+      User user = userService.getUserById(id);
+      if (user != null) {
+          return ResponseEntity.ok(user);
+      } else {
+          return ResponseEntity.notFound().build();
+      }
+  }
 
   // Get user by list of ids
   @PostMapping("/ids")

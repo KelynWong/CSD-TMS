@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @NoArgsConstructor
-@Table(name = "\"rating\"", schema = "\"user\"")
+@Table(name = "\"rating\"", schema = "\"user\"", indexes = @Index(columnList = "rating DESC"))
 public class Rating implements Cloneable {
 	@Id
 	private String id;
