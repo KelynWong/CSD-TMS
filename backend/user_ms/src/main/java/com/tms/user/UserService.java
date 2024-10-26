@@ -3,9 +3,6 @@ package com.tms.user;
 import com.tms.exception.UserAlreadyExistsException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,13 +36,8 @@ public class UserService {
         return userRepository.findByIdInOrderByRatingDesc(ids);
     }
 
-    public Page<User> getTopPlayers(Pageable pageable) {
-        Pageable sortedByRatingDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize()
-        );
-//        return userRepository.findAll(sortedByRatingDesc);
-        return userRepository.findAllOrderByRatingDesc(sortedByRatingDesc);
+    public List<User> getTopPlayers() {
+        return userRepository.findAllOrderByRatingDesc();
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
