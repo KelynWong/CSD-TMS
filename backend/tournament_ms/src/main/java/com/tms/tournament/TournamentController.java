@@ -232,6 +232,11 @@ public class TournamentController {
             return false;
         }
 
+        if (tournament.getCreatedBy() == null){
+            log.info("ERROR: TOURNAMENT INPUT - NULL CREATOR");
+            return false;
+        }
+
         return true;
     }
 

@@ -53,6 +53,14 @@ public class PlayerControllerTest {
 	@Autowired
 	private TestHelper helper;
 
+	// @AfterEach
+	// void tearDown() {
+
+	// 	// clear the database after each test
+	// 	tournaments.deleteAll();
+	// 	players.deleteAll();
+	// }
+
 	/* START OF TESTING */
 	@Test // getAllRegisteredPlayerByTournamentId - case 1 : valid tournament id
 	public void getAllRegisteredPlayerByTournamentId_ValidTournamentId_Success() throws Exception {

@@ -14,9 +14,9 @@ import com.tms.tournamentplayer.*;
 public class TestHelper {
 
     @Autowired
-	private TournamentRepository tournaments;
-	@Autowired
-	private PlayerRepository players;
+    private TournamentRepository tournaments;
+    @Autowired
+    private PlayerRepository players;
 
     @Autowired
     public TestHelper(TournamentRepository tr, PlayerRepository pr) {
@@ -57,13 +57,18 @@ public class TestHelper {
                 tournament.setStartDT(endDT);
                 tournament.setEndDT(startDT);
                 break;
-            case "wrongStatus": //tbc
+            case "wrongStatus": // tbc
                 tournament.setStatus(null);
+                break;
+            case "nullCreater":
+                // no err - tournament is valid
+                tournament.setCreatedBy(null);
                 break;
             case "noError":
                 // no err - tournament is valid
                 tournament.setTournamentName("Tournament Controller Testing - Valid");
                 break;
+
         }
 
         return tournament;
