@@ -6,9 +6,6 @@ import com.svix.Webhook;
 import com.svix.exceptions.WebhookVerificationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.http.HttpHeaders;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,11 +47,8 @@ public class UserController {
   }
 
   @GetMapping("/top-players")
-  public Page<User> getTopRatings(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return userService.getTopPlayers(pageable);
+  public List<User> getTopRatings() {
+    return userService.getTopPlayers();
   }
 
   // Get user by ID
