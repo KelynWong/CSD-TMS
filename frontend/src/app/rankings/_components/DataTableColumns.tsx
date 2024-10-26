@@ -5,10 +5,10 @@ import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import { DataTableRowActions } from "./DataTableRowOptions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Player } from "@/types/player";
+import { PlayerResponse } from "@/api/users/api";
 
 
-export const columns: ColumnDef<Player>[] = [
+export const columns: ColumnDef<PlayerResponse>[] = [
 	{
 		accessorKey: "ranking",
 		header: ({ column }) => (

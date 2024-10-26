@@ -13,9 +13,10 @@ const PlayerHero = ({ player }: { player: Player }) => {
 	const lastName = player?.fullname
 		? player.fullname.split(" ").slice(-1).join(" ")
 		: "";
-	const winRate = player
-		? Math.ceil((player.wins / player.total_matches) * 100)
-		: 0;
+	  const winRate =
+			player && player.wins >= 0 && player.total_matches > 0
+				? Math.ceil((player.wins / player.total_matches) * 100)
+				: 0;
 
 	return (
 		<div className="bg-black text-white">
