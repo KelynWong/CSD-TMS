@@ -7,18 +7,26 @@ import { PlayerResponse, fetchTopPlayers } from "../../api/users/api";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
+interface PlayerWithRank extends PlayerResponse {
+    ranking: number;
+}
+
 export default function Players() {
     const [loading, setLoading] = useState(true);
 	
 	// Set top 10 players state
-	const [top10Players, setTop10Players] = useState<PlayerResponse[]>([]);
+	const [topPlayers, setTopPlayers] = useState<PlayerWithRank[]>([]);
 
     // Fetch top 10 players on page load
 	useEffect(() => {
 		const fetchPlayers = async () => {
 			try {
 				const players = await fetchTopPlayers();
-                setTop10Players(players);
+				const playersWithRank: PlayerWithRank[] = players.map((player, index) => ({
+                    ...player,
+                    ranking: index + 1,
+                    }));
+                setTopPlayers(playersWithRank);
                 setLoading(false);
 			} catch (error) {
 				console.error("Failed to fetch top players", error);
@@ -27,7 +35,8 @@ export default function Players() {
 		fetchPlayers();
 	}, []);
     
-    console.log(top10Players);
+    const top10Players = topPlayers.slice(0, 10);
+    console.log(topPlayers);
 
     // Show loading spinner while fetching data
     if (loading) {
@@ -40,7 +49,7 @@ export default function Players() {
 				<PlayersCarousel players={top10Players}/>
 			</div>
 			<div className="container mx-auto py-10">
-				<DataTable columns={columns} data={top10Players} />
+				<DataTable columns={columns} data={topPlayers} />
 			</div>
 		</div>
 	);

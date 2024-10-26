@@ -61,7 +61,7 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
 		const response = await axios.get(`${URL}/${id}`);
-        console.log(response.data);
+		console.log(response.data);
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -127,24 +127,25 @@ const updateUser = async (id: string, formData: FormData) => {
 
 // Fetch players ordered by rating
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
-    try {
-        const response = await axios.get(`${URL}/top-players?page=0&size=10`);
-        console.log(response.data);
-        const formattedData: PlayerResponse[] = response.data.content.map((player: any) => ({
-            id: player.id,
-            username: player.username,
-            fullname: player.fullname,
-            gender: player.gender,
-            rating: Math.floor(player.rating.rating),
-            country: player.country,
-            profilePicture: player.profilePicture,
-            email: player.email,
-            role: player.role,
-        }));
-        return formattedData;
-    }
-    catch (error) {
-        console.error("Failed to fetch top players", error);
-        throw error;
-    }
-}
+	try {
+		const response = await axios.get(`${URL}/top-players`);
+		console.log(response.data);
+		const formattedData: PlayerResponse[] = response.data.map(
+			(player: any) => ({
+				id: player.id,
+				username: player.username,
+				fullname: player.fullname,
+				gender: player.gender,
+				rating: Math.floor(player.rating.rating),
+				country: player.country,
+				profilePicture: player.profilePicture,
+				email: player.email,
+				role: player.role,
+			})
+		);
+		return formattedData;
+	} catch (error) {
+		console.error("Failed to fetch top players", error);
+		throw error;
+	}
+};
