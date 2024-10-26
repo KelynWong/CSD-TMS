@@ -11,6 +11,7 @@ import {
 import * as React from "react";
 import { deleteUser } from "../_actions";
 import { message } from "antd";
+import { useFetchUsersContext } from "@/context/fetchUsersContext";
 
 export function DeleteUserModal({
 	isOpen,
@@ -21,15 +22,21 @@ export function DeleteUserModal({
 	onClose: () => void;
 	userData: TData;
 }) {
+	const { setShouldFetchUsers } = useFetchUsersContext();
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
 			const response = await deleteUser(userData.id);
-			message.success("User deleted successfully");
+			setTimeout(() => {
+				setShouldFetchUsers(true);
+				message.success("User deleted successfully");
+				onClose();
+			}, 1500);
 		} catch (error) {
-      message.error("Failed to delete user");
+			message.error("Failed to delete user");
 		}
-    onClose(); // Close the modal
+		onClose(); // Close the modal
 	};
 
 	return (

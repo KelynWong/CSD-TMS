@@ -31,7 +31,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					username: data.username,
 					fullname: data.fullname,
 					gender: data.gender,
-					ranking: 1,
+					ranking: 1, // TODO: Implement ranking
 					rating: data.rating ? data.rating : 0,
 					wins: stats.wins ? stats.wins : 0,
 					losses: stats.losses ? stats.losses : 0,
@@ -119,7 +119,13 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				<DataTable columns={columns} data={MatchHistory} />
 			</div>
 			<div className="container mx-auto py-5 px-5">
-				<TournamentHistory tournaments={tournaments} />
+				{tournaments.length > 0 ? (
+					<TournamentHistory tournaments={tournaments} />
+				) : (
+					<div className="flex justify-center">
+						<p className="text-xl">No tournaments available.</p>
+					</div>
+				)}
 			</div>
 		</>
 	);
