@@ -10,31 +10,56 @@ import { useState, useEffect } from "react";
 import { fetchPlayer } from "@/api/users/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
+import { fetchPlayerStats } from "@/api/matches/api";
+import {
+	fetchTournamentByPlayerId,
+	tournamentResponse,
+} from "@/api/tournaments/api";
 
 export default function UserProfile() {
 	const { user } = useUserContext();
 	const [player, setPlayer] = useState<Player | null>(null);
+	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		if (user) {
+			console.log(user);
 			const getPlayerData = async () => {
 				try {
 					const data = await fetchPlayer(user.id);
+					const stats = await fetchPlayerStats(user.id);
+					const tournaments = await fetchTournamentByPlayerId(
+						user.id
+					);
 					setLoading(false);
 					const mappedData: Player = {
 						id: user.id,
 						username: user.username,
 						fullname: user.fullName,
-						gender: user.publicMetadata.gender,
-						ranking: 1,
+						gender: user.gender,
+						ranking: 1, // TODO: Implement ranking
 						rating: data.rating ? data.rating : 0,
+						wins: stats.wins ? stats.wins : 0,
+						losses: stats.losses ? stats.losses : 0,
+						total_matches: stats.gamesPlayed
+							? stats.gamesPlayed
+							: 0,
 						profilePicture: user.imageUrl,
-						wins: 10,
-						losses: 5,
-						total_matches: 15,
 						country: user.publicMetadata.country,
 					};
+
+					const tournamentHistory = tournaments.map((tournament) => ({
+						id: tournament.id,
+						tournamentName: tournament.tournamentName,
+						startDT: formatDate(new Date(tournament.startDT)),
+						endDT: formatDate(new Date(tournament.endDT)),
+						status: tournament.status,
+						regStartDT: formatDate(new Date(tournament.regStartDT)),
+						regEndDT: formatDate(new Date(tournament.regEndDT)),
+						winner: tournament.winner,
+					}));
+					setTournaments(tournamentHistory);
 					setPlayer(mappedData);
 				} catch (err) {
 					console.error("Failed to fetch player:", err);
@@ -94,138 +119,6 @@ export default function UserProfile() {
 			datetime: formatDate(new Date("2024-01-01 13:00:00")),
 		},
 	];
-	type Tournament = {
-		id: number;
-		name: string;
-		start_date: string;
-		end_date: string;
-		status: string;
-		result: string;
-	};
-
-	const TournamentHistories: Tournament[] = [
-		// Add your tournament history data here
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "Completed",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-		{
-			id: 1,
-			name: "Singapore Open",
-			start_date: formatDate(new Date("2024-01-01 10:00:00")),
-			end_date: formatDate(new Date("2024-01-01 10:00:00")),
-			status: "In Progress",
-			result: "Win",
-		},
-	];
 
 	return (
 		<>
@@ -235,7 +128,13 @@ export default function UserProfile() {
 				<DataTable columns={columns} data={MatchHistory} />
 			</div>
 			<div className="container mx-auto py-5 px-5">
-				<TournamentHistory tournaments={TournamentHistories} />
+				{tournaments.length > 0 ? (
+					<TournamentHistory tournaments={tournaments} />
+				) : (
+					<div className="flex justify-center">
+						<p className="text-xl">No tournaments available.</p>
+					</div>
+				)}
 			</div>
 		</>
 	);
