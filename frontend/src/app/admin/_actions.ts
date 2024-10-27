@@ -16,7 +16,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
     const fullname = formData.get("fullname");
     const names = fullname.split(" ");
     const firstName = names[0];
-    const lastName = names[1];
+    const lastName = names.slice(1).join(" ");
 
     // check if the profile picture is a placeholder
 	if (!isProfilePicturePlaceholder) {
