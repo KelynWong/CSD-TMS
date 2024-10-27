@@ -17,8 +17,9 @@ public class Rating {
 	private int numberOfResults;
 	private LocalDateTime lastRatingPeriodEndDate;
 
-	public Rating(String id, double rating) {
+	public Rating(String id, double rating, double ratingDeviation) {
 		this.id = id;
 		this.rating = rating;
+		this.ratingDeviation = ratingDeviation;
 	}
 }

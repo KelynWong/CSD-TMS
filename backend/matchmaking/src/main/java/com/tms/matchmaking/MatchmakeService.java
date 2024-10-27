@@ -5,22 +5,25 @@ import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
 import com.tms.player.Player;
+import com.tms.player.RatingCalculator;
 import com.tms.player.ResultsDTO;
 import com.tms.tournament.Tournament;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class MatchmakeService {
 
     private final ApiManager apiManager;
+    private final RatingCalculator ratingCalc;
 
-    public MatchmakeService(ApiManager apiManager) {
+    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc) {
         this.apiManager = apiManager;
+        this.ratingCalc = ratingCalc;
     }
 
     public List<MatchJson> matchmake(Long tournamentId) {
@@ -146,5 +149,125 @@ public class MatchmakeService {
         }
 
         return match;
+    }
+
+    // todo: fix this function
+    public List<Map<String, Double>> simManyTournament(Long tournamentId) {
+        final int NUM_SIMULATIONS = 1000;
+        List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
+        List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
+        List<MatchJson> matches = apiManager.getTournamentMatches(tournamentId);
+
+        Map<Long, MatchJson> idToMatch = mapMatchesById(matches);
+        Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+
+        setParentMatches(matches, idToMatch);
+
+        Random random = new Random(); // Set seed for reproducibility
+
+        List<Map<String, Double>> results = new ArrayList<>();
+        for (int i = 0; i < NUM_SIMULATIONS; i++) {
+            simulateMatches(matches, idToMatch, idToPlayer, random);
+//            results.add(apiManager.getTournamentResults(tournamentId));
+        }
+        return null;
+    }
+
+    public List<MatchJson> simTournament(Long tournamentId) {
+        List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
+        List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
+        List<MatchJson> matches = apiManager.getTournamentMatches(tournamentId);
+
+        Map<Long, MatchJson> idToMatch = mapMatchesById(matches);
+        Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+
+        setParentMatches(matches, idToMatch);
+
+        Random random = new Random(); // Set seed for reproducibility
+        simulateMatches(matches, idToMatch, idToPlayer, random);
+        return matches;
+    }
+
+    private Map<Long, MatchJson> mapMatchesById(List<MatchJson> matches) {
+        return matches.stream()
+                .collect(Collectors.toMap(MatchJson::getId, Function.identity()));
+    }
+
+    private Map<String, Player> mapPlayersById(List<Player> playerRatings) {
+        return playerRatings.stream()
+                .collect(Collectors.toMap(Player::getId, Function.identity()));
+    }
+
+    private void setParentMatches(List<MatchJson> matches, Map<Long, MatchJson> idToMatch) {
+        for (MatchJson match : matches) {
+            if (match.getLeft() != null) {
+                MatchJson leftMatch = idToMatch.get(match.getLeft());
+                leftMatch.setParent(match.getId());
+            }
+
+            if (match.getRight() != null) {
+                MatchJson rightMatch = idToMatch.get(match.getRight());
+                rightMatch.setParent(match.getId());
+            }
+        }
+    }
+
+    private void simulateMatches(List<MatchJson> matches, Map<Long, MatchJson> idToMatch, Map<String, Player> idToPlayer, Random random) {
+        for (MatchJson match : matches) {
+            if (match.getPlayer1Id() != null && match.getPlayer2Id() != null) {
+                Player player1 = idToPlayer.get(match.getPlayer1Id());
+                Player player2 = idToPlayer.get(match.getPlayer2Id());
+
+                double winProb = ratingCalc.calcWinProb(player1.getRating().getRating(), player1.getRating().getRatingDeviation(),
+                        player2.getRating().getRating(), player2.getRating().getRatingDeviation());
+                boolean player1Wins = getMatchWinner(random, winProb);
+                match.setWinnerId(player1Wins ? match.getPlayer1Id() : match.getPlayer2Id());
+                match.setGames(simulateGames(player1Wins, random));
+
+                if (match.getParent() != null) {
+                    updateNextMatch(idToMatch, match);
+                }
+            }
+        }
+    }
+
+    private void updateNextMatch(Map<Long, MatchJson> idToMatch, MatchJson match) {
+        MatchJson nextMatch = idToMatch.get(match.getParent());
+        if (nextMatch.getPlayer1Id() == null) {
+            nextMatch.setPlayer1Id(match.getWinnerId());
+        } else {
+            nextMatch.setPlayer2Id(match.getWinnerId());
+        }
+    }
+
+    private boolean getMatchWinner(Random random, double winProb) {
+        return random.nextDouble() < winProb;
+    }
+
+    private List<Game> simulateGames(boolean player1Wins, Random random) {
+        List<Game> games = new ArrayList<>();
+        int numGames = random.nextBoolean() ? 2 : 3; // Randomly decide between 2 or 3 games
+
+        for (int i = 0; i < numGames; i++) {
+            int loserPoints = random.nextInt(15) + 5; // Random points between 5 and 19 for the loser
+            short player1Score, player2Score;
+
+            if (numGames == 2 || i == 2) {
+                player1Score = player1Wins ? 21 : (short) loserPoints;
+                player2Score = player1Wins ? (short) loserPoints : 21;
+            } else if (i == 0) {
+                boolean player1WinsGame = random.nextBoolean();
+                player1Score = player1WinsGame ? 21 : (short) loserPoints;
+                player2Score = player1WinsGame ? (short) loserPoints : 21;
+            } else {
+                boolean player1WinsFirstGame = games.get(0).getPlayer1Score() == 21;
+                player1Score = player1WinsFirstGame ? (short) loserPoints : 21;
+                player2Score = player1WinsFirstGame ? 21 : (short) loserPoints;
+            }
+
+            games.add(new Game((short) (i + 1), player1Score, player2Score));
+        }
+
+        return games;
     }
 }

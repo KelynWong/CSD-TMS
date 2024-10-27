@@ -19,6 +19,7 @@ public class MatchJson {
     private Long left;
     private Long right;
     private List<Game> games;
+    private Long parent;
 
     public MatchJson(Long tournamentId, String player1Id, String player2Id) {
         this.tournamentId = tournamentId;

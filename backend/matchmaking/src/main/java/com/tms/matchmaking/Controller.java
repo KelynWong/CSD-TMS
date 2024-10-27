@@ -38,4 +38,10 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.CREATED).body(match);
     }
 
+    @GetMapping("/matches/{tournamentId}/simulate")
+    public ResponseEntity<List<MatchJson>> getMatches(@PathVariable Long tournamentId) {
+        List<MatchJson> matches = matchmakeService.simTournament(tournamentId);
+        return ResponseEntity.ok(matches);
+    }
+
 }

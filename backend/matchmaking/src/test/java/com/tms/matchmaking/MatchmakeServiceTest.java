@@ -7,13 +7,14 @@ import com.tms.match.Game;
 import com.tms.match.MatchJson;
 import com.tms.player.Player;
 import com.tms.player.Rating;
+import com.tms.player.RatingCalculator;
 import com.tms.player.ResultsDTO;
 import com.tms.tournament.Tournament;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,11 +31,21 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MatchmakeServiceTest {
 
+    private final int DEFAULT_RATING = 1500;
+    private final int DEFAULT_RATING_DEVIATION = 350;
+
     @Mock
     private ApiManager apiManager;
 
-    @InjectMocks
+    private RatingCalculator ratingCalc;
+
     private MatchmakeService matchmakeService;
+
+    @BeforeEach
+    void setUp() {
+        ratingCalc = new RatingCalculator(); // Use the actual implementation
+        matchmakeService = new MatchmakeService(apiManager, ratingCalc);
+    }
 
     @Test
     void matchmake_TournamentAlreadyExists_ThrowsException() {
@@ -85,7 +97,7 @@ public class MatchmakeServiceTest {
         List<Player> players = new ArrayList<>();
         for (int i = 0; i < numPlayers; i++) {
             String userId = "user" + (i + 1);
-            Rating rating = new Rating(userId, 1500 - (i * 100));
+            Rating rating = new Rating(userId, DEFAULT_RATING - (i * 100), DEFAULT_RATING_DEVIATION);
             players.add(new Player(userId, rating));
         }
         return players;
@@ -109,8 +121,9 @@ public class MatchmakeServiceTest {
 
     @Test
     void matchmake_TournamentNotFound_CreatesMatchesRandomisePlayerWithSameRating() {
-        List<Player> players = createPlayersWithRatings(new int[]{1500, 1400, 1300}, 2);
-        players.add(new Player("user7", new Rating("user7", 1200)));
+        List<Player> players = createPlayersWithRatings(new int[]{DEFAULT_RATING, DEFAULT_RATING - 100,
+                DEFAULT_RATING - 200}, 2);
+        players.add(new Player("user7", new Rating("user7", 1200, DEFAULT_RATING_DEVIATION)));
 
         int n = players.size();
         int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
@@ -123,6 +136,8 @@ public class MatchmakeServiceTest {
 
         List<String> byePlayers = new ArrayList<>();
         Map<Integer, List<String[]>> tournamentToPair = new HashMap<>();
+
+        // run matchmake 20 times to test randomness of pairings
         for (int i = 0; i < 20; i++) {
             List<MatchJson> matchesCreated = matchmakeService.matchmake(1L);
             byePlayers.add(matchesCreated.get(0).getPlayer1Id());
@@ -159,7 +174,7 @@ public class MatchmakeServiceTest {
         for (int rating : ratings) {
             for (int i = 0; i < countPerRating; i++) {
                 String userId = "user" + (players.size() + 1);
-                players.add(new Player(userId, new Rating(userId, rating)));
+                players.add(new Player(userId, new Rating(userId, rating, DEFAULT_RATING_DEVIATION)));
             }
         }
         return players;
@@ -186,7 +201,7 @@ public class MatchmakeServiceTest {
         match2.setId(2L);
         match2.setGames(games);
 
-        MatchJson match3 = new MatchJson(1L, "user1", "user3");
+        MatchJson match3 = new MatchJson(1L, null, null);
         match3.setId(3L);
         match3.setGames(games);
 
@@ -242,4 +257,42 @@ public class MatchmakeServiceTest {
         verify(apiManager, times(1)).updateTournamentWinner(tournamentId, "user1");
     }
 
+    @Test
+    void simTournamentRes_TournamentExists_ReturnFilledTournament() {
+        List<String> winners = new ArrayList<>();
+
+        // run simTournament 5 times to test randomness of simulations
+        for (int i = 0; i < 1000; i++) {
+            MatchJson match1 = new MatchJson(1L, "user1", "user2");
+            match1.setId(1L);
+
+            MatchJson match2 = new MatchJson(1L, "user3", "user4");
+            match2.setId(2L);
+
+            MatchJson match3 = new MatchJson(1L, null, null);
+            match3.setLeft(1L);
+            match3.setRight(2L);
+            match3.setId(3L);
+
+            List<Player> players = createPlayers(4);
+
+            when(apiManager.getTournamentMatches(anyLong())).thenReturn(List.of(match1, match2, match3));
+            when(apiManager.fetchTournamentPlayerIds(anyLong())).thenReturn(players);
+            when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+
+            List<MatchJson> simTournament = matchmakeService.simTournament(1L);
+
+            assertEquals(3, simTournament.size());
+            MatchJson game3 = simTournament.get(2);
+            assertNotNull(game3.getWinnerId());
+
+            winners.add(game3.getWinnerId());
+        }
+
+        // assert that player1 wins tournament > player2 > player3 > player4
+        Map<String, Long> winnerCount = winners.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+        assertTrue(winnerCount.get("user1") > winnerCount.get("user2"));
+        assertTrue(winnerCount.get("user2") > winnerCount.get("user3"));
+        assertTrue(winnerCount.get("user3") > winnerCount.get("user4"));
+    }
 }
