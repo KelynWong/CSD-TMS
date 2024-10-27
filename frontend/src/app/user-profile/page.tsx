@@ -15,8 +15,13 @@ import {
 	fetchTournamentByPlayerId,
 	tournamentResponse,
 } from "@/api/tournaments/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function UserProfile() {
+    // Set navbar context
+    const { setState } = useNavBarContext();
+    setState("profile");
+    
 	const { user } = useUserContext();
 	const [player, setPlayer] = useState<Player | null>(null);
 	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);

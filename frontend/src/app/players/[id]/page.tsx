@@ -14,11 +14,17 @@ import {
 	fetchTournamentByPlayerId,
 	tournamentResponse,
 } from "@/api/tournaments/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function PlayerProfile({ params }: { params: { id: string } }) {
+	// Set navbar context
+	const { setState } = useNavBarContext();
+	setState("players");
 	const [player, setPlayer] = useState<Player | null>(null);
+	// Set loading state
 	const [loading, setLoading] = useState(true);
 	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
+
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {

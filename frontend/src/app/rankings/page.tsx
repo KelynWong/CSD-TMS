@@ -6,13 +6,19 @@ import { columns } from "./_components/DataTableColumns";
 import { PlayerResponse, fetchTopPlayers } from "../../api/users/api";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
+import { useNavBarContext } from "@/context/navBarContext";
 
 interface PlayerWithRank extends PlayerResponse {
     ranking: number;
 }
 
 export default function Players() {
+    // Set loading state
     const [loading, setLoading] = useState(true);
+
+    // Set navbar context
+    const { setState } = useNavBarContext();
+    setState("rankings");
 	
 	// Set top 10 players state
 	const [topPlayers, setTopPlayers] = useState<PlayerWithRank[]>([]);
