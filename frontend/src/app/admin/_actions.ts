@@ -2,6 +2,8 @@
 
 import { clerkClient } from "@clerk/nextjs/server";
 
+
+// update user
 export const updateUser = async (userId: string, formData: FormData) => {
 	if (!userId) {
 		return { message: "No Logged In User" };
@@ -10,6 +12,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
 	const user = await clerkClient().users.getUser(userId);
 
 	const base64String = formData.get("profilePicture");
+    // check if the profile picture is a placeholder
 	const isProfilePicturePlaceholder = base64String.startsWith("https://");
 
     // get first name and last name from full name
@@ -18,7 +21,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
     const firstName = names[0];
     const lastName = names.slice(1).join(" ");
 
-    // check if the profile picture is a placeholder
+    // create file from base64 string
 	if (!isProfilePicturePlaceholder) {
 		const cleanBase64String = base64String.replace(
 			/^data:image\/\w+;base64,/,
@@ -36,6 +39,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
 			file,
 		};
         
+        // update user profile image
         try {
             // update user profile image
 			const response = await clerkClient().users.updateUserProfileImage(
@@ -61,9 +65,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
 				gender: formData.get("gender"),
 				country: formData.get("country"),
 			},
-		});
-        console.log(response1);
-        
+		});   
 		return { message: "User metadata Updated" };
 	} catch (e) {
 		console.log("error", e);
@@ -71,6 +73,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
 	}
 };
 
+// delete user
 export const deleteUser = async (userId: string) => {
 	try {
 		await clerkClient().users.deleteUser(userId);
