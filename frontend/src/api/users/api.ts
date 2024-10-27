@@ -117,18 +117,6 @@ export const fetchUserByRoles = async (
 	}
 };
 
-//TODO update this
-const updateUser = async (id: string, formData: FormData) => {
-	try {
-		const response = await axios.put(`${URL}/${id}`, formData);
-		console.log(response.data);
-		return response.data;
-	} catch (error) {
-		console.error("Error updating user", error);
-		throw error;
-	}
-};
-
 // Fetch players ordered by rating
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
