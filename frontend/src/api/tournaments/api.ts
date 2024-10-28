@@ -14,22 +14,10 @@ export interface tournamentResponse {
 	winner: string;
 }
 
-export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
+export const fetchTournaments = async (): Promise<Tournament[]> => {
 	try {
 		const response = await axios.get(`${URL}`);
-		const formattedData: tournamentResponse[] = response.data.map(
-			(tournament: any) => ({
-				id: tournament.id,
-				tournamentName: tournament.tournamentName,
-				startDT: tournament.startDT,
-				endDT: tournament.endDT,
-				status: tournament.status,
-				regStartDT: tournament.regStartDT,
-				regEndDT: tournament.regEndDT,
-			})
-		);
-
-		return formattedData;
+		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
 		throw error;

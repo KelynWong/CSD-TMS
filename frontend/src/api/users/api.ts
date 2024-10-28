@@ -61,6 +61,16 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 	}
 };
 
+export const fetchOrganizer = async (id: string): Promise<string> => {
+	try {
+		const response = await axios.get(`${URL}/${id}`);
+		return response.data.fullname;
+	} catch (error) {
+		console.error("Error fetching organizer", error);
+		throw error;
+	}
+};
+
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
 		const response = await axios.get(`${URL}/${id}`);
