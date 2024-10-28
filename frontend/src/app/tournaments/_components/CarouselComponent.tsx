@@ -3,7 +3,7 @@ import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carouse
 import React, { useState, useRef } from 'react';
 import Link from "next/link";
 import type { Player } from "@/types/tournamentDetails";
-import Lookup from 'country-code-lookup';
+import TPlayer from './TPlayer';
 
 const ITEMS_PER_PAGE = 16;
 
@@ -31,25 +31,12 @@ const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
                 <CarouselContent className="m-0">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {currentItems.map((player, index) => {
-                            // Lookup the country name to get the country code
-                            var country = Lookup.byCountry(player.country) || 
-                                            Lookup.byInternet(player.country) || 
-                                            Lookup.byIso(player.country);
-                            const countryCode = country ? country.iso2 : null;
-
-                            // Handle missing country code cases
-                            if (!countryCode) {
-                                console.error(`Country code not found for: ${player.country}`);
-                            }
-
-                            console.log(countryCode);
                             return (
                                 <Link href={`/players/${player.id}`} key={index}>
                                     <CarouselItem className="m-0 p-0">
                                         <Card className="border-2 border-yellow-400 rounded-lg">
-                                            <CardContent className="flex flex-col items-center justify-items-center py-4 px-3">
-                                                <img src={`https://flagcdn.com/w320/${countryCode?.toLowerCase()}.png`} alt={player.country} className="rounded-full object-cover w-6 h-6" />
-                                                <p className="w-full text-center font-medium truncate pt-1.5">{player.fullname}</p>
+                                            <CardContent className="flex flex-col items-center justify-items-center py-4 px-3 text-center gap-1.5">
+                                                <TPlayer player={player} />
                                             </CardContent>
                                         </Card>
                                     </CarouselItem>
