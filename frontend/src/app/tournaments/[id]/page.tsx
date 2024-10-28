@@ -15,11 +15,10 @@ import SetEditForm from "../_components/SetEditForm";
 import CarouselComponent from "../_components/CarouselComponent";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import { fetchTournamentById } from "@/api/tournaments/api";
+import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
 import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
-import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
-import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
+import type { RootMatch, TournamentDetails, Match, Player } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
 import { fetchPlayer } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
@@ -79,16 +78,32 @@ export default function TournamentDetails() {
                 status: tournamentData.status,
                 organizer: tournamentData.createdBy,
                 rootMatch: null, // Initialize rootMatch as empty
-                players: [], // Initialize players as empty
+                players: [] as Player[], // Initialize players as empty
                 matches: [] as Match[], // Initialize matches with explicit type
             };
 
             const isTournamentActive = tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
 
             if (isTournamentActive) {
-                const mmData = await fetchMatchMakingByTournamentId(Number(id));
+                const playersData = await fetchAllPlayersByTournament(Number(id));
+                const fullPlayersData = await Promise.all(
+                    playersData.map(async (player) => {
+                        const playerData = await fetchPlayer(player.id);
+                        return {
+                            id: player.id,
+                            username: playerData.username,
+                            fullname: playerData.fullname,
+                            gender: playerData.gender,
+                            rating: playerData.rating,
+                            country: playerData.country,
+                            profilePicture: playerData.profilePicture,
+                            email: playerData.email,
+                            role: playerData.role,
+                        };
+                    })
+                );
+
                 const matchesData = await fetchMatchByTournamentId(Number(id));
-            
                 const enrichedMatches = await Promise.all(
                     matchesData.map(async (match) => {
                         const games = await fetchGamesByMatchId(match.id);
@@ -113,7 +128,7 @@ export default function TournamentDetails() {
                 // Add matchmaking and match details without resetting dates unnecessarily
                 tournamentDetails = {
                     ...tournamentDetails,
-                    ...mmData,
+                    players: fullPlayersData,
                     matches: enrichedMatches, // Add matches with sets
                 };
             }                

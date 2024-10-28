@@ -11,15 +11,14 @@ export interface Match {
 
 export interface Player {
     id: string;
-    username: string;
-    fullname: string;
-    password: string | null;
-    gender: string;
-    email: string;
-    role: string;
-    rank: number | null;
-    country: string;
-    profilePicture: string | null;
+	username: string;
+	fullname: string;
+	email: string;
+	role: string;
+	gender: string;
+	rating: number;
+	country: string;
+	profilePicture: string;
 }
 
 export interface Game {
