@@ -17,24 +17,24 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
 import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
-import TournamentResultTable from "../_components/TournamentResultTable";
-import type { RootMatch, TournamentDetails, Match, Player } from "@/types/tournamentDetails";
+// import TournamentResultTable from "../_components/TournamentResultTable";
+import type { TournamentDetails, Match, Player } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
-import { fetchPlayer } from "@/api/users/api";
+import { fetchOrganizer, fetchPlayer } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
 
-function countMatches(rootMatch: RootMatch | null): number {
+// function countMatches(rootMatch: RootMatch | null): number {
 
-    if (!rootMatch) {
-        return 0;
-    }
+//     if (!rootMatch) {
+//         return 0;
+//     }
     
-    // Count the current match + recursively count matches on the left and right
-    const leftCount = rootMatch.left ? countMatches(rootMatch.left) : 0;
-    const rightCount = rootMatch.right ? countMatches(rootMatch.right) : 0;
+//     // Count the current match + recursively count matches on the left and right
+//     const leftCount = rootMatch.left ? countMatches(rootMatch.left) : 0;
+//     const rightCount = rootMatch.right ? countMatches(rootMatch.right) : 0;
     
-    return 1 + leftCount + rightCount; // 1 for the current match
-}
+//     return 1 + leftCount + rightCount; // 1 for the current match
+// }
 
 export default function TournamentDetails() {
     // Set navbar context
@@ -67,6 +67,8 @@ export default function TournamentDetails() {
         try {
             // Fetch tournament details
             const tournamentData = await fetchTournamentById(Number(id));
+            const organiserData = await fetchOrganizer(tournamentData.createdBy);
+            console.log(organiserData);
 
             let tournamentDetails = {
                 id: tournamentData.id,
@@ -76,8 +78,8 @@ export default function TournamentDetails() {
                 regStartDT: new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
                 regEndDT: new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
                 status: tournamentData.status,
-                organizer: tournamentData.createdBy,
-                rootMatch: null, // Initialize rootMatch as empty
+                organizer: organiserData,
+                winner: tournamentData.winner,
                 players: [] as Player[], // Initialize players as empty
                 matches: [] as Match[], // Initialize matches with explicit type
             };
@@ -155,7 +157,7 @@ export default function TournamentDetails() {
         return <Loading />;
     }
 
-    const totalMatches = countMatches(tournamentDetails?.rootMatch ?? null);
+    const totalMatches = tournamentDetails?.matches.length ?? null;
 
     const formattedStartDT = tournamentDetails?.startDT ? new Date(tournamentDetails.startDT) : new Date();
     const startDate = new Intl.DateTimeFormat('en-GB', {
@@ -294,9 +296,9 @@ export default function TournamentDetails() {
                             <div className="w-full my-5 results">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
 
-                                {tournamentDetails.rootMatch && (
+                                {/* {tournamentDetails.rootMatch && (
                                     <TournamentResultTable matchResult={tournamentDetails.rootMatch} />
-                                )}
+                                )} */}
                             </div>
 
                             <div className="w-full my-5 matches">
