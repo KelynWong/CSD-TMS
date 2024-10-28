@@ -1,7 +1,6 @@
 package com.tms.match;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,8 +9,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import com.tms.MatchServiceApplication;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -166,7 +163,7 @@ class MatchControllerTest {
     @Test
     void addMatch() {
         // Arrange
-        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null);
+        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
         URI uri = URI.create(baseUrl + port + "/matches");
 
         // Act
@@ -183,8 +180,8 @@ class MatchControllerTest {
     @Test
     void addTournament() {
         // Arrange
-        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null);
-        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null);
+        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null, null);
+        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
         List<MatchJson> matches = Arrays.asList(match1, match2);
         CreateTournament tournament = new CreateTournament(matches, 2);
 

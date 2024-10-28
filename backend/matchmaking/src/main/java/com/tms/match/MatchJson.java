@@ -21,6 +21,7 @@ public class MatchJson {
     private Long right;
     private List<Game> games;
     private Long parent;
+    private int roundNum;
 
     public MatchJson(Long tournamentId, String player1Id, String player2Id) {
         this.tournamentId = tournamentId;
@@ -39,6 +40,7 @@ public class MatchJson {
         this.left = other.left;
         this.right = other.right;
         this.parent = other.parent;
+        this.roundNum = other.roundNum;
     }
 
     @Override

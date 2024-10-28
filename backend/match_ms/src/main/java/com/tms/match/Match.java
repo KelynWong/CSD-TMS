@@ -39,6 +39,8 @@ public class Match {
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games;
 
+    private Integer roundNum;
+
     public Match(Long tournamentId, String player1Id, String player2Id) {
         this.tournamentId = tournamentId;
         this.player1Id = player1Id;
@@ -50,11 +52,12 @@ public class Match {
         this.games = null;
     }
 
-    public Match(Long tournamentId, String player1Id, String player2Id, String winnerId) {
+    public Match(Long tournamentId, String player1Id, String player2Id, String winnerId, int roundNum) {
         this.tournamentId = tournamentId;
         this.player1Id = player1Id;
         this.player2Id = player2Id;
         this.winnerId = winnerId;
+        this.roundNum = roundNum;
 
         this.id = null;
         this.left = null;
