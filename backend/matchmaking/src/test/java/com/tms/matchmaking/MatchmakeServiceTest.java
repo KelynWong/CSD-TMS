@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -97,7 +96,7 @@ public class MatchmakeServiceTest {
         List<Player> players = new ArrayList<>();
         for (int i = 0; i < numPlayers; i++) {
             String userId = "user" + (i + 1);
-            Rating rating = new Rating(userId, DEFAULT_RATING - (i * 100), DEFAULT_RATING_DEVIATION);
+            Rating rating = new Rating(userId, DEFAULT_RATING - (i * 200), DEFAULT_RATING_DEVIATION);
             players.add(new Player(userId, rating));
         }
         return players;
@@ -259,10 +258,8 @@ public class MatchmakeServiceTest {
 
     @Test
     void simTournamentRes_TournamentExists_ReturnFilledTournament() {
-        List<String> winners = new ArrayList<>();
-
-        // run simTournament 5 times to test randomness of simulations
-        for (int i = 0; i < 1000; i++) {
+        // runs test 5 times to test randomness of game simulation
+        for (int i = 0; i < 5; i++) {
             MatchJson match1 = new MatchJson(1L, "user1", "user2");
             match1.setId(1L);
 
@@ -283,16 +280,84 @@ public class MatchmakeServiceTest {
             List<MatchJson> simTournament = matchmakeService.simTournament(1L);
 
             assertEquals(3, simTournament.size());
-            MatchJson game3 = simTournament.get(2);
-            assertNotNull(game3.getWinnerId());
 
-            winners.add(game3.getWinnerId());
+            for (MatchJson match : simTournament) {
+                // check that players and winners are updated
+                assertNotNull(match.getWinnerId());
+                assertTrue(match.getPlayer1Id().equals(match.getWinnerId()) || match.getPlayer2Id().equals(match.getWinnerId()));
+
+                // check that games match winner
+                assertNotNull(match.getGames());
+                checkGames(match);
+            }
         }
-
-        // assert that player1 wins tournament > player2 > player3 > player4
-        Map<String, Long> winnerCount = winners.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
-        assertTrue(winnerCount.get("user1") > winnerCount.get("user2"));
-        assertTrue(winnerCount.get("user2") > winnerCount.get("user3"));
-        assertTrue(winnerCount.get("user3") > winnerCount.get("user4"));
     }
+
+    private void checkGames(MatchJson match) {
+        int player1Count = 0;
+        int player2Count = 0;
+        for (int i = 0; i < match.getGames().size(); i++) {
+            Game game = match.getGames().get(i);
+            validateGame(game);
+            assertFalse((player1Count == 2 || player2Count == 2) && i == 2);
+
+            if (game.getPlayer1Score() > game.getPlayer2Score()) {
+                player1Count++;
+            } else {
+                player2Count++;
+            }
+        }
+        boolean player1Wins = player1Count > player2Count;
+        assertTrue(player1Wins && match.getPlayer1Id().equals(match.getWinnerId()) ||
+                !player1Wins && match.getPlayer2Id().equals(match.getWinnerId()));
+    }
+
+    private void validateGame(Game game) {
+        assertTrue(isSetNumberValid(game.getSetNum()));
+        assertTrue(isScoreValid(game.getPlayer1Score(), game.getPlayer2Score()));
+    }
+
+    private boolean isSetNumberValid(int setNum) {
+        return setNum > 0 && setNum <= 3;
+    }
+
+    private boolean isScoreValid(int p1Score, int p2Score) {
+        return (p1Score == 30 && p2Score == 29) ||
+                (p2Score == 30 && p1Score == 29) ||
+                ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) == 2) ||
+                ((p1Score == 21 && p2Score >= 0 && p2Score < 20) ||
+                        (p2Score == 21 && p1Score >= 0 && p1Score < 20));
+    }
+
+    @Test
+    void simManyTournament_TournamentExists_ReturnPlayerWinPercentage() {
+        MatchJson match1 = new MatchJson(1L, "user1", "user2");
+        match1.setId(1L);
+
+        MatchJson match2 = new MatchJson(1L, "user3", "user4");
+        match2.setId(2L);
+
+        MatchJson match3 = new MatchJson(1L, null, null);
+        match3.setLeft(1L);
+        match3.setRight(2L);
+        match3.setId(3L);
+
+        List<Player> players = createPlayers(4);
+
+        when(apiManager.getTournamentMatches(anyLong())).thenReturn(List.of(match1, match2, match3));
+        when(apiManager.fetchTournamentPlayerIds(anyLong())).thenReturn(players);
+        when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+
+        Map<Player, Float> playerWinRates = matchmakeService.simManyTournament(1L);
+        for (Map.Entry<Player, Float> entry : playerWinRates.entrySet()) {
+            Player player = entry.getKey();
+            Float winRate = entry.getValue();
+            System.out.println(player.getId() +" (" +  player.getRating().getRating() + "), Win Rate: " + winRate);
+        }
+        // assert that player1 wins tournament > player2 > player3 > player4
+        assertTrue(playerWinRates.get(players.get(0)) > playerWinRates.get(players.get(1)));
+        assertTrue(playerWinRates.get(players.get(1)) > playerWinRates.get(players.get(2)));
+        assertTrue(playerWinRates.get(players.get(2)) > playerWinRates.get(players.get(3)));
+    }
+
 }

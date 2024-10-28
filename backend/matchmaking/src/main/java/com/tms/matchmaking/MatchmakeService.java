@@ -10,6 +10,8 @@ import com.tms.player.ResultsDTO;
 import com.tms.tournament.Tournament;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
@@ -151,46 +153,72 @@ public class MatchmakeService {
         return match;
     }
 
-    // todo: fix this function
-    public List<Map<String, Double>> simManyTournament(Long tournamentId) {
-        final int NUM_SIMULATIONS = 1000;
+    private Map<Long, MatchJson> setupTournamentSimulation(Long tournamentId,
+                                                           Map<String, Player> idToPlayer) {
         List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
         List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
         List<MatchJson> matches = apiManager.getTournamentMatches(tournamentId);
 
         Map<Long, MatchJson> idToMatch = mapMatchesById(matches);
-        Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+        idToPlayer.putAll(mapPlayersById(playerRatings));
 
-        setParentMatches(matches, idToMatch);
+        setParentMatches(idToMatch);
+        return idToMatch;
+    }
 
-        Random random = new Random(); // Set seed for reproducibility
+    public Map<Player, Float> simManyTournament(Long tournamentId) {
+        final int NUM_SIMULATIONS = 1000;
+        Map<String, Player> idToPlayer = new HashMap<>();
+        Map<Long, MatchJson> idToMatch = setupTournamentSimulation(tournamentId, idToPlayer);
 
-        List<Map<String, Double>> results = new ArrayList<>();
+        Random random = new Random();
+        Map<Player, Float> results = new HashMap<>();
         for (int i = 0; i < NUM_SIMULATIONS; i++) {
-            simulateMatches(matches, idToMatch, idToPlayer, random);
-//            results.add(apiManager.getTournamentResults(tournamentId));
+            Map<Long, MatchJson> clone = deepCloneMap(idToMatch);
+            simulateMatches(clone, idToPlayer, random, false);
+            List<MatchJson> valuesList = new ArrayList<>(clone.values());
+            MatchJson finalMatch = valuesList.get(valuesList.size() - 1);
+            String winnerId = finalMatch.getWinnerId();
+            Player winner = idToPlayer.get(winnerId);
+            results.put(winner, results.getOrDefault(winner, 0f) + 1);
         }
-        return null;
+
+        // Convert counts to percentages
+        results.replaceAll((key, value) -> {
+            BigDecimal percentage = BigDecimal.valueOf((value / NUM_SIMULATIONS) * 100);
+            percentage = percentage.setScale(1, RoundingMode.HALF_UP);
+            return percentage.floatValue();
+        });
+        return results;
+    }
+
+    private Map<Long, MatchJson> deepCloneMap(Map<Long, MatchJson> original) {
+        Map<Long, MatchJson> clone = new LinkedHashMap<>();
+        for (Map.Entry<Long, MatchJson> entry : original.entrySet()) {
+            Long clonedKey = entry.getKey();
+            MatchJson clonedValue = new MatchJson(entry.getValue());
+            clone.put(clonedKey, clonedValue);
+        }
+        return clone;
     }
 
     public List<MatchJson> simTournament(Long tournamentId) {
-        List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
-        List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
-        List<MatchJson> matches = apiManager.getTournamentMatches(tournamentId);
+        Map<String, Player> idToPlayer = new HashMap<>();
+        Map<Long, MatchJson> idToMatch = setupTournamentSimulation(tournamentId, idToPlayer);
 
-        Map<Long, MatchJson> idToMatch = mapMatchesById(matches);
-        Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
-
-        setParentMatches(matches, idToMatch);
-
-        Random random = new Random(); // Set seed for reproducibility
-        simulateMatches(matches, idToMatch, idToPlayer, random);
-        return matches;
+        Random random = new Random();
+        simulateMatches(idToMatch, idToPlayer, random, true);
+        return new ArrayList<>(idToMatch.values());
     }
 
     private Map<Long, MatchJson> mapMatchesById(List<MatchJson> matches) {
         return matches.stream()
-                .collect(Collectors.toMap(MatchJson::getId, Function.identity()));
+                .collect(Collectors.toMap(
+                        MatchJson::getId,
+                        Function.identity(),
+                        (existing, replacement) -> existing,
+                        LinkedHashMap::new
+                ));
     }
 
     private Map<String, Player> mapPlayersById(List<Player> playerRatings) {
@@ -198,8 +226,8 @@ public class MatchmakeService {
                 .collect(Collectors.toMap(Player::getId, Function.identity()));
     }
 
-    private void setParentMatches(List<MatchJson> matches, Map<Long, MatchJson> idToMatch) {
-        for (MatchJson match : matches) {
+    private void setParentMatches(Map<Long, MatchJson> idToMatch) {
+        for (MatchJson match : idToMatch.values()) {
             if (match.getLeft() != null) {
                 MatchJson leftMatch = idToMatch.get(match.getLeft());
                 leftMatch.setParent(match.getId());
@@ -212,8 +240,9 @@ public class MatchmakeService {
         }
     }
 
-    private void simulateMatches(List<MatchJson> matches, Map<Long, MatchJson> idToMatch, Map<String, Player> idToPlayer, Random random) {
-        for (MatchJson match : matches) {
+    private void simulateMatches(Map<Long, MatchJson> idToMatch, Map<String, Player> idToPlayer, Random random,
+                                 boolean simulateGames) {
+        for (MatchJson match : idToMatch.values()) {
             if (match.getPlayer1Id() != null && match.getPlayer2Id() != null) {
                 Player player1 = idToPlayer.get(match.getPlayer1Id());
                 Player player2 = idToPlayer.get(match.getPlayer2Id());
@@ -222,7 +251,9 @@ public class MatchmakeService {
                         player2.getRating().getRating(), player2.getRating().getRatingDeviation());
                 boolean player1Wins = getMatchWinner(random, winProb);
                 match.setWinnerId(player1Wins ? match.getPlayer1Id() : match.getPlayer2Id());
-                match.setGames(simulateGames(player1Wins, random));
+                if (simulateGames) {
+                    match.setGames(simulateGames(player1Wins, random));
+                }
 
                 if (match.getParent() != null) {
                     updateNextMatch(idToMatch, match);

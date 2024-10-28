@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +26,19 @@ public class MatchJson {
         this.tournamentId = tournamentId;
         this.player1Id = player1Id;
         this.player2Id = player2Id;
+    }
+
+    public MatchJson(MatchJson other) {
+        this.id = other.id;
+        this.tournamentId = other.tournamentId;
+        this.player1Id = other.player1Id;
+        this.player2Id = other.player2Id;
+        this.winnerId = other.winnerId;
+        // Assuming Game is immutable or has its own copy constructor
+        this.games = (other.games != null) ? new ArrayList<>(other.games) : null;
+        this.left = other.left;
+        this.right = other.right;
+        this.parent = other.parent;
     }
 
     @Override

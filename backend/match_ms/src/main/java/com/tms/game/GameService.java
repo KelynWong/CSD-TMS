@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class GameService {
@@ -57,40 +56,40 @@ public class GameService {
         return new MatchJson(match);
     }
 
-    /**
-     * @param matchId
-     * @param gamesToAdd
-     */
     private void validateGames(Long matchId, List<Game> gamesToAdd) {
+        ensureNoExistingGames(matchId);
+        ensureValidNumberOfGames(gamesToAdd);
+        gamesToAdd.forEach(this::validateGame);
+    }
+
+    private void ensureNoExistingGames(Long matchId) {
         if (!this.getAllGamesByMatchId(matchId).isEmpty()) {
             throw new IllegalArgumentException("Games already exist for this match. Use PUT to update games.");
         }
+    }
+
+    private void ensureValidNumberOfGames(List<Game> gamesToAdd) {
         if (gamesToAdd.size() != 2 && gamesToAdd.size() != 3) {
             throw new IllegalArgumentException("Invalid number of games");
         }
-        for (Game game : gamesToAdd) {
-            validateGame(game);
+    }
+
+    private void validateGame(Game game) {
+        if (!isSetNumberValid(game.getSetNum()) || !isScoreValid(game.getPlayer1Score(), game.getPlayer2Score())) {
+            throw new IllegalArgumentException("Invalid game data");
         }
     }
 
-    /**
-     * @param game
-     */
-    private void validateGame(Game game) {
-        boolean setCheck = game.getSetNum() > 0 && game.getSetNum() <= 3;
+    private boolean isSetNumberValid(int setNum) {
+        return setNum > 0 && setNum <= 3;
+    }
 
-        int p1Score = game.getPlayer1Score();
-        int p2Score = game.getPlayer2Score();
-
-        boolean scoreCheck = (p1Score == 30 && p2Score == 29) ||
+    private boolean isScoreValid(int p1Score, int p2Score) {
+        return (p1Score == 30 && p2Score == 29) ||
                 (p2Score == 30 && p1Score == 29) ||
                 ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) == 2) ||
                 ((p1Score == 21 && p2Score >= 0 && p2Score < 20) ||
                         (p2Score == 21 && p1Score >= 0 && p1Score < 20));
-
-        if (!(setCheck && scoreCheck)) {
-            throw new IllegalArgumentException("Invalid game data");
-        }
     }
 
     /**
