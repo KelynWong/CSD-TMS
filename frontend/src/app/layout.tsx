@@ -6,6 +6,8 @@ import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { UserProvider } from "@/context/userContext";
 import { FetchUsersProvider } from "@/context/fetchUsersContext";
+import { NavBarProvider } from "@/context/navBarContext";
+
 const norwester = localFont({
 	src: "./fonts/norwester.otf",
 	variable: "--font-norwester",
@@ -20,23 +22,25 @@ export default function RootLayout({
 		<ClerkProvider>
 			<UserProvider>
 				<FetchUsersProvider>
-					<html lang="en" className={norwester.variable}>
-						<body suppressHydrationWarning={true}>
-							<ThemeProvider
-								attribute="class"
-								defaultTheme="system"
-								enableSystem
-								disableTransitionOnChange>
-								<header>
-									<Navbar />
-								</header>
-								<main>{children}</main>
-								<footer>
-									<Footer />
-								</footer>
-							</ThemeProvider>
-						</body>
-					</html>
+					<NavBarProvider>
+						<html lang="en" className={norwester.variable}>
+							<body suppressHydrationWarning={true}>
+								<ThemeProvider
+									attribute="class"
+									defaultTheme="system"
+									enableSystem
+									disableTransitionOnChange>
+									<header>
+										<Navbar />
+									</header>
+									<main>{children}</main>
+									<footer>
+										<Footer />
+									</footer>
+								</ThemeProvider>
+							</body>
+						</html>
+					</NavBarProvider>
 				</FetchUsersProvider>
 			</UserProvider>
 		</ClerkProvider>

@@ -7,10 +7,17 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import Paginator from "@/components/Paginator";
 import { PlayerResponse } from "@/api/users/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Players() {
 	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]);
 	const [loading, setLoading] = useState(true);
+
+    // Set navbar context
+    const { setState } = useNavBarContext();
+    setState("players");
+
+
 	useEffect(() => {
 		fetchUserByRoles("Player").then(
 			(data: PlayerResponse[] | AdminResponse[]) => {

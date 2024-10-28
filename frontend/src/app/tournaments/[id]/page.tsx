@@ -22,8 +22,10 @@ import { fetchMatchMakingByTournamentId } from "@/api/matchmaking/api";
 import type { RootMatch, TournamentDetails, Match } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
 import { fetchPlayer } from "@/api/users/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 function countMatches(rootMatch: RootMatch | null): number {
+
     if (!rootMatch) {
         return 0;
     }
@@ -36,6 +38,9 @@ function countMatches(rootMatch: RootMatch | null): number {
 }
 
 export default function TournamentDetails() {
+    // Set navbar context
+    const { setState } = useNavBarContext();
+    setState("tournaments");
     const { id } = useParams();
     const { user } = useUserContext();
     const [role, setRole] = useState<string | null>(null);

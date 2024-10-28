@@ -13,6 +13,7 @@ import { columns } from "./_components/DataTableColumns";
 import { fetchUsers } from "@/api/users/api";
 import { User } from "@/types/user";
 import { useFetchUsersContext } from "@/context/fetchUsersContext";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function AdminPage() {
 	const { user } = useUserContext();
@@ -20,6 +21,11 @@ export default function AdminPage() {
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext();
+
+    // Set navbar context
+	const { setState } = useNavBarContext();
+	setState("admin");
+
 
 	useEffect(() => {
 		if (user) {

@@ -2,13 +2,13 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
-import { DataTableRowActions } from "./DataTableRowOptions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Player } from "@/types/player";
+import { PlayerResponse } from "@/api/users/api";
 
 
-export const columns: ColumnDef<Player>[] = [
+
+export const columns: ColumnDef<PlayerResponse>[] = [
 	{
 		accessorKey: "ranking",
 		header: ({ column }) => (
@@ -17,7 +17,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`}>{row.getValue("ranking")}</Link>
+					<Link href={`#`}>{row.index + 1}</Link>
 				</Button>
 			);
 		},
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} >{row.getValue("fullname")}</Link>
+					<Link href={`#`}>{row.getValue("fullname")}</Link>
 				</Button>
 			);
 		},
@@ -69,17 +69,9 @@ export const columns: ColumnDef<Player>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} >{row.getValue("rating")}</Link>
+					<Link href={`#`}>{row.getValue("rating")}</Link>
 				</Button>
 			);
 		},
-	},
-	{
-		id: "actions",
-		cell: () => (
-			<div className="w-full flex justify-end">
-				<DataTableRowActions />
-			</div>
-		),
 	},
 ];
