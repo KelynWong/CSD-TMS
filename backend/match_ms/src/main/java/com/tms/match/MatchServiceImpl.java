@@ -62,7 +62,8 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public Match addMatch(MatchJson match) {
-        Match newMatch = new Match(match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id(), match.getWinnerId());
+        Match newMatch = new Match(match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id(),
+                match.getWinnerId(), match.getRoundNum());
 
         Long leftId = match.getLeft();
         Long rightId = match.getRight();
@@ -104,6 +105,7 @@ public class MatchServiceImpl implements MatchService {
     private void addBaseMatches(CreateTournament tournament, List<Match> res, Deque<Match> q, int numMatchesAtBase) {
         for (int i = 0; i < numMatchesAtBase; i++) {
             MatchJson newMatch = tournament.getMatches().get(i);
+            newMatch.setRoundNum(numMatchesAtBase * 2);
 
             // if player given bye, automatically set as winner.
             // Only applies at base layer
@@ -118,15 +120,29 @@ public class MatchServiceImpl implements MatchService {
     }
 
     private void addRemainingMatches(CreateTournament tournament, List<Match> res, Deque<Match> q, int numMatchesAtBase) {
-        for (int i = numMatchesAtBase; i < tournament.getMatches().size(); i++) {
-            Match leftMatch = q.poll();
-            Match rightMatch = q.poll();
+        int step = numMatchesAtBase;
+        while (step > 1) {
+            for (int i = step; i < step + step / 2; i++) {
+                Match leftMatch = q.poll();
+                Match rightMatch = q.poll();
 
-            MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
-            Match match = this.addMatch(matchToAdd);
-            res.add(match);
-            q.add(match);
+                MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
+                matchToAdd.setRoundNum(step);
+                Match match = this.addMatch(matchToAdd);
+                res.add(match);
+                q.add(match);
+            }
+            step = step / 2;
         }
+//        for (int i = numMatchesAtBase; i < tournament.getMatches().size(); i++) {
+//            Match leftMatch = q.poll();
+//            Match rightMatch = q.poll();
+//
+//            MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
+//            Match match = this.addMatch(matchToAdd);
+//            res.add(match);
+//            q.add(match);
+//        }
     }
 
     private MatchJson setChildMatchesAndPlayers(MatchJson matchToAdd, Match leftMatch, Match rightMatch) {

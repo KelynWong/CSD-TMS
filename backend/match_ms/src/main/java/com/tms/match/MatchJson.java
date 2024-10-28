@@ -20,12 +20,13 @@ public class MatchJson {
     private Long left;
     private Long right;
     private List<Game> games;
+    private Integer roundNum;
 
     public static List<MatchJson> fromMatches(List<Match> matches) {
         return matches.stream().map(match -> {
             return new MatchJson(match.getId(), match.getTournamentId(), match.getPlayer1Id(), match.getPlayer2Id(),
                     match.getWinnerId(), match.getLeft() == null ? null : match.getLeft().getId(),
-                    match.getRight() == null ? null : match.getRight().getId(), match.getGames());
+                    match.getRight() == null ? null : match.getRight().getId(), match.getGames(), match.getRoundNum());
         }).collect(Collectors.toList());
     }
 
