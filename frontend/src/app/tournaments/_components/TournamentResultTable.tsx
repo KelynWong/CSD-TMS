@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Match, Player } from "@/types/tournamentDetails";
+import { Match } from "@/types/tournamentDetails";
 import { useMemo } from "react";
 import TPlayer from "./TPlayer";
 

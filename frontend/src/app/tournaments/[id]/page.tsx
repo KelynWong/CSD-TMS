@@ -16,7 +16,7 @@ import CarouselComponent from "../_components/CarouselComponent";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
-import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
+import { fetchMatchByTournamentId } from "@/api/matches/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
 import type { TournamentDetails, Match, Player } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
@@ -95,7 +95,6 @@ export default function TournamentDetails() {
                 const matchesData = await fetchMatchByTournamentId(Number(id));
                 const enrichedMatches = await Promise.all(
                     matchesData.map(async (match) => {
-                        const games = await fetchGamesByMatchId(match.id);
                         const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
                         const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
                         const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
@@ -107,12 +106,7 @@ export default function TournamentDetails() {
                             winner,
                             left: match.left,
                             right: match.right,
-                            games: games.map((game) => ({
-                                id: game.id,
-                                setNum: game.setNum,
-                                player1Score: game.player1Score,
-                                player2Score: game.player2Score,
-                            })),
+                            games: match.games,
                             roundNum: match.roundNum,
                         };
                     })
