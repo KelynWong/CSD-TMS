@@ -4,7 +4,6 @@ import { PlayerCardProps } from "@/types/player";
 import Link from "next/link";
 
 export const PlayerCard = ({ player }: { player: PlayerCardProps }) => {
-	console.log("PlayerCard", player);
 	return (
 		<Link href={`/players/${player.id}`}>
 			<Card className="w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] mx-auto p-4">

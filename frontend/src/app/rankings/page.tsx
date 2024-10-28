@@ -42,7 +42,6 @@ export default function Players() {
 	}, []);
     
     const top10Players = topPlayers.slice(0, 10);
-    console.log(topPlayers);
 
     // Show loading spinner while fetching data
     if (loading) {
