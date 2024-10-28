@@ -14,7 +14,7 @@ import { fetchTournaments } from "@/api/tournaments/api";
 import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
-import { fetchPlayer } from "@/api/users/api";
+import { fetchUser } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Tournaments() {
@@ -51,7 +51,7 @@ export default function Tournaments() {
 		if (user) {
 			const getPlayerData = async () => {
 				try {
-					const data = await fetchPlayer(user.id);
+					const data = await fetchUser(user.id);
 					setLoading(false);
 					setRole(data.role);
 				} catch (err) {
