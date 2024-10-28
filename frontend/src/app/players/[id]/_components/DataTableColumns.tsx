@@ -70,7 +70,7 @@ export const columns: ColumnDef<Match>[] = [
 		},
 	},
 	{
-		accessorKey: "final_score",
+		accessorKey: "score",
 		header: ({ column }) => (
 			<DataTableColumnHeader column={column} title="Final Score" />
 		),
@@ -78,7 +78,7 @@ export const columns: ColumnDef<Match>[] = [
 			return (
 				<Button variant="link" asChild>
 					<Link href={`#`} >
-						{row.getValue("final_score")}
+						{row.getValue("score")}
 					</Link>
 				</Button>
 			);
@@ -96,21 +96,6 @@ export const columns: ColumnDef<Match>[] = [
 				<Button variant="link" asChild>
 					<Link href={`#`} style={{ color: color }}>
 						{row.getValue("result")}
-					</Link>
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: "datetime",
-		header: ({ column }) => (
-			<DataTableColumnHeader column={column} title="Date" />
-		),
-		cell: ({ row }) => {
-			return (
-				<Button variant="link" asChild>
-					<Link href={`#`} >
-						{row.getValue("datetime")}
 					</Link>
 				</Button>
 			);

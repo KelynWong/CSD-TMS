@@ -54,7 +54,6 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 				profilePicture: user.profilePicture,
 			})
 		);
-        console.log(formattedData);
 		return formattedData;
 	} catch (error) {
 		console.error("Error fetching players", error);
@@ -65,7 +64,6 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
 		const response = await axios.get(`${URL}/${id}`);
-		console.log(response.data);
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -121,7 +119,6 @@ export const fetchUserByRoles = async (
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
 		const response = await axios.get(`${URL}/top-players`);
-		console.log(response.data);
 		const formattedData: PlayerResponse[] = response.data.map(
 			(player: any) => ({
 				id: player.id,
@@ -138,6 +135,18 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 		return formattedData;
 	} catch (error) {
 		console.error("Failed to fetch top players", error);
+		throw error;
+	}
+};
+
+export const getPlayerRank = async (id: string): Promise<number> => {
+	try {
+		const response = await axios.get(`${URL}/${id}/rank`);
+
+		return response.data;
+         // Assuming the API response contains a 'rank' field
+	} catch (error) {
+		console.error("Failed to fetch player rank", error);
 		throw error;
 	}
 };

@@ -44,18 +44,27 @@ export default function TournamentHistory({
 	return (
 		<>
 			<p className="text-4xl font-bold pb-3">Tournament History</p>
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-				{currentTournaments.map((tournament, index) => (
-					<TournamentCard key={index} tournament={tournament} />
-				))}
-			</div>
-			<div className="flex justify-center mt-5">
-				<Paginator
-					totalPages={totalPages}
-					currentPage={currentPage}
-					onPageChange={handlePageChange}
-				/>
-			</div>
+			{tournaments.length === 0 ? (
+				<p className="text-xl">No tournaments available.</p>
+			) : (
+				<>
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+						{currentTournaments.map((tournament, index) => (
+							<TournamentCard
+								key={index}
+								tournament={tournament}
+							/>
+						))}
+					</div>
+					<div className="flex justify-center mt-5">
+						<Paginator
+							totalPages={totalPages}
+							currentPage={currentPage}
+							onPageChange={handlePageChange}
+						/>
+					</div>
+				</>
+			)}
 		</>
 	);
 }
