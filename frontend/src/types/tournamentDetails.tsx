@@ -28,17 +28,6 @@ export interface Game {
     player2Score: number | null;
 }
 
-export interface RootMatch {
-    id: number;
-    tournamentId: number;
-    player1: Player;
-    player2: Player;
-    winner: Player;
-    left?: RootMatch | null;
-    right?: RootMatch | null;
-    games: Game[];
-}
-
 export type TournamentDetails = {
     id: number;
     tournamentName: string;
@@ -48,7 +37,7 @@ export type TournamentDetails = {
     regStartDT: string;
     regEndDT: string;
     organizer: string;
+    winner: string | null;
     players: Player[]; // Array of players
-    rootMatch: RootMatch | null; // Root match of the tournament
     matches: Match[];
 };

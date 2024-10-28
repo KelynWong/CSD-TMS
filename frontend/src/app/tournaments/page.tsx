@@ -76,6 +76,7 @@ export default function Tournaments() {
                     regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
                     regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
                     createdBy: tournament.createdBy,
+                    winner: tournament.winner,
                 }));
                 categorizeTournaments(mappedData);
                 console.log(mappedData)

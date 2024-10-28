@@ -7,4 +7,5 @@ export type Tournament = {
 	regStartDT: string;
 	regEndDT: string;
 	createdBy: string;
+	winner: string | null;
 };
