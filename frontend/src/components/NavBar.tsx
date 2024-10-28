@@ -12,8 +12,8 @@ import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Navbar() {
 	const user = useUser();
-	const isAdmin = user.user?.publicMetadata.role === "Admin";
-	const isPlayer = user.user?.publicMetadata.role === "Player";
+	const isAdmin = user.user?.publicMetadata.role === "ADMIN";
+	const isPlayer = user.user?.publicMetadata.role === "PLAYER";
 	const [isOpen, setIsOpen] = useState(false);
 	const { currentState, setState } = useNavBarContext();
 

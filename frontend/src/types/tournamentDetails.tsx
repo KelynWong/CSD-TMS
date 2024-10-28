@@ -1,12 +1,13 @@
 export interface Match {
     id: number;
     tournamentId: number;
-    player1Id: string;
-    player2Id: string;
-    winnerId: string;
+    player1: Player;
+    player2: Player;
+    winner: Player | null;
     left: number;
     right: number;
     games: Game[];
+    roundNum: number;
 }
 
 export interface Player {
