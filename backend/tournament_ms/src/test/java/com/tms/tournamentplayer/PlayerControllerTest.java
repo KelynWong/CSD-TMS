@@ -93,10 +93,10 @@ public class PlayerControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players");
-		String result = restTemplate.getForObject(uri, String.class);
+		ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
 
 		// verify output - 404 (TournamentNotFoundException)
-		assertTrue(result.contains("\"status\":404"));
+		assertEquals(404, result.getStatusCode().value());
 
 	}
 
@@ -132,10 +132,10 @@ public class PlayerControllerTest {
 
 		// call the api 
 		URI uri = new URI(baseURL + port + "/tournaments/players/" + player.getId());
-		String result = restTemplate.getForObject(uri, String.class);
+		ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
 
-		// verify output - 404 (PlayerNotFoundException)
-		assertTrue(result.contains("\"status\":404"));
+		// verify output - 404 (TournamentNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
 
 	}
 
@@ -193,10 +193,10 @@ public class PlayerControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
-		String result = restTemplate.getForObject(uri, String.class);
+		ResponseEntity<String> result = restTemplate.getForEntity(uri, String.class);
 
-		// verify output result - 404 (TournamentNotFoundException)
-		assertTrue(result.contains("\"status\":404"));
+		// verify output - 404 (TournamentNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
 
 		// helper.reset
 		helper.reset(null, p_id);

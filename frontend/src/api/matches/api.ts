@@ -1,14 +1,14 @@
 import axios from "axios";
 const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
 
-type GameResponse = {
+export type GameResponse = {
 	id: number;
 	setNum: number;
 	player1Score: number;
 	player2Score: number;
 };
 
-type MatchResponse = {
+export type MatchResponse = {
 	id: number;
 	tournamentId: number;
 	player1Id: string;
@@ -16,6 +16,7 @@ type MatchResponse = {
 	winnerId: string;
 	left: string;
 	right: string;
+    roundNum: number;
 	games: GameResponse[];
 };
 
@@ -30,9 +31,7 @@ export const fetchMatchByTournamentId = async (
 	tournament_id: number
 ): Promise<any[]> => {
 	try {
-		const response = await axios.get(
-			`${URL}/tournament/${tournament_id}`
-		);
+		const response = await axios.get(`${URL}/tournament/${tournament_id}`);
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching matches", error);
@@ -42,8 +41,6 @@ export const fetchMatchByTournamentId = async (
 
 export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	try {
-		// console.log(`${URL}/${match_id}/games`);
-
 		const response = await axios.get(`${URL}/${match_id}/games`);
 
 		return response.data;
@@ -71,6 +68,18 @@ export const fetchPlayerStats = async (
 		return mappedData;
 	} catch (error) {
 		console.error("Error fetching player stats", error);
+		throw error;
+	}
+};
+
+export const fetchPlayerMatches = async (
+	Id: string
+): Promise<MatchResponse[]> => {
+	try {
+		const response = await axios.get(`${URL}/user/played/${Id}`);
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching player matches", error);
 		throw error;
 	}
 };

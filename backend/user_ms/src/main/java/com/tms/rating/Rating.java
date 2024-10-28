@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @NoArgsConstructor
-@Table(name = "\"rating\"", schema = "\"user\"")
+@Table(name = "\"rating\"", schema = "\"user\"", indexes = @Index(columnList = "rating DESC"))
 public class Rating implements Cloneable {
 	@Id
 	private String id;
@@ -64,7 +64,7 @@ public class Rating implements Cloneable {
 	}
 
 	public String getId() {
-		return this.user.getId();
+		return this.user != null ? this.user.getId() : this.id;
 	}
 
 	@Override
@@ -81,7 +81,8 @@ public class Rating implements Cloneable {
 	}
 
 	public boolean propertiesEqual(Rating other) {
-		 return (this.user.getId().equals(other.user.getId())) &&
+		 return (other.user != null ? this.user.getId().equals(other.user.getId()) :
+				 this.user.getId().equals(other.getId())) &&
 				 (this.rating == other.rating) &&
 				(this.ratingDeviation == other.ratingDeviation) &&
 				(this.volatility == other.volatility) &&
@@ -182,7 +183,7 @@ public class Rating implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return user.getId() + " / " +
+		return getId() + " / " +
 				rating + " / " +
 				ratingDeviation + " / " +
 				volatility + " / " +

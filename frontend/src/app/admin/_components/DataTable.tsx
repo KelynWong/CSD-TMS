@@ -74,7 +74,8 @@ export function DataTable<TData, TValue>({
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id}>
+							<TableRow key={headerGroup.id}
+                            >
 								{headerGroup.headers.map((header) => {
 									return (
 										<TableHead
@@ -98,7 +99,6 @@ export function DataTable<TData, TValue>({
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-                  onClick={() => router.push(`/players/${row.original.id}`)}
 									data-state={row.getIsSelected() && "selected"}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id} className="text-white">
@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({
 							<TableRow>
 								<TableCell
 									colSpan={columns.length}
-									className="h-24 text-center text-white">
+									className="h-24 text-center">
 									No results.
 								</TableCell>
 							</TableRow>

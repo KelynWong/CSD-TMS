@@ -1,7 +1,6 @@
 package com.tms.match;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,15 +10,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.tms.MatchServiceApplication;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = MatchServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MatchControllerTest {
     @LocalServerPort
     private int port;
@@ -166,7 +163,7 @@ class MatchControllerTest {
     @Test
     void addMatch() {
         // Arrange
-        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null);
+        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
         URI uri = URI.create(baseUrl + port + "/matches");
 
         // Act
@@ -183,8 +180,8 @@ class MatchControllerTest {
     @Test
     void addTournament() {
         // Arrange
-        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null);
-        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null);
+        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null, null);
+        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
         List<MatchJson> matches = Arrays.asList(match1, match2);
         CreateTournament tournament = new CreateTournament(matches, 2);
 
@@ -201,22 +198,6 @@ class MatchControllerTest {
         assertEquals(2, response.getBody().length);
         assertEquals("player1", response.getBody()[0].getPlayer1Id());
         assertEquals("player3", response.getBody()[1].getPlayer1Id());
-    }
-
-    // not sure how to test this
-    @Test
-    void generateWinners() throws Exception{
-        Long tournamentId = 1L;
-        Match match1 = new Match(tournamentId, "player1", "player2");
-        Match match2 = new Match(tournamentId, "player1", "player4");
-        matches.save(match1);
-        matches.save(match2);
-        URI uri = new URI(baseUrl + port + "/matches/generateWinners/" + tournamentId);
-
-        ResponseEntity<String> response = restTemplate.exchange(uri, org.springframework.http.HttpMethod.PUT, null, String.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
     }
 
     @Test

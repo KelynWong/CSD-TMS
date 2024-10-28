@@ -32,7 +32,6 @@ import com.tms.tournamentplayer.Player;
 import lombok.extern.slf4j.Slf4j;
 
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest(classes = TournamentServiceApplication.class)
 @Slf4j
 public class TournamentServiceTest {
 
@@ -42,7 +41,7 @@ public class TournamentServiceTest {
     @InjectMocks
     private TournamentServiceImpl tournamentService;
 
-    @Autowired
+    @InjectMocks
 	private TestHelper helper;
 
     /* Unit Testing */

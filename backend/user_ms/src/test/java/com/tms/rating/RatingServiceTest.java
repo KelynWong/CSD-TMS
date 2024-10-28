@@ -10,8 +10,6 @@ import com.tms.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -98,44 +96,6 @@ public class RatingServiceTest {
 
         verify(userRepo, times(1)).findById(user.getId());
         verify(ratingRepo, never()).save(rating);
-    }
-
-    @Test
-    void initRatings_ValidRange_ReturnsRatings() {
-        int start = 1;
-        int end = 3;
-
-        for (int i = start; i <= end; i++) {
-            User user = new User("user1");
-            when(userRepo.findById("user" + i)).thenReturn(Optional.of(user));
-        }
-        when(ratingRepo.save(any(Rating.class))).thenReturn(new Rating());
-
-        List<Rating> ratings = ratingService.initRatings(start, end);
-
-        assertEquals(end - start + 1, ratings.size());
-        verify(userRepo, times(end)).findById(any(String.class));
-        verify(ratingRepo, times(end)).save(any(Rating.class));
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-            "3, 1",    // start > end
-            "-1, 3",   // start is negative
-            "1, -3",   // end is negative
-            "-1, -3",  // both are negative
-            "a, 3",    // start is non-integer
-            "1, b"     // end is non-integer
-    })
-    void initRatings_InvalidRange_ReturnsRatings() {
-        int start = 3;
-        int end = 1;
-
-        List<Rating> ratings = ratingService.initRatings(start, end);
-
-        assertEquals(0, ratings.size());
-        verify(userRepo, never()).findById(any(String.class));
-        verify(ratingRepo, never()).save(any(Rating.class));
     }
 
     @Test

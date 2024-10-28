@@ -1,21 +1,9 @@
 package com.tms.tournament;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
 import com.tms.exception.InvalidTournamentStatusException;
 import com.tms.exception.PlayerNotFoundException;
@@ -32,10 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/tournaments")
 public class TournamentController {
-
-    // constants 
-    // Status - only hv {"Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed"}
-    private List<String> validStatusList = Arrays.asList("Scheduled", "RegistrationStart", "RegistrationClose", "Ongoing", "Completed");
 
     private TournamentService tournamentService;
     private PlayerRepository playerRepository;
@@ -74,16 +58,19 @@ public class TournamentController {
     /* Get tournaments by Status */
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
+
+        // Assume the status format given is _ instead of space (eg. "Registration_Start") 
+        String modifiedStatus = status.replace("_", " ");
        
-        if (!validStatusList.contains(status.replace(" ", ""))) {
-            throw new InvalidTournamentStatusException(status);
+        if (!TournamentStatus.isValid(modifiedStatus)) {
+            throw new InvalidTournamentStatusException(modifiedStatus);
         }
 
         List<Tournament> tournaments = tournamentService.listTournaments();
         List<Tournament> filteredTournaments = new ArrayList<>();
 
         for (Tournament t : tournaments) {
-            if (t.getStatus().replace(" ", "").equals(status)) {
+            if (t.getStatus().getStatustStr().equals(modifiedStatus)) {
                 filteredTournaments.add(t);
             }
         }
@@ -138,7 +125,7 @@ public class TournamentController {
 
         status = status.replace("\"","");
 
-        if (!validStatusList.contains(status.replace(" ", ""))) {
+        if (!TournamentStatus.isValid(status)) {
             throw new InvalidTournamentStatusException(status);
         } 
 
@@ -148,7 +135,7 @@ public class TournamentController {
             throw new TournamentNotFoundException(id);
         }
 
-        oldTournament.setStatus(status);
+        oldTournament.setStatus(TournamentStatus.get(status));
 
         // Update tournament
         Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
@@ -240,7 +227,7 @@ public class TournamentController {
             return false;
         }
 
-        if (!validStatusList.contains(tournament.getStatus().replace(" ", ""))) {
+        if (tournament.getStatus() == null || !TournamentStatus.isValid(tournament.getStatus())){
             log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
             return false;
         }

@@ -1,15 +1,15 @@
 package com.tms.user;
 
 import com.tms.exception.UserAlreadyExistsException;
+import com.tms.exception.UserNotFoundException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -39,13 +39,21 @@ public class UserService {
         return userRepository.findByIdInOrderByRatingDesc(ids);
     }
 
-    public Page<User> getTopPlayers(Pageable pageable) {
-        Pageable sortedByRatingDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize()
-        );
-//        return userRepository.findAll(sortedByRatingDesc);
-        return userRepository.findAllOrderByRatingDesc(sortedByRatingDesc);
+    public List<User> getTopPlayers() {
+        return userRepository.findAllOrderByRatingDesc();
+    }
+
+    public int getUserRank(String userId) {
+        return userRepository.findUserRankById(userId).orElseThrow(() -> new UserNotFoundException("User: " + userId + " not found"));
+    }
+
+    public Map<String, Number> getUserRanks(List<String> userIds) {
+        List<Object[]> results = userRepository.findUserRanksByIds(userIds);
+        Map<String, Number> userRanks = new HashMap<>();
+        for (Object[] result : results) {
+            userRanks.put((String) result[0], (Number) result[1]);
+        }
+        return userRanks;
     }
 
     public User createUser(User user, MultipartFile profilePicture) {
@@ -53,7 +61,9 @@ public class UserService {
             throw new UserAlreadyExistsException("User with id " + u.getId() + " already exists");
         });
         User createdUser = userRepository.save(user);
-        ratingService.initRating(createdUser.getId());
+        if (createdUser.getRole().equals(Role.PLAYER)) {
+            ratingService.initRating(createdUser.getId());
+        }
         return createdUser;
     }
 
@@ -86,8 +96,8 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found"));
     }    
 
-    public List<User> getUsersByRole(String role) {
-        return userRepository.findByRoleIgnoreCase(role);
+    public List<User> getUsersByRole(Role role) {
+        return userRepository.findByRole(role);
     }
 
     public void deleteUser(String id) { 

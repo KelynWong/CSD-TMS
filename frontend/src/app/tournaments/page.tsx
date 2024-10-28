@@ -15,12 +15,16 @@ import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { fetchPlayer } from "@/api/users/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Tournaments() {
     const { user } = useUserContext();
     const [role, setRole] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
+    // Set navbar context
+    const {setState} = useNavBarContext();
+    setState("tournaments");
     const [categorizedTournaments, setCategorizedTournaments] = useState<{
         all: Tournament[],
         completed: Tournament[],

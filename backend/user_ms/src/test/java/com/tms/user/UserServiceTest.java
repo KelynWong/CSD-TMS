@@ -7,17 +7,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -98,15 +92,13 @@ public class UserServiceTest {
     @Test
     void getTopPlayers_ReturnPagedUserList() {
         List<User> users = List.of(new User("user1"), new User("user2"));
-        Pageable pageable = PageRequest.of(0, 2);
-        Page<User> userPage = new PageImpl<>(users, pageable, users.size());
 
-        when(userRepository.findAllOrderByRatingDesc(pageable)).thenReturn(userPage);
+        when(userRepository.findAllOrderByRatingDesc()).thenReturn(users);
 
-        Page<User> topPlayers = userService.getTopPlayers(pageable);
+        List<User> topPlayers = userService.getTopPlayers();
 
-        assertEquals(userPage, topPlayers);
-        verify(userRepository, times(1)).findAllOrderByRatingDesc(pageable);
+        assertEquals(users, topPlayers);
+        verify(userRepository, times(1)).findAllOrderByRatingDesc();
     }
 
     @Test

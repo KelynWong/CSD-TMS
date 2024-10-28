@@ -6,9 +6,6 @@ import com.svix.Webhook;
 import com.svix.exceptions.WebhookVerificationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.http.HttpHeaders;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,23 +47,32 @@ public class UserController {
   }
 
   @GetMapping("/top-players")
-  public Page<User> getTopRatings(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return userService.getTopPlayers(pageable);
+  public List<User> getTopRatings() {
+    return userService.getTopPlayers();
+  }
+
+  @GetMapping("/{id}/rank")
+  public ResponseEntity<Integer> getUserRank(@PathVariable String id) {
+      int rank = userService.getUserRank(id);
+      return ResponseEntity.ok(rank);
+  }
+
+  @PostMapping("/ranks")
+  public ResponseEntity<Map<String, Number>> getUserRanks(@RequestBody List<String> userIds) {
+    Map<String, Number> userRanks = userService.getUserRanks(userIds);
+    return ResponseEntity.ok(userRanks);
   }
 
   // Get user by ID
   @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+  public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
+      User user = userService.getUserById(id);
+      if (user != null) {
+          return ResponseEntity.ok(user);
+      } else {
+          return ResponseEntity.notFound().build();
+      }
+  }
 
   // Get user by list of ids
   @PostMapping("/ids")
@@ -80,7 +86,7 @@ public class UserController {
   // Get users by role
   @GetMapping("/role/{role}")
   public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
-    List<User> users = userService.getUsersByRole(role);
+    List<User> users = userService.getUsersByRole(Role.valueOf(role.toUpperCase()));
     if (!users.isEmpty()) {
       return ResponseEntity.ok(users);
     } else {
@@ -142,9 +148,9 @@ public class UserController {
     try {
       // Convert headers to a format that Svix expects (java.net.http.HttpHeaders)
       HashMap<String, List<String>> headerMap = new HashMap<>();
-      headerMap.put("svix-id", Arrays.asList(headers.get("svix-id")));
-      headerMap.put("svix-timestamp", Arrays.asList(headers.get("svix-timestamp")));
-      headerMap.put("svix-signature", Arrays.asList(headers.get("svix-signature")));
+      headerMap.put("svix-id", Collections.singletonList(headers.get("svix-id")));
+      headerMap.put("svix-timestamp", Collections.singletonList(headers.get("svix-timestamp")));
+      headerMap.put("svix-signature", Collections.singletonList(headers.get("svix-signature")));
 
       HttpHeaders svixHeaders = HttpHeaders.of(headerMap, (key, value) -> true); // Creating java.net.http.HttpHeaders
 
@@ -227,7 +233,7 @@ public class UserController {
       }
 
       // Role
-      user.setRole("Player");
+      user.setRole(Role.PLAYER);
 
       // Country - Since Clerk data doesn't include country, use a default
       user.setCountry(null);
@@ -290,9 +296,10 @@ public class UserController {
 
       // Role
       if (userData.has("public_metadata") && userData.get("public_metadata").has("role")) {
-        user.setRole(userData.get("public_metadata").get("role").asText());
+        String role = userData.get("public_metadata").get("role").asText().toUpperCase();
+        user.setRole(Role.valueOf(role));
       } else {
-        user.setRole("Player");
+        user.setRole(Role.PLAYER);
       }
 
       // Update the user in your system
