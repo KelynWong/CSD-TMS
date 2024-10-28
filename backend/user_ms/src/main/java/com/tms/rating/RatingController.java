@@ -1,7 +1,10 @@
 package com.tms.rating;
 
 import com.tms.ratingCalc.RatingPeriodResults;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -12,11 +15,6 @@ public class RatingController {
 
     public RatingController(RatingService ratingService) {
         this.ratingService = ratingService;
-    }
-
-    @PostMapping("/initBatch/{start}/{end}/ratings")
-    public List<Rating> initRatings(@PathVariable int start, @PathVariable int end) {
-        return ratingService.initRatings(start, end);
     }
 
     @PutMapping("/ratings")
