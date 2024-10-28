@@ -53,23 +53,6 @@ export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	}
 };
 
-export const updateGamesByGameId = async (match_id: number, gameData: Partial<GameResponse>): Promise<boolean> => {
-	try {
-		console.log(`${URL}/${match_id}/games/${gameData.id}`);
-
-		const response = await axios.put(`${URL}/${match_id}/games/${gameData.id}`, gameData, {
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		});
-
-		return response.status === 200; 
-	} catch (error) {
-		console.error("Error updating game score", error);
-		return false;
-	}
-};
-
 export const fetchPlayerStats = async (
 	Id: string
 ): Promise<MatchPlayerStatistic> => {
