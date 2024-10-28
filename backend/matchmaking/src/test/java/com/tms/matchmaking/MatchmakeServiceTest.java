@@ -256,8 +256,9 @@ public class MatchmakeServiceTest {
         verify(apiManager, times(1)).updateTournamentWinner(tournamentId, "user1");
     }
 
+    // test magic number of 4 players
     @Test
-    void simTournamentRes_TournamentExists_ReturnFilledTournament() {
+    void simTournamentRes_TournamentExistsNicePlayerNum_ReturnFilledTournament() {
         // runs test 5 times to test randomness of game simulation
         for (int i = 0; i < 5; i++) {
             MatchJson match1 = new MatchJson(1L, "user1", "user2");
@@ -278,7 +279,6 @@ public class MatchmakeServiceTest {
             when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
 
             List<MatchJson> simTournament = matchmakeService.simTournament(1L);
-
             assertEquals(3, simTournament.size());
 
             for (MatchJson match : simTournament) {
@@ -289,6 +289,47 @@ public class MatchmakeServiceTest {
                 // check that games match winner
                 assertNotNull(match.getGames());
                 checkGames(match);
+            }
+        }
+    }
+
+    // test weird number 3 players
+    @Test
+    void simTournamentRes_TournamentExistsNonMagicPlayerNum_ReturnFilledTournament() {
+        // runs test 5 times to test randomness of game simulation
+        for (int i = 0; i < 5; i++) {
+            MatchJson match1 = new MatchJson(1L, "user1", null);
+            match1.setId(1L);
+            match1.setWinnerId("user1");
+
+            MatchJson match2 = new MatchJson(1L, "user2", "user3");
+            match2.setId(2L);
+
+            MatchJson match3 = new MatchJson(1L, "user1", null);
+            match3.setLeft(1L);
+            match3.setRight(2L);
+            match3.setId(3L);
+
+            List<Player> players = createPlayers(3);
+
+            when(apiManager.getTournamentMatches(anyLong())).thenReturn(List.of(match1, match2, match3));
+            when(apiManager.fetchTournamentPlayerIds(anyLong())).thenReturn(players);
+            when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+
+            List<MatchJson> simTournament = matchmakeService.simTournament(1L);
+            assertEquals(3, simTournament.size());
+
+            for (MatchJson match : simTournament) {
+                // check that players and winners are updated
+                assertNotNull(match.getWinnerId());
+                assertTrue(match.getPlayer1Id().equals(match.getWinnerId()) || match.getPlayer2Id().equals(match.getWinnerId()));
+
+                if (match.getPlayer2Id() != null) {
+                    // check that games match winner
+                    assertNotNull(match.getGames());
+                    checkGames(match);
+                }
+
             }
         }
     }
