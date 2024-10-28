@@ -40,7 +40,6 @@ const CarouselComponent = ({ tournament }: { tournament: Tournament }) => {
                             // Handle missing country code cases
                             if (!countryCode) {
                                 console.error(`Country code not found for: ${player.country}`);
-                                // return null; // Or display a placeholder as needed
                             }
 
                             console.log(countryCode);
