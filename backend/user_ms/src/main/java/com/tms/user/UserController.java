@@ -51,18 +51,6 @@ public class UserController {
     return userService.getTopPlayers();
   }
 
-  @GetMapping("/{id}/rank")
-  public ResponseEntity<Integer> getUserRank(@PathVariable String id) {
-      int rank = userService.getUserRank(id);
-      return ResponseEntity.ok(rank);
-  }
-
-  @PostMapping("/ranks")
-  public ResponseEntity<Map<String, Number>> getUserRanks(@RequestBody List<String> userIds) {
-    Map<String, Number> userRanks = userService.getUserRanks(userIds);
-    return ResponseEntity.ok(userRanks);
-  }
-
   // Get user by ID
   @GetMapping("/{id}")
   public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
