@@ -306,7 +306,7 @@ class GameServiceTest {
     }
 
     @Test
-    void deleteGame_GameNotFound_ThrowGameNotFoundExcpetion() {
+    void deleteGame_GameNotFound_ThrowGameNotFoundException() {
         // Arrange
         Long matchId = 1L;
         Long gameId = 1L;

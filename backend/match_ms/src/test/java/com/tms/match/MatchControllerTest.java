@@ -163,7 +163,7 @@ class MatchControllerTest {
     @Test
     void addMatch() {
         // Arrange
-        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
+        MatchJson matchJson = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, 1);
         URI uri = URI.create(baseUrl + port + "/matches");
 
         // Act
@@ -177,16 +177,18 @@ class MatchControllerTest {
         assertEquals("player4", response.getBody().getPlayer2Id());
     }
 
+
     @Test
     void addTournament() {
         // Arrange
-        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null, null);
-        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, null);
-        List<MatchJson> matches = Arrays.asList(match1, match2);
+        MatchJson match1 = new MatchJson(1L, 1L, "player1", "player2", null, null, null, null, 1);
+        MatchJson match2 = new MatchJson(2L, 1L, "player3", "player4", null, null, null, null, 1);
+        MatchJson matchJson3 = new MatchJson();
+        matchJson3.setId(102L);
+        matchJson3.setRoundNum(1);
+        List<MatchJson> matches = Arrays.asList(match1, match2, matchJson3);
         CreateTournament tournament = new CreateTournament(matches, 2);
 
-        tournament.setMatches(Arrays.asList(match1, match2));
-        tournament.setNumMatchesAtBase(2);
         URI uri = URI.create(baseUrl + port + "/matches/tournament");
 
         // Act
@@ -195,7 +197,7 @@ class MatchControllerTest {
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().length);
+        assertEquals(3, response.getBody().length);
         assertEquals("player1", response.getBody()[0].getPlayer1Id());
         assertEquals("player3", response.getBody()[1].getPlayer1Id());
     }
