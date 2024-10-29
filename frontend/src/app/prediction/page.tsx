@@ -94,7 +94,7 @@ export default function Prediction() {
                     setMatchResults(enrichedMatches);
                 } catch (err) {
                     console.error("Failed to fetch match results:", err);
-                    setError("Failed to fetch match results.");
+                    setError("An error occurred, please try again later.");
                     setMatchResults([]);
                 } finally {
                     setLoading(false);
