@@ -36,7 +36,7 @@ public class User {
     private Rating rating;
 
     @Transient
-    private Long rank;
+    private Number rank;
 
     public User(String id) {
         this.id = id;
