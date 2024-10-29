@@ -1,5 +1,8 @@
 package com.tms.tournament;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 import org.springframework.http.*;
@@ -38,19 +41,22 @@ public class TournamentController {
     /* List all tournaments */
     @GetMapping
     public List<Tournament> getAllTournaments() {
-
+        // Return all the tournaments in DB
         return tournamentService.listTournaments();
     }
 
     /* Get tournament by Id */
     @GetMapping("/id/{id}")
     public Tournament getTournamentbyId(@PathVariable Long id) {
+
+        // Get tournament by id
         Tournament tournament = tournamentService.getTournament(id);
 
-        // handle "tournament not found 404" error
+        // If the retrieved tournament is null, means tournement not found
         if (tournament == null)
-            throw new TournamentNotFoundException(id);
+            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
 
+        // Else, return the retrieved tournament
         return tournamentService.getTournament(id);
 
     }
@@ -59,43 +65,36 @@ public class TournamentController {
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
 
-        // Assume the status format given is _ instead of space (eg. "Registration_Start") 
+        // Assume the status format given is _ instead of space (eg.
+        // "Registration_Start")
         String modifiedStatus = status.replace("_", " ");
-       
+
+        // If status inputed is not valid, throw InvalidTournamentStatusException 409
         if (!TournamentStatus.isValid(modifiedStatus)) {
             throw new InvalidTournamentStatusException(modifiedStatus);
         }
 
-        List<Tournament> tournaments = tournamentService.listTournaments();
-        List<Tournament> filteredTournaments = new ArrayList<>();
-
-        for (Tournament t : tournaments) {
-            if (t.getStatus().getStatustStr().equals(modifiedStatus)) {
-                filteredTournaments.add(t);
-            }
-        }
-
-        return filteredTournaments;
+        // Return tournaments with specified status
+        return tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
 
     }
 
     /* Create new tournament */
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.CREATED) // Status Code : 201
     @PostMapping
     public Tournament addTournament(@Valid @RequestBody Tournament tournament) {
 
-        // Input validation
+        // Input validation (method found below)
         if (!tournamentInputValidation(tournament)) {
+            // Input validation FAILED! - throw TournamentInvalidInputException 409
             throw new TournamentInvalidInputException("creation");
         }
 
-        // Add tournament
+        // Input validation PASSED!
+        // Add tournament to db
         Tournament savedTournament = tournamentService.addTournament(tournament);
 
-        // Check if tournament exist : if yes, throw TournamentExistException, else
-        // return savedTournament
-        if (savedTournament == null)
-            throw new TournamentExistsException(tournament.getTournamentName());
+        // Return saved tournament
         return savedTournament;
 
     }
@@ -104,43 +103,54 @@ public class TournamentController {
     @PutMapping("/{id}")
     public Tournament updateTournament(@PathVariable Long id, @Valid @RequestBody Tournament newTournament) {
 
-        // Input validation
+        // Input validation (method found below)
         if (!tournamentInputValidation(newTournament)) {
+            // Input validation FAILED! - throw TournamentInvalidInputException 409
             throw new TournamentInvalidInputException("modification");
         }
 
+        // Input validation PASSED!
         // Update tournament
-        Tournament tournament = tournamentService.updateTournament(id, newTournament);
+        Tournament updatedTournament = tournamentService.updateTournament(id, newTournament);
 
-        // Check if tournament exist : if yes, throw TournamentExistException, else
-        // return savedTournament
-        if (tournament == null)
-            throw new TournamentNotFoundException(id);
-        return tournament;
+        // If the updated tournament is null, means tournement not found
+        if (updatedTournament == null)
+            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+
+        // Else, return updated tournament
+        return updatedTournament;
     }
 
     /* Update just tournament status */
     @PutMapping("/{id}/status")
     public Tournament updateStatusByTournamentId(@PathVariable Long id, @RequestBody String status) {
 
-        status = status.replace("\"","");
+        // The inputed status can come with "" (eg. "Ongoing"), therefore, we need to
+        // remove it
+        String modifiedStatus = status.replace("\"", "");
 
-        if (!TournamentStatus.isValid(status)) {
-            throw new InvalidTournamentStatusException(status);
-        } 
-
-        // Get tournament
-        Tournament oldTournament = tournamentService.getTournament(id);
-        if (oldTournament == null) {
-            throw new TournamentNotFoundException(id);
+        // If status inputed is not valid, throw InvalidTournamentStatusException 409
+        if (!TournamentStatus.isValid(modifiedStatus)) {
+            throw new InvalidTournamentStatusException(modifiedStatus);
         }
 
-        oldTournament.setStatus(TournamentStatus.get(status));
+        // Get tournament
+        Tournament tournament = tournamentService.getTournament(id);
 
-        // Update tournament
-        Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
-        
-        return newTournament;
+        // If retrieved tournament is null, means tournament not found
+        if (tournament == null) {
+            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+        }
+
+        // Change the status
+        tournament.setStatus(TournamentStatus.get(modifiedStatus));
+
+        // Update tournament - assume won't return null (aka tournament not found) as
+        // its caught above
+        Tournament updatedTournament = tournamentService.updateTournament(id, tournament);
+
+        // Return updated tournament
+        return updatedTournament;
 
     }
 
@@ -148,31 +158,28 @@ public class TournamentController {
     @PutMapping("/{id}/winner")
     public Tournament updateWinnerByTournamentId(@PathVariable Long id, @RequestBody String winner) {
 
-        winner = winner.replace("\"","").replace(" ","");
+        // The inputed status can come with "" (eg. "user123"), therefore, we need to
+        // remove it
+        String modifiedWinner = winner.replace("\"", "").replace(" ", "");
 
         // Get tournament
-        Tournament oldTournament = tournamentService.getTournament(id);
-        if (oldTournament == null) {
-            throw new TournamentNotFoundException(id); //404
+        Tournament tournament = tournamentService.getTournament(id);
+
+        // If retrieved tournament is null, means tournament not found
+        if (tournament == null) {
+            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
         }
 
-        boolean foundWinner = false;
-
-        for (Player p : oldTournament.getPlayers()) {
-            if (p.getId().equals(winner)) {
-                oldTournament.setWinner(winner);
-                foundWinner = true;
-            }
+        // If winner is not in tournament, throw player not found exception
+        if (!tournament.isPlayerInTournament(modifiedWinner)) {
+            throw new PlayerNotFoundException(modifiedWinner, id); 
         }
 
-        if (!foundWinner) {
-            throw new PlayerNotFoundException(winner, id); // 404
-        }
+        // Here, all pass
+        tournament.setWinner(modifiedWinner);
 
-        // Update tournament
-        Tournament newTournament = tournamentService.updateTournament(id, oldTournament);
-        
-        return newTournament;
+        // Else, if winner is found in tournament, update and return tournament
+        return tournamentService.updateTournament(id, tournament);
 
     }
 
@@ -182,22 +189,35 @@ public class TournamentController {
 
         try {
 
-            // retrieve the specified tournament 
+            // Retrieve tournament using specified id
             Tournament tournament = tournamentService.getTournament(id);
-            // get the players map to this tournament
+
+            // Get all players mapped to this tournament
             List<Player> playerList = tournament.getPlayers();
-            // loop thr the palyers
-            for (Player p : playerList) {
-                // remove the mappings
+
+            // Remove tournament-player mappings
+            for (Player p : playerList) { // Loop thr the palyers
+
+                // Remove tournament from player's tournament list
                 p.getTournaments().remove(tournament);
+                // save changes
                 playerRepository.save(p);
 
             }
 
+            // After all mapping removed, delete specified tournament
             tournamentService.deleteTournament(id);
 
-        } catch (Exception e) {
-            throw new TournamentNotFoundException(id);
+        } catch (Exception e) { // Catch all types of exception
+
+            // If its a NullPointerException, it is due to tournament not found
+            if (e instanceof NullPointerException) {
+                throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+            } 
+
+            // Else, throw the given expection error
+            throw e;
+            
         }
     }
 
@@ -205,39 +225,65 @@ public class TournamentController {
     // Input Validation
     public boolean tournamentInputValidation(Tournament tournament) {
 
-        // Name - cannot be empty
+        /* Name should be unique and not empty */
+        // Name - empty name
         if (tournament.getTournamentName() == "") {
-            log.info("ERROR: TOURNAMENT INPUT - EMPTY NAME");
+            log.error("ERROR: TOURNAMENT INPUT - NAME CANNOT BE EMPTY");
+            return false;
+        }
+        // Name - not unique
+        if (!tournamentService.getTournamentsByTournamentName(tournament.getTournamentName()).isEmpty()) {
+            log.error("ERROR: TOURNAMENT INPUT - THIS NAME EXIST LIAO");
             return false;
         }
 
-        // Date - Order: regStartDT < regEndDT < startDT < endDT
+        /* Correct Date Order : regStartDT < regEndDT < startDT < endDT */
+        // Date - RegEndDT is before RegStartDT
         if (tournament.getRegEndDT().isBefore(tournament.getRegStartDT())) {
-            log.info("ERROR: TOURNAMENT INPUT - REG END BEFORE REG START");
+            log.error("ERROR: TOURNAMENT INPUT - REG END SHOULD BE AFTER REG START");
             return false;
         }
-
+        // Date - EndDT is before StartDT
         if (tournament.getEndDT().isBefore(tournament.getStartDT())) {
-            log.info("ERROR: TOURNAMENT INPUT - END BEFORE START");
+            log.error("ERROR: TOURNAMENT INPUT - END SHOULD BE AFTER START");
             return false;
         }
-
+        // Date - RegEndDT is after StartDT
         if (tournament.getRegEndDT().isAfter(tournament.getStartDT())) {
-            log.info("ERROR: TOURNAMENT INPUT - REG END AFTER START");
+            log.error("ERROR: TOURNAMENT INPUT - REG END SHOULD BE BEFORE START");
             return false;
         }
 
-        if (tournament.getStatus() == null || !TournamentStatus.isValid(tournament.getStatus())){
-            log.info("ERROR: TOURNAMENT INPUT - WRONG STATUS");
+        /* Status needs to be valid and not null */
+        if (tournament.getStatus() == null || !TournamentStatus.isValid(tournament.getStatus())) {
+            log.error("ERROR: TOURNAMENT INPUT - INVALID OR NULL STATUS");
             return false;
         }
 
-        if (tournament.getCreatedBy() == null){
-            log.info("ERROR: TOURNAMENT INPUT - NULL CREATOR");
+        /* CreatedBy cannot be null */
+        if (tournament.getCreatedBy() == null) {
+            log.error("ERROR: TOURNAMENT INPUT - NULL CREATOR");
             return false;
         }
 
+        // If all fail cases pass, return all inputs are valid :)
         return true;
+    }
+
+    // Check if player is in tournament (WARN - Similar to the isRegistered(player) method in player controller) 
+    private boolean isPlayerOfTournament(String player, Tournament tournament) {
+
+        // Loop through all players in the tournament
+        for (Player p : tournament.getPlayers()) {
+            // If found the specified player in the player list (compare using id), return true
+            if (p.getId().equals(player)) {
+                return true;
+            }
+        }
+
+        // Else, mean player not found in tournament, return false
+        return false;
+        
     }
 
 }

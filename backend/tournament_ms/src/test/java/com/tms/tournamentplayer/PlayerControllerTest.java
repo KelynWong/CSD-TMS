@@ -62,8 +62,8 @@ public class PlayerControllerTest {
 	// }
 
 	/* START OF TESTING */
-	@Test // getAllRegisteredPlayerByTournamentId - case 1 : valid tournament id
-	public void getAllRegisteredPlayerByTournamentId_ValidTournamentId_Success() throws Exception {
+	@Test // getAllPlayersByTournamentId - case 1 : valid tournament id
+	public void getAllPlayersByTournamentId_ValidTournamentId_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player -> map them)
 		Tournament tournament = helper.createTestTournament("noError");
@@ -90,8 +90,8 @@ public class PlayerControllerTest {
 
 	}
 
-	@Test // getAllRegisteredPlayerByTournamentId - case 2 : invalid tournament id
-	public void getAllRegisteredPlayerByTournamentId_InvalidTournamentId_Failure() throws Exception {
+	@Test // getAllPlayersByTournamentId - case 2 : invalid tournament id
+	public void getAllPlayersByTournamentId_InvalidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
 		Tournament tournament = helper.createTestTournament("noError");
@@ -390,6 +390,8 @@ public class PlayerControllerTest {
 		// call api
 		URI uri = new URI(baseURL + port + "/tournaments/players/" + p_id);
 		ResponseEntity<Void> result = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
+
+		helper.log(result.toString());
 
 		// verify the output - 200 (OK) : player deleted (check empty optional is returned) 
 		assertEquals(200, result.getStatusCode().value());

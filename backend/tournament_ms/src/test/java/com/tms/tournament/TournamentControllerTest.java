@@ -74,10 +74,8 @@ class TournamentControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
-		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); // need to use array
-																									// with a
-																									// ReponseEntity
-																									// here
+		// need to use array with a ReponseEntity here
+		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); 
 		Tournament[] tournamentArr = result.getBody();
 
 		// verify the output - 200 (OK) : check if current count got increase aft adding
