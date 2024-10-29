@@ -5,6 +5,7 @@ import com.tms.exception.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,14 @@ public class PlayerController {
 
     private PlayerRepository players;
     private TournamentRepository tournaments;
+    private AutoStatusUpdateService autoStatusUpdateService;
 
-    public PlayerController(PlayerRepository tur, TournamentRepository tr) {
+
+    public PlayerController(PlayerRepository tur, TournamentRepository tr, AutoStatusUpdateService as) {
         this.players = tur;
         this.tournaments = tr;
+        this.autoStatusUpdateService = as;
+
     }
 
     /* Get all tournament players by tournament id */
@@ -29,6 +34,9 @@ public class PlayerController {
 
         // Find tournament specified by id
         return tournaments.findById(tournamentId).map(tournament -> {
+
+            autoStatusUpdateService.autoUpdateTournament(tournament);
+
             // Return tournament's players
             return tournament.getPlayers();
 
@@ -44,8 +52,14 @@ public class PlayerController {
 
         // Find player specified by id
         return players.findById(playerId).map(player -> {
-            // Return player's tournaments
-            return player.getTournaments();
+
+            // Get all tournaments of player
+            List<Tournament> t_list = player.getTournaments();
+
+            // For every tournament, Check and Update tournament Status based on regDTs
+            autoStatusUpdateService.autoUpdateTournaments(t_list);
+
+            return t_list;
 
             // Else, means specified player not found, throw PlayerNotFoundException err 404
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
@@ -149,13 +163,13 @@ public class PlayerController {
             // Remove all tournament-player mapping
             player.removeAllTournaments();
             // Now, no mapping can delete player
-            players.delete(player); 
+            players.delete(player);
             // if all ok, return 200 (OK)
-            return ResponseEntity.ok().build(); 
+            return ResponseEntity.ok().build();
 
-            // Reaching here means specified tournament not found, throw PlayerNotFoundException err 404
+            // Reaching here means specified tournament not found, throw
+            // PlayerNotFoundException err 404
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
-
 }

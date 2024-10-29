@@ -1,8 +1,5 @@
 package com.tms.tournament;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.*;
 
 import org.springframework.http.*;
@@ -25,11 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentController {
 
     private TournamentService tournamentService;
+    private AutoStatusUpdateService autoStatusUpdateService;
     private PlayerRepository playerRepository;
 
-    public TournamentController(TournamentService ts, PlayerRepository pr) {
+    public TournamentController(TournamentService ts, PlayerRepository pr, AutoStatusUpdateService as) {
         this.tournamentService = ts;
         this.playerRepository = pr;
+        this.autoStatusUpdateService = as;
     }
 
     // Health check endpoint
@@ -41,8 +40,11 @@ public class TournamentController {
     /* List all tournaments */
     @GetMapping
     public List<Tournament> getAllTournaments() {
-        // Return all the tournaments in DB
-        return tournamentService.listTournaments();
+
+        // Get all tournaments, Update status by DT, return updated list
+        List<Tournament> t_list = tournamentService.listTournaments();
+        autoStatusUpdateService.autoUpdateTournaments(t_list);
+        return t_list;
     }
 
     /* Get tournament by Id */
@@ -56,7 +58,9 @@ public class TournamentController {
         if (tournament == null)
             throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
 
-        // Else, return the retrieved tournament
+        // Else, check and update status based on regDTs, then return the retrieved
+        // tournament
+        autoStatusUpdateService.autoUpdateTournament(tournament);
         return tournamentService.getTournament(id);
 
     }
@@ -74,8 +78,13 @@ public class TournamentController {
             throw new InvalidTournamentStatusException(modifiedStatus);
         }
 
+        // Get all tournaments from DB
+        List<Tournament> t_list = tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
+
+        autoStatusUpdateService.autoUpdateTournaments(t_list);
+
         // Return tournaments with specified status
-        return tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
+        return t_list;
 
     }
 
@@ -172,7 +181,7 @@ public class TournamentController {
 
         // If winner is not in tournament, throw player not found exception
         if (!tournament.isPlayerInTournament(modifiedWinner)) {
-            throw new PlayerNotFoundException(modifiedWinner, id); 
+            throw new PlayerNotFoundException(modifiedWinner, id);
         }
 
         // Here, all pass
@@ -213,16 +222,16 @@ public class TournamentController {
             // If its a NullPointerException, it is due to tournament not found
             if (e instanceof NullPointerException) {
                 throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
-            } 
+            }
 
             // Else, throw the given expection error
             throw e;
-            
+
         }
     }
 
     /* Helper class */
-    // Input Validation
+    // Purpose : Input validation
     public boolean tournamentInputValidation(Tournament tournament) {
 
         /* Name should be unique and not empty */
@@ -232,7 +241,7 @@ public class TournamentController {
             return false;
         }
         // Name - not unique
-        if (!tournamentService.getTournamentsByTournamentName(tournament.getTournamentName()).isEmpty()) {
+        if (tournamentService.getTournamentsByTournamentName(tournament.getTournamentName()).size() > 1) {
             log.error("ERROR: TOURNAMENT INPUT - THIS NAME EXIST LIAO");
             return false;
         }
@@ -270,20 +279,6 @@ public class TournamentController {
         return true;
     }
 
-    // Check if player is in tournament (WARN - Similar to the isRegistered(player) method in player controller) 
-    private boolean isPlayerOfTournament(String player, Tournament tournament) {
-
-        // Loop through all players in the tournament
-        for (Player p : tournament.getPlayers()) {
-            // If found the specified player in the player list (compare using id), return true
-            if (p.getId().equals(player)) {
-                return true;
-            }
-        }
-
-        // Else, mean player not found in tournament, return false
-        return false;
-        
-    }
+    
 
 }
