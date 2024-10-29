@@ -120,29 +120,25 @@ public class MatchServiceImpl implements MatchService {
     }
 
     private void addRemainingMatches(CreateTournament tournament, List<Match> res, Deque<Match> q, int numMatchesAtBase) {
-        int step = numMatchesAtBase;
-        while (step > 1) {
-            for (int i = step; i < step + step / 2; i++) {
+        ListIterator<MatchJson> iterator = tournament.getMatches().listIterator(numMatchesAtBase);
+        while (iterator.hasNext()) {
+            int step = q.size();
+            for (int i = 0; i < step / 2; i++) {
                 Match leftMatch = q.poll();
                 Match rightMatch = q.poll();
 
-                MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
+                if (!iterator.hasNext()) {
+                    break;
+                }
+
+                MatchJson matchToAdd = setChildMatchesAndPlayers(iterator.next(), leftMatch, rightMatch);
                 matchToAdd.setRoundNum(step);
+
                 Match match = this.addMatch(matchToAdd);
                 res.add(match);
                 q.add(match);
             }
-            step = step / 2;
         }
-//        for (int i = numMatchesAtBase; i < tournament.getMatches().size(); i++) {
-//            Match leftMatch = q.poll();
-//            Match rightMatch = q.poll();
-//
-//            MatchJson matchToAdd = setChildMatchesAndPlayers(tournament.getMatches().get(i), leftMatch, rightMatch);
-//            Match match = this.addMatch(matchToAdd);
-//            res.add(match);
-//            q.add(match);
-//        }
     }
 
     private MatchJson setChildMatchesAndPlayers(MatchJson matchToAdd, Match leftMatch, Match rightMatch) {
