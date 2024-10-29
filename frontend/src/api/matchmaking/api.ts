@@ -10,16 +10,6 @@ type Game = {
 
 type Games = Game[];
 
-export const fetchMatchMakingByTournamentId = async (tournament_id: number): Promise<any[]> => {
-	try {
-		const response = await axios.get(`${URL}/${tournament_id}`);
-		return response.data;
-	} catch (error) {
-		console.error("Error fetching tournament matchemaking data", error);
-		throw error;
-	}
-};
-
 export const matchMakeByTournamentId = async (tournament_id: number): Promise<boolean> => {
 	try {
 		const response = await axios.post(`${URL}/${tournament_id}`);

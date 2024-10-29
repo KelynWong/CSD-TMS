@@ -8,15 +8,20 @@ import Image from "next/image";
 import ClientButton from "@/components/ClientButton";
 import { useUser } from "@clerk/nextjs";
 import { ModeToggle } from "./ThemeChangeButton";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Navbar() {
 	const user = useUser();
-	const isAdmin = user.user?.publicMetadata.role === "Admin";
-	const isPlayer = user.user?.publicMetadata.role === "Player";
+	const isAdmin = user.user?.publicMetadata.role === "ADMIN";
+	const isPlayer = user.user?.publicMetadata.role === "PLAYER";
 	const [isOpen, setIsOpen] = useState(false);
-	const [activeLink, setActiveLink] = useState("home");
+	const { currentState, setState } = useNavBarContext();
 
 	const toggleMenu = () => setIsOpen(!isOpen);
+
+	const handleNavBarChange = (context: string) => {
+		setState(context);
+	};
 
 	return (
 		<nav className="bg-black text-white py-2 px-6">
@@ -35,41 +40,43 @@ export default function Navbar() {
 					<Link
 						href="/"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							activeLink === "home" ? "text-red-400" : ""
+							currentState === "home" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("home")}>
+						onClick={() => handleNavBarChange("home")}>
 						HOME
 					</Link>
 					<Link
 						href="/tournaments"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							activeLink === "tournaments" ? "text-red-400" : ""
+							currentState === "tournaments"
+								? "text-red-400"
+								: ""
 						}`}
-						onClick={() => setActiveLink("tournaments")}>
+						onClick={() => handleNavBarChange("tournaments")}>
 						TOURNAMENTS
 					</Link>
 					<Link
 						href="/players"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							activeLink === "players" ? "text-red-400" : ""
+							currentState === "players" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("players")}>
+						onClick={() => handleNavBarChange("players")}>
 						PLAYERS
 					</Link>
 					<Link
 						href="/rankings"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							activeLink === "rankings" ? "text-red-400" : ""
+							currentState === "rankings" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("rankings")}>
+						onClick={() => handleNavBarChange("rankings")}>
 						RANKINGS
 					</Link>
 					{/* <Link
 						href="/predictions"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							activeLink === "matchPredict" ? "text-red-400" : ""
+							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("matchPredict")}>
+						onClick={() => handleNavBarChange("matchPredict")}>
 						MATCH PREDICTIONS
 					</Link> */}
 				</div>
@@ -78,9 +85,9 @@ export default function Navbar() {
 						<Link
 							href={`/admin`}
 							className={`font-heading hover:text-red-400 transition-colors ${
-								activeLink === "admin" ? "text-red-400" : ""
+								currentState === "admin" ? "text-red-400" : ""
 							}`}
-							onClick={() => setActiveLink("admin")}>
+							onClick={() => handleNavBarChange("admin")}>
 							ADMIN
 						</Link>
 					)}
@@ -88,9 +95,11 @@ export default function Navbar() {
 						<Link
 							href={`/user-profile`}
 							className={`font-heading hover:text-red-400 transition-colors ${
-								activeLink === "user-profile" ? "text-red-400" : ""
+								currentState === "user-profile"
+									? "text-red-400"
+									: ""
 							}`}
-							onClick={() => setActiveLink("user-profile")}>
+							onClick={() => handleNavBarChange("user-profile")}>
 							PROFILE
 						</Link>
 					)}
@@ -111,7 +120,11 @@ export default function Navbar() {
 					<button
 						onClick={toggleMenu}
 						className="lg:hidden p-2 rounded-full hover:bg-gray-700 transition-colors">
-						{isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+						{isOpen ? (
+							<X className="w-6 h-6" />
+						) : (
+							<Menu className="w-6 h-6" />
+						)}
 						<span className="sr-only">Toggle menu</span>
 					</button>
 				</div>
@@ -121,33 +134,35 @@ export default function Navbar() {
 					<Link
 						href="/tournaments"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
-							activeLink === "tournaments" ? "text-red-400" : ""
+							currentState === "tournaments"
+								? "text-red-400"
+								: ""
 						}`}
-						onClick={() => setActiveLink("tournaments")}>
+						onClick={() => handleNavBarChange("tournaments")}>
 						TOURNAMENT
 					</Link>
 					<Link
 						href="/players"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
-							activeLink === "players" ? "text-red-400" : ""
+							currentState === "players" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("players")}>
+						onClick={() => handleNavBarChange("players")}>
 						PLAYERS
 					</Link>
 					<Link
 						href="/rankings"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
-							activeLink === "rankings" ? "text-red-400" : ""
+							currentState === "rankings" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("rankings")}>
+						onClick={() => handleNavBarChange("rankings")}>
 						RANKINGS
 					</Link>
 					{/* <Link
 						href="/predictions"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
-							activeLink === "matchPredict" ? "text-red-400" : ""
+							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
-						onClick={() => setActiveLink("matchPredict")}>
+						onClick={() => handleNavBarChange("matchPredict")}>
 						MATCH PREDICTIONS
 					</Link> */}
 				</div>

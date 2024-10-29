@@ -2,33 +2,44 @@
 
 import { PlayerCard } from "./_components/PlayerCard";
 import { PlayerCardProps } from "@/types/player";
-import { AdminResponse, fetchUserByRoles } from "@/api/users/api";
+import { fetchUserByRoles } from "@/api/users/api";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import Paginator from "@/components/Paginator";
 import { PlayerResponse } from "@/api/users/api";
+import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Players() {
-	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]);
+	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>(
+		[]
+	);
 	const [loading, setLoading] = useState(true);
+
+	// Set navbar context
+	const { setState } = useNavBarContext();
+	setState("players");
+
 	useEffect(() => {
-		fetchUserByRoles("Player").then(
-			(data: PlayerResponse[] | AdminResponse[]) => {
-				setLoading(false);
-				const mappedData: PlayerCardProps[] = (data as PlayerResponse[]).map(
-					(player: PlayerResponse) => {
-						return {
-							id: player.id,
-							username: player.username,
-							fullname: player.fullname,
-							gender: player.gender,
-							profilePicture: player.profilePicture,
-						};
-					}
-				);
+		const fetchData = async () => {
+			try {
+				const data = await fetchUserByRoles("Player");
+				const mappedData: PlayerCardProps[] = (
+					data as PlayerResponse[]
+				).map((player: PlayerResponse) => ({
+					id: player.id,
+					username: player.username,
+					fullname: player.fullname,
+					gender: player.gender,
+					profilePicture: player.profilePicture,
+				}));
 				setPlayerCardProps(mappedData);
+				setLoading(false);
+			} catch (error) {
+				console.error("Failed to fetch players:", error);
+				setLoading(false);
 			}
-		);
+		};
+		fetchData();
 	}, []);
 
 	const [currentPage, setCurrentPage] = useState(1);
@@ -84,3 +95,4 @@ export default function Players() {
 		</div>
 	);
 }
+

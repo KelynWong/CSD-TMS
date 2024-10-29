@@ -1,12 +1,11 @@
 package com.tms.match;
 
-import java.util.List;
-
 import com.tms.player.Player;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 
 @Data
@@ -21,5 +20,6 @@ public class Match {
     private Match left;
     private Match right;
     private List<Game> games;
+    private int roundNum;
 
 }

@@ -40,7 +40,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
     const [showRegisterButton, setShowRegisterButton] = useState(false);
-    
+
     const formattedStartDT = new Date(startDT);
     const startDate = new Intl.DateTimeFormat('en-GB', {
         weekday: 'long',
@@ -98,7 +98,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }).format(formattedRegEndDT);
 
     useEffect(() => {
-        if (role === "Player") {
+        if (role === "PLAYER") {
             const getUserRegisteredData = async () => {
                 setLoading(true);
                 try {
@@ -152,13 +152,13 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         try {
             await matchMakeByTournamentId(id);
             await updateTournamentStatusById(id, "Ongoing");
-            message.success('Matchmaking started successfully! :)');
+            message.success('Matchmade successfully! :)');
             setTimeout(() => {
                 // window.location.reload();
                 router.push(`/tournaments/${id}`);
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
-            message.error('Failed to start matchmaking :( \n' + err);
+            message.error('Failed to matchmake :( \n' + err);
             console.log(err);
         }
     };
@@ -230,7 +230,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 )}
             </CardContent>
             <CardFooter>
-                {role === "Player" && status === 'Registration Start'? (
+                {role === "PLAYER" && status === 'Registration Start'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
@@ -274,7 +274,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                             // )
                         )}
                     </div>
-                ) : role === "Admin" ? (
+                ) : role === "ADMIN" ? (
                     <div className="grid grid-row-2 gap-2 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>

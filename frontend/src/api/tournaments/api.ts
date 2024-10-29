@@ -14,22 +14,10 @@ export interface tournamentResponse {
 	winner: string;
 }
 
-export const fetchTournaments = async (): Promise<tournamentResponse[]> => {
+export const fetchTournaments = async (): Promise<Tournament[]> => {
 	try {
 		const response = await axios.get(`${URL}`);
-		const formattedData: tournamentResponse[] = response.data.map(
-			(tournament: any) => ({
-				id: tournament.id,
-				tournamentName: tournament.tournamentName,
-				startDT: tournament.startDT,
-				endDT: tournament.endDT,
-				status: tournament.status,
-				regStartDT: tournament.regStartDT,
-				regEndDT: tournament.regEndDT,
-			})
-		);
-
-		return formattedData;
+		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
 		throw error;
@@ -56,8 +44,13 @@ export const fetchTournamentByPlayerId = async (
 		);
 		return formattedData;
 	} catch (error) {
-		console.error("Error fetching tournaments", error);
-		throw error;
+		if (axios.isAxiosError(error) && error.response?.status === 404) {
+			console.warn(`No tournaments found for player ID: ${player_id}`);
+			return [];
+		} else {
+			console.error("Error fetching tournaments by player ID", error);
+			throw error;
+		}
 	}
 };
 
@@ -79,9 +72,7 @@ export const fetchAllPlayersByTournament = async (
 	try {
 		console.log(`${URL}/${tournament_id}/players`);
 
-		const response = await axios.get(
-			`${URL}/${tournament_id}/players`
-		);
+		const response = await axios.get(`${URL}/${tournament_id}/players`);
 
 		// Check if the response has data and return the array of players
 		if (response.status === 200 && response.data) {
@@ -96,24 +87,27 @@ export const fetchAllPlayersByTournament = async (
 };
 
 export const fetchPlayerRegistrationStatus = async (
-    tournament_id: number,
-    user_id: string
+	tournament_id: number,
+	user_id: string
 ): Promise<boolean> => {
-    try {
-        const response = await axios.get(
-            `${URL}/${tournament_id}/players/${user_id}`
-        );
-        // Return true if the user is found and registered
-        return response.data.IsRegistered;
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-            // If player is not found, simply return false
-            return false;
-        }
-        // Log unexpected errors only
-        console.error("Unexpected error fetching player registration status", error);
+	try {
+		const response = await axios.get(
+			`${URL}/${tournament_id}/players/${user_id}`
+		);
+		// Return true if the user is found and registered
+		return response.data.IsRegistered;
+	} catch (error) {
+		if (axios.isAxiosError(error) && error.response?.status === 404) {
+			// If player is not found, simply return false
+			return false;
+		}
+		// Log unexpected errors only
+		console.error(
+			"Unexpected error fetching player registration status",
+			error
+		);
 		return false;
-    }
+	}
 };
 
 export const registerTournament = async (
@@ -137,9 +131,7 @@ export const withdrawTournament = async (
 	user_id: string
 ): Promise<boolean> => {
 	try {
-		console.log(
-			`${URL}/${tournament_id}/players/${user_id}/deregister`
-		);
+		console.log(`${URL}/${tournament_id}/players/${user_id}/deregister`);
 
 		const response = await axios.put(
 			`${URL}/${tournament_id}/players/${user_id}/deregister`
@@ -152,29 +144,36 @@ export const withdrawTournament = async (
 	}
 };
 
-export const createTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
-    try {
-        console.log(`${URL}`);
+export const createTournaments = async (
+	tournamentData: Partial<Tournament>
+): Promise<boolean> => {
+	try {
+		console.log(`${URL}`);
 		console.log(tournamentData);
 
-        const response = await axios.post(`${URL}`, tournamentData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+		const response = await axios.post(`${URL}`, tournamentData, {
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 
-		console.log(response)
+		console.log(response);
 
-        return response.status === 201; 
-    } catch (error) {
-        console.error("Error creating tournaments", error);
-        return false;
-    }
+		return response.status === 201;
+	} catch (error) {
+		console.error("Error creating tournaments", error);
+		return false;
+	}
 };
 
-export const updateTournaments = async (tournamentData: Partial<Tournament>): Promise<boolean> => {
+export const updateTournaments = async (
+	tournamentData: Partial<Tournament>
+): Promise<boolean> => {
 	try {
-		const response = await axios.put(`${URL}/${tournamentData.id}`, tournamentData, {
+		const response = await axios.put(
+			`${URL}/${tournamentData.id}`,
+			tournamentData,
+			{
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -188,9 +187,15 @@ export const updateTournaments = async (tournamentData: Partial<Tournament>): Pr
 	}
 };
 
-export const updateTournamentStatusById = async (tournament_id: number, status: String): Promise<boolean> => {
+export const updateTournamentStatusById = async (
+	tournament_id: number,
+	status: String
+): Promise<boolean> => {
 	try {
-		const response = await axios.put(`${URL}/${tournament_id}/status`, status, {
+		const response = await axios.put(
+			`${URL}/${tournament_id}/status`,
+			status,
+			{
 				headers: {
 					"Content-Type": "application/json",
 				},

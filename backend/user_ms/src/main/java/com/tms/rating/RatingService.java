@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,14 +42,6 @@ public class RatingService {
         Rating rating = new Rating(user.get(), ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
                 ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
         return ratingRepo.save(rating);
-    }
-
-    public List<Rating> initRatings(int start, int end) {
-        ArrayList<Rating> ratingList = new ArrayList<>();
-        for (int i = start; i <= end; i++) {
-            ratingList.add(initRating("user" + i));
-        }
-        return ratingList;
     }
 
     @Transactional

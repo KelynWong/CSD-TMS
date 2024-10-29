@@ -9,13 +9,15 @@ const PlayerHero = ({ player }: { player: Player }) => {
 				.split(" ")
 				.slice(0, length - 1)
 				.join(" ")
+				.toUpperCase()
 		: "";
 	const lastName = player?.fullname
-		? player.fullname.split(" ").slice(-1).join(" ")
+		? player.fullname.split(" ").slice(-1).join(" ").toUpperCase()
 		: "";
-	const winRate = player
-		? Math.ceil((player.wins / player.total_matches) * 100)
-		: 0;
+	const winRate =
+		player && player.wins >= 0 && player.total_matches > 0
+			? Math.ceil((player.wins / player.total_matches) * 100)
+			: 0;
 
 	return (
 		<div className="bg-black text-white">
@@ -39,7 +41,10 @@ const PlayerHero = ({ player }: { player: Player }) => {
 				<div className="relative z-10 max-w-6xl mx-auto px-4 py-10">
 					<div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-8">
 						<Image
-							src={player.profilePicture || "/images/default_profile.png"}
+							src={
+								player.profilePicture ||
+								"/images/default_profile.png"
+							}
 							alt={`Player ${player.fullname}`}
 							width={150}
 							height={150}
@@ -48,7 +53,9 @@ const PlayerHero = ({ player }: { player: Player }) => {
 						<div className="text-center md:text-left">
 							<h1 className="text-8xl font-bold">{firstName}</h1>
 							<p className="text-4xl">{lastName}</p>
-							<p className="text-red-600 text-2xl">{player.country}</p>
+							<p className="text-red-600 text-2xl">
+								{player.country}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -58,11 +65,15 @@ const PlayerHero = ({ player }: { player: Player }) => {
 					<div className="max-w-8xl mx-auto px-4 grid grid-cols-2 md:grid-cols-6 gap-4">
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Ranking</p>
-							<p className="text-2xl font-bold">3</p>
+							<p className="text-2xl font-bold">
+                                {player.ranking}
+                            </p>
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Rating</p>
-							<p className="text-2xl font-bold">{player.rating}</p>
+							<p className="text-2xl font-bold">
+								{player.rating}
+							</p>
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Wins</p>
@@ -70,11 +81,15 @@ const PlayerHero = ({ player }: { player: Player }) => {
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Current Losses</p>
-							<p className="text-2xl font-bold">{player.losses}</p>
+							<p className="text-2xl font-bold">
+								{player.losses}
+							</p>
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Total Matches</p>
-							<p className="text-2xl font-bold">{player.total_matches}</p>
+							<p className="text-2xl font-bold">
+								{player.total_matches}
+							</p>
 						</div>
 						<div className="text-center">
 							<p className="text-sm uppercase">Win Rate</p>

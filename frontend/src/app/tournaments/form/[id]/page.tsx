@@ -30,6 +30,7 @@ import { createTournaments, updateTournaments, fetchTournaments, fetchTournament
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { message } from "antd";
+import {useNavBarContext} from "@/context/navBarContext";
 
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
@@ -46,6 +47,9 @@ export default function TournamentForm() {
     const router = useRouter();
     const { id } = useParams();
     const { user } = useUserContext();
+    // Set navbar context
+    const { setState } = useNavBarContext();
+    setState("tournaments");
     const isEditing = id && id !== 'create';
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
