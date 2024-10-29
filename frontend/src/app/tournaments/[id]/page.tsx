@@ -133,11 +133,6 @@ export default function TournamentDetails() {
         fetchData();
     }, [id]);
 
-    function getPlayerName(playerId: string): string {
-        const player = tournamentDetails?.players?.find((p) => p.id === playerId);
-        return player ? player.fullname : 'Unknown Player';
-    }
-
     if (loading) {
         return <Loading />;
     }
@@ -217,20 +212,12 @@ export default function TournamentDetails() {
                                 <span className="w-4/12">{tournamentDetails.organizer}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Registration Start:</span>
-                                <span className="w-4/12">{formattedRegStartDate}, {regStartTime}</span>
+                                <span className="w-8/12">Registration:</span>
+                                <span className="w-4/12">Start: {formattedRegStartDate}, {regStartTime}<br />End: {formattedRegEndDate}, {regEndTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Registration End:</span>
-                                <span className="w-4/12">{formattedRegEndDate}, {regEndTime}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Tournament Start:</span>
-                                <span className="w-4/12">{formattedStartDate}, {startTime}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Tournament End:</span>
-                                <span className="w-4/12">{formattedEndDate}, {endTime}</span>
+                                <span className="w-8/12">Tournament:</span>
+                                <span className="w-4/12">Start: {formattedStartDate}, {startTime}<br />End: {formattedEndDate}, {endTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
                                 <span className="w-8/12">Status: </span>
@@ -388,7 +375,10 @@ export default function TournamentDetails() {
                                 </div>
                             </>
                         ) : (
-                            <h2 className="text-base font-body font-bold uppercase">Loading match details...</h2>
+                            <>
+                                {/* <h2 className="my-16 text-center font-body font-bold uppercase">Loading match details...</h2> */}
+                                <Loading />
+                            </>
                         )
                     ) : (
                         <></>
@@ -396,7 +386,7 @@ export default function TournamentDetails() {
                 </div>
             </div>
         ) : (
-            <Loading /> // Optional: Show a loading component or placeholder
+            <Loading /> 
         )
     );
 }

@@ -22,10 +22,10 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
         matchResult
             .filter((match) => match.roundNum === round)
             .forEach((match) => {
-                if (match.player1.id) players.push(match.player1);
+                if (match.player1 !== null) players.push(match.player1);
 
-                if (match.player2.id) players.push(match.player2);
-                else players.push("Bye");
+                if (match.player2 !== null) players.push(match.player2);
+                else players.push("Bye.");
             });
     };
 
@@ -86,7 +86,11 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                         <TableCell className="text-center w-3">{index + 1}</TableCell>
                         <TableCell className={`w-1/${columnHeaders.length}`}>
                             <div className="flex items-center gap-2">
-                                <TPlayer player={player} />
+                                {player == "Bye." ? (
+                                    <p>{player}</p>
+                                ) : (
+                                    <TPlayer player={player} />
+                                )}
                             </div>
                         </TableCell>
 
@@ -106,7 +110,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                             // Display the winner only on the first row of each block
                             if (index % rowSpan === 0) {
                                 console.log('winners[winnerIndex]', winners[winnerIndex]);
-                                if (winners[winnerIndex] == "Match not played yet" || winners[winnerIndex] == "Bye") {    
+                                if (winners[winnerIndex] == "Match not played yet" || winners[winnerIndex] == "Bye.") {    
                                     return (
                                         <TableCell key={round} rowSpan={rowSpan}>
                                             <div className="flex items-center gap-2 italic text-slate-400">

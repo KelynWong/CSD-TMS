@@ -152,7 +152,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         try {
             await matchMakeByTournamentId(id);
             await updateTournamentStatusById(id, "Ongoing");
-            message.success('Matchmade successfully! :)');
+            message.success('Matchmake successful! :)');
             setTimeout(() => {
                 // window.location.reload();
                 router.push(`/tournaments/${id}`);

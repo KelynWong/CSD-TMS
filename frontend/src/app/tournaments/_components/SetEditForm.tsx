@@ -26,19 +26,23 @@ export default function SetEditForm({
 
   const validateScores = () => {
     for (let i = 0; i < numSets; i++) {
-      const player1Score = player1Scores[i];
-      const player2Score = player2Scores[i];
+        const player1Score = player1Scores[i];
+        const player2Score = player2Scores[i];
 
-      if (player1Score < 21 && player2Score < 21) {
-        return `Game No. ${i + 1} is invalid. One player's score must be at least 21.`;
-      }
+        const isValidScore = (p1Score: number, p2Score: number) => {
+            return (p1Score === 30 && p2Score === 29) ||
+                (p2Score === 30 && p1Score === 29) ||
+                ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) === 2) ||
+                ((p1Score === 21 && p2Score >= 0 && p2Score < 20) ||
+                    (p2Score === 21 && p1Score >= 0 && p1Score < 20));
+        };
 
-      if (Math.abs(player1Score - player2Score) < 2) {
-        return `Game No. ${i + 1} is invalid. The winning player must lead by at least 2 points.`;
-      }
+        if (!isValidScore(player1Score, player2Score)) {
+            return `Game No. ${i + 1} is invalid. The scores do not meet the required criteria.`;
+        }
     }
     return null;
-  };
+};
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
