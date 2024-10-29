@@ -77,11 +77,12 @@ public class MatchmakeService {
             double numMatchesRemaining = (Math.pow(2, k) - 1) - numMatchesAtBase;
 
             // create matches for the rest of the tree
-            for (int i = 0; i < numMatchesRemaining; i++) {
-                MatchJson match = createMatchWithoutPlayers(tournamentId);
-                matches.add(match);
-            }
+            // Create a list with the element repeated multiple times
+            List<MatchJson> repeatedMatches = Collections.nCopies((int) numMatchesRemaining,
+                    createMatchWithoutPlayers(tournamentId));
 
+            // Add all elements to the matches list
+            matches.addAll(repeatedMatches);
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
             return matches;
         }
