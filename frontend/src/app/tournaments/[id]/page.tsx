@@ -213,28 +213,36 @@ export default function TournamentDetails() {
                         <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">Tournament Information</h2>
                         <div className="text-slate-600">
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Organizer:</span>
-                                <span className="w-3/12">{tournamentDetails.organizer}</span>
+                                <span className="w-8/12">Organizer:</span>
+                                <span className="w-4/12">{tournamentDetails.organizer}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Registration Dates:</span>
-                                <span className="w-3/12">{formattedRegStartDate}, {regStartTime} - {formattedRegEndDate}, {regEndTime}</span>
+                                <span className="w-8/12">Registration Start:</span>
+                                <span className="w-4/12">{formattedRegStartDate}, {regStartTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Tournament Dates:</span>
-                                <span className="w-3/12">{formattedStartDate}, {startTime} - {formattedEndDate}, {endTime}</span>
+                                <span className="w-8/12">Registration End:</span>
+                                <span className="w-4/12">{formattedRegEndDate}, {regEndTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Status: </span>
-                                <span className="w-3/12">{tournamentDetails.status}</span>
+                                <span className="w-8/12">Tournament Start:</span>
+                                <span className="w-4/12">{formattedStartDate}, {startTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">No. of Match: </span>
-                                <span className="w-3/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
+                                <span className="w-8/12">Tournament End:</span>
+                                <span className="w-4/12">{formattedEndDate}, {endTime}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
+                                <span className="w-8/12">Status: </span>
+                                <span className="w-4/12">{tournamentDetails.status}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
+                                <span className="w-8/12">No. of Match: </span>
+                                <span className="w-4/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
                             </div>
                             <div className="flex justify-between px-6 py-3 font-semibold">
-                                <span className="w-9/12">Format:</span>
-                                <span className="w-3/12">Automatic Matching</span>
+                                <span className="w-8/12">Format:</span>
+                                <span className="w-4/12">Automatic Matching</span>
                             </div>
                         </div>
                     </div>
