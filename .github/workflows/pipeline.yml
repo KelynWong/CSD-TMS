@@ -280,7 +280,7 @@ jobs:
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true
 
         # ADMIN Routes
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true name=game_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
 
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
