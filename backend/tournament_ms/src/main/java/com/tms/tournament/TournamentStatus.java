@@ -11,6 +11,7 @@ public enum TournamentStatus {
 
     SCHEDULED("Scheduled"),
     REGISTRATION_START("Registration Start"),
+    MATCHMAKE("Matchmake"),
     REGISTRATION_CLOSE("Registration Close"),
     ONGOING("Ongoing"),
     COMPLETED("Completed");

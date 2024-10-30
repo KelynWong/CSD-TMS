@@ -238,10 +238,17 @@ public class MatchServiceImpl implements MatchService {
      */
     @Override
     public void deleteMatch(Long id) {
-            if (this.matches.existsById(id)) {
-                this.matches.deleteById(id);
-            }else {
+        if (this.matches.existsById(id)) {
+            this.matches.deleteById(id);
+        }else {
             throw new MatchNotFoundException(id);
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteTournament(Long id) {
+        this.matches.deleteGamesByTournamentId(id);
+        this.matches.deleteByTournamentId(id);
     }
 }
