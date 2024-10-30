@@ -30,4 +30,18 @@ public class Player {
     @JsonIgnore
     private List<Tournament> tournaments;
 
+
+    // Custom methods
+    
+    // Purpose : Remove all player to tournament mapping
+    public void removeAllTournaments() {
+        
+        for (Tournament t : this.tournaments) {
+            t.getPlayers().remove(this);
+        }
+        
+        this.tournaments = new ArrayList<>();
+
+    }
+
 }

@@ -7,6 +7,12 @@ public interface TournamentService {
     /* Get all tournaments */
     List<Tournament> listTournaments();
     
+    /* Get tournament by Status */
+    List<Tournament> getTournamentsByStatus(TournamentStatus status);
+
+    /* Get tournament by Tournament Name */
+    List<Tournament> getTournamentsByTournamentName(String tournamentName);
+    
     /* Get tournament by Id */
     Tournament getTournament(Long id);
 

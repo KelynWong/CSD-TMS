@@ -5,11 +5,11 @@ import com.tms.exception.*;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @Slf4j
@@ -18,128 +18,158 @@ public class PlayerController {
 
     private PlayerRepository players;
     private TournamentRepository tournaments;
+    private AutoStatusUpdateService autoStatusUpdateService;
 
-    public PlayerController(PlayerRepository tur, TournamentRepository tr){
+
+    public PlayerController(PlayerRepository tur, TournamentRepository tr, AutoStatusUpdateService as) {
         this.players = tur;
         this.tournaments = tr;
+        this.autoStatusUpdateService = as;
+
     }
-    
-    /* Get all tournament Players by tournament id */
+
+    /* Get all tournament players by tournament id */
     @GetMapping("/{tournamentId}/players")
-    public List<Player> getAllRegisteredPlayerByTournamentId(@PathVariable (value = "tournamentId") Long tournamentId) {
-        // if tournament dont exist, throw tournamentNotFound err
-        if(!tournaments.existsById(tournamentId)) {
-            throw new TournamentNotFoundException(tournamentId);
-        }
-        // else, return list of tournament Players
+    public List<Player> getAllPlayersByTournamentId(@PathVariable(value = "tournamentId") Long tournamentId) {
+
+        // Find tournament specified by id
         return tournaments.findById(tournamentId).map(tournament -> {
+
+            autoStatusUpdateService.autoUpdateTournament(tournament);
+
+            // Return tournament's players
             return tournament.getPlayers();
-        }).orElse(null);
+
+            // Else, means specified tournament not found, throw TournamentNotFoundException
+            // err 404
+        }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
+
     }
 
     /* Get all tournaments by player id */
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
 
-        // if player dont exist, throw playerNotFound err
-        if(!players.existsById(playerId)) {
-            throw new PlayerNotFoundException(playerId);
-        }
-        
-        // else, return list of tournaments 
+        // Find player specified by id
         return players.findById(playerId).map(player -> {
-            List<Tournament> tournamentList = player.getTournaments();     
-            return tournamentList;
-        }).orElse(null);
+
+            // Get all tournaments of player
+            List<Tournament> t_list = player.getTournaments();
+
+            // For every tournament, Check and Update tournament Status based on regDTs
+            autoStatusUpdateService.autoUpdateTournaments(t_list);
+
+            return t_list;
+
+            // Else, means specified player not found, throw PlayerNotFoundException err 404
+        }).orElseThrow(() -> new PlayerNotFoundException(playerId));
+
     }
 
+    /* Check if specified player is registered to specified tournament */
     @GetMapping("/{tournamentId}/players/{playerId}")
-    public Map<String,Boolean> IsRegistered(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
+    public Map<String, Boolean> isRegistered(@PathVariable(value = "tournamentId") Long tournamentId,
+            @PathVariable(value = "playerId") String playerId) {
+
+        // Get specified player by Id, if not found, throw PlayerNotFoundException error
+        // 404
         Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
-        Map<String,Boolean> result = new HashMap<>();
-        
-        return tournaments.findById(tournamentId).map(tournament -> { // find tournament
-            
-            // if player is not registered in the tournament, return true;
+
+        // Store result in ("isRegistered" : false) format
+        Map<String, Boolean> result = new HashMap<>();
+
+        // Find specified tournament by Id
+        return tournaments.findById(tournamentId).map(tournament -> {
+
+            // If player is registered in the tournament
             if (player.getTournaments().contains(tournament)) {
-                
+
+                // Put IsRegistered to true, and return result
                 result.put("IsRegistered", true);
-                return result; 
-                
+                return result;
             }
 
-            // Else, return false
+            // Else, player is not registered, put IsRegistered to false and return result
             result.put("IsRegistered", false);
-            return result; 
+            return result;
 
+            // Reaching here means specified tournament not found, throw
+            // TournamentNotFoundException err 404
         }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     }
 
     /* Register Player */
     @PostMapping("/{tournamentId}/players/{playerId}/register")
-    public Player registerPlayer(@PathVariable (value = "tournamentId") Long tournamentId, @PathVariable (value = "playerId") String playerId) {
-        
+    public Player registerPlayer(@PathVariable(value = "tournamentId") Long tournamentId,
+            @PathVariable(value = "playerId") String playerId) {
+
+        // Get specified player by Id, if not found, create new Player
         Player player = players.findById(playerId).orElse(new Player(playerId, new ArrayList<>()));
-        
+
+        // Find specified tournament by Id
         return tournaments.findById(tournamentId).map(tournament -> { // find tournament
-            
-            // if player is not registered in the tournament, add it. else, skip it
+
+            // [WARN] currently, if player is already registered, no err will be thrown. It
+            // just dont update anything
+
+            // If player is not registered in the tournament
             if (!player.getTournaments().contains(tournament)) {
-                log.info("log: added new tournamentplayer mapping");
-                player.getTournaments().add(tournament);
-                tournament.getPlayers().add(player); // need to update the tournament side oso
+                // Add player into tournament (this function does mapping to both table)
+                tournament.addPlayer(player);
             }
 
-            // [WARN] currently, if player is already registered, no err will be thrown. It just dont update anything
+            // Return the player (no need to save in the DB - will auto save)
+            return player;
 
-            return players.save(player); // save - adds if player dont exist or updates if player exist
+            // Reaching here means specified tournament not found, throw
+            // TournamentNotFoundException err 404
         }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
-    
+
     }
 
     /* Deregister tournament Player */
     @PutMapping("/{tournamentId}/players/{playerId}/deregister")
-    public Player deregisterPlayer(@PathVariable (value = "tournamentId") Long tournamentId, 
-                                            @PathVariable (value = "playerId") String playerId) {
-        // check if tournament exist
-        if(!tournaments.existsById(tournamentId)) {
-            throw new TournamentNotFoundException(tournamentId);
-        }
-        // remove tournament mapping
-        return players.findById(playerId).map(player -> {
-            player.getTournaments().remove(tournaments.findById(tournamentId).get());
-            return players.save(player);
-        }).orElseThrow(() -> new PlayerNotFoundException(playerId, tournamentId));
+    public Player deregisterPlayer(@PathVariable(value = "tournamentId") Long tournamentId,
+            @PathVariable(value = "playerId") String playerId) {
+
+        // Get specified player by Id, if not found, create new Player
+        Player player = players.findById(playerId).orElseThrow(() -> new PlayerNotFoundException(playerId));
+
+        // Find specified tournament by Id
+        return tournaments.findById(tournamentId).map(tournament -> {
+
+            // If player is map to tournament, remove it.
+            if (tournament.isPlayerInTournament(player)) {
+                return tournament.removePlayer(player);
+            }
+
+            // Else, throw player not found exception
+            throw new PlayerNotFoundException(playerId, tournamentId);
+
+            // Reaching here means specified tournament not found, throw
+            // TournamentNotFoundException err 404
+        }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
 
     }
 
     /* Delete tournament Player */
     // Use a ResponseEntity to have more control over the response sent to client
     @DeleteMapping("/players/{playerId}")
-    public ResponseEntity<?> deletePlayer(@PathVariable (value = "playerId") String playerId) {
-        
-        // find player
+    public ResponseEntity<?> deletePlayer(@PathVariable(value = "playerId") String playerId) {
+
+        // find player specified by id
         return players.findById(playerId).map(player -> {
 
-            // if player found, 
-            // - loop thr player tournaments
-            for (Tournament t : player.getTournaments()) {
-                List<Player> p_list = t.getPlayers(); // get tournament list of players
-                p_list.remove(player); // remove this player
-                // save changed tournament in db
-                t.setPlayers(p_list); 
-                tournaments.save(t);
-            }
+            // Remove all tournament-player mapping
+            player.removeAllTournaments();
+            // Now, no mapping can delete player
+            players.delete(player);
+            // if all ok, return 200 (OK)
+            return ResponseEntity.ok().build();
 
-            // - delete all tournament mapping from player & save in db
-            player.setTournaments(new ArrayList<>());
-            players.save(player);
-
-            players.delete(player); // now, delete player
-            return ResponseEntity.ok().build(); // if all ok, return 200 (OK)
-
+            // Reaching here means specified tournament not found, throw
+            // PlayerNotFoundException err 404
         }).orElseThrow(() -> new PlayerNotFoundException(playerId));
 
     }
-
 }
