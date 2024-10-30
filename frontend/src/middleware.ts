@@ -30,7 +30,7 @@ export default clerkMiddleware((auth, req) => {
 	}
 
 	const userRole = sessionClaims?.metadata?.role;
-	if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "Admin") {
+	if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "ADMIN") {
 		// Redirect to a forbidden page or return an error response
 		const forbiddenUrl = new URL("/", req.url);
 		return NextResponse.redirect(forbiddenUrl);
