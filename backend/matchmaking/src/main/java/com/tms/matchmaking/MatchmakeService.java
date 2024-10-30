@@ -166,22 +166,21 @@ public class MatchmakeService {
         return new TournamentSimSetup(idToMatch, idToPlayer);
     }
 
-    public Map<Player, Float> simManyTournament(Long tournamentId) {
+    public List<TournamentSimRes> simManyTournament(Long tournamentId) {
         final int NUM_SIMULATIONS = 1000;
         TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
         Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
         Map<String, Player> idToPlayer = setup.getIdToPlayer();
 
         Random random = new Random();
-        Map<Player, Float> results = new HashMap<>();
+        Map<String, Float> results = new HashMap<>();
         for (int i = 0; i < NUM_SIMULATIONS; i++) {
             Map<Long, MatchJson> clone = deepCloneMap(idToMatch);
             simulateMatches(clone, idToPlayer, random, false);
             List<MatchJson> valuesList = new ArrayList<>(clone.values());
             MatchJson finalMatch = valuesList.get(valuesList.size() - 1);
             String winnerId = finalMatch.getWinnerId();
-            Player winner = idToPlayer.get(winnerId);
-            results.put(winner, results.getOrDefault(winner, 0f) + 1);
+            results.put(winnerId, results.getOrDefault(winnerId, 0f) + 1);
         }
 
         // Convert counts to percentages
@@ -190,7 +189,17 @@ public class MatchmakeService {
             percentage = percentage.setScale(1, RoundingMode.HALF_UP);
             return percentage.floatValue();
         });
-        return results;
+
+        List<TournamentSimRes> resList = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : results.entrySet()) {
+            TournamentSimRes res = new TournamentSimRes();
+            res.setPlayerName(idToPlayer.get(entry.getKey()).getFullname());
+            res.setRank(idToPlayer.get(entry.getKey()).getRank());
+            res.setWinRate(entry.getValue());
+            resList.add(res);
+        }
+
+        return resList;
     }
 
     private Map<Long, MatchJson> deepCloneMap(Map<Long, MatchJson> original) {
