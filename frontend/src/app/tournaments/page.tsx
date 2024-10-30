@@ -141,10 +141,10 @@ export default function Tournaments() {
 
     if (error) {
         return (
-            <div className="w-[80%] mx-auto py-16">
-                <h1 className="text-3xl font-bold text-start">Tournaments</h1>
-                <div className="text-center text-md italic mt-16 text-red-500">
-                    {error}
+           <div className="w-[80%] h-full mx-auto py-16">
+                <div className="flex flex-col items-center justify-center h-full">
+                    <img src="/images/error.png" className="size-72" alt="No Ongoing Tournament" />
+                    <h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
                 </div>
             </div>
         );
