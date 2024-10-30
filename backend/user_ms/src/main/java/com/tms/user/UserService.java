@@ -1,5 +1,6 @@
 package com.tms.user;
 
+import com.tms.exception.RatingNotFoundException;
 import com.tms.exception.UserAlreadyExistsException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
@@ -33,15 +34,14 @@ public class UserService {
 
     public User getUserById(String id) {
         Optional<User> result = userRepository.findById(id);
-        Optional<Integer> rank = userRepository.findUserRankById(id);
-
-        if (result.isPresent() && rank.isPresent()) {
-            User user = result.get();
-            user.setRank(rank.get());
+        return result.map(user -> {
+            if (checkIfAdmin(user)) {
+                return user;
+            }
+            user.setRank(userRepository.findUserRankById(user.getId())
+                    .orElseThrow(() -> new RatingNotFoundException(user.getId())));
             return user;
-        } else {
-            return null;
-        }
+        }).orElse(null);
     }
 
     public List<User> getUsersByIds(List<String> ids) {
@@ -54,8 +54,12 @@ public class UserService {
                 result -> (Number) result[1]
             ));
 
-        players.forEach(player -> player.setRank(playerToRank.get(player.getId())));
+        players.forEach(player -> player.setRank(playerToRank.getOrDefault(player.getId(), null)));
         return players;
+    }
+
+    private boolean checkIfAdmin(User user) {
+        return user.getRole().equals(Role.ADMIN);
     }
 
     public List<User> getTopPlayers() {
