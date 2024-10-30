@@ -151,7 +151,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const matchMake = async () => {
         try {
             await matchMakeByTournamentId(id);
-            await updateTournamentStatusById(id, "Ongoing");
+            await updateTournamentStatusById(id, "Matchmake");
             message.success('Matchmake successful! :)');
             setTimeout(() => {
                 // window.location.reload();

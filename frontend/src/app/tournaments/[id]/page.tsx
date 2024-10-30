@@ -35,19 +35,19 @@ export default function TournamentDetails() {
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
     useEffect(() => {
-		if (user) {
-			const getPlayerData = async () => {
-				try {
-					const data = await fetchUser(user.id);
-					setLoading(false);
-					setRole(data.role);
-				} catch (err) {
-					console.error("Failed to fetch player:", err);
-				}
-			};
-			getPlayerData();
-		}
-	}, [user]);
+        if (user) {
+            const getPlayerData = async () => {
+                try {
+                    const data = await fetchUser(user.id);
+                    setLoading(false);
+                    setRole(data.role);
+                } catch (err) {
+                    console.error("Failed to fetch player:", err);
+                }
+            };
+            getPlayerData();
+        }
+    }, [user]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -71,8 +71,8 @@ export default function TournamentDetails() {
                 matches: [] as Match[], // Initialize matches with explicit type
             };
 
-            const isTournamentActive = tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
-
+            const isTournamentActive = tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
+            
             if (isTournamentActive) {
                 const playersData = await fetchAllPlayersByTournament(Number(id));
                 const fullPlayersData = await Promise.all(
@@ -111,14 +111,14 @@ export default function TournamentDetails() {
                         };
                     })
                 );
-            
+
                 // Add matchmaking and match details without resetting dates unnecessarily
                 tournamentDetails = {
                     ...tournamentDetails,
                     players: fullPlayersData,
                     matches: enrichedMatches, // Add matches with sets
                 };
-            }                
+            }
 
             console.log(tournamentDetails);
             setTournamentDetails(tournamentDetails);
@@ -261,7 +261,7 @@ export default function TournamentDetails() {
                             </div>
                         </div>
 
-                        { tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
+                        {role === "ADMIN" || (tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                             <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
                                 <CarouselComponent tournament={{ ...tournamentDetails, players: tournamentDetails.players ?? [] }} />
@@ -271,7 +271,7 @@ export default function TournamentDetails() {
                         )}
                     </div>
 
-                    { tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
+                    {role === "ADMIN" || (tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                         tournamentDetails.matches.length > 0 ? (
                             <>
                                 <div className="w-full my-5 results">
@@ -288,7 +288,7 @@ export default function TournamentDetails() {
                                                 <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
                                                     <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
                                                         <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${match.player1.fullname} vs ${match.player2.fullname}`}</h2>
-                                                        
+
                                                         {match.games.length === 0 && role === "ADMIN" && (
                                                             <Sheet>
                                                                 <SheetTrigger asChild>
@@ -307,7 +307,7 @@ export default function TournamentDetails() {
                                                                     <SetEditForm
                                                                         matchId={match.id}
                                                                         // game={game}
-                                                                        player1Name={match.player1.fullname} 
+                                                                        player1Name={match.player1.fullname}
                                                                         player2Name={match.player2.fullname}
                                                                     />
 
@@ -319,54 +319,54 @@ export default function TournamentDetails() {
                                                         {match.games
                                                             .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
                                                             .map((game) =>
-                                                            <>
-                                                                <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
-                                                                    <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                                    {/* <Sheet>
-                                                                        <SheetTrigger asChild>
-                                                                            <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
-                                                                        </SheetTrigger>
+                                                                <>
+                                                                    <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
+                                                                        <p className="text-slate-500">{`Set ${game.setNum}`}</p>
+                                                                        {/* <Sheet>
+                                                                    <SheetTrigger asChild>
+                                                                        <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
+                                                                    </SheetTrigger>
 
-                                                                        <SheetContent className="bg-white">
-                                                                            <SheetHeader>
-                                                                                <SheetTitle>Update Results for this Set</SheetTitle>
-                                                                                <SheetDescription>
-                                                                                    Enter the updated scores for each player in the set.
-                                                                                </SheetDescription>
-                                                                            </SheetHeader>
+                                                                    <SheetContent className="bg-white">
+                                                                        <SheetHeader>
+                                                                            <SheetTitle>Update Results for this Set</SheetTitle>
+                                                                            <SheetDescription>
+                                                                                Enter the updated scores for each player in the set.
+                                                                            </SheetDescription>
+                                                                        </SheetHeader>
 
-                                                                            <SetEditForm
-                                                                                matchId={match.id}
-                                                                                game={game}
-                                                                                player1Name={getPlayerName(match.player1Id)} 
-                                                                                player2Name={getPlayerName(match.player2Id)}
-                                                                                onClose={refreshMatchData} // Pass the refresh callback
-                                                                            />
+                                                                        <SetEditForm
+                                                                            matchId={match.id}
+                                                                            game={game}
+                                                                            player1Name={getPlayerName(match.player1Id)} 
+                                                                            player2Name={getPlayerName(match.player2Id)}
+                                                                            onClose={refreshMatchData} // Pass the refresh callback
+                                                                        />
 
-                                                                        </SheetContent>
-                                                                    </Sheet> */}
-                                                                </div>
-                                                                <div className="flex justify-center border-b border-slate-200">
-                                                                    <div
-                                                                        className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
-                                                                            }`}
-                                                                    >
-                                                                        <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                        <p>{match.player1.fullname} </p>
+                                                                    </SheetContent>
+                                                                </Sheet> */}
                                                                     </div>
-                                                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                                                        <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                                    <div className="flex justify-center border-b border-slate-200">
+                                                                        <div
+                                                                            className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
+                                                                                }`}
+                                                                        >
+                                                                            <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                            <p>{match.player1.fullname} </p>
+                                                                        </div>
+                                                                        <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
+                                                                            <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
+                                                                        </div>
+                                                                        <div
+                                                                            className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
+                                                                                }`}
+                                                                        >
+                                                                            <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
+                                                                            <p>{match.player2.fullname} </p>
+                                                                        </div>
                                                                     </div>
-                                                                    <div
-                                                                        className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
-                                                                            }`}
-                                                                    >
-                                                                        <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                        <p>{match.player2.fullname} </p>
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                                </>
+                                                            )}
                                                     </div>
                                                 </div>
                                             )
@@ -386,7 +386,7 @@ export default function TournamentDetails() {
                 </div>
             </div>
         ) : (
-            <Loading /> 
+            <Loading />
         )
     );
 }
