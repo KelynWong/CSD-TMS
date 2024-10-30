@@ -28,13 +28,12 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
-				const [data, stats, tournaments, matches, rank] =
+				const [data, stats, tournaments, matches] =
 					await Promise.all([
 						fetchPlayer(params.id),
 						fetchPlayerStats(params.id),
 						fetchTournamentByPlayerId(params.id),
 						fetchPlayerMatches(params.id),
-						getPlayerRank(params.id),
 					]);
 				setLoading(false);
 				const mappedData: Player = {
@@ -42,7 +41,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					username: data.username,
 					fullname: data.fullname,
 					gender: data.gender,
-					ranking: rank,
+					ranking: data.rank,
 					rating: data.rating ? data.rating : 0,
 					wins: stats.wins ? stats.wins : 0,
 					losses: stats.losses ? stats.losses : 0,

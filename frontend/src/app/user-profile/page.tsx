@@ -32,13 +32,12 @@ export default function UserProfile() {
 		if (user) {
 			const getPlayerData = async () => {
 				try {
-					const [data, stats, tournaments, matches, rank] =
+					const [data, stats, tournaments, matches] =
 						await Promise.all([
 							fetchPlayer(user.id),
 							fetchPlayerStats(user.id),
 							fetchTournamentByPlayerId(user.id),
 							fetchPlayerMatches(user.id),
-							getPlayerRank(user.id),
 						]);
 					setLoading(false);
 					const mappedData: Player = {
@@ -46,7 +45,7 @@ export default function UserProfile() {
 						username: user.username,
 						fullname: user.fullName,
 						gender: user.gender,
-						ranking: rank,
+						ranking: data.rank,
 						rating: data.rating ? data.rating : 0,
 						wins: stats.wins ? stats.wins : 0,
 						losses: stats.losses ? stats.losses : 0,

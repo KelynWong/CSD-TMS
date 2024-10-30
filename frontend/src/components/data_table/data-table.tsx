@@ -22,19 +22,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	ChevronLeftIcon,
-	ChevronRightIcon,
-	DoubleArrowLeftIcon,
-	DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,

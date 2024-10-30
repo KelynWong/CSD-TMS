@@ -12,6 +12,7 @@ export type PlayerResponse = {
 	profilePicture: string;
 	email: string;
 	role: string;
+	rank: number;
 };
 
 export type AdminResponse = {
@@ -94,6 +95,7 @@ export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 			profilePicture: response.data.profilePicture,
 			email: response.data.email,
 			role: response.data.role,
+			rank: response.data.rank,
 		};
 		return formattedData;
 	} catch (error) {
@@ -118,6 +120,7 @@ export const fetchUserByRoles = async (
 				profilePicture: player.profilePicture,
 				email: player.email,
 				role: player.role,
+				rank: player.rank,
 			}));
 		} else {
 			return response.data.map((admin: any) => ({
@@ -150,6 +153,7 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 				profilePicture: player.profilePicture,
 				email: player.email,
 				role: player.role,
+				rank: player.rank
 			})
 		);
 		return formattedData;
@@ -164,7 +168,7 @@ export const getPlayerRank = async (id: string): Promise<number> => {
 		const response = await axios.get(`${URL}/${id}/rank`);
 
 		return response.data;
-         // Assuming the API response contains a 'rank' field
+		// Assuming the API response contains a 'rank' field
 	} catch (error) {
 		console.error("Failed to fetch player rank", error);
 		throw error;
