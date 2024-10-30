@@ -154,23 +154,23 @@ public class MatchmakeService {
         return match;
     }
 
-    private Map<Long, MatchJson> setupTournamentSimulation(Long tournamentId,
-                                                           Map<String, Player> idToPlayer) {
+    private TournamentSimSetup setupTournamentSimulation(Long tournamentId) {
         List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
         List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
         List<MatchJson> matches = apiManager.getTournamentMatches(tournamentId);
 
         Map<Long, MatchJson> idToMatch = mapMatchesById(matches);
-        idToPlayer.putAll(mapPlayersById(playerRatings));
+        Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
 
         setParentMatches(idToMatch);
-        return idToMatch;
+        return new TournamentSimSetup(idToMatch, idToPlayer);
     }
 
     public Map<Player, Float> simManyTournament(Long tournamentId) {
         final int NUM_SIMULATIONS = 1000;
-        Map<String, Player> idToPlayer = new HashMap<>();
-        Map<Long, MatchJson> idToMatch = setupTournamentSimulation(tournamentId, idToPlayer);
+        TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
+        Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
+        Map<String, Player> idToPlayer = setup.getIdToPlayer();
 
         Random random = new Random();
         Map<Player, Float> results = new HashMap<>();
@@ -204,8 +204,9 @@ public class MatchmakeService {
     }
 
     public List<MatchJson> simTournament(Long tournamentId) {
-        Map<String, Player> idToPlayer = new HashMap<>();
-        Map<Long, MatchJson> idToMatch = setupTournamentSimulation(tournamentId, idToPlayer);
+        TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
+        Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
+        Map<String, Player> idToPlayer = setup.getIdToPlayer();
 
         Random random = new Random();
         simulateMatches(idToMatch, idToPlayer, random, true);

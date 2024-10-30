@@ -35,7 +35,11 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Rating rating;
 
+    @Transient
+    private Number rank;
+
     public User(String id) {
         this.id = id;
     }
+
 }

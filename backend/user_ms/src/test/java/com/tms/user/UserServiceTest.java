@@ -91,7 +91,15 @@ public class UserServiceTest {
 
     @Test
     void getTopPlayers_ReturnPagedUserList() {
-        List<User> users = List.of(new User("user1"), new User("user2"));
+        User user = new User("user1");
+        Long rank = 1L;
+        Object[] result = new Object[]{user, rank};
+
+        User user2 = new User("user1");
+        Long rank2 = 2L;
+        Object[] result2 = new Object[]{user2, rank2};
+
+        List<Object[]> users = List.of(result, result2);
 
         when(userRepository.findAllOrderByRatingDesc()).thenReturn(users);
 
