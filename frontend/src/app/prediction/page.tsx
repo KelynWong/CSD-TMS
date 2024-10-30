@@ -156,7 +156,6 @@ export default function Prediction() {
     if (loading) {
         return (
             <div className="w-[80%] mx-auto py-16">
-                <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
                 <Loading />
             </div>
         );
@@ -165,7 +164,6 @@ export default function Prediction() {
     if (error) {
         return (
             <div className="w-[80%] mx-auto py-16">
-                <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
                 <div className="text-center text-md italic mt-16 text-red-500">
                     {error}
                 </div>
@@ -174,69 +172,74 @@ export default function Prediction() {
     }
 
     return (
-        <div className="w-[80%] mx-auto py-16">
-            <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
-            <div className="flex flex-row items-center gap-6">
-                <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
-                    <SelectTrigger className="w-[320px] my-6 text-md">
-                        <SelectValue placeholder="Pick a Tournament" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            {categorizedTournaments
-                                .sort((a, b) => a.tournamentName.localeCompare(b.tournamentName))
-                                .map((tournament) => (
-                                    <SelectItem key={tournament.id} value={tournament.id.toString()}>
-                                        {tournament.tournamentName}
-                                    </SelectItem>
-                                ))
-                            }
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Prediction Results</DialogTitle>
-                        </DialogHeader>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[100px]">Rank</TableHead>
-                                    <TableHead>Player</TableHead>
-                                    <TableHead>Winning Rate</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {predictionResults.map((result, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="font-medium">{index + 1}</TableCell>
-                                        <TableCell>{result.playerName}</TableCell>
-                                        <TableCell>{result.winningRate}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button type="button" variant="secondary">
-                                    Close
-                                </Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
-    
+        <div className="w-[80%] h-full mx-auto py-16">
             {selectedTournamentId && matchResults.length > 0 ? (
-                <TournamentResultTable matchResult={matchResults} />
+                <>
+                    <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
+                    <div className="flex flex-row items-center gap-6">
+                        <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
+                            <SelectTrigger className="w-[320px] my-6 text-md">
+                                <SelectValue placeholder="Pick a Tournament" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    {categorizedTournaments
+                                        .sort((a, b) => a.tournamentName.localeCompare(b.tournamentName))
+                                        .map((tournament) => (
+                                            <SelectItem key={tournament.id} value={tournament.id.toString()}>
+                                                {tournament.tournamentName}
+                                            </SelectItem>
+                                        ))
+                                    }
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>Prediction Results</DialogTitle>
+                                </DialogHeader>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-[100px]">Rank</TableHead>
+                                            <TableHead>Player</TableHead>
+                                            <TableHead>Winning Rate</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {predictionResults.map((result, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="font-medium">{index + 1}</TableCell>
+                                                <TableCell>{result.playerName}</TableCell>
+                                                <TableCell>{result.winningRate}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="secondary">
+                                            Close
+                                        </Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+        
+                    <div className="results">
+                        <TournamentResultTable matchResult={matchResults} />
+                    </div>
+                </>
             ) : (
-                <div className="text-center text-md italic mt-16">
-                    {selectedTournamentId ? "No match results found for this tournament." : "Select a tournament to simulate prediction of match results."}
+                <div className="flex flex-col items-center justify-center h-full">
+                    <img src="/images/no_ongoing.png" className="size-72" alt="No Ongoing Tournament" />
+                    <h1 className="text-2xl font-bold text-center mt-16">No Ongoing Tournaments...</h1>
                 </div>
             )}
         </div>
