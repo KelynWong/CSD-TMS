@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,25 +32,30 @@ public class UserService {
     }
 
     public User getUserById(String id) {
-        Optional<Object[]> result = userRepository.findUserRankById(id);
-        if (result.isPresent()) {
-            User user = (User) result.get()[0];
-            Long rank = (Long) result.get()[1];
-            user.setRank(rank);
+        Optional<User> result = userRepository.findById(id);
+        Optional<Integer> rank = userRepository.findUserRankById(id);
+
+        if (result.isPresent() && rank.isPresent()) {
+            User user = result.get();
+            user.setRank(rank.get());
             return user;
         } else {
-           return null;
+            return null;
         }
     }
 
     public List<User> getUsersByIds(List<String> ids) {
-        List<Object[]> results = userRepository.findByIdInOrderByRatingDesc(ids);
-        return results.stream().map(result -> {
-            User user = (User) result[0];
-            Long rank = (Long) result[1];
-            user.setRank(rank);
-            return user;
-        }).collect(Collectors.toList());
+        List<User> players = userRepository.findByIdInOrderByRatingDesc(ids);
+        List<Object[]> playerRankRes = userRepository.findUserRanksByIds(ids);
+
+        Map<String, Number> playerToRank = playerRankRes.stream()
+            .collect(Collectors.toMap(
+                result -> (String) result[0],
+                result -> (Number) result[1]
+            ));
+
+        players.forEach(player -> player.setRank(playerToRank.get(player.getId())));
+        return players;
     }
 
     public List<User> getTopPlayers() {
