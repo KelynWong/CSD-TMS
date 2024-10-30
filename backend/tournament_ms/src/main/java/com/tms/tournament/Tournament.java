@@ -49,24 +49,62 @@ public class Tournament {
     @JsonIgnore
     private List<Player> players;
 
-    // {"Scheduled", "Registration Start", "Registration Close", "Ongoing",
-    // "Completed"}
-
     // Custom Constructor
     public Tournament(String tournamentName, LocalDateTime startDT, LocalDateTime endDT, String status,
             LocalDateTime regStartDT, LocalDateTime regEndDT, String createdBy, String winner) {
 
-        TournamentStatus tStatus = TournamentStatus.get(status);
-
         this.tournamentName = tournamentName;
         this.startDT = startDT;
         this.endDT = endDT;
-        this.status = tStatus;
+        this.status = TournamentStatus.get(status);
         this.regStartDT = regStartDT;
         this.regEndDT = regEndDT;
         this.createdBy = createdBy;
         this.winner = winner;
 
     }
+
+    // Custom Methods
+
+    // Purpose : Map player to tournament
+    public Player addPlayer(Player p) {
+        this.players.add(p);
+        p.getTournaments().add(this);
+        return p;
+    }
+
+    // Purpose : Remove player to tournament mapping
+    public Player removePlayer(Player p) {
+        this.players.remove(p);
+        p.getTournaments().remove(this);
+        return p;
+    }
+
+    // Purpose : Check if player is in tournament
+    public boolean isPlayerInTournament(Player p) {
+        return this.players.contains(p);
+    }
+
+    // Purpose : Check if player is in tournament
+    public boolean isPlayerInTournament(String p_id) {
+        for (Player p : this.players) {
+            if (p.getId().equals(p_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Purpose : Remove all player to tournament mapping
+    public void removeAllPlayers() {
+        
+        for (Player p : this.players) {
+            p.getTournaments().remove(this);
+        }
+        
+        this.players = new ArrayList<>();
+
+    }
+    
 
 }
