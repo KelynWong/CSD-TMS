@@ -272,10 +272,14 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
 
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
+
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournmanet_id type=string required=true
+
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournmanet_id type=string required=true
+
         # USER Routes
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
-
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
 
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 

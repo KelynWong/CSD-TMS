@@ -2,13 +2,11 @@ package com.tms.matchmaking;
 
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
-import com.tms.player.Player;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/matchmaking")
@@ -47,8 +45,8 @@ public class Controller {
     }
 
     @GetMapping("/matches/{tournamentId}/simulate-many")
-    public ResponseEntity<Map<Player, Float>> getExpectedPlayerRes(@PathVariable Long tournamentId) {
-        Map<Player, Float> playerRes = matchmakeService.simManyTournament(tournamentId);
+    public ResponseEntity<List<TournamentSimRes>> getExpectedPlayerRes(@PathVariable Long tournamentId) {
+        List<TournamentSimRes> playerRes = matchmakeService.simManyTournament(tournamentId);
         return ResponseEntity.ok(playerRes);
     }
 
