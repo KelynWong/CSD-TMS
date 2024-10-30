@@ -408,36 +408,40 @@ export default function TournamentForm() {
                         />
                     </div>
 
-                    <FormField
-                        control={form.control}
-                        name="status"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-lg block">Status of Tournament</FormLabel>
-                                <FormControl className="block">
-                                    <Select
-                                        value={field.value} // Bind value to form state
-                                        onValueChange={field.onChange} // Bind onChange to form state
-                                    >
-                                        <SelectTrigger className="w-full font-body bg-white">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="font-body">
-                                            <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                            <SelectItem value="Registration Start">Registration Start</SelectItem>
-                                            <SelectItem value="Registration Close">Registration Close</SelectItem>
-                                            <SelectItem value="Ongoing">Ongoing</SelectItem>
-                                            <SelectItem value="Completed">Completed</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormDescription>
-                                    Specify the status of the tournament.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    {!isEditing ? (
+                        <FormField
+                            control={form.control}
+                            name="status"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-lg block">Status of Tournament</FormLabel>
+                                    <FormControl className="block">
+                                        <Select
+                                            value={field.value} // Bind value to form state
+                                            onValueChange={field.onChange} // Bind onChange to form state
+                                        >
+                                            <SelectTrigger className="w-full font-body bg-white">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="font-body">
+                                                <SelectItem value="Scheduled">Scheduled</SelectItem>
+                                                <SelectItem value="Registration Start">Registration Start</SelectItem>
+                                                <SelectItem value="Registration Close">Registration Close</SelectItem>
+                                                <SelectItem value="Ongoing">Ongoing</SelectItem>
+                                                <SelectItem value="Completed">Completed</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormDescription>
+                                        Specify the status of the tournament.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ) : (
+                        <></>
+                    )}
 
                     <div className="flex justify-center space-x-4">
                         <Button type="button" variant="outline" className="text-base" onClick={handleReset}>Cancel</Button>
