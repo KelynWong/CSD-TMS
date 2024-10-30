@@ -1,3 +1,6 @@
+// update the simulate-many
+// do it such that by default it will j show the first select
+
 "use client";
 
 import "../tournaments/styles.css";
@@ -59,7 +62,7 @@ export default function Prediction() {
                 setCategorizedTournaments(ongoingTournaments);
                 if (ongoingTournaments.length > 0) {
                     setSelectedTournamentId(ongoingTournaments[0].id.toString());
-                    setLoading(true);
+                    setLoading(false);
                 } else {
                     setLoading(false);
                 }
@@ -72,79 +75,82 @@ export default function Prediction() {
         getTournamentsData();
     }, []);
 
-    useEffect(() => {
-        const getMatchResults = async () => {
-            if (selectedTournamentId) {
-                setLoading(true);
-                try {
-                    const results = await predictTournament(Number(selectedTournamentId));
+    const handlePredict = async () => {
+        if (selectedTournamentId) {
+            setLoading(true);
+            try {
+                const results = await predictTournament(Number(selectedTournamentId));
     
-                    const playersData = await fetchAllPlayersByTournament(Number(selectedTournamentId));
-                    const fullPlayersData = await Promise.all(
-                        playersData.map(async (player) => {
-                            const playerData = await fetchPlayer(player.id);
-                            return {
-                                id: player.id,
-                                username: playerData.username,
-                                fullname: playerData.fullname,
-                                gender: playerData.gender,
-                                rating: playerData.rating,
-                                country: playerData.country,
-                                profilePicture: playerData.profilePicture,
-                                email: playerData.email,
-                                role: playerData.role,
-                            };
-                        })
-                    );
-    
-                    const enrichedMatches = results.map((match) => {
-                        const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
-                        const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
-                        const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
-                        const formattedScores = match.games.map((game: { player1Score: any; player2Score: any; }) => `${game.player1Score}-${game.player2Score}`).join(' / ');
+                const playersData = await fetchAllPlayersByTournament(Number(selectedTournamentId));
+                const fullPlayersData = await Promise.all(
+                    playersData.map(async (player) => {
+                        const playerData = await fetchPlayer(player.id);
                         return {
-                            id: match.id,
-                            tournamentId: match.tournamentId,
-                            player1,
-                            player2,
-                            winner,
-                            formattedScores,
-                            left: match.left,
-                            right: match.right,
-                            games: match.games,
-                            roundNum: match.roundNum,
+                            id: player.id,
+                            username: playerData.username,
+                            fullname: playerData.fullname,
+                            gender: playerData.gender,
+                            rating: playerData.rating,
+                            country: playerData.country,
+                            profilePicture: playerData.profilePicture,
+                            email: playerData.email,
+                            role: playerData.role,
                         };
-                    });
+                    })
+                );
     
-                    setMatchResults(enrichedMatches);
-                } catch (err) {
-                    console.error("Failed to fetch match results:", err);
-                    setError("An error occurred, please try again later.");
-                    setMatchResults([]);
-                } finally {
-                    setLoading(false);
-                }
+                const enrichedMatches = results.map((match) => {
+                    const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
+                    const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
+                    const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
+                    const formattedScores = match.games.map((game: { player1Score: any; player2Score: any; }) => `${game.player1Score}-${game.player2Score}`).join(' / ');
+                    return {
+                        id: match.id,
+                        tournamentId: match.tournamentId,
+                        player1,
+                        player2,
+                        winner,
+                        formattedScores,
+                        left: match.left,
+                        right: match.right,
+                        games: match.games,
+                        roundNum: match.roundNum,
+                    };
+                });
+    
+                setMatchResults(enrichedMatches);
+            } catch (err) {
+                console.error("Failed to fetch match results:", err);
+                setError("An error occurred, please try again later.");
+                setMatchResults([]);
+            } finally {
+                setLoading(false);
             }
-        };
-        getMatchResults();
-    }, [selectedTournamentId]);
+        }
+    };
 
     const handleTournamentChange = (value: string) => {
         setSelectedTournamentId(value);
-        setLoading(true); // Set loading to true when a new tournament is selected
     };
 
     const handlePredict1000Times = async () => {
         if (selectedTournamentId) {
             try {
                 const results = await predictTournament1000(Number(selectedTournamentId));
+
                 const parsedResults = Object.entries(results).map(([key, value]) => {
-                    const playerInfo = key.match(/Player\(id=(.*?), username=(.*?), fullname=(.*?),/);
+                    const playerInfo = key.match(/fullname=(.*?),/);
+                    const rankInfo = key.match(/rank=(\d+)/);
                     return {
-                        playerName: playerInfo ? playerInfo[3] : "Unknown",
+                        playerName: playerInfo ? playerInfo[1] : "Unknown",
                         winningRate: value,
+                        rank: rankInfo ? parseInt(rankInfo[1]) : Infinity,
                     };
                 });
+
+                // Sort the parsed results based on rank
+                parsedResults.sort((a, b) => a.rank - b.rank);
+
                 setPredictionResults(parsedResults);
             } catch (err) {
                 console.error("Failed to predict tournament 1000 times:", err);
@@ -174,69 +180,69 @@ export default function Prediction() {
 
     return (
         <div className="w-[80%] h-full mx-auto py-16">
+            <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
+            <div className="flex flex-row items-center gap-6">
+                <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
+                    <SelectTrigger className="w-[320px] my-6 text-md">
+                        <SelectValue placeholder="Pick a Tournament" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            {categorizedTournaments
+                                .sort((a, b) => a.tournamentName.localeCompare(b.tournamentName))
+                                .map((tournament) => (
+                                    <SelectItem key={tournament.id} value={tournament.id.toString()}>
+                                        {tournament.tournamentName}
+                                    </SelectItem>
+                                ))
+                            }
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+
+                <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict}>Predict</Button>
+                
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Prediction Results</DialogTitle>
+                        </DialogHeader>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[100px]">Rank</TableHead>
+                                    <TableHead>Player</TableHead>
+                                    <TableHead>Winning Rate</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {predictionResults.map((result, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="font-medium">{result.rank}</TableCell>
+                                        <TableCell>{result.playerName}</TableCell>
+                                        <TableCell>{result.winningRate}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary">
+                                    Close
+                                </Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
             {selectedTournamentId && matchResults.length > 0 ? (
-                <>
-                    <h1 className="text-3xl font-bold text-start">Predict results for upcoming tournament</h1>
-                    <div className="flex flex-row items-center gap-6">
-                        <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
-                            <SelectTrigger className="w-[320px] my-6 text-md">
-                                <SelectValue placeholder="Pick a Tournament" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    {categorizedTournaments
-                                        .sort((a, b) => a.tournamentName.localeCompare(b.tournamentName))
-                                        .map((tournament) => (
-                                            <SelectItem key={tournament.id} value={tournament.id.toString()}>
-                                                {tournament.tournamentName}
-                                            </SelectItem>
-                                        ))
-                                    }
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                        
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Prediction Results</DialogTitle>
-                                </DialogHeader>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[100px]">Rank</TableHead>
-                                            <TableHead>Player</TableHead>
-                                            <TableHead>Winning Rate</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {predictionResults.map((result, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell className="font-medium">{index + 1}</TableCell>
-                                                <TableCell>{result.playerName}</TableCell>
-                                                <TableCell>{result.winningRate}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                        <Button type="button" variant="secondary">
-                                            Close
-                                        </Button>
-                                    </DialogClose>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-        
-                    <div className="results">
-                        <TournamentResultTable matchResult={matchResults} />
-                    </div>
-                </>
+                <div className="results">
+                    <TournamentResultTable matchResult={matchResults} />
+                </div>
             ) : (
                 <div className="flex flex-col items-center justify-center h-full">
                     <img src="/images/no_ongoing.png" className="size-72" alt="No Ongoing Tournament" />
