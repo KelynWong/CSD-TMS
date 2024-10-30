@@ -29,8 +29,8 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    void addUser_NewUser_ReturnSavedUserAndRating() {
-        User user = new User("user1");
+    void addUser_NewPlayer_ReturnSavedUserAndRating() {
+        User user = new User("user1", Role.PLAYER);
 
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(ratingService.initRating(user.getId())).thenReturn(user.getRating());
@@ -44,7 +44,7 @@ public class UserServiceTest {
 
     @Test
     void addUser_ExistingUser_ThrowException() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
@@ -57,9 +57,10 @@ public class UserServiceTest {
 
     @Test
     void getUserById_ExistingUser_ReturnUser() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findUserRankById((user.getId()))).thenReturn(Optional.of(1));
 
         User foundUser = userService.getUserById(user.getId());
 
@@ -79,7 +80,7 @@ public class UserServiceTest {
 
     @Test
     void getAllUsers_ReturnUserList() {
-        List<User> users = List.of(new User("user1"), new User("user2"));
+        List<User> users = List.of(new User("user1", Role.PLAYER), new User("user2", Role.PLAYER));
 
         when(userRepository.findAll()).thenReturn(users);
 
@@ -90,29 +91,32 @@ public class UserServiceTest {
     }
 
     @Test
-    void getTopPlayers_ReturnPagedUserList() {
-        User user = new User("user1");
+    void getTopPlayers_ReturnUserList() {
+        User user = new User("user1", Role.PLAYER);
         Long rank = 1L;
+        user.setRank(rank);
         Object[] result = new Object[]{user, rank};
 
-        User user2 = new User("user1");
+        User user2 = new User("user2", Role.PLAYER);
         Long rank2 = 2L;
+        user.setRank(rank2);
         Object[] result2 = new Object[]{user2, rank2};
 
-        List<Object[]> users = List.of(result, result2);
+        List<Object[]> dbRes = List.of(result, result2);
+        List<User> expectedUsers = List.of(user, user2);
 
-        when(userRepository.findAllOrderByRatingDesc()).thenReturn(users);
+        when(userRepository.findAllOrderByRatingDesc()).thenReturn(dbRes);
 
         List<User> topPlayers = userService.getTopPlayers();
 
-        assertEquals(users, topPlayers);
+        assertEquals(expectedUsers, topPlayers);
         verify(userRepository, times(1)).findAllOrderByRatingDesc();
     }
 
     @Test
     void updateUser_ExistingUser_ReturnUpdatedUser() {
-        User existingUser = new User("user1");
-        User updatedUser = new User("user1");
+        User existingUser = new User("user1", Role.PLAYER);
+        User updatedUser = new User("user1", Role.PLAYER);
         updatedUser.setUsername("newUsername");
 
         when(userRepository.findById(existingUser.getId())).thenReturn(Optional.of(existingUser));
@@ -127,7 +131,7 @@ public class UserServiceTest {
 
     @Test
     void updateUser_NonExistingUser_ThrowException() {
-        User updatedUser = new User("user1");
+        User updatedUser = new User("user1", Role.PLAYER);
 
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
@@ -140,7 +144,7 @@ public class UserServiceTest {
 
     @Test
     void deleteUser_ExistingUser_DeleteSuccessfully() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 

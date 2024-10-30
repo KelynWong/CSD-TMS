@@ -1,6 +1,7 @@
 package com.tms.rating;
 
 import com.tms.ratingCalc.RatingCalculator;
+import com.tms.user.Role;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,8 +54,8 @@ class RatingControllerTest {
         LocalDate today = LocalDate.of(currentYear, 10, 24);
         LocalDateTime now = today.atTime(12, 0);
 
-        User winner = new User("winnerId");
-        User loser = new User("loserId");
+        User winner = new User("winnerId", Role.PLAYER);
+        User loser = new User("loserId", Role.PLAYER);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating winnerRating = new Rating(winner, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
