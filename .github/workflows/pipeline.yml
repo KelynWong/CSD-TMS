@@ -273,11 +273,13 @@ jobs:
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
 
         # USER Routes
-        # az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/players/{user_id}" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/players/{user_id}/register" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getStatus --display-name "Get status" --method POST --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/{tournament_id}/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
         # ADMIN Routes
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
