@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.*;
 
+
 /**
  * We only need this interface declaration
  * Spring will automatically generate an implementation of the repo
@@ -19,5 +20,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     // start the derived query with "findBy", then reference the entity attributes you want to filter
 
     List<Tournament> findByTournamentName(String tournamentName);
+
+    List<Tournament> findByStatus(TournamentStatus status);
 
 }

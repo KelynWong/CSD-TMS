@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import com.tms.TestHelper;
-import com.tms.TournamentServiceApplication;
 import com.tms.tournamentplayer.Player;
 import com.tms.tournamentplayer.PlayerRepository;
 
@@ -47,10 +47,20 @@ class TournamentControllerTest {
 
 	@Autowired
 	private TournamentRepository tournaments;
+	@Autowired
+	private PlayerRepository players;
 
 	/* HELPER CLASS */
 	@Autowired
 	private TestHelper helper;
+
+	// @AfterEach
+	// void tearDown() {
+
+	// 	// clear the database after each test
+	// 	tournaments.deleteAll();
+	// 	players.deleteAll();
+	// }
 
 	/* START OF TESTING */
 	@Test // getTournaments - case 1 : success (only one case)
@@ -64,10 +74,12 @@ class TournamentControllerTest {
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
-		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); // need to use array with a ReponseEntity here
+		// need to use array with a ReponseEntity here
+		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class); 
 		Tournament[] tournamentArr = result.getBody();
 
-		// verify the output - 200 (OK) : check if current count got increase aft adding 1 more tournament
+		// verify the output - 200 (OK) : check if current count got increase aft adding
+		// 1 more tournament
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(currentCount + 1, tournamentArr.length);
 
@@ -122,7 +134,8 @@ class TournamentControllerTest {
 		String t_status = savedTournament.getStatus().getStatustStr();
 
 		// call the api
-		URI uri = new URI(baseURL + port + "/tournaments/status/" + t_status.replace(" ", "_")); // del the spacing from status
+		URI uri = new URI(baseURL + port + "/tournaments/status/" + t_status.replace(" ", "_")); // del the spacing from
+																									// status
 
 		ResponseEntity<Tournament[]> result = restTemplate.getForEntity(uri, Tournament[].class);
 		Tournament[] tournamentArr = result.getBody();
@@ -177,7 +190,7 @@ class TournamentControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments");
 		// list the possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus" };
+				"wrongStatus", "nullCreater" };
 
 		// loop thr the errors
 		for (String err : errArr) {
@@ -265,7 +278,7 @@ class TournamentControllerTest {
 
 		// list of possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus" };
+				"wrongStatus", "nullCreater"};
 
 		// loop thr each error
 		for (String err : errArr) {
@@ -289,7 +302,7 @@ class TournamentControllerTest {
 
 	@Test // updateStatusByTournamentId - case 1 : valid status and tournament id
 	public void updateStatusByTournamentId_ValidStatusAndTournamentId_Success() throws Exception {
-		
+
 		// input - all valid (create tournament w no err -> save it in db -> modify it)
 		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
 		Long t_id = newTournament.getId();
@@ -313,8 +326,9 @@ class TournamentControllerTest {
 
 	@Test // updateStatusByTournamentId - case 2 : valid tournament id but invalid status
 	public void updateStatusByTournamentId_InvalidStatus_Failure() throws Exception {
-		
-		// input - valid tournament id but invalid status (create tournament w no err -> save it in db -> modify it)
+
+		// input - valid tournament id but invalid status (create tournament w no err ->
+		// save it in db -> modify it)
 		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
 		Long t_id = newTournament.getId();
 
@@ -335,7 +349,7 @@ class TournamentControllerTest {
 
 	@Test // updateStatusByTournamentId - case 3 : invalid tournament id
 	public void updateStatusByTournamentId_InvalidTournamentId_Success() throws Exception {
-		
+
 		// input - invalid tournament (create tournament -> save it in db -> del it)
 		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
 		Long t_id = newTournament.getId();
@@ -354,6 +368,120 @@ class TournamentControllerTest {
 
 		// reset
 		helper.reset(t_id, null);
+
+	}
+
+	@Test // updateWinnerByTournamentId - case 1 : valid tournament and player id (valid
+			// winner)
+	public void updateWinnerByTournamentId_ValidStatusAndTournamentId_ValidWinner_Success() throws Exception {
+
+		// input - all valid (create tournament n player -> map them -> set player as
+		// winner)
+		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = tournament.getId();
+
+		Player player = players.save(helper.createTestPlayer());
+		String p_id = player.getId();
+
+		helper.mapTournamentPlayer(tournament, player);
+
+		String winner = p_id; // valid winner
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(winner), Tournament.class);
+
+		// verify the output - 200 (OK) : update successful (make sure the change in
+		// tournament name was saved in db correctly)
+		assertEquals(200, result.getStatusCode().value());
+		assertEquals(winner, result.getBody().getWinner());
+
+		// reset
+		helper.reset(t_id, p_id);
+
+	}
+
+	@Test // updateWinnerByTournamentId - case 2 : valid tournament and player but
+			// (invalid winner)
+	public void updateWinnerByTournamentId_ValidStatusAndTournamentId_InvalidWinner_Failure() throws Exception {
+
+		// input - invalid winner but valid tournament and player
+		// (create tournament n player -> just set player as winner)
+		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = tournament.getId();
+
+		Player player = players.save(helper.createTestPlayer());
+		String p_id = player.getId();
+
+		String winner = p_id; // valid winner
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(winner), Tournament.class);
+
+		// verify the output - 404 (PlayerNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
+
+		// reset
+		helper.reset(t_id, p_id);
+
+	}
+
+	@Test // updateWinnerByTournamentId - case 3 : invalid player id
+	public void updateWinnerByTournamentId_InvalidPlayerId_Failure() throws Exception {
+
+		// input - invalid tournament but valid player (create both -> del player -> set
+		// player as winner)
+		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = tournament.getId();
+
+		Player player = players.save(helper.createTestPlayer());
+		String p_id = player.getId();
+
+		players.deleteById(p_id);
+
+		String winner = p_id; // redundant but api uri need to pass in a winner
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(winner), Tournament.class);
+
+		// verify the output - 404 (PlayerNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
+
+		// reset
+		helper.reset(t_id, null);
+
+	}
+
+	@Test // updateWinnerByTournamentId - case 4 : invalid tournament id
+	public void updateWinnerByTournamentId_InvalidTournamentId_Failure() throws Exception {
+
+		// input - invalid tournament but valid player (create both -> del tournament ->
+		// set player as winner)
+		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Long t_id = tournament.getId();
+
+		Player player = players.save(helper.createTestPlayer());
+		String p_id = player.getId();
+
+		tournaments.deleteById(t_id);
+
+		String winner = p_id; // redundant but api uri need to pass in a winner
+
+		// call the api
+		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
+		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
+				new HttpEntity<>(winner), Tournament.class);
+
+		// verify the output - 404 (TournamentNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
+
+		// reset
+		helper.reset(null, p_id);
 
 	}
 

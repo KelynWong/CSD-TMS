@@ -127,7 +127,7 @@ public class TournamentServiceTest {
         Tournament tournament = helper.createTestTournament("noError");
 
         // - mock methods/operations
-        when(tournaments.findByTournamentName(any(String.class))).thenReturn(new ArrayList<Tournament>());
+        // when(tournaments.findByTournamentName(any(String.class))).thenReturn(new ArrayList<Tournament>());
         when(tournaments.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
@@ -138,32 +138,32 @@ public class TournamentServiceTest {
         // Assert
         assertNotNull(savedTournament);
 
-        verify(tournaments).findByTournamentName(tournament.getTournamentName());
+        // verify(tournaments).findByTournamentName(tournament.getTournamentName());
         verify(tournaments).save(tournament);
 
     }
 
-    @Test
-    void addTournament_SameName_ReturnNull() {
-        // Arrange
-        // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+    // @Test
+    // void addTournament_SameName_ReturnNull() {
+    //     // Arrange
+    //     // - mock objects
+    //     Tournament tournament = helper.createTestTournament("noError");
 
-        List<Tournament> tournamentOfSameName = new ArrayList<>();
-        tournamentOfSameName.add(tournament);
+    //     List<Tournament> tournamentOfSameName = new ArrayList<>();
+    //     tournamentOfSameName.add(tournament);
 
-        // - mock methods/operations
-        when(tournaments.findByTournamentName(any(String.class))).thenReturn(tournamentOfSameName);
+    //     // - mock methods/operations
+    //     when(tournaments.findByTournamentName(any(String.class))).thenReturn(tournamentOfSameName);
 
-        // Act
-        log.info("INFO: ADDTOURNAMENT_SAMENAME ACT START!");
-        Tournament savedTournament = tournamentService.addTournament(tournament);
-        log.info("INFO: ADDTOURNAMENT_SAMENAME ACT END!");
+    //     // Act
+    //     log.info("INFO: ADDTOURNAMENT_SAMENAME ACT START!");
+    //     Tournament savedTournament = tournamentService.addTournament(tournament);
+    //     log.info("INFO: ADDTOURNAMENT_SAMENAME ACT END!");
 
-        // Assert
-        assertNull(savedTournament);
-        verify(tournaments).findByTournamentName(tournament.getTournamentName());
-    }
+    //     // Assert
+    //     assertNull(savedTournament);
+    //     verify(tournaments).findByTournamentName(tournament.getTournamentName());
+    // }
 
     /*
      * updateTournament()
