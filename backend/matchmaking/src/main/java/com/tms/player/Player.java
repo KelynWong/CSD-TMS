@@ -17,6 +17,7 @@ public class Player {
     private String country;
     private String profilePicture;
     private Rating rating;
+    private Number rank;
 
     public Player(String id, Rating rating) {
         this.id = id;

@@ -5,6 +5,7 @@ import com.tms.exception.RatingNotFoundException;
 import com.tms.exception.UserNotFoundException;
 import com.tms.ratingCalc.RatingCalculator;
 import com.tms.ratingCalc.RatingPeriodResults;
+import com.tms.user.Role;
 import com.tms.user.User;
 import com.tms.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +44,7 @@ public class RatingServiceTest {
 
     @Test
     void initRating_UserExists_ReturnDefaultRating() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
@@ -63,7 +64,7 @@ public class RatingServiceTest {
 
     @Test
     void initRating_UserDoesNotExist_ThrowsException() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
@@ -81,7 +82,7 @@ public class RatingServiceTest {
 
     @Test
     void initRating_RatingAlreadyInit_ThrowsException() {
-        User user = new User("user1");
+        User user = new User("user1", Role.PLAYER);
 
         LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
         Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
@@ -128,8 +129,8 @@ public class RatingServiceTest {
          LocalDateTime now = today.atTime(12, 0);
 
          ResultsDTO match = new ResultsDTO("winnerId", "loserId", now);
-         User winner = new User("winnerId");
-         User loser = new User("loserId");
+         User winner = new User("winnerId", Role.PLAYER);
+         User loser = new User("loserId", Role.PLAYER);
 
          LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
          Rating winnerRating = new Rating(winner, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),

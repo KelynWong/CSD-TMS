@@ -38,8 +38,9 @@ public class User {
     @Transient
     private Number rank;
 
-    public User(String id) {
+    public User(String id, Role role) {
         this.id = id;
+        this.role = role;
     }
 
 }

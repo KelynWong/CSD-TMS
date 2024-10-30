@@ -1,7 +1,6 @@
 package com.tms.match;
 
 import com.tms.exceptions.MatchNotFoundException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -112,6 +111,10 @@ public class MatchController {
         return matchService.addTournament(tournament);
     }
 
+    @DeleteMapping("/tournament/{id}")
+    public void deleteTournament(@PathVariable Long id){
+        matchService.deleteTournament(id);
+    }
 
     /**
      * Remove a Match with the DELETE request to "/matches/{id}"

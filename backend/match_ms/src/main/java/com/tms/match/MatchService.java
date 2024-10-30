@@ -25,4 +25,6 @@ public interface MatchService {
      * @param id
      */
     void deleteMatch(Long id);
+
+    void deleteTournament(Long id);
 }
