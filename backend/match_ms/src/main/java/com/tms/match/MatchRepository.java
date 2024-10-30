@@ -33,6 +33,10 @@ public interface MatchRepository extends JpaRepository <Match, Long> {
     List<Match> findMatchesPlayedByPlayer(@Param("playerId") String playerId);
 
     @Modifying
+    @Query("DELETE FROM Game g WHERE g.match.id IN (SELECT m.id FROM Match m WHERE m.tournamentId = :tournamentId)")
+    void deleteGamesByTournamentId(@Param("tournamentId") Long tournamentId);
+
+    @Modifying
     @Query("DELETE FROM Match m WHERE m.tournamentId = :tournamentId")
     void deleteByTournamentId(@Param("tournamentId") Long tournamentId);
 

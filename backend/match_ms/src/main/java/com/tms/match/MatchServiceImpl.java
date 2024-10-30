@@ -248,6 +248,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional
     public void deleteTournament(Long id) {
+        this.matches.deleteGamesByTournamentId(id);
         this.matches.deleteByTournamentId(id);
     }
 }
