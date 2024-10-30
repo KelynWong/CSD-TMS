@@ -57,8 +57,8 @@ export default function Tournaments() {
                     const data = await fetchUser(user.id);
                     setRole(data.role);
                 } catch (err) {
-                    console.error("Failed to fetch player:", err);
-                    setError("Failed to fetch player data.");
+                    console.error("Failed to fetch organiser:", err);
+                    setError("Failed to fetch organiser data.");
                 } finally {
                     setLoading(false);
                 }
