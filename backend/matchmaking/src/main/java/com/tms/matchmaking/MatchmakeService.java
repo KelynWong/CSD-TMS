@@ -4,6 +4,8 @@ import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
+import com.tms.message.MessageData;
+import com.tms.message.MessageService;
 import com.tms.player.Player;
 import com.tms.player.RatingCalculator;
 import com.tms.player.ResultsDTO;
@@ -22,10 +24,12 @@ public class MatchmakeService {
 
     private final ApiManager apiManager;
     private final RatingCalculator ratingCalc;
+    private final MessageService messageService;
 
-    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc) {
+    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc, MessageService messageService) {
         this.apiManager = apiManager;
         this.ratingCalc = ratingCalc;
+        this.messageService = messageService;
     }
 
     public List<MatchJson> matchmake(Long tournamentId) {
@@ -45,6 +49,7 @@ public class MatchmakeService {
             int byes = (int) Math.pow(2, k) - n;
             // choose top x players to get byes.
             List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
+            System.out.println(playerRatings);
             playerRatings = shuffleRatings(playerRatings);
             List<Player> byePlayers = playerRatings.subList(0, byes);
 
@@ -84,6 +89,10 @@ public class MatchmakeService {
             // Add all elements to the matches list
             matches.addAll(repeatedMatches);
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
+
+            // send message to SQS for each player TODO - tournament name is hardcoded@
+            sendMessagesToSQS("tournament 1", playerRatings);
+
             return matches;
         }
         return matches;
@@ -311,5 +320,12 @@ public class MatchmakeService {
         }
 
         return games;
+    }
+
+    private void sendMessagesToSQS(String tournamentName, List<Player> players) {
+        for (Player player : players) {
+            MessageData messageData = new MessageData( player.getEmail(), tournamentName, String.format("%s has been matchmaked. Please check your dashboard for more details.", tournamentName), "Tournament has been matchmaked");
+            messageService.sendMessage(messageData);
+        }
     }
 }
