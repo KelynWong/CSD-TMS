@@ -4,6 +4,8 @@ import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
+import com.tms.message.MessageData;
+import com.tms.message.MessageService;
 import com.tms.player.Player;
 import com.tms.player.RatingCalculator;
 import com.tms.player.ResultsDTO;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,10 +25,12 @@ public class MatchmakeService {
 
     private final ApiManager apiManager;
     private final RatingCalculator ratingCalc;
+    private final MessageService messageService;
 
-    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc) {
+    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc, MessageService messageService) {
         this.apiManager = apiManager;
         this.ratingCalc = ratingCalc;
+        this.messageService = messageService;
     }
 
     public List<MatchJson> matchmake(Long tournamentId) {
@@ -84,6 +89,14 @@ public class MatchmakeService {
             // Add all elements to the matches list
             matches.addAll(repeatedMatches);
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
+
+            List<MatchJson> matchesCopy = new ArrayList<>(matches);
+            Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+            String tableHTML = formatTournament(matchesCopy, idToPlayer, k); // todo: add to email
+
+            Tournament tournament = apiManager.fetchTournamentData(tournamentId);
+            sendMessagesToSQS(tournament, playerRatings, tableHTML);
+
             return matches;
         }
         return matches;
@@ -311,5 +324,95 @@ public class MatchmakeService {
         }
 
         return games;
+    }
+
+    private void sendMessagesToSQS(Tournament tournament, List<Player> players, String tableHTML) {
+        String tournamentName = tournament.getTournamentName();
+        Long tournamentId = tournament.getId();
+        LocalDateTime startDT = tournament.getStartDT();
+        LocalDateTime endDT = tournament.getEndDT();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
+        String formattedStartDT = startDT.format(formatter);
+        String formattedEndDT = endDT.format(formatter);
+
+        for (Player player : players) {
+            String htmlMessage = String.format(
+                    "<html>" +
+                            "  <body style=\"font-size: 16px;\">" +
+                            "    <img src=\"https://csd-tms-email-image.s3.ap-southeast-1.amazonaws.com/logo.png\" alt=\"Tournament Banner\" style=\"width: 100%%; max-width: 200px; border-radius: 8px; margin: 15px 0;\"/>" +
+                            "    <h1>%s has been matchmaked successfully!</h1>" +
+                            "    <p>Congratulations! You have been matched in the tournament.</p>" +
+                            "    <div style=\"padding: 10px 0; margin: 10px 0; font-family: Norwester, sans-serif;\">" +
+                            "      <h2>Tournament Details</h2>" +
+                            "      <p><strong>Tournament Name:</strong> %s</p>" +
+                            "      <p><strong>Date:</strong> %s to %s</p>" +
+                            "      %s" +
+                            "    </div>" +
+                            "    <p>For more information, click <a href=\"https://csd-tms.vercel.app/tournaments/%d\">here</a>!</p>" +
+                            "  </body>" +
+                            "</html>",
+                    tournamentName, tournamentName, formattedStartDT, formattedEndDT, tableHTML, tournamentId
+            );
+            MessageData messageData = new MessageData(player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s has been matchmaked", tournamentName));
+            messageService.sendMessage(messageData);
+        }
+    }
+
+    private String formatTournament(List<MatchJson> matches, Map<String, Player> idToPlayer, int numRounds) {
+        StringBuilder sb = new StringBuilder();
+
+        // Start HTML
+        sb.append("<h2>Tournament Bracket</h2>");
+        sb.append("<table class=\"bracket\" border=\"1\" style=\"border-collapse: collapse;\">");
+
+        // Generate header
+        sb.append("<thead><tr>");
+        for (int i = 1; i <= numRounds; i++) {
+            sb.append("<th scope=\"col\" style=\"padding:5px;\">Round ").append(i).append("</th>");
+        }
+        sb.append("</tr></thead>");
+
+        // Generate body
+        sb.append("<tbody>");
+
+        int numBaseMatches = (matches.size() + 1) / 2;
+
+        for (int i = 0; i < numBaseMatches; i++) {
+            // First player row
+            sb.append("<tr>");
+            int numLoops = calculateNumLoops(i, numBaseMatches, numRounds);
+
+            for (int round = 0; round < numLoops; round++) {
+                int rowspan = (int) Math.pow(2, round);
+                sb.append("<td style=\"padding:5px;\" rowspan=\"").append(rowspan).append("\">");
+                if (round == 0) {
+                    // First round always shows player 1
+                    Player player = idToPlayer.get(matches.get(i).getPlayer1Id());
+                    String name = (player == null) ? "<i>Bye</i>" : player.getFullname();
+                    sb.append("<span>").append(name).append("</span>");
+                }
+                sb.append("</td>");
+            }
+            sb.append("</tr>");
+
+            // Second player row (only for first round)
+            sb.append("<tr>");
+            Player player = idToPlayer.get(matches.get(i).getPlayer2Id());
+            String name = (player == null) ? "<i>Bye</i>" : player.getFullname();
+            sb.append("<td style=\"padding:5px;\"><span>").append(name).append("</span></td>");
+            sb.append("</tr>");
+        }
+
+        sb.append("</tbody></table>");
+        return sb.toString();
+    }
+
+    private int calculateNumLoops(int i, int numBaseMatches, int numRounds) {
+        for (int j = 1; j <= numRounds; j++) {
+            if (i % (numBaseMatches / Math.pow(2, j)) == 0) {
+                return numRounds - (j - 1);
+            }
+        }
+        return numRounds;
     }
 }
