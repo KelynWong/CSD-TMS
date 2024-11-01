@@ -92,7 +92,7 @@ public class MatchmakeService {
 
             List<MatchJson> matchesCopy = new ArrayList<>(matches);
             Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
-            String tableHTML = formatTournament(matchesCopy, idToPlayer, k);
+            String tableHTML = formatTournament(matchesCopy, idToPlayer, k); // todo: add to email
 
             // send message to SQS for each player TODO - tournament name is hardcoded
             Tournament tournament = apiManager.fetchTournamentData(tournamentId);
