@@ -77,6 +77,10 @@ export default function Players() {
 		return <Loading />;
 	}
 
+	if (currentPlayers.length === 0) {
+		return <div>Error: No players found.</div>;
+	}
+
 	return (
 		<div className="container mx-auto px-4 py-10">
 			<h1 className="text-3xl font-bold mb-6">Players</h1>
