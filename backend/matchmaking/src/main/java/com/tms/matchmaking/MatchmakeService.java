@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -329,12 +330,29 @@ public class MatchmakeService {
     private void sendMessagesToSQS(Tournament tournament, List<Player> players) {
         String tournamentName = tournament.getTournamentName();
         Long tournamentId = tournament.getId();
+        LocalDateTime startDT = tournament.getStartDT();
+        LocalDateTime endDT = tournament.getEndDT();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String formattedStartDT = startDT.format(formatter);
+        String formattedEndDT = endDT.format(formatter);
         for (Player player : players) {
             String htmlMessage = String.format(
-                    "<html><body><h1>%s has been matchmaked</h1><p>Please check your <a href='https://csd-tms.vercel.app/tournaments/%d'>dashboard</a> for more details.</p></body></html>",
-                    tournamentName, tournamentId
+                    "<html>\n" +
+                            "  <body style=\"font-size: 16px;\">\n" +
+                            "    <img src=\"https://csd-tms-email-image.s3.ap-southeast-1.amazonaws.com/logo.png\" alt=\"Tournament Banner\" style=\"width: 100%%; max-width: 200px; border-radius: 8px; margin: 15px 0;\"/>\n" +
+                            "    <h1>%s has been matchmaked successfully!</h1>\n" +
+                            "    <p>Congratulations! You have been matched in the tournament. Here are the details:</p>\n" +
+                            "    <div style=\"border: 1px solid #ddd; padding: 10px; margin: 10px 0; font-family: Arial, sans-serif;\">\n" +
+                            "      <h2>Tournament Details</h2>\n" +
+                            "      <p><strong>Tournament Name:</strong> %s</p>\n" +
+                            "      <p><strong>Date:</strong> %s - %s</p>\n" +
+                            "    </div>\n" +
+                            "    <p>For more information, please go to our page <a href=\"https://csd-tms.vercel.app/tournaments/%d\">here</a>!</p>\n" +
+                            "  </body>\n" +
+                            "</html>",
+                    tournamentName, tournamentName, formattedStartDT, formattedEndDT, tournamentId
             );
-            MessageData messageData = new MessageData( player.getEmail(), tournamentName, htmlMessage, String.format("%s has been matchmaked", tournamentName));
+            MessageData messageData = new MessageData( player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s has been matchmaked", tournamentName));
             messageService.sendMessage(messageData);
         }
     }
