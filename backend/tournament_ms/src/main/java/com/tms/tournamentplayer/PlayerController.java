@@ -119,7 +119,7 @@ public class PlayerController {
             }
 
             // Return the player (no need to save in the DB - will auto save)
-            return player;
+            return players.save(player);
 
             // Reaching here means specified tournament not found, throw
             // TournamentNotFoundException err 404
@@ -140,7 +140,8 @@ public class PlayerController {
 
             // If player is map to tournament, remove it.
             if (tournament.isPlayerInTournament(player)) {
-                return tournament.removePlayer(player);
+                tournament.removePlayer(player);
+                return players.save(player);
             }
 
             // Else, throw player not found exception
