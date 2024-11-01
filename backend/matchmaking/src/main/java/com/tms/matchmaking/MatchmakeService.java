@@ -353,7 +353,7 @@ public class MatchmakeService {
                             "</html>",
                     tournamentName, tournamentName, formattedStartDT, formattedEndDT, tableHTML, tournamentId
             );
-            MessageData messageData = new MessageData(player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s has been matchmaked", tournamentName));
+            MessageData messageData = new MessageData(player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s matched 🏸", tournamentName));
             messageService.sendMessage(messageData);
         }
     }
