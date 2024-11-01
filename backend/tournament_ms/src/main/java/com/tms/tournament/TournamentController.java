@@ -40,27 +40,26 @@ public class TournamentController {
     /* List all tournaments */
     @GetMapping
     public List<Tournament> getAllTournaments() {
-
-        // Get all tournaments, Update status by DT, return updated list
+        // Get all tournaments from db
         List<Tournament> t_list = tournamentService.listTournaments();
+        // Update status by datetime
         autoStatusUpdateService.autoUpdateTournaments(t_list);
+        // Return updated list
         return t_list;
     }
 
     /* Get tournament by Id */
     @GetMapping("/id/{id}")
     public Tournament getTournamentbyId(@PathVariable Long id) {
-
         // Get tournament by id
         Tournament tournament = tournamentService.getTournament(id);
-
         // If the retrieved tournament is null, means tournement not found
         if (tournament == null)
             throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
 
-        // Else, check and update status based on regDTs, then return the retrieved
-        // tournament
+        // Else, tournament is retrieved. Update status based on datetime
         autoStatusUpdateService.autoUpdateTournament(tournament);
+        // Return the updated tournament
         return tournamentService.getTournament(id);
 
     }
@@ -68,22 +67,19 @@ public class TournamentController {
     /* Get tournaments by Status */
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
-
-        // Assume the status format given is _ instead of space (eg.
-        // "Registration_Start")
+        // Example of passed-in status format (eg. "Registration_Start")
+        // To match the tournamentStatus string, need to replace '_' to ' '
         String modifiedStatus = status.replace("_", " ");
 
-        // If status inputed is not valid, throw InvalidTournamentStatusException 409
+        // Status invalid : throw InvalidTournamentStatusException (409)
         if (!TournamentStatus.isValid(modifiedStatus)) {
             throw new InvalidTournamentStatusException(modifiedStatus);
         }
-
-        // Get all tournaments from DB
+        // Status valid : get all tournaments with specified status from DB
         List<Tournament> t_list = tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
-
+        // Update status based on datetime
         autoStatusUpdateService.autoUpdateTournaments(t_list);
-
-        // Return tournaments with specified status
+        // Return the tournaments 
         return t_list;
 
     }
@@ -92,17 +88,12 @@ public class TournamentController {
     @ResponseStatus(HttpStatus.CREATED) // Status Code : 201
     @PostMapping
     public Tournament addTournament(@Valid @RequestBody Tournament tournament) {
-
-        // Input validation (method found below)
-        if (!tournamentInputValidation(tournament)) {
-            // Input validation FAILED! - throw TournamentInvalidInputException 409
+        // Input invalid : throw TournamentInvalidInputException (409)
+        if (!isTournamentInputValid(tournament)) {
             throw new TournamentInvalidInputException("creation");
         }
-
-        // Input validation PASSED!
-        // Add tournament to db
+        // Input valid : add tournament to db
         Tournament savedTournament = tournamentService.addTournament(tournament);
-
         // Return saved tournament
         return savedTournament;
 
@@ -112,9 +103,8 @@ public class TournamentController {
     @PutMapping("/{id}")
     public Tournament updateTournament(@PathVariable Long id, @Valid @RequestBody Tournament newTournament) {
 
-        // Input validation (method found below)
-        if (!tournamentInputValidation(newTournament)) {
-            // Input validation FAILED! - throw TournamentInvalidInputException 409
+        // Input invalid : throw TournamentInvalidInputException (409)
+        if (!isTournamentInputValid(newTournament)) {
             throw new TournamentInvalidInputException("modification");
         }
 
@@ -232,7 +222,7 @@ public class TournamentController {
 
     /* Helper class */
     // Purpose : Input validation
-    public boolean tournamentInputValidation(Tournament tournament) {
+    public boolean isTournamentInputValid(Tournament tournament) {
 
         /* Name should be unique and not empty */
         // Name - empty name
@@ -278,7 +268,5 @@ public class TournamentController {
         // If all fail cases pass, return all inputs are valid :)
         return true;
     }
-
-    
 
 }
