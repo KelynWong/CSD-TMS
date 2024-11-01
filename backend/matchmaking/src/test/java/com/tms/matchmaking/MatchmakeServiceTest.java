@@ -389,16 +389,12 @@ public class MatchmakeServiceTest {
         when(apiManager.fetchTournamentPlayerIds(anyLong())).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
 
-        Map<Player, Float> playerWinRates = matchmakeService.simManyTournament(1L);
-        for (Map.Entry<Player, Float> entry : playerWinRates.entrySet()) {
-            Player player = entry.getKey();
-            Float winRate = entry.getValue();
-            System.out.println(player.getId() +" (" +  player.getRating().getRating() + "), Win Rate: " + winRate);
-        }
+        List<TournamentSimRes> playerWinRates = matchmakeService.simManyTournament(1L);
+
         // assert that player1 wins tournament > player2 > player3 > player4
-        assertTrue(playerWinRates.get(players.get(0)) > playerWinRates.get(players.get(1)));
-        assertTrue(playerWinRates.get(players.get(1)) > playerWinRates.get(players.get(2)));
-        assertTrue(playerWinRates.get(players.get(2)) > playerWinRates.get(players.get(3)));
+        assertTrue(playerWinRates.get(0).getWinRate() > playerWinRates.get(1).getWinRate());
+        assertTrue(playerWinRates.get(1).getWinRate() > playerWinRates.get(2).getWinRate());
+        assertTrue(playerWinRates.get(2).getWinRate() > playerWinRates.get(3).getWinRate());
     }
 
 }
