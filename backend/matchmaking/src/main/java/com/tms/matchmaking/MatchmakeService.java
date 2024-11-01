@@ -94,9 +94,8 @@ public class MatchmakeService {
             Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
             String tableHTML = formatTournament(matchesCopy, idToPlayer, k); // todo: add to email
 
-            // send message to SQS for each player TODO - tournament name is hardcoded
             Tournament tournament = apiManager.fetchTournamentData(tournamentId);
-            sendMessagesToSQS(tournament, playerRatings);
+            sendMessagesToSQS(tournament, playerRatings, tableHTML);
 
             return matches;
         }
@@ -327,32 +326,34 @@ public class MatchmakeService {
         return games;
     }
 
-    private void sendMessagesToSQS(Tournament tournament, List<Player> players) {
+    private void sendMessagesToSQS(Tournament tournament, List<Player> players, String tableHTML) {
         String tournamentName = tournament.getTournamentName();
         Long tournamentId = tournament.getId();
         LocalDateTime startDT = tournament.getStartDT();
         LocalDateTime endDT = tournament.getEndDT();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy");
         String formattedStartDT = startDT.format(formatter);
         String formattedEndDT = endDT.format(formatter);
+
         for (Player player : players) {
             String htmlMessage = String.format(
-                    "<html>\n" +
-                            "  <body style=\"font-size: 16px;\">\n" +
-                            "    <img src=\"https://csd-tms-email-image.s3.ap-southeast-1.amazonaws.com/logo.png\" alt=\"Tournament Banner\" style=\"width: 100%%; max-width: 200px; border-radius: 8px; margin: 15px 0;\"/>\n" +
-                            "    <h1>%s has been matchmaked successfully!</h1>\n" +
-                            "    <p>Congratulations! You have been matched in the tournament. Here are the details:</p>\n" +
-                            "    <div style=\"border: 1px solid #ddd; padding: 10px; margin: 10px 0; font-family: Arial, sans-serif;\">\n" +
-                            "      <h2>Tournament Details</h2>\n" +
-                            "      <p><strong>Tournament Name:</strong> %s</p>\n" +
-                            "      <p><strong>Date:</strong> %s - %s</p>\n" +
-                            "    </div>\n" +
-                            "    <p>For more information, please go to our page <a href=\"https://csd-tms.vercel.app/tournaments/%d\">here</a>!</p>\n" +
-                            "  </body>\n" +
+                    "<html>" +
+                            "  <body style=\"font-size: 16px;\">" +
+                            "    <img src=\"https://csd-tms-email-image.s3.ap-southeast-1.amazonaws.com/logo.png\" alt=\"Tournament Banner\" style=\"width: 100%%; max-width: 200px; border-radius: 8px; margin: 15px 0;\"/>" +
+                            "    <h1>%s has been matchmaked successfully!</h1>" +
+                            "    <p>Congratulations! You have been matched in the tournament.</p>" +
+                            "    <div style=\"padding: 10px 0; margin: 10px 0; font-family: Norwester, sans-serif;\">" +
+                            "      <h2>Tournament Details</h2>" +
+                            "      <p><strong>Tournament Name:</strong> %s</p>" +
+                            "      <p><strong>Date:</strong> %s to %s</p>" +
+                            "      %s" +
+                            "    </div>" +
+                            "    <p>For more information, click <a href=\"https://csd-tms.vercel.app/tournaments/%d\">here</a>!</p>" +
+                            "  </body>" +
                             "</html>",
-                    tournamentName, tournamentName, formattedStartDT, formattedEndDT, tournamentId
+                    tournamentName, tournamentName, formattedStartDT, formattedEndDT, tableHTML, tournamentId
             );
-            MessageData messageData = new MessageData( player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s has been matchmaked", tournamentName));
+            MessageData messageData = new MessageData(player.getEmail(), tournamentName, htmlMessage, String.format("[TMS] %s has been matchmaked", tournamentName));
             messageService.sendMessage(messageData);
         }
     }
@@ -361,7 +362,7 @@ public class MatchmakeService {
         StringBuilder sb = new StringBuilder();
 
         // Start HTML
-        sb.append("<h1>Tournament Bracket</h1>");
+        sb.append("<h2>Tournament Bracket</h2>");
         sb.append("<table class=\"bracket\" border=\"1\" style=\"border-collapse: collapse;\">");
 
         // Generate header
@@ -387,7 +388,7 @@ public class MatchmakeService {
                 if (round == 0) {
                     // First round always shows player 1
                     Player player = idToPlayer.get(matches.get(i).getPlayer1Id());
-                    String name = (player == null) ? "bye" : player.getFullname();
+                    String name = (player == null) ? "<i>Bye</i>" : player.getFullname();
                     sb.append("<span>").append(name).append("</span>");
                 }
                 sb.append("</td>");
@@ -397,7 +398,7 @@ public class MatchmakeService {
             // Second player row (only for first round)
             sb.append("<tr>");
             Player player = idToPlayer.get(matches.get(i).getPlayer2Id());
-            String name = (player == null) ? "bye" : player.getFullname();
+            String name = (player == null) ? "<i>Bye</i>" : player.getFullname();
             sb.append("<td style=\"padding:5px;\"><span>").append(name).append("</span></td>");
             sb.append("</tr>");
         }
