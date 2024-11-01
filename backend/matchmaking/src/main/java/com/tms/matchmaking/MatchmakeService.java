@@ -49,7 +49,6 @@ public class MatchmakeService {
             int byes = (int) Math.pow(2, k) - n;
             // choose top x players to get byes.
             List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
-            System.out.println(playerRatings);
             playerRatings = shuffleRatings(playerRatings);
             List<Player> byePlayers = playerRatings.subList(0, byes);
 
@@ -90,7 +89,11 @@ public class MatchmakeService {
             matches.addAll(repeatedMatches);
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
 
-            // send message to SQS for each player TODO - tournament name is hardcoded@
+            List<MatchJson> matchesCopy = new ArrayList<>(matches);
+            Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+            String tableHTML = formatTournament(matchesCopy, idToPlayer, k);
+
+            // send message to SQS for each player TODO - tournament name is hardcoded
             Tournament tournament = apiManager.fetchTournamentData(tournamentId);
             sendMessagesToSQS(tournament, playerRatings);
 
@@ -334,5 +337,63 @@ public class MatchmakeService {
             MessageData messageData = new MessageData( player.getEmail(), tournamentName, htmlMessage, String.format("%s has been matchmaked", tournamentName));
             messageService.sendMessage(messageData);
         }
+    }
+
+    private String formatTournament(List<MatchJson> matches, Map<String, Player> idToPlayer, int numRounds) {
+        StringBuilder sb = new StringBuilder();
+
+        // Start HTML
+        sb.append("<h1>Tournament Bracket</h1>");
+        sb.append("<table class=\"bracket\" border=\"1\" style=\"border-collapse: collapse;\">");
+
+        // Generate header
+        sb.append("<thead><tr>");
+        for (int i = 1; i <= numRounds; i++) {
+            sb.append("<th scope=\"col\" style=\"padding:5px;\">Round ").append(i).append("</th>");
+        }
+        sb.append("</tr></thead>");
+
+        // Generate body
+        sb.append("<tbody>");
+
+        int numBaseMatches = (matches.size() + 1) / 2;
+
+        for (int i = 0; i < numBaseMatches; i++) {
+            // First player row
+            sb.append("<tr>");
+            int numLoops = calculateNumLoops(i, numBaseMatches, numRounds);
+
+            for (int round = 0; round < numLoops; round++) {
+                int rowspan = (int) Math.pow(2, round);
+                sb.append("<td style=\"padding:5px;\" rowspan=\"").append(rowspan).append("\">");
+                if (round == 0) {
+                    // First round always shows player 1
+                    Player player = idToPlayer.get(matches.get(i).getPlayer1Id());
+                    String name = (player == null) ? "bye" : player.getFullname();
+                    sb.append("<span>").append(name).append("</span>");
+                }
+                sb.append("</td>");
+            }
+            sb.append("</tr>");
+
+            // Second player row (only for first round)
+            sb.append("<tr>");
+            Player player = idToPlayer.get(matches.get(i).getPlayer2Id());
+            String name = (player == null) ? "bye" : player.getFullname();
+            sb.append("<td style=\"padding:5px;\"><span>").append(name).append("</span></td>");
+            sb.append("</tr>");
+        }
+
+        sb.append("</tbody></table>");
+        return sb.toString();
+    }
+
+    private int calculateNumLoops(int i, int numBaseMatches, int numRounds) {
+        for (int j = 1; j <= numRounds; j++) {
+            if (i % (numBaseMatches / Math.pow(2, j)) == 0) {
+                return numRounds - (j - 1);
+            }
+        }
+        return numRounds;
     }
 }
