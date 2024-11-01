@@ -91,7 +91,8 @@ public class MatchmakeService {
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
 
             // send message to SQS for each player TODO - tournament name is hardcoded@
-            sendMessagesToSQS("tournament 1", playerRatings);
+            Tournament tournament = apiManager.fetchTournamentData(tournamentId);
+            sendMessagesToSQS(tournament, playerRatings);
 
             return matches;
         }
@@ -322,9 +323,15 @@ public class MatchmakeService {
         return games;
     }
 
-    private void sendMessagesToSQS(String tournamentName, List<Player> players) {
+    private void sendMessagesToSQS(Tournament tournament, List<Player> players) {
+        String tournamentName = tournament.getTournamentName();
+        Long tournamentId = tournament.getId();
         for (Player player : players) {
-            MessageData messageData = new MessageData( player.getEmail(), tournamentName, String.format("%s has been matchmaked. Please check your dashboard for more details.", tournamentName), "Tournament has been matchmaked");
+            String htmlMessage = String.format(
+                    "<html><body><h1>%s has been matchmaked</h1><p>Please check your <a href='https://csd-tms.vercel.app/tournaments/%d'>dashboard</a> for more details.</p></body></html>",
+                    tournamentName, tournamentId
+            );
+            MessageData messageData = new MessageData( player.getEmail(), tournamentName, htmlMessage, String.format("%s has been matchmaked", tournamentName));
             messageService.sendMessage(messageData);
         }
     }

@@ -141,4 +141,5 @@ public class ApiManager {
             throw new TournamentWinnerUpdateException(id, userId);
         }
     }
+
 }
