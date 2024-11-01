@@ -92,7 +92,7 @@ public class MatchmakeService {
 
             List<MatchJson> matchesCopy = new ArrayList<>(matches);
             Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
-            String tableHTML = formatTournament(matchesCopy, idToPlayer, k); // todo: add to email
+            String tableHTML = formatTournament(matchesCopy, idToPlayer, k);
 
             Tournament tournament = apiManager.fetchTournamentData(tournamentId);
             sendMessagesToSQS(tournament, playerRatings, tableHTML);
@@ -340,7 +340,7 @@ public class MatchmakeService {
                     "<html>" +
                             "  <body style=\"font-size: 16px;\">" +
                             "    <img src=\"https://csd-tms-email-image.s3.ap-southeast-1.amazonaws.com/logo.png\" alt=\"Tournament Banner\" style=\"width: 100%%; max-width: 200px; border-radius: 8px; margin: 15px 0;\"/>" +
-                            "    <h1>%s has been matchmaked successfully!</h1>" +
+                            "    <h1>[%s] Draw Completed</h1>" +
                             "    <p>Congratulations! You have been matched in the tournament.</p>" +
                             "    <div style=\"padding: 10px 0; margin: 10px 0; font-family: Norwester, sans-serif;\">" +
                             "      <h2>Tournament Details</h2>" +
