@@ -1,11 +1,20 @@
+"use client";
+
 import "./styles.css";
-import React from "react";
-// import { useNavBarContext } from "@/context/navBarContext";
+import React, { useEffect } from "react";
+import { useNavBarContext } from "@/context/navBarContext";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-    // Set navbar
-	// const { setState } = useNavBarContext();
-	// setState("home");
+	// Set navbar
+	const { setState } = useNavBarContext();
+	setState("home");
+
+	const router = useRouter();
+
+	// useEffect(() => {
+	// 	router.push("/home");
+	// }, [router]);
 
 	return (
 		<div>
@@ -25,9 +34,7 @@ export default function Home() {
 								/>
 							</div>
 							<div className="flex items-center justify-center gap-2 px-2 font-bold">
-								<h1 className="text-xl score rounded-full px-6 py-1">
-									2 - 3
-								</h1>
+								<h1 className="text-xl score rounded-full px-6 py-1">2 - 3</h1>
 							</div>
 							<div className="w-1/4 flex items-center justify-start gap-2 px-4 text-black font-bold">
 								<img
@@ -72,9 +79,7 @@ export default function Home() {
 				<div className="w-4/5 players px-14 py-5 flex items-center">
 					<div id="scroll-text">
 						<div className="flex items-center">
-							<h3 className="text-xl mr-12">
-								🥇 rank 1 - Wang zhi yi
-							</h3>
+							<h3 className="text-xl mr-12">🥇 rank 1 - Wang zhi yi</h3>
 							<h3 className="text-xl mr-12">
 								🎉 Jeng Hon Chia 21 - 10 Benson Wang
 							</h3>
