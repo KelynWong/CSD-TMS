@@ -16,16 +16,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tournaments")
 public class PlayerController {
 
+    private final PlayerRepository playerRepository;
     private PlayerRepository players;
     private TournamentRepository tournaments;
     private AutoStatusUpdateService autoStatusUpdateService;
 
 
-    public PlayerController(PlayerRepository tur, TournamentRepository tr, AutoStatusUpdateService as) {
+    public PlayerController(PlayerRepository tur, TournamentRepository tr, AutoStatusUpdateService as, PlayerRepository playerRepository) {
         this.players = tur;
         this.tournaments = tr;
         this.autoStatusUpdateService = as;
-
+        this.playerRepository = playerRepository;
     }
 
     /* Get all tournament players by tournament id */
@@ -115,11 +116,13 @@ public class PlayerController {
             // If player is not registered in the tournament
             if (!player.getTournaments().contains(tournament)) {
                 // Add player into tournament (this function does mapping to both table)
-                tournament.addPlayer(player);
+//                tournament.addPlayer(player);
+                player.getTournaments().add(tournament);
+                playerRepository.save(player);
             }
 
             // Return the player (no need to save in the DB - will auto save)
-            return player;
+            return players.save(player);
 
             // Reaching here means specified tournament not found, throw
             // TournamentNotFoundException err 404
@@ -140,7 +143,8 @@ public class PlayerController {
 
             // If player is map to tournament, remove it.
             if (tournament.isPlayerInTournament(player)) {
-                return tournament.removePlayer(player);
+                tournament.removePlayer(player);
+                return players.save(player);
             }
 
             // Else, throw player not found exception

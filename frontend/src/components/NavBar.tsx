@@ -101,7 +101,7 @@ export default function Navbar() {
 							PROFILE
 						</Link>
 					)}
-					<ModeToggle></ModeToggle>
+					{/* <ModeToggle></ModeToggle> */}
 					<SignedIn>
 						<UserButton></UserButton>
 					</SignedIn>

@@ -229,6 +229,14 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(p_id, result_id);
 
+		// call the api
+		URI uri1 = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
+		String result1 = restTemplate.getForObject(uri1, String.class);
+
+		// verify output - no err : player registered (result true)
+		assertTrue(result1.contains("\"IsRegistered\":true"));
+
+
 		// helper.reset
 		helper.reset(t_id, p_id);
 
@@ -305,6 +313,13 @@ public class PlayerControllerTest {
 		// verify output result - 200 (OK) : player-tournament mapping removed (check correct player id returned)
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(result_id, p_id);
+
+		// call the api
+		URI uri1 = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
+		String result1 = restTemplate.getForObject(uri1, String.class);
+
+		// verify output - no err : player registered (result true)
+		assertTrue(result1.contains("\"IsRegistered\":false"));
 
 		// helper.reset
 		helper.reset(t_id, p_id);
