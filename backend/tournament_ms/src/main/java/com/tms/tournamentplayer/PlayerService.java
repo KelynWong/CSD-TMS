@@ -1,10 +1,8 @@
 package com.tms.tournamentplayer;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tms.tournament.*;
-import com.tms.exception.*;
 import com.tms.exception.PlayerNotFoundException;
 import com.tms.exception.TournamentNotFoundException;
 
@@ -101,20 +99,32 @@ public class PlayerService {
     }
 
     public Player deletePlayer(String id) {
-        
+
         // find player specified by id
         return players.findById(id).map(player -> {
 
             // Remove all tournament-player mapping
-            player.removeAllTournaments();
+            removeAllPlayerTournaments(player);
             // Now, no mapping can delete player
             players.delete(player);
             // if all ok, return player
             return player;
 
-            // Reaching here means specified tournament not found, throw
+            // Reaching here means specified player not found, throw
             // PlayerNotFoundException err 404
         }).orElse(null);
+
+    }
+
+    private void removeAllPlayerTournaments(Player player) {
+
+        for (Tournament t : player.getTournaments()) {
+            t.removePlayer(player);
+            tournaments.save(t);
+        }
+
+        // player.setTournaments(new ArrayList<>());
+        // players.save(player);
 
     }
 

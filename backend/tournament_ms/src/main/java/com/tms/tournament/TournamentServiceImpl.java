@@ -4,6 +4,9 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.tms.tournamentplayer.Player;
+import com.tms.tournamentplayer.PlayerRepository;
+
 import lombok.extern.slf4j.Slf4j;
 
 /* This implementation is meant for business logic */
@@ -12,38 +15,52 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentServiceImpl implements TournamentService {
 
     private TournamentRepository tournaments;
+    private PlayerRepository players;
+    private AutoStatusUpdateService autoStatusUpdateService;
 
-    public TournamentServiceImpl(TournamentRepository tr) {
-        // bind tournament Repo
+    public TournamentServiceImpl(TournamentRepository tr, PlayerRepository pr, AutoStatusUpdateService as) {
         this.tournaments = tr;
+        this.players = pr;
+        this.autoStatusUpdateService = as;
     }
 
     // Assume all tournament input values are valid!
 
     @Override
     public List<Tournament> listTournaments() {
-        // return all tournaments in db
-        return tournaments.findAll();
+        // get all tournaments from db
+        List<Tournament> t_list = tournaments.findAll();
+        // update status by datetime
+        autoStatusUpdateService.autoUpdateTournaments(t_list);
+        // return tournament list
+        return t_list;
     }
 
     @Override
     public List<Tournament> getTournamentsByStatus(TournamentStatus status) {
         // return all tournaments with specified status (jpa - custom)
-       return tournaments.findByStatus(status);
+        return tournaments.findByStatus(status);
     }
 
     @Override
     public List<Tournament> getTournamentsByTournamentName(String tournamentName) {
-        // return all tournaments with specified tournamentName (jpa - custom)
-       return tournaments.findByTournamentName(tournamentName);
+        // get all tournaments with specified tournamentName (jpa - custom)
+        List<Tournament> t_list = tournaments.findByTournamentName(tournamentName);
+        // Update status based on datetime
+        autoStatusUpdateService.autoUpdateTournaments(t_list);
+        // return tournament list
+        return t_list;
     }
 
     @Override
     public Tournament getTournament(Long id) {
         /// find tournament using specified id
-        return tournaments.findById(id).map(tournament -> { // findById(id) return Optional<Tournament> so map to extract Tournament obj
+        return tournaments.findById(id).map(tournament -> { // findById(id) return Optional<Tournament> so map to
+                                                            // extract Tournament obj
+            // update status based on datetime
+            autoStatusUpdateService.autoUpdateTournament(tournament);
             // return retrieved tournament
-            return tournament; 
+            return tournament;
 
         }).orElse(null); // if cannot find tournament, return null
     }
@@ -76,9 +93,31 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Override
-    public void deleteTournament(Long id) {
-        // delete tournament specified by id
-        tournaments.deleteById(id);
+    public Tournament deleteTournament(Long id) {
+        // find tournament specified by id
+        return tournaments.findById(id).map(tournament -> {
+            // Remove all tournament-player mapping
+            removeAllTournamentPlayers(tournament);
+            // Now, no mapping can delete player
+            tournaments.delete(tournament);
+            // if all ok, return player
+            return tournament;
+
+            // Reaching here means specified tournament not found, throw
+            // PlayerNotFoundException err 404
+        }).orElse(null);
+    }
+
+    private void removeAllTournamentPlayers(Tournament tournament) {
+
+         for (Player p : tournament.getPlayers()) {
+            tournament.removePlayer(p);
+            players.save(p);
+        }
+
+        // tournament.setPlayers(new ArrayList<>());
+        // tournaments.save(tournament);
+
     }
 
 }

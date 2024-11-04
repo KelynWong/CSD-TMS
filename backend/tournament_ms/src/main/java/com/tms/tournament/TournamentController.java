@@ -5,13 +5,7 @@ import java.util.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import com.tms.exception.InvalidTournamentStatusException;
-import com.tms.exception.PlayerNotFoundException;
-import com.tms.exception.TournamentExistsException;
-import com.tms.exception.TournamentInvalidInputException;
-import com.tms.exception.TournamentNotFoundException;
-import com.tms.tournamentplayer.Player;
-import com.tms.tournamentplayer.PlayerRepository;
+import com.tms.exception.*;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentController {
 
     private TournamentService tournamentService;
-    private AutoStatusUpdateService autoStatusUpdateService;
-    private PlayerRepository playerRepository;
 
-    public TournamentController(TournamentService ts, PlayerRepository pr, AutoStatusUpdateService as) {
+    public TournamentController(TournamentService ts) {
         this.tournamentService = ts;
-        this.playerRepository = pr;
-        this.autoStatusUpdateService = as;
     }
 
     // Health check endpoint
@@ -40,12 +30,8 @@ public class TournamentController {
     /* List all tournaments */
     @GetMapping
     public List<Tournament> getAllTournaments() {
-        // Get all tournaments from db
-        List<Tournament> t_list = tournamentService.listTournaments();
-        // Update status by datetime
-        autoStatusUpdateService.autoUpdateTournaments(t_list);
-        // Return updated list
-        return t_list;
+        // Return all tournaments from db
+        return tournamentService.listTournaments();
     }
 
     /* Get tournament by Id */
@@ -54,13 +40,13 @@ public class TournamentController {
         // Get tournament by id
         Tournament tournament = tournamentService.getTournament(id);
         // If the retrieved tournament is null, means tournement not found
-        if (tournament == null)
-            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+        if (tournament == null) {
+            // throw "tournament not found 404" error
+            throw new TournamentNotFoundException(id);
+        }
 
-        // Else, tournament is retrieved. Update status based on datetime
-        autoStatusUpdateService.autoUpdateTournament(tournament);
         // Return the updated tournament
-        return tournamentService.getTournament(id);
+        return tournament;
 
     }
 
@@ -68,19 +54,15 @@ public class TournamentController {
     @GetMapping("/status/{status}")
     public List<Tournament> getTournamentsByStatus(@PathVariable(value = "status") String status) {
         // Example of passed-in status format (eg. "Registration_Start")
-        // To match the tournamentStatus string, need to replace '_' to ' '
+        // - To match the tournamentStatus string, need to replace '_' to ' '
         String modifiedStatus = status.replace("_", " ");
 
         // Status invalid : throw InvalidTournamentStatusException (409)
         if (!TournamentStatus.isValid(modifiedStatus)) {
             throw new InvalidTournamentStatusException(modifiedStatus);
         }
-        // Status valid : get all tournaments with specified status from DB
-        List<Tournament> t_list = tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
-        // Update status based on datetime
-        autoStatusUpdateService.autoUpdateTournaments(t_list);
-        // Return the tournaments 
-        return t_list;
+        // Status valid : return all tournaments with specified status from DB
+        return tournamentService.getTournamentsByStatus(TournamentStatus.get(modifiedStatus));
 
     }
 
@@ -92,10 +74,8 @@ public class TournamentController {
         if (!isTournamentInputValid(tournament)) {
             throw new TournamentInvalidInputException("creation");
         }
-        // Input valid : add tournament to db
-        Tournament savedTournament = tournamentService.addTournament(tournament);
-        // Return saved tournament
-        return savedTournament;
+        // Input valid : add tournament to db and return savedTournament
+        return tournamentService.addTournament(tournament);
 
     }
 
@@ -124,24 +104,23 @@ public class TournamentController {
     @PutMapping("/{id}/status")
     public Tournament updateStatusByTournamentId(@PathVariable Long id, @RequestBody String status) {
 
-        // The inputed status can come with "" (eg. "Ongoing"), therefore, we need to
-        // remove it
+        // The inputed status can come with "" (eg. "Ongoing"), need to remove
         String modifiedStatus = status.replace("\"", "");
 
-        // If status inputed is not valid, throw InvalidTournamentStatusException 409
+        // Invalid status : throw InvalidTournamentStatusException 409
         if (!TournamentStatus.isValid(modifiedStatus)) {
             throw new InvalidTournamentStatusException(modifiedStatus);
         }
 
-        // Get tournament
+        // Valid status : get tournament
         Tournament tournament = tournamentService.getTournament(id);
 
-        // If retrieved tournament is null, means tournament not found
+        // Tournament not found : // throw "tournament not found 404" error
         if (tournament == null) {
-            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+            throw new TournamentNotFoundException(id); 
         }
 
-        // Change the status
+        // Tournament found : change tournament status
         tournament.setStatus(TournamentStatus.get(modifiedStatus));
 
         // Update tournament - assume won't return null (aka tournament not found) as
@@ -157,67 +136,41 @@ public class TournamentController {
     @PutMapping("/{id}/winner")
     public Tournament updateWinnerByTournamentId(@PathVariable Long id, @RequestBody String winner) {
 
-        // The inputed status can come with "" (eg. "user123"), therefore, we need to
-        // remove it
+        // The inputed status can come with "" (eg. "user123"), need to remove
         String modifiedWinner = winner.replace("\"", "").replace(" ", "");
 
         // Get tournament
         Tournament tournament = tournamentService.getTournament(id);
 
-        // If retrieved tournament is null, means tournament not found
+        // Tournament not found : throw "tournament not found 404" error
         if (tournament == null) {
-            throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
+            throw new TournamentNotFoundException(id);
         }
 
-        // If winner is not in tournament, throw player not found exception
+        // Tounament found!
+        // Winner not found in tournament : throw player not found
         if (!tournament.isPlayerInTournament(modifiedWinner)) {
             throw new PlayerNotFoundException(modifiedWinner, id);
         }
 
-        // Here, all pass
+        // Winner found : set tournament winner
         tournament.setWinner(modifiedWinner);
 
-        // Else, if winner is found in tournament, update and return tournament
+        // Update and return tournament
         return tournamentService.updateTournament(id, tournament);
 
     }
 
     /* Delete tournament */
     @DeleteMapping("/{id}")
-    public void deleteTournament(@PathVariable Long id) {
+    public ResponseEntity<?> deleteTournament(@PathVariable Long id) {
 
-        try {
-
-            // Retrieve tournament using specified id
-            Tournament tournament = tournamentService.getTournament(id);
-
-            // Get all players mapped to this tournament
-            List<Player> playerList = tournament.getPlayers();
-
-            // Remove tournament-player mappings
-            for (Player p : playerList) { // Loop thr the palyers
-
-                // Remove tournament from player's tournament list
-                p.getTournaments().remove(tournament);
-                // save changes
-                playerRepository.save(p);
-
-            }
-
-            // After all mapping removed, delete specified tournament
-            tournamentService.deleteTournament(id);
-
-        } catch (Exception e) { // Catch all types of exception
-
-            // If its a NullPointerException, it is due to tournament not found
-            if (e instanceof NullPointerException) {
-                throw new TournamentNotFoundException(id); // throw "tournament not found 404" error
-            }
-
-            // Else, throw the given expection error
-            throw e;
-
+        Tournament deletedTournament = tournamentService.deleteTournament(id);
+        if (deletedTournament == null) {
+            throw new TournamentNotFoundException(id);
         }
+        // if all ok, return 200 (OK)
+        return ResponseEntity.ok().build();
     }
 
     /* Helper class */

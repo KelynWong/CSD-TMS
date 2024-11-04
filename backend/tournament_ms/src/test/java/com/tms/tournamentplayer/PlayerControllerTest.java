@@ -240,7 +240,7 @@ public class PlayerControllerTest {
 
 
 		// //helper.reset
-		//helper.reset(t_id, p_id);
+		// helper.reset(t_id, p_id);
 
 	}
 

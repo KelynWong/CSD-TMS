@@ -18,14 +18,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/tournaments")
 public class PlayerController {
 
-    private PlayerRepository players;
-    private TournamentRepository tournaments;
     private PlayerService playerService;
     private TournamentService tournamentService;
 
-    public PlayerController(PlayerRepository tur, TournamentRepository tr, PlayerService ps, TournamentService ts) {
-        this.players = tur;
-        this.tournaments = tr;
+    public PlayerController(PlayerService ps, TournamentService ts) {
         this.tournamentService = ts;
         this.playerService = ps;
 
@@ -50,8 +46,16 @@ public class PlayerController {
     /* Get all tournaments by player id */
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
+        // Get all the players of specified tournament
+        List<Tournament> t_list = playerService.getAllTournamentsByPlayerId(playerId);
+        // if the received list is null
+        if (t_list == null) {
+            // throw PlayerNotFoundException (404)
+            throw new PlayerNotFoundException(playerId);
+        }
+        // else return received list
 
-        return playerService.getAllTournamentsByPlayerId(playerId);
+        return t_list;
 
     }
 
