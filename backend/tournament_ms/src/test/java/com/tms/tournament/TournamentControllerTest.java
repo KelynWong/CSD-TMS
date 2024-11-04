@@ -54,13 +54,14 @@ class TournamentControllerTest {
 	@Autowired
 	private TestHelper helper;
 
-	// @AfterEach
-	// void tearDown() {
+	@AfterEach
+	void tearDown() {
 
-	// 	// clear the database after each test
-	// 	tournaments.deleteAll();
-	// 	players.deleteAll();
-	// }
+		helper.removeAllMapping();
+		// clear the database after each test
+		tournaments.deleteAll();
+		players.deleteAll();
+	}
 
 	/* START OF TESTING */
 	@Test // getTournaments - case 1 : success (only one case)
@@ -84,7 +85,7 @@ class TournamentControllerTest {
 		assertEquals(currentCount + 1, tournamentArr.length);
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -104,7 +105,7 @@ class TournamentControllerTest {
 		assertEquals("Tournament Controller Testing - Valid", result.getBody().getTournamentName());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentById - case 2 : invalid tournament id
@@ -145,7 +146,7 @@ class TournamentControllerTest {
 		assertTrue(tournamentArr.length > 0);
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentsByStatus - case 2 : invalid status
@@ -180,7 +181,7 @@ class TournamentControllerTest {
 		assertEquals(tournament.getTournamentName(), result.getBody().getTournamentName());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 	}
 
 	@Test // addTournament - case 2 : invalid input
@@ -219,8 +220,9 @@ class TournamentControllerTest {
 		// verify the output - 409 (TournamentExistException)
 		assertEquals(409, result.getStatusCode().value());
 
+		// always 409 instead of 201
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -244,7 +246,7 @@ class TournamentControllerTest {
 		assertEquals("Tournament Controller Testing - Updated", result.getBody().getTournamentName());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -294,7 +296,7 @@ class TournamentControllerTest {
 		}
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -320,7 +322,7 @@ class TournamentControllerTest {
 		assertEquals(newStatus, result.getBody().getStatus().getStatustStr());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -343,7 +345,7 @@ class TournamentControllerTest {
 		assertEquals(409, result.getStatusCode().value());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -367,7 +369,7 @@ class TournamentControllerTest {
 		assertEquals(404, result.getStatusCode().value());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -398,7 +400,7 @@ class TournamentControllerTest {
 		assertEquals(winner, result.getBody().getWinner());
 
 		// reset
-		helper.reset(t_id, p_id);
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -425,7 +427,7 @@ class TournamentControllerTest {
 		assertEquals(404, result.getStatusCode().value());
 
 		// reset
-		helper.reset(t_id, p_id);
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -453,7 +455,7 @@ class TournamentControllerTest {
 		assertEquals(404, result.getStatusCode().value());
 
 		// reset
-		helper.reset(t_id, null);
+		//helper.reset(t_id, null);
 
 	}
 
@@ -481,7 +483,7 @@ class TournamentControllerTest {
 		assertEquals(404, result.getStatusCode().value());
 
 		// reset
-		helper.reset(null, p_id);
+		//helper.reset(null, p_id);
 
 	}
 
@@ -508,7 +510,7 @@ class TournamentControllerTest {
 		assertEquals(emptyValue, tournaments.findById(t_id));
 
 		// reset
-		helper.reset(null, p_id);
+		//helper.reset(null, p_id);
 
 	}
 

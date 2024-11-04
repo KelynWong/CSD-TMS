@@ -3,6 +3,9 @@ package com.tms.tournament;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 
@@ -22,5 +25,8 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     List<Tournament> findByTournamentName(String tournamentName);
 
     List<Tournament> findByStatus(TournamentStatus status);
+
+    // @Query("DELETE FROM Game g WHERE g.match.id IN (SELECT m.id FROM Match m WHERE m.tournamentId = :tournamentId)")
+    // void truncateTable(@Param("tournamentId") Long tournamentId);
 
 }

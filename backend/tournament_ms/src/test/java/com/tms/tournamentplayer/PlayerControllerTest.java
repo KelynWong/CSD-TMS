@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.io.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,13 +54,14 @@ public class PlayerControllerTest {
 	@Autowired
 	private TestHelper helper;
 
-	// @AfterEach
-	// void tearDown() {
+	@AfterEach
+	void tearDown() {
 
-	// 	// clear the database after each test
-	// 	tournaments.deleteAll();
-	// 	players.deleteAll();
-	// }
+		helper.removeAllMapping();
+		// clear the database after each test
+		tournaments.deleteAll();
+		players.deleteAll();
+	}
 
 	/* START OF TESTING */
 	@Test // getAllPlayersByTournamentId - case 1 : valid tournament id
@@ -85,8 +87,8 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(1, playerArr.length);
 
-		// helper.reset
-		helper.reset(t_id, p_id);
+		// //helper.reset
+		// //helper.reset(t_id, p_id);
 
 	}
 
@@ -126,8 +128,8 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(1, tournamentArr.length); 
 
-		// helper.reset
-		helper.reset(tournament.getId(), player.getId());
+		// //helper.reset
+		//helper.reset(tournament.getId(), player.getId());
 
 	}
 
@@ -166,8 +168,8 @@ public class PlayerControllerTest {
 		// verify output - no err : player registered (result true)
 		assertTrue(result.contains("\"IsRegistered\":true"));
 
-		// helper.reset
-		helper.reset(t_id, p_id);
+		// //helper.reset
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -185,8 +187,8 @@ public class PlayerControllerTest {
 		// verify output - no err : player not registered (result false)
 		assertTrue(result.contains("\"IsRegistered\":false"));
 
-		// helper.reset 
-		helper.reset(t_id, p_id);
+		// //helper.reset 
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -206,8 +208,8 @@ public class PlayerControllerTest {
 		// verify output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// helper.reset
-		helper.reset(null, p_id);
+		// //helper.reset
+		//helper.reset(null, p_id);
 	}
 
 	@Test // registerPlayer - case 1 : valid tournament id and not registered player
@@ -237,8 +239,8 @@ public class PlayerControllerTest {
 		assertTrue(result1.contains("\"IsRegistered\":true"));
 
 
-		// helper.reset
-		helper.reset(t_id, p_id);
+		// //helper.reset
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -263,8 +265,8 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(p_id, result_id);
 
-		// helper.reset
-		helper.reset(t_id, p_id);
+		// //helper.reset
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -287,8 +289,8 @@ public class PlayerControllerTest {
 		// verify output result - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// helper.reset
-		helper.reset(null, p_id);
+		// //helper.reset
+		//helper.reset(null, p_id);
 
 	}
 
@@ -321,8 +323,8 @@ public class PlayerControllerTest {
 		// verify output - no err : player registered (result true)
 		assertTrue(result1.contains("\"IsRegistered\":false"));
 
-		// helper.reset
-		helper.reset(t_id, p_id);
+		// //helper.reset
+		//helper.reset(t_id, p_id);
 
 	}
 
@@ -344,8 +346,8 @@ public class PlayerControllerTest {
 		// verify output result - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// helper.reset
-		helper.reset(null, p_id);
+		// //helper.reset
+		//helper.reset(null, p_id);
 
 	}
 
@@ -370,8 +372,8 @@ public class PlayerControllerTest {
 		// verify output result - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// helper.reset
-		helper.reset(null, p_id);
+		// //helper.reset
+		//helper.reset(null, p_id);
 
 	}
 
