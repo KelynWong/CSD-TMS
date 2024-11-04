@@ -408,7 +408,7 @@ export default function TournamentForm() {
                         />
                     </div>
 
-                    {!isEditing ? (
+                    {/* {!isEditing ? (
                         <FormField
                             control={form.control}
                             name="status"
@@ -441,7 +441,7 @@ export default function TournamentForm() {
                         />
                     ) : (
                         <></>
-                    )}
+                    )} */}
 
                     <div className="flex justify-center space-x-4">
                         <Button type="button" variant="outline" className="text-base" onClick={handleReset}>Cancel</Button>

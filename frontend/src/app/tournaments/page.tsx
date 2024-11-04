@@ -14,7 +14,7 @@ import { fetchTournaments } from "@/api/tournaments/api";
 import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
-import { fetchUser } from "@/api/users/api";
+import { fetchPlayer, fetchUser } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
 
 export default function Tournaments() {
@@ -57,8 +57,8 @@ export default function Tournaments() {
                     const data = await fetchUser(user.id);
                     setRole(data.role);
                 } catch (err) {
-                    console.error("Failed to fetch organiser:", err);
-                    setError("Failed to fetch organiser data.");
+                    console.error("Failed to fetch user:", err);
+                    setError("Failed to fetch user data.");
                 } finally {
                     setLoading(false);
                 }
@@ -96,7 +96,7 @@ export default function Tournaments() {
     const categorizeTournaments = (data: Tournament[]) => {
         const completed = data.filter(tournament => tournament.status === 'Completed');
         const ongoing = data.filter(tournament => tournament.status === 'Ongoing');
-        const upcoming = data.filter(tournament => ['Scheduled', 'Registration Start', 'Registration Close'].includes(tournament.status));
+        const upcoming = data.filter(tournament => ['Scheduled', 'Registration Start', 'Registration Close', 'Matchmake'].includes(tournament.status));
         const all = data;
 
         setCategorizedTournaments({
@@ -192,7 +192,7 @@ export default function Tournaments() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            {role === "Admin" && (
+                            {role === "ADMIN" && (
                                 <Link href="/tournaments/form/create">
                                     <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
                                         <CirclePlus className="mr-2" size={18} />
@@ -205,7 +205,7 @@ export default function Tournaments() {
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            {role === "Admin" && (
+                            {role === "ADMIN" && (
                                 <Link href="/tournaments/form/create">
                                     <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
                                         <CirclePlus className="mr-2" size={18} />
@@ -218,7 +218,7 @@ export default function Tournaments() {
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            {role === "Admin" && (
+                            {role === "ADMIN" && (
                                 <Link href="/tournaments/form/create">
                                     <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
                                         <CirclePlus className="mr-2" size={18} />
@@ -231,7 +231,7 @@ export default function Tournaments() {
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            {role === "Admin" && (
+                            {role === "ADMIN" && (
                                 <Link href="/tournaments/form/create">
                                     <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
                                         <CirclePlus className="mr-2" size={18} />

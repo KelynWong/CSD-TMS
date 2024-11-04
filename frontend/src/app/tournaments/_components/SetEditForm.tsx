@@ -25,24 +25,38 @@ export default function SetEditForm({
   const [error, setError] = useState<string | null>(null);
 
   const validateScores = () => {
+    let player1Wins = 0;
+    let player2Wins = 0;
+
     for (let i = 0; i < numSets; i++) {
-        const player1Score = player1Scores[i];
-        const player2Score = player2Scores[i];
+      const player1Score = player1Scores[i];
+      const player2Score = player2Scores[i];
 
-        const isValidScore = (p1Score: number, p2Score: number) => {
-            return (p1Score === 30 && p2Score === 29) ||
-                (p2Score === 30 && p1Score === 29) ||
-                ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) === 2) ||
-                ((p1Score === 21 && p2Score >= 0 && p2Score < 20) ||
-                    (p2Score === 21 && p1Score >= 0 && p1Score < 20));
-        };
+      const isValidScore = (p1Score: number, p2Score: number) => {
+        return (p1Score === 30 && p2Score === 29) ||
+          (p2Score === 30 && p1Score === 29) ||
+          ((p1Score >= 20 && p2Score >= 20) && Math.abs(p1Score - p2Score) === 2) ||
+          ((p1Score === 21 && p2Score >= 0 && p2Score < 20) ||
+            (p2Score === 21 && p1Score >= 0 && p1Score < 20));
+      };
 
-        if (!isValidScore(player1Score, player2Score)) {
-            return `Game No. ${i + 1} is invalid. The scores do not meet the required criteria.`;
-        }
+      if (!isValidScore(player1Score, player2Score)) {
+        return `Game No. ${i + 1} is invalid. The scores do not meet the required criteria.`;
+      }
+
+      if (player1Score > player2Score) {
+        player1Wins++;
+      } else {
+        player2Wins++;
+      }
     }
+
+    if (numSets === 2 && player1Wins !== 2 && player2Wins !== 2) {
+      return "If only two games are submitted, one player must win both games.";
+    }
+    
     return null;
-};
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

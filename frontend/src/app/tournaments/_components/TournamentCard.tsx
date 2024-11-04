@@ -149,6 +149,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     }, [status]);
 
     const matchMake = async () => {
+        setLoading(true);
         try {
             await matchMakeByTournamentId(id);
             await updateTournamentStatusById(id, "Matchmake");
@@ -160,6 +161,9 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         } catch (err) {
             message.error('Failed to matchmake :( \n' + err);
             console.log(err);
+            setTimeout(() => {
+                window.location.reload();
+            }, 500); // Delay of 0.5 seconds before reloading
         }
     };
 
@@ -226,7 +230,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className={`my-1 ${status === 'Ongoing' ? 'text-yellow-500' : 'text-black-600'}`}>{status} ({numMatches} Matches)</p>
                 ) : (
-                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : 'text-black-600'}`}>{status}</p>
+                    <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : status === 'Matchmake' ? 'text-green-600' : 'text-black-600'}`}>{status === 'Matchmake' ? 'Matchmake Successful': status}</p>
                 )}
             </CardContent>
             <CardFooter>
