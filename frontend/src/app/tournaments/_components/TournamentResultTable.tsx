@@ -10,9 +10,9 @@ interface TournamentResultTableProps {
 export default function TournamentResultTable({ matchResult }: TournamentResultTableProps) {
     const players: any[] = [];
     const winners: any[] = [];
-    const scores: any[] = [];
+    const scores: { [roundNum: number]: { winnerName: string, score: string }[] } = {};
 
-    console.log(matchResult);
+    // console.log(matchResult);
 
     // Extract distinct roundNum values and sort them in descending order
     const roundNums = matchResult.map(item => item.roundNum);
@@ -32,16 +32,23 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
     // Gather winners and scores in BFS order based on roundNum levels
     const gatherWinnersBFS = (): void => {    
-        console.log('matchResult', matchResult);    
+        // console.log('matchResult', matchResult);    
         matchResult.forEach((match) => {
-            console.log('match', match);
+            // console.log('match', match);
             if (match.winner !== null) {
                 winners.push(match.winner);
                 const formattedScores = match.games.map(game => `${game.player1Score}-${game.player2Score}`).join(' / ');
-                scores.push(formattedScores);
+                
+                if (!scores[match.roundNum]) {
+                    scores[match.roundNum] = [];
+                }
+                scores[match.roundNum].push({ winnerName: match.winner.fullname, score: formattedScores });
             } else {
                 winners.push("Match not played yet");
-                scores.push("");
+                if (!scores[match.roundNum]) {
+                    scores[match.roundNum] = [];
+                }
+                scores[match.roundNum].push({ winnerName: "Match not played yet", score: "" });
             }
         });
     };
@@ -89,6 +96,11 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                                     <TPlayer player={player} />
                                 )}
                             </div>
+                            {scores[distinctRoundNums[0]] && scores[distinctRoundNums[0]].some(scoreObj => scoreObj.winnerName === player.fullname) && (
+                                <p className="text-sm font-bold mt-1" style={{ color: "#00215f" }}>
+                                    {scores[distinctRoundNums[0]].find(scoreObj => scoreObj.winnerName === player.fullname)?.score}
+                                </p>
+                            )}
                         </TableCell>
 
                         {/* Winner Logic */}
@@ -106,7 +118,6 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
                             // Display the winner only on the first row of each block
                             if (index % rowSpan === 0) {
-                                console.log('winners[winnerIndex]', winners[winnerIndex]);
                                 if (winners[winnerIndex] == "Match not played yet" || winners[winnerIndex] == "Bye.") {    
                                     return (
                                         <TableCell key={round} rowSpan={rowSpan}>
@@ -122,7 +133,11 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                                                 <div className="flex flex-row items-center gap-2">
                                                     <TPlayer player={winners[winnerIndex]} />
                                                 </div>
-                                                <p className="text-sm font-bold" style={{ color: "#00215f" }}>{scores[winnerIndex]}</p>
+                                                {scores[distinctRoundNums[round+1]] && scores[distinctRoundNums[round+1]].some(scoreObj => scoreObj.winnerName === winners[winnerIndex].fullname) && (
+                                                    <p className="text-sm font-bold mt-1" style={{ color: "#00215f" }}>
+                                                        {scores[distinctRoundNums[round+1]].find(scoreObj => scoreObj.winnerName === winners[winnerIndex].fullname)?.score}
+                                                    </p>
+                                                )}
                                             </div>
                                         </TableCell>
                                     );

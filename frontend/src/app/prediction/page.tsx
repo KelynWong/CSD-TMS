@@ -76,42 +76,42 @@ export default function Prediction() {
         setLoading(true);
         try {
             const playersData = await fetchAllPlayersByTournament(Number(tournament_id));
-                const fullPlayersData = await Promise.all(
-                    playersData.map(async (player) => {
-                        const playerData = await fetchPlayer(player.id);
-                        return {
-                            id: player.id,
-                            username: playerData.username,
-                            fullname: playerData.fullname,
-                            gender: playerData.gender,
-                            rating: playerData.rating,
-                            country: playerData.country,
-                            profilePicture: playerData.profilePicture,
-                            email: playerData.email,
-                            role: playerData.role,
-                        };
-                    })
-                );
+            const fullPlayersData = await Promise.all(
+                playersData.map(async (player) => {
+                    const playerData = await fetchPlayer(player.id);
+                    return {
+                        id: player.id,
+                        username: playerData.username,
+                        fullname: playerData.fullname,
+                        gender: playerData.gender,
+                        rating: playerData.rating,
+                        country: playerData.country,
+                        profilePicture: playerData.profilePicture,
+                        email: playerData.email,
+                        role: playerData.role,
+                    };
+                })
+            );
 
-                const matchesData = await fetchMatchByTournamentId(Number(tournament_id));
-                const enrichedMatches = await Promise.all(
-                    matchesData.map(async (match) => {
-                        const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
-                        const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
-                        const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
-                        return {
-                            id: match.id,
-                            tournamentId: match.tournamentId,
-                            player1,
-                            player2,
-                            winner,
-                            left: match.left,
-                            right: match.right,
-                            games: match.games,
-                            roundNum: match.roundNum,
-                        };
-                    })
-                );
+            const matchesData = await fetchMatchByTournamentId(Number(tournament_id));
+            const enrichedMatches = await Promise.all(
+                matchesData.map(async (match) => {
+                    const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
+                    const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
+                    const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
+                    return {
+                        id: match.id,
+                        tournamentId: match.tournamentId,
+                        player1,
+                        player2,
+                        winner,
+                        left: match.left,
+                        right: match.right,
+                        games: match.games,
+                        roundNum: match.roundNum,
+                    };
+                })
+            );
 
             setMatchResults(enrichedMatches);
         } catch (err) {
