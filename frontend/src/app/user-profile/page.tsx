@@ -1,13 +1,12 @@
 "use client";
 import PlayerHero from "@/components/PlayerHero";
 import { Player } from "@/types/player";
-import { Match } from "@/types/match";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import TournamentHistory from "@/components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
 import { useState, useEffect } from "react";
-import { fetchPlayer, getPlayerRank, PlayerResponse } from "@/api/users/api";
+import { fetchPlayer, PlayerResponse } from "@/api/users/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { fetchPlayerMatches, fetchPlayerStats } from "@/api/matches/api";
@@ -20,7 +19,7 @@ import { useNavBarContext } from "@/context/navBarContext";
 export default function UserProfile() {
 	// Set navbar context
 	const { setState } = useNavBarContext();
-	setState("profile");
+	setState("user-profile");
 
 	const { user } = useUserContext();
 	const [player, setPlayer] = useState<Player | null>(null);

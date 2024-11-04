@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { UserButton, SignedOut, SignedIn, SignInButton } from "@clerk/nextjs";
-import { User, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import ClientButton from "@/components/ClientButton";
 import { useUser } from "@clerk/nextjs";
@@ -48,9 +48,7 @@ export default function Navbar() {
 					<Link
 						href="/tournaments"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
-							currentState === "tournaments"
-								? "text-red-400"
-								: ""
+							currentState === "tournaments" ? "text-red-400" : ""
 						}`}
 						onClick={() => handleNavBarChange("tournaments")}>
 						TOURNAMENTS
@@ -103,7 +101,7 @@ export default function Navbar() {
 							PROFILE
 						</Link>
 					)}
-					<ModeToggle></ModeToggle>
+					{/* <ModeToggle></ModeToggle> */}
 					<SignedIn>
 						<UserButton></UserButton>
 					</SignedIn>
@@ -134,9 +132,7 @@ export default function Navbar() {
 					<Link
 						href="/tournaments"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
-							currentState === "tournaments"
-								? "text-red-400"
-								: ""
+							currentState === "tournaments" ? "text-red-400" : ""
 						}`}
 						onClick={() => handleNavBarChange("tournaments")}>
 						TOURNAMENT

@@ -15,7 +15,7 @@ export const completeOnboarding = async (formData: FormData) => {
 				onboardingComplete: true,
 				gender: formData.get("gender"),
 				country: formData.get("country"),
-				role: "Player",
+				role: "PLAYER",
 			},
 		});
 		return { message: "User metadata Updated" };

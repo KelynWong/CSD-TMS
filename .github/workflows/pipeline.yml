@@ -278,6 +278,8 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournmanet_id type=string required=true
 
+        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
+
         # USER Routes
         az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
