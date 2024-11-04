@@ -118,13 +118,8 @@ public class PlayerService {
 
     private void removeAllPlayerTournaments(Player player) {
 
-        for (Tournament t : player.getTournaments()) {
-            t.removePlayer(player);
-            tournaments.save(t);
-        }
-
-        // player.setTournaments(new ArrayList<>());
-        // players.save(player);
+       player.removeAllTournaments();
+       players.save(player);
 
     }
 

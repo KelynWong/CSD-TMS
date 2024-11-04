@@ -5,3 +5,12 @@ Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "
 Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 06:59:05 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
 Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 08:52:34 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
 Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 04 Nov 2024 00:54:07 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
+Raw JSON Response: null
+Raw JSON Response: java.util.ConcurrentModificationException
+Raw JSON Response: org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: update or delete on table "tournament" violates foreign key constraint "fkrrm3jbmm1fxx5t9t5f8t46ebc" on table "tournament_player"
+  Detail: Key (id)=(1583) is still referenced from table "tournament_player".] [delete from tournament.tournament where id=?]; SQL [delete from tournament.tournament where id=?]; constraint [fkrrm3jbmm1fxx5t9t5f8t46ebc]
+Raw JSON Response: java.util.ConcurrentModificationException
+Raw JSON Response: java.util.ConcurrentModificationException
+Raw JSON Response: com.tms.exception.TournamentNotFoundException: Could not find tournament 1588
+Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 04 Nov 2024 18:17:27 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
+Raw JSON Response: com.tms.exception.TournamentNotFoundException: Could not find tournament 1619

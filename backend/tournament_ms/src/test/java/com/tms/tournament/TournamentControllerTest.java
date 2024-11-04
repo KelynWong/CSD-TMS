@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,7 +55,7 @@ class TournamentControllerTest {
 	@Autowired
 	private TestHelper helper;
 
-	@AfterEach
+	@BeforeEach
 	void tearDown() {
 
 		helper.removeAllMapping();

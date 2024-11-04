@@ -95,4 +95,15 @@ public class Tournament {
         return false;
     }
 
+    // Purpose : Remove all player to tournament mapping
+    public void removeAllPlayers() {
+
+        for (Player p : this.players) {
+            p.getTournaments().remove(this);
+        }
+
+        this.players = new ArrayList<>();
+
+    }
+
 }

@@ -24,5 +24,18 @@ public class Player {
     @JsonIgnore
     private List<Tournament> tournaments = new ArrayList<>();
 
+    // Custom methods
+
+    // Purpose : Remove all player-tournament mapping for player
+    public void removeAllTournaments() {
+        // Remove all this palyer mapping in all their tournaments
+        for (Tournament t : this.tournaments) {
+            t.getPlayers().remove(this);
+        }
+        
+        // Empty out this parents tournament list
+        this.tournaments = new ArrayList<>();
+    }
+
 
 }

@@ -1,11 +1,15 @@
 package com.tms.tournament;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import com.tms.exception.*;
+import com.tms.exception.TournamentNotFoundException;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +75,7 @@ public class TournamentController {
     @PostMapping
     public Tournament addTournament(@Valid @RequestBody Tournament tournament) {
         // Input invalid : throw TournamentInvalidInputException (409)
-        if (!isTournamentInputValid(tournament)) {
+        if (!isTournamentInputValid(tournament, "creation")) {
             throw new TournamentInvalidInputException("creation");
         }
         // Input valid : add tournament to db and return savedTournament
@@ -84,7 +88,7 @@ public class TournamentController {
     public Tournament updateTournament(@PathVariable Long id, @Valid @RequestBody Tournament newTournament) {
 
         // Input invalid : throw TournamentInvalidInputException (409)
-        if (!isTournamentInputValid(newTournament)) {
+        if (!isTournamentInputValid(newTournament, "modification")) {
             throw new TournamentInvalidInputException("modification");
         }
 
@@ -117,7 +121,7 @@ public class TournamentController {
 
         // Tournament not found : // throw "tournament not found 404" error
         if (tournament == null) {
-            throw new TournamentNotFoundException(id); 
+            throw new TournamentNotFoundException(id);
         }
 
         // Tournament found : change tournament status
@@ -165,17 +169,20 @@ public class TournamentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTournament(@PathVariable Long id) {
 
-        Tournament deletedTournament = tournamentService.deleteTournament(id);
-        if (deletedTournament == null) {
-            throw new TournamentNotFoundException(id);
-        }
-        // if all ok, return 200 (OK)
-        return ResponseEntity.ok().build();
+
+            Tournament deletedTournament = tournamentService.deleteTournament(id);
+            if (deletedTournament == null) {
+                throw new TournamentNotFoundException(id);
+            }
+            // if all ok, return 200 (OK)
+            return ResponseEntity.ok().build();
+       
+
     }
 
     /* Helper class */
     // Purpose : Input validation
-    public boolean isTournamentInputValid(Tournament tournament) {
+    private boolean isTournamentInputValid(Tournament tournament, String action) {
 
         /* Name should be unique and not empty */
         // Name - empty name
@@ -184,7 +191,7 @@ public class TournamentController {
             return false;
         }
         // Name - not unique
-        if (tournamentService.getTournamentsByTournamentName(tournament.getTournamentName()).size() > 1) {
+        if (!nameDontExist(tournament, action)) {
             log.error("ERROR: TOURNAMENT INPUT - THIS NAME EXIST LIAO");
             return false;
         }
@@ -222,4 +229,32 @@ public class TournamentController {
         return true;
     }
 
+    // Purpose : Check if name exist in existing tournaments
+    private boolean nameDontExist(Tournament newTournament, String action) {
+        String t_name = newTournament.getTournamentName();
+        List<Tournament> sameNames = tournamentService.getTournamentsByTournamentName(t_name);
+
+        if (action.equals("creation")) {
+            return sameNames.isEmpty();
+        }
+        // assume the only other action is "modification"
+        else {
+            Tournament oldTournament = tournamentService.getTournament(newTournament.getId());
+            if (oldTournament == null) {
+                throw new TournamentNotFoundException(newTournament.getId());
+            }
+
+            // if the name didn't change, min = 1
+            if (oldTournament.getTournamentName().equals(t_name)) {
+                return sameNames.size() == 1;
+            }
+            // else, if names are diff, min = 0
+            else {
+                return sameNames.isEmpty();
+            }
+        }
+
+    }
+
+    
 }

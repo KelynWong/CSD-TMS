@@ -104,19 +104,14 @@ public class TournamentServiceImpl implements TournamentService {
             return tournament;
 
             // Reaching here means specified tournament not found, throw
-            // PlayerNotFoundException err 404
+            // TournamentNotFoundException err 404
         }).orElse(null);
     }
 
     private void removeAllTournamentPlayers(Tournament tournament) {
 
-         for (Player p : tournament.getPlayers()) {
-            tournament.removePlayer(p);
-            players.save(p);
-        }
-
-        // tournament.setPlayers(new ArrayList<>());
-        // tournaments.save(tournament);
+        tournament.removeAllPlayers();
+        tournaments.save(tournament);
 
     }
 
