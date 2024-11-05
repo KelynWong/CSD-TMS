@@ -46,6 +46,29 @@ export default function Home() {
                 setLoading(false);
             }
         };
+
+		const getPlayersRank = async () => {
+            try {
+                const data = await fetchTournamentsByStatus("Ongoing");
+                const mappedData: Tournament[] = data.map((tournament: any) => ({
+                    id: tournament.id,
+                    tournamentName: tournament.tournamentName,
+                    startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    status: tournament.status,
+                    regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+                    createdBy: tournament.createdBy,
+                    winner: tournament.winner,
+                }));
+                setCategorizedTournaments(mappedData.slice(0, 4));
+            } catch (err) {
+                console.error("Failed to fetch tournaments:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         getTournamentsData();
     }, []);
 
@@ -129,25 +152,24 @@ export default function Home() {
 			</div>
             <div className="w-[80%] mx-auto py-16">
                 <div className="w-full formatPlayer my-5 flex gap-4">
-                    <div className="w-3/5 rounded-lg font-body">
-                        <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Ongoing Tournaments</h2>
-                        <div className="w-full bg-slate-100 p-4">
+                    <div className="w-3/5 rounded-lg mx-4 font-body">
+                        <h2 className="text-2xl rounded-t-lg font-bold uppercase mb-3">Ongoing Tournaments</h2>
+                        <div className="w-full flex flex-col gap-4">
                             {categorizedTournaments.length === 0 ? (
-                                <div className="text-center text-md italic mt-16">
+                                <div className="text-center text-md italic">
                                     No ongoing tournaments found.
                                 </div>
                             ) : (
                                 categorizedTournaments.map((tournament: Tournament) => (
-                                    <div key={tournament.id} className="tournament w-full flex items-center justify-between p-4 my-2 rounded-lg bg-white">
-                                        <div className="tournament-info w-3/5 flex items-center gap-4">
-                                            <img src="/images/default_profile.png" className="rounded-full w-12 h-12" alt="Player Profile" />
-                                            <div className="tournament-details">
-                                                <h3 className="text-lg font-bold">{tournament.tournamentName}</h3>
-                                                <p className="text-sm">Start Date: {new Date(tournament.startDT).toLocaleDateString()}</p>
-                                                <p className="text-sm">End Date: {new Date(tournament.endDT).toLocaleDateString()}</p>
+                                    <div key={tournament.id} className="tournament w-1/2 flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+                                        <div className="tournament-info">
+                                            <div className="tournament-details text-center">
+                                                <h3 className="text-xl font-bold">{tournament.tournamentName}</h3>
+                                                <p className="text-lg">Start Date: {new Date(tournament.startDT).toLocaleDateString()}</p>
+                                                <p className="text-lg">End Date: {new Date(tournament.endDT).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className="tournament-action w-2/5 flex items-center justify-end gap-4">
+                                        <div className="tournament-action flex items-center justify-center gap-4">
                                             <button className="btn btn-primary">View</button>
                                             <button className="btn btn-secondary">Predict</button>
                                         </div>
@@ -156,8 +178,31 @@ export default function Home() {
                             )}
                         </div>
                     </div>
-                    <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
-                        <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
+                    <div className="w-2/5 rounded-lg mx-4 font-body">
+                        <h2 className="text-2xl rounded-t-lg font-bold uppercase mb-3">Current Rankings</h2>
+                        <div className="w-full flex flex-col gap-4">
+                            {categorizedTournaments.length === 0 ? (
+                                <div className="text-center text-md italic">
+                                    No players found.
+                                </div>
+                            ) : (
+                                categorizedTournaments.map((tournament: Tournament) => (
+                                    <div key={tournament.id} className="tournament w-1/2 flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+                                        <div className="tournament-info">
+                                            <div className="tournament-details text-center">
+                                                <h3 className="text-xl font-bold">{tournament.tournamentName}</h3>
+                                                <p className="text-lg">Start Date: {new Date(tournament.startDT).toLocaleDateString()}</p>
+                                                <p className="text-lg">End Date: {new Date(tournament.endDT).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                        <div className="tournament-action flex items-center justify-center gap-4">
+                                            <button className="btn btn-primary">View</button>
+                                            <button className="btn btn-secondary">Predict</button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -46,6 +46,7 @@ export default function Prediction() {
     const [loading, setLoading] = useState(true);
     const { setState } = useNavBarContext();
     setState("matchPredict");
+    
     const [categorizedTournaments, setCategorizedTournaments] = useState<Tournament[]>([]);
     const [selectedTournamentId, setSelectedTournamentId] = useState<string | undefined>(undefined);
     const [matchResults, setMatchResults] = useState<any[]>([]);
