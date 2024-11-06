@@ -195,7 +195,7 @@ export default function Home() {
 								<h3 className="text-xl mr-12">No Ongoing Tournaments D:</h3>
 							)}
 							{completedTournament.length !== 0 ? (
-								<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}!</h3>
+								<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}</h3>
 							) : (
 								<h3 className="text-xl mr-12">No Completed Tournaments</h3>
 							)}
