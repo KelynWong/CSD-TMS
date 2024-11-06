@@ -27,11 +27,31 @@ export type MatchPlayerStatistic = {
 	gamesPlayed: number;
 };
 
+const getCookies = (): { [key: string]: string } => {
+	const cookies: { [key: string]: string } = {};
+	document.cookie.split(";").forEach((cookie) => {
+		const [name, value] = cookie.split("=").map((c) => c.trim());
+		cookies[name] = decodeURIComponent(value);
+	});
+
+	return cookies;
+};
+
+export const getJwtToken = (): string | null => {
+	const cookies = getCookies(); 
+	return cookies["__session"] || null; 
+};
+
 export const fetchMatchByTournamentId = async (
 	tournament_id: number
 ): Promise<any[]> => {
 	try {
-		const response = await axios.get(`${URL}/tournament/${tournament_id}`);
+		const jwtToken = getJwtToken(); 
+		const response = await axios.get(`${URL}/tournament/${tournament_id}`, {
+            headers: {
+                "Authorization" : `Bearer ${jwtToken}`
+            }
+        });
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching matches", error);
@@ -41,7 +61,12 @@ export const fetchMatchByTournamentId = async (
 
 export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	try {
-		const response = await axios.get(`${URL}/${match_id}/games`);
+		const jwtToken = getJwtToken(); 
+		const response = await axios.get(`${URL}/${match_id}/games`, {
+            headers: {
+                "Authorization" : `Bearer ${jwtToken}`
+            }
+        });
 
 		return response.data;
 	} catch (error) {
@@ -54,9 +79,14 @@ export const fetchPlayerStats = async (
 	Id: string
 ): Promise<MatchPlayerStatistic> => {
 	try {
+		const jwtToken = getJwtToken(); 
 		const winResponse = await axios.get(`${URL}/user/win/${Id}`);
 		const wins = winResponse.data.length;
-		const lossResponse = await axios.get(`${URL}/user/loss/${Id}`);
+		const lossResponse = await axios.get(`${URL}/user/loss/${Id}`, {
+            headers: {
+                "Authorization" : `Bearer ${jwtToken}`
+            }
+        });
 		const losses = lossResponse.data.length;
 		const gamesPlayed = wins + losses;
 		const mappedData: MatchPlayerStatistic = {
@@ -76,7 +106,12 @@ export const fetchPlayerMatches = async (
 	Id: string
 ): Promise<MatchResponse[]> => {
 	try {
-		const response = await axios.get(`${URL}/user/played/${Id}`);
+		const jwtToken = getJwtToken(); 
+		const response = await axios.get(`${URL}/user/played/${Id}`, {
+            headers: {
+                "Authorization" : `Bearer ${jwtToken}`
+            }
+        });
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching player matches", error);
