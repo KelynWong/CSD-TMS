@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
 	"/tournaments/:id*",
 	"/tournaments",
 	"/rankings",
+	"/prediction",
 ]);
 
 export default clerkMiddleware((auth, req) => {
