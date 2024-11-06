@@ -15,12 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentServiceImpl implements TournamentService {
 
     private TournamentRepository tournaments;
-    private PlayerRepository players;
     private AutoStatusUpdateService autoStatusUpdateService;
 
-    public TournamentServiceImpl(TournamentRepository tr, PlayerRepository pr, AutoStatusUpdateService as) {
+    public TournamentServiceImpl(TournamentRepository tr, AutoStatusUpdateService as) {
         this.tournaments = tr;
-        this.players = pr;
         this.autoStatusUpdateService = as;
     }
 
