@@ -49,7 +49,7 @@ jobs:
         docker push csdtms.azurecr.io/match_ms:latest
 
     - name: Log in to Azure
-      run: az login --username lynettetay.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
+      run: az login --username sonia.lim.2023@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
     - name: Create Resource Group
       run: |
@@ -132,8 +132,8 @@ jobs:
           --resource-group tms \
           --location eastus \
           --sku-name Developer \
-          --publisher-email lynettetay.2022@scis.smu.edu.sg \
-          --publisher-name lynette \
+          --publisher-email sonia.lim.2023@scis.smu.edu.sg \
+          --publisher-name sonia \
           --public-network-access true
 
     - name: Create NSG and allow only APIM to access Application Gateway
