@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.tms.exception.TournamentNotFoundException;
 import com.tms.tournamentplayer.Player;
 import com.tms.tournamentplayer.PlayerRepository;
 
@@ -103,7 +104,7 @@ public class TournamentServiceImpl implements TournamentService {
 
             // Reaching here means specified tournament not found, throw
             // TournamentNotFoundException err 404
-        }).orElse(null);
+        }).orElseThrow(()-> new TournamentNotFoundException(id));
     }
 
     private void removeAllTournamentPlayers(Tournament tournament) {
