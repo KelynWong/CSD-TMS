@@ -18,9 +18,27 @@ import {
 } from "@/components/ui/table";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowRight, Badge } from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { TypewriterEffect } from '@/components/ui/typewriter-effect';
 import Image from "next/image";
+import { Fireworks } from '@fireworks-js/react';
+
+interface Player {
+	id: string;
+	gender: string;
+	fullname: string;
+	profilePic: string;
+	rank: number;
+	rating: number;
+}
+
+const shuffleArray = (array: Player[]): Player[] => {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
+};
 
 export default function Home() {
 	// Set navbar
@@ -33,30 +51,53 @@ export default function Home() {
 	// 	router.push("/home");
 	// }, [router]);
 
-	const [categorizedTournaments, setCategorizedTournaments] = useState<Tournament[]>([]);
+	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>([]);
+	const [completedTournament, setCompletedTournament] = useState<Tournament[]>([]);
 	const [playersRank, setPlayersRank] = useState<any[]>([]);
 	const [players, setPlayers] = useState<any[]>([]);
+	const [randomPlayers, setRandomPlayers] = useState<Player[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [showFireworks, setShowFireworks] = useState(false);
 	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 	const customOrder = [1, 0, 2];
 
 	const words = [
 		{
 			text: "Welcome",
-			className: "text-sky-950"
 		},
 		{
 			text: "to",
-			className: "text-sky-950"
 		},
 		{
 			text: "RacketRush!",
-			className: "text-yellow-500"
+			className: "text-white"
 		},
 	];
 
 	useEffect(() => {
-		const getTournamentsData = async () => {
+		const getCompletedTournamentData = async () => {
+			try {
+				const data = await fetchTournamentsByStatus("Completed");
+				const mappedData: Tournament[] = data.map((tournament: any) => ({
+					id: tournament.id,
+					tournamentName: tournament.tournamentName,
+					startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
+					endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+					status: tournament.status,
+					regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+					regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+					createdBy: tournament.createdBy,
+					winner: tournament.winner,
+				}));
+				setCompletedTournament(mappedData.slice(0, 1));
+			} catch (err) {
+				console.error("Failed to fetch tournaments:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		const getOngoingTournamentsData = async () => {
 			try {
 				const data = await fetchTournamentsByStatus("Ongoing");
 				const mappedData: Tournament[] = data.map((tournament: any) => ({
@@ -70,7 +111,7 @@ export default function Home() {
 					createdBy: tournament.createdBy,
 					winner: tournament.winner,
 				}));
-				setCategorizedTournaments(mappedData.slice(0, 4));
+				setOngoingTournaments(mappedData.slice(0, 4));
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
 			} finally {
@@ -83,6 +124,7 @@ export default function Home() {
 				const data = await fetchTopPlayers();
 				const filteredData = data.map(player => ({
 					id: player.id,
+					gender: player.gender,
 					fullname: player.fullname,
 					profilePic: player.profilePicture,
 					rank: player.rank,
@@ -97,9 +139,16 @@ export default function Home() {
 			}
 		};
 
-		getTournamentsData();
+		getCompletedTournamentData();
+		getOngoingTournamentsData();
 		getPlayersRank();
+		setShowFireworks(true);
 	}, []);
+
+	useEffect(() => {
+		const shuffledPlayers = shuffleArray([...players]);
+		setRandomPlayers(shuffledPlayers.slice(0, 8));
+	}, [players]);
 
 	if (loading) {
 		return <Loading />;
@@ -107,60 +156,6 @@ export default function Home() {
 
 	return (
 		<div>
-			{/* <div className="header px-16 py-16">
-				<div className="match-overview w-100 flex flex-col items-end">
-					<div className="match w-1/4 my-3 p-6 rounded-xl">
-						<h2 className="text-2xl pb-2 text-center border-b border-gray-500">
-							Ongoing Match
-						</h2>
-						<h3 className="text-xl py-2">Tournament 1</h3>
-						<div className="flex justify-center">
-							<div className="w-1/4 flex items-center justify-end gap-2 px-4 text-black font-bold">
-								<img
-									src="/images/default_profile.png"
-									className="rounded-full w-12 h-12"
-									alt="Player Profile"
-								/>
-							</div>
-							<div className="flex items-center justify-center gap-2 px-2 font-bold">
-								<h1 className="text-xl score rounded-full px-6 py-1">2 - 3</h1>
-							</div>
-							<div className="w-1/4 flex items-center justify-start gap-2 px-4 text-black font-bold">
-								<img
-									src="/images/default_profile.png"
-									className="rounded-full w-12 h-12"
-									alt="Player Profile"
-								/>
-							</div>
-						</div>
-					</div>
-					<div className="match w-1/4 my-3 p-6 rounded-xl">
-						<h2 className="text-2xl pb-2 text-center border-b border-gray-500">
-							Next Match
-						</h2>
-						<h3 className="text-xl py-2">SMU BadminFest 2024</h3>
-						<div className="flex justify-center">
-							<div className="w-1/4 flex items-center justify-end gap-2 px-4 text-black font-bold">
-								<img
-									src="/images/default_profile.png"
-									className="rounded-full w-12 h-12"
-									alt="Player Profile"
-								/>
-							</div>
-							<div className="flex items-center justify-center gap-2 px-2 font-bold">
-								<h1 className="text-xl px-6 py-1">VS</h1>
-							</div>
-							<div className="w-1/4 flex items-center justify-start gap-2 px-4 text-black font-bold">
-								<img
-									src="/images/default_profile.png"
-									className="rounded-full w-12 h-12"
-									alt="Player Profile"
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> */}
 			<div style={{ position: "relative", height: "60vh", overflow: "hidden" }}>
 				<Image
 					src="/images/banner4.png"
@@ -178,54 +173,86 @@ export default function Home() {
 			</div>
 			<div className="latest-rank w-100 flex">
 				<div className="w-1/5 title px-6 py-5 text-center">
-					<h1 className="text-3xl">latest Ranking</h1>
+					<h1 className="text-3xl">Latest News</h1>
 				</div>
 				<div className="w-4/5 players px-14 py-5 flex items-center">
-					<div id="scroll-text">
+					<div id="scroll-text" className="w-full">
 						<div className="flex items-center">
-							<h3 className="text-xl mr-12">🥇 rank 1 - Wang zhi yi</h3>
-							<h3 className="text-xl mr-12">
-								🎉 Jeng Hon Chia 21 - 10 Benson Wang
-							</h3>
-							<h3 className="text-xl mr-12">
-								🎉 Jeng Hon Chia 21 - 10 Benson Wang
-							</h3>
+							{playersRank.length !== 0 && (
+								<h3 className="text-xl mr-12">🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}</h3>
+							)}
+							{ongoingTournaments.length !== 0 && (
+								<h3 className="text-xl mr-12">🎉 {ongoingTournaments[0].tournamentName} is ongoing now!</h3>
+							)}
+							{completedTournament.length !== 0 && (
+								<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}!</h3>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="w-[80%] mx-auto py-12">
-				<div className="text-center pb-16">
-					<h2 className="text-3xl font-bold uppercase">Podium</h2>
+
+			<div className="relative text-center py-12">
+				{showFireworks && (
+					<>
+						<div className="absolute top-0 left-0 w-full h-full z-0">
+							<Fireworks
+								options={{
+									hue: { min: 0, max: 345 },
+									delay: { min: 15, max: 30 },
+									particles: 50,
+									intensity: 5,
+									explosion: 10,
+								}}
+								className='w-full h-full' />
+						</div>
+						<div className="absolute top-0 left-0 w-full h-full z-0">
+							<Fireworks
+								options={{
+									hue: { min: 0, max: 345 },
+									delay: { min: 15, max: 30 },
+									particles: 50,
+									intensity: 5,
+									explosion: 10,
+								}}
+								className='w-full h-full' />
+						</div>
+					</>
+				)}
+				<div className="relative z-10">
+					<h2 className="text-3xl font-bold uppercase">🌟 Top performers 🌟</h2>
 					<div className="flex items-end justify-center mt-12 gap-6">
-						{playersRank.length !== 0 && (
+						{playersRank.length != 0 && (
 							customOrder.map((orderIndex) => {
-									const player = playersRank[orderIndex];
-									return (
-										<div key={player.id} className="flex flex-col items-center">
-											<Link href={`/players/${player.id}`} className="flex flex-col items-center">
-												<Image
-													src={player.profilePic || "/images/default_profile.png"}
-													alt={`Player ${player.id}`}
-													width={200}
-													height={200}
-													className="w-16 h-16 object-cover rounded-full"
-												/>
-												<div className="w-36 text-ellipsis overflow-hidden text-lg mt-2">{player.fullname}</div>
-											</Link>
-											<div
-												className={`w-36 flex flex-col items-center justify-center mt-3 mx-2.5 p-2.5 rounded-md text-white ${orderIndex === 0 ? 'h-48 bg-yellow-500' : orderIndex === 1 ? 'h-40 bg-gray-400' : 'h-32 bg-orange-600'
-													}`}
-											>
-												<div className="font-bold text-3xl">{player.rank}</div>
-												<div className="text-lg">{player.rating}</div>
-											</div>
+								const player = playersRank[orderIndex];
+								return (
+									<div key={player.id} className="flex flex-col items-center">
+										<Link href={`/players/${player.id}`} className="flex flex-col items-center">
+											<Image
+												src={player.profilePic || "/images/default_profile.png"}
+												alt={`Player ${player.id}`}
+												width={200}
+												height={200}
+												className="w-16 h-16 object-cover rounded-full"
+											/>
+											<div className="w-36 text-ellipsis overflow-hidden text-lg mt-2">{player.fullname}</div>
+										</Link>
+										<div
+											className={`w-36 flex flex-col items-center justify-center mt-3 mx-2.5 p-2.5 rounded-md text-white ${orderIndex === 0 ? 'h-48 bg-yellow-500' : orderIndex === 1 ? 'h-40 bg-gray-400' : 'h-32 bg-orange-600'
+												}`}
+										>
+											<div className="font-bold text-3xl">{player.rank}</div>
+											<div className="text-lg">{player.rating}</div>
 										</div>
-									);
-								})
+									</div>
+								);
+							})
 						)}
 					</div>
 				</div>
+			</div>
+
+			<div className="w-[80%] mx-auto py-12">
 				<div className="w-full formatPlayer py-5 flex gap-4">
 					<div className="w-3/5 rounded-lg font-body mr-6">
 						<div className="flex items-center justify-between mb-3">
@@ -237,15 +264,15 @@ export default function Home() {
 								</Button>
 							</Link>
 						</div>
-						{categorizedTournaments.length === 0 ? (
-							<div className="text-center text-md italic">
+						{ongoingTournaments.length === 0 ? (
+							<div className="text-center text-md italic mt-16">
 								No ongoing tournaments found.
 							</div>
 						) : (
 							<div className="w-full grid grid-cols-2 gap-4">
-								{categorizedTournaments.map((tournament: Tournament) => (
+								{ongoingTournaments.map((tournament: Tournament) => (
 									<Link href={`/tournaments/${tournament.id}`}>
-										<div key={tournament.id} className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+										<div key={tournament.id} className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
 											<div className="tournament-info">
 												<div className="tournament-details text-center">
 													<h3 className="text-xl font-bold text-white">{tournament.tournamentName}</h3>
@@ -320,23 +347,25 @@ export default function Home() {
 							No players found.
 						</div>
 					) : (
-						<div className="w-full grid grid-cols-4 gap-4">
-							{players.slice(0, 8).map((player) => (
-								<div key={player.id} className="p-4">
+						<div className="w-full grid grid-cols-4 gap-6">
+							{randomPlayers.map((player) => (
+								<div key={player.id}>
 									<Link href={`/players/${player.id}`}>
-										<div className="rounded-lg bg-slate-100">
 										<Image
-													src={player.profilePic || "/images/default_profile.png"}
-													alt={`Player ${player.id}`}
-													width={200}
-													height={200}
-													className="w-32 h-32 object-cover rounded-lg"
-												/>
-										</div>
-										<div className="flex flex-row justify-between items-center mt-2">
+											src={
+												player.gender === 'Female'
+													? player.profilePic || "/images/female.jpeg"
+													: player.profilePic || "/images/male.jpeg"
+											}
+											alt={`Player ${player.id}`}
+											width={200}
+											height={200}
+											className="object-cover object-top rounded-lg w-full h-44"
+										/>
+										<div className="flex flex-row justify-between items-start mt-3">
 											<div className="flex flex-col">
-												<p className="text-lg leading-none">{player.fullname}</p>
-												<p className="text-lg text-red-500 leading-2">{player.rating}</p>
+												<p className="text-lg font-bold leading-none">{player.fullname}</p>
+												<p className="text-md font-bold text-red-500 leading-2">{player.rating}</p>
 											</div>
 											<div className="rounded-full size-8 bg-red-500">
 												<p className="text-lg text-white text-center h-full m-0 p-0 leading-8">{player.rank}</p>
