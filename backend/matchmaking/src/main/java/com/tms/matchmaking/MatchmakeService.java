@@ -198,7 +198,7 @@ public class MatchmakeService {
      * @return List of TournamentSimRes objects representing the simulation results
      */
     public List<TournamentSimRes> simManyTournament(Long tournamentId) {
-        final int NUM_SIMULATIONS = 1000;
+        final int NUM_SIMULATIONS = 10000;
         TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
         Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
         Map<String, Player> idToPlayer = setup.getIdToPlayer();
