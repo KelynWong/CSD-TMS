@@ -113,12 +113,14 @@ jobs:
         docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
           --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
           --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
-          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" 
+          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
+          --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" 
         docker push csdtms.azurecr.io/matchmaking:latest
 
         # Deploy matchmaking MS
         az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" \
+        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
         --vnet tmsVNet2 \
         --subnet aciSubnet2
 
