@@ -23,6 +23,6 @@ public interface TournamentService {
     Tournament updateTournament(Long id, Tournament tournament);
 
     /* Delete tournament*/
-    void deleteTournament(Long id);
+    Tournament deleteTournament(Long id);
 
 }
