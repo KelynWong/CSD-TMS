@@ -7,7 +7,7 @@ import { Tournament } from '@/types/tournament';
 import Loading from '@/components/Loading';
 import { useNavBarContext } from "@/context/navBarContext";
 import { useRouter } from "next/navigation";
-import { fetchTopPlayers } from '@/api/users/api';
+import { fetchPlayer, fetchTopPlayers } from '@/api/users/api';
 import {
 	Table,
 	TableBody,
@@ -78,18 +78,28 @@ export default function Home() {
 		const getCompletedTournamentData = async () => {
 			try {
 				const data = await fetchTournamentsByStatus("Completed");
-				const mappedData: Tournament[] = data.map((tournament: any) => ({
-					id: tournament.id,
-					tournamentName: tournament.tournamentName,
-					startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
-					endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
-					status: tournament.status,
-					regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
-					regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
-					createdBy: tournament.createdBy,
-					winner: tournament.winner,
-				}));
-				setCompletedTournament(mappedData.slice(0, 1));
+				if (data.length === 0) {
+					setCompletedTournament([]);
+					return;
+				}
+		
+				const firstTournament = data[0];
+				console.log(firstTournament)
+				const winnerData = firstTournament.winner ? await fetchPlayer(firstTournament.winner) : { fullname: "Unknown" };
+
+				const mappedData: Tournament = {
+					id: firstTournament.id,
+					tournamentName: firstTournament.tournamentName,
+					startDT: new Date(new Date(firstTournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
+					endDT: new Date(new Date(firstTournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+					status: firstTournament.status,
+					regStartDT: new Date(new Date(firstTournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+					regEndDT: new Date(new Date(firstTournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+					createdBy: firstTournament.createdBy,
+					winner: winnerData.fullname, 
+				};
+		
+				setCompletedTournament([mappedData]);
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
 			}
@@ -172,16 +182,22 @@ export default function Home() {
 					<h1 className="text-3xl">Latest News</h1>
 				</div>
 				<div className="w-4/5 players px-14 py-5 flex items-center">
-					<div id="scroll-text" className="w-full">
+					<div id="scroll-text">
 						<div className="flex items-center">
-							{playersRank.length !== 0 && (
+							{playersRank.length !== 0 ? (
 								<h3 className="text-xl mr-12">🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}</h3>
+							) : (
+								<h3 className="text-xl mr-12">Have a good day!</h3>
 							)}
-							{ongoingTournaments.length !== 0 && (
+							{ongoingTournaments.length !== 0 ? (
 								<h3 className="text-xl mr-12">🎉 {ongoingTournaments[0].tournamentName} is ongoing now!</h3>
+							) : (
+								<h3 className="text-xl mr-12">No Ongoing Tournaments D:</h3>
 							)}
-							{completedTournament.length !== 0 && (
+							{completedTournament.length !== 0 ? (
 								<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}!</h3>
+							) : (
+								<h3 className="text-xl mr-12">No Completed Tournaments</h3>
 							)}
 						</div>
 					</div>
