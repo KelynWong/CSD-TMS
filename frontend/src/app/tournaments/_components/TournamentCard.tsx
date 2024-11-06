@@ -11,8 +11,16 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useEffect, useState } from 'react';
+} from "@/components/ui/alert-dialog";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
+import { SetStateAction, useEffect, useState } from 'react';
 import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament, updateTournamentStatusById } from "@/api/tournaments/api";
 import { fetchMatchByTournamentId } from '@/api/matches/api';
 import Loading from "@/components/Loading";
@@ -40,6 +48,11 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
     const [showRegisterButton, setShowRegisterButton] = useState(false);
+    const [selectedStrategy, setSelectedStrategy] = useState('strong-weak');
+
+    const handleValueChange = (value: SetStateAction<string>) => {
+        setSelectedStrategy(value);
+    };
 
     const formattedStartDT = new Date(startDT);
     const startDate = new Intl.DateTimeFormat('en-GB', {
@@ -151,7 +164,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const matchMake = async () => {
         setLoading(true);
         try {
-            await matchMakeByTournamentId(id);
+            await matchMakeByTournamentId(id, selectedStrategy);
             await updateTournamentStatusById(id, "Matchmake");
             message.success('Matchmake successful! :)');
             setTimeout(() => {
@@ -305,12 +318,23 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                             <div className="grid grid-cols-1 w-full">
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button className="bg-red-500 hover:bg-red-700 text-white">MatchMake</Button>
+                                        <Button className="bg-red-500 hover:bg-red-700 text-white">Matchmake</Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="bg-white">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
                                             <AlertDialogDescription>
+                                                <Select defaultValue="strong-weak" onValueChange={handleValueChange}>
+                                                    <SelectTrigger className="w-1/2 mb-2 text-black font-body">
+                                                        <SelectValue placeholder="Select a Matchmake strategy" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectItem value="strong-weak">Strong-Weak</SelectItem>
+                                                            <SelectItem value="strong-strong">Strong-Strong</SelectItem>
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
                                                 By proceeding, the system will proceed to Matchmake the players. 
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>

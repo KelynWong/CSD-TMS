@@ -10,8 +10,9 @@ type Game = {
 
 type Games = Game[];
 
-export const matchMakeByTournamentId = async (tournament_id: number): Promise<boolean> => {
+export const matchMakeByTournamentId = async (tournament_id: number, strategy: string): Promise<boolean> => {
 	try {
+		console.log("testing if matchMakeByTournament strategy shows", strategy);
 		const response = await axios.post(`${URL}/${tournament_id}`);
 		console.log(response);
 		return response.status === 200; 
