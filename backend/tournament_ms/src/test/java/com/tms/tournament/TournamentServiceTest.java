@@ -10,24 +10,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.tms.TestHelper;
-import com.tms.TournamentServiceApplication;
-import com.tms.tournamentplayer.Player;
+import com.tms.exception.TournamentNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,8 +34,11 @@ public class TournamentServiceTest {
     @InjectMocks
     private TournamentServiceImpl tournamentService;
 
+    @Mock
+    private AutoStatusUpdateService autoStatusUpdateService;
+
     @InjectMocks
-	private TestHelper helper;
+    private TestHelper helper;
 
     /* Unit Testing */
 
@@ -127,7 +123,8 @@ public class TournamentServiceTest {
         Tournament tournament = helper.createTestTournament("noError");
 
         // - mock methods/operations
-        // when(tournaments.findByTournamentName(any(String.class))).thenReturn(new ArrayList<Tournament>());
+        // when(tournaments.findByTournamentName(any(String.class))).thenReturn(new
+        // ArrayList<Tournament>());
         when(tournaments.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
@@ -145,24 +142,24 @@ public class TournamentServiceTest {
 
     // @Test
     // void addTournament_SameName_ReturnNull() {
-    //     // Arrange
-    //     // - mock objects
-    //     Tournament tournament = helper.createTestTournament("noError");
+    // // Arrange
+    // // - mock objects
+    // Tournament tournament = helper.createTestTournament("noError");
 
-    //     List<Tournament> tournamentOfSameName = new ArrayList<>();
-    //     tournamentOfSameName.add(tournament);
+    // List<Tournament> tournamentOfSameName = new ArrayList<>();
+    // tournamentOfSameName.add(tournament);
 
-    //     // - mock methods/operations
-    //     when(tournaments.findByTournamentName(any(String.class))).thenReturn(tournamentOfSameName);
+    // // - mock methods/operations
+    // when(tournaments.findByTournamentName(any(String.class))).thenReturn(tournamentOfSameName);
 
-    //     // Act
-    //     log.info("INFO: ADDTOURNAMENT_SAMENAME ACT START!");
-    //     Tournament savedTournament = tournamentService.addTournament(tournament);
-    //     log.info("INFO: ADDTOURNAMENT_SAMENAME ACT END!");
+    // // Act
+    // log.info("INFO: ADDTOURNAMENT_SAMENAME ACT START!");
+    // Tournament savedTournament = tournamentService.addTournament(tournament);
+    // log.info("INFO: ADDTOURNAMENT_SAMENAME ACT END!");
 
-    //     // Assert
-    //     assertNull(savedTournament);
-    //     verify(tournaments).findByTournamentName(tournament.getTournamentName());
+    // // Assert
+    // assertNull(savedTournament);
+    // verify(tournaments).findByTournamentName(tournament.getTournamentName());
     // }
 
     /*
@@ -224,19 +221,28 @@ public class TournamentServiceTest {
     void deleteTournament_Found_ReturnNothing() {
         // Arrange
         // - mock objects
-        Long id = 0L;
+        Tournament tournament = helper.createTestTournament("noError");
+        Long id = tournament.getId();
+
+        Optional<Tournament> optTournament = Optional.of(tournament);
 
         // - mock methods/operations
-        doNothing().when(tournaments).deleteById(id);
+        when(tournaments.findById(id)).thenReturn(optTournament);
+        doNothing().when(tournaments).delete(tournament);
+        // - mock methods/operations
+        // doNothing().when(tournaments).deleteById(id);
 
         // Act
-        log.info("INFO: DELETETOURNAMENT_FOUND ACT START!");
-        tournamentService.deleteTournament(id);
-        ;
-        log.info("INFO: DELETETOURNAMENT_FOUND ACT END!");
+        Tournament deletedTournament = tournamentService.deleteTournament(id);
+        log.info("INFO: GETTOURNAMENT_FOUND ACT END!");
 
         // Assert
-        verify(tournaments, times(1)).deleteById(id); // Verify interaction
+        assertNotNull(deletedTournament);
+        verify(tournaments).findById(id);
+        verify(tournaments).delete(tournament);
+
+        // Assert
+        // verify(tournaments, times(1)).deleteById(id); // Verify interaction
 
     }
 
@@ -247,14 +253,16 @@ public class TournamentServiceTest {
         Long id = 1L;
 
         // - mock methods/operations
-        doThrow(new EmptyResultDataAccessException(0)).when(tournaments).deleteById(id);
+        when(tournaments.findById(id)).thenReturn(Optional.empty());
+        // doThrow(new
+        // EmptyResultDataAccessException(0)).when(tournaments).deleteById(id);
 
         // Act & Assert: Validate that the exception is thrown
-        assertThrows(EmptyResultDataAccessException.class, () -> tournamentService.deleteTournament(id));
+        assertThrows(TournamentNotFoundException.class, () -> tournamentService.deleteTournament(id));
 
         // Verify that deleteById was called exactly once
-        verify(tournaments, times(1)).deleteById(id);
-
+        // verify(tournaments, times(1)).deleteById(id);
+        verify(tournaments).findById(id);
     }
 
 }

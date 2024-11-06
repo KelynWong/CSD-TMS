@@ -49,7 +49,7 @@ jobs:
         docker push csdtms.azurecr.io/match_ms:latest
 
     - name: Log in to Azure
-      run: az login --username lynettetay.2022@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
+      run: az login --username sonia.lim.2023@scis.smu.edu.sg --password "${{ secrets.AZURE_PASSWORD }}"
 
     - name: Create Resource Group
       run: |
@@ -113,12 +113,14 @@ jobs:
         docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
           --build-arg MATCH_URL="http://$MATCH_MS_IP:8080/matches" \
           --build-arg TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" \
-          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" 
+          --build-arg PLAYER_URL="http://$USER_MS_IP:8083/users" \
+          --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" 
         docker push csdtms.azurecr.io/matchmaking:latest
 
         # Deploy matchmaking MS
         az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
-        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" \
+        --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
         --vnet tmsVNet2 \
         --subnet aciSubnet2
 
@@ -126,12 +128,12 @@ jobs:
       run: |
         # Create API Management instance
         az apim create \
-          --name csdtmsAPI \
+          --name csdAPI \
           --resource-group tms \
           --location eastus \
           --sku-name Developer \
-          --publisher-email lynettetay.2022@scis.smu.edu.sg \
-          --publisher-name lynette \
+          --publisher-email sonia.lim.2023@scis.smu.edu.sg \
+          --publisher-name sonia \
           --public-network-access true
 
     - name: Create NSG and allow only APIM to access Application Gateway
@@ -183,7 +185,7 @@ jobs:
         fi
     
         # Resolve the public IP of the APIM instance
-        apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
+        apim_public_ip=$(nslookup csdapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
     
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
@@ -242,7 +244,7 @@ jobs:
         # Create API in APIM with public IP of Application Gateway
         az apim api create \
           --resource-group tms \
-          --service-name csdtmsAPI \
+          --service-name csdapi \
           --api-id myApi \
           --path / \
           --display-name "TMS API" \
@@ -250,63 +252,63 @@ jobs:
           --protocols https
 
         # PUBLIC Routes
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getMatchGames --display-name "Get Match Games" --method GET --url-template "/matches/{match_id}/games" --template-parameters name=match_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getMatchGames --display-name "Get Match Games" --method GET --url-template "/matches/{match_id}/games" --template-parameters name=match_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserWins --display-name "Get User Wins" --method GET --url-template "/matches/user/win/{user_id}" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserWins --display-name "Get User Wins" --method GET --url-template "/matches/user/win/{user_id}" --template-parameters name=user_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserLosses --display-name "Get User Losses" --method GET --url-template "/matches/user/loss/{user_id}" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserLosses --display-name "Get User Losses" --method GET --url-template "/matches/user/loss/{user_id}" --template-parameters name=user_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserById --display-name "Get User by ID" --method GET --url-template "/users/{id}" --template-parameters name=id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserById --display-name "Get User by ID" --method GET --url-template "/users/{id}" --template-parameters name=id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserRole --display-name "Get User Role" --method GET --url-template "/users/role/{role}" --template-parameters name=role type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserRole --display-name "Get User Role" --method GET --url-template "/users/role/{role}" --template-parameters name=role type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTopPlayers --display-name "Get Top Players" --method GET --url-template "/users/top-players"
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTopPlayers --display-name "Get Top Players" --method GET --url-template "/users/top-players"
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments/tournament"
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournamentPlayers --display-name "Get Tournament Players by Player ID" --method GET --url-template "/tournaments/players/{player_id}" --template-parameters name=player_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentPlayers --display-name "Get Tournament Players by Player ID" --method GET --url-template "/tournaments/players/{player_id}" --template-parameters name=player_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournamentById --display-name "Get Tournament by ID" --method GET --url-template "/tournaments/id/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentById --display-name "Get Tournament by ID" --method GET --url-template "/tournaments/id/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournmanet_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournmanet_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
 
         # USER Routes
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/{tournament_id}/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/{tournament_id}/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
         # ADMIN Routes
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments/tournament"
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateTournament --display-name "Update Tournament" --method PUT --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateTournament --display-name "Update Tournament" --method PUT --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id updateTournamentStatus --display-name "Update Tournament Status" --method PUT --url-template "/tournaments/{tournament_id}/status" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateTournamentStatus --display-name "Update Tournament Status" --method PUT --url-template "/tournaments/{tournament_id}/status" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdtmsAPI --api-id myApi --operation-id deleteTournament --display-name "Delete Tournament" --method DELETE --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id deleteTournament --display-name "Delete Tournament" --method DELETE --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
 
         # # Create GET operation
         # az apim api operation create \
         #   --resource-group tms \
-        #   --service-name csdtmsAPI \
+        #   --service-name csdapi \
         #   --api-id myApi \
         #   --operation-id getOperation \
         #   --display-name "GET Operation" \
@@ -317,7 +319,7 @@ jobs:
         # # Create POST operation
         # az apim api operation create \
         #   --resource-group tms \
-        #   --service-name csdtmsAPI \
+        #   --service-name csdapi \
         #   --api-id myApi \
         #   --operation-id postOperation \
         #   --display-name "POST Operation" \
@@ -328,7 +330,7 @@ jobs:
         # # Create PUT operation
         # az apim api operation create \
         #   --resource-group tms \
-        #   --service-name csdtmsAPI \
+        #   --service-name csdapi \
         #   --api-id myApi \
         #   --operation-id putOperation \
         #   --display-name "PUT Operation" \
@@ -339,7 +341,7 @@ jobs:
         # # Create DELETE operation
         # az apim api operation create \
         #   --resource-group tms \
-        #   --service-name csdtmsAPI \
+        #   --service-name csdapi \
         #   --api-id myApi \
         #   --operation-id deleteOperation \
         #   --display-name "DELETE Operation" \
@@ -350,7 +352,7 @@ jobs:
         # # Set up JWT validation in APIM for the API
         # az apim api operation policy update \
         #   --resource-group tms \
-        #   --service-name csdtmsAPI \
+        #   --service-name csdapi \
         #   --api-id myApi \
         #   --operation-id all \
         #   --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
@@ -629,15 +631,16 @@ jobs:
           CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
-      # # Build and analyze matchmaking
-      # - name: Build and analyze matchmaking
-      #   working-directory: backend/matchmaking
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #     MATCH_URL= https://csdtmsapi.azure-api.net/matches
-      #     TOURNAMENT_URL= https://csdtmsapi.azure-api.net/tournaments
-      #     PLAYER_URL= https://csdtmsapi.azure-api.net/users
-      #     RATING_URL= https://csdtmsapi.azure-api.net/ratings
-      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+      # Build and analyze matchmaking
+      - name: Build and analyze matchmaking
+        working-directory: backend/matchmaking
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MATCH_URL: http://match-ms:8080/matches
+          TOURNAMENT_URL: http://tournament-ms:8082/tournaments
+          PLAYER_URL: http://user-ms:8083/users
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 

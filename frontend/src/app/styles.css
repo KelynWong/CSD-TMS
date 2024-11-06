@@ -1,5 +1,5 @@
 .header {
-    background-image: url("/images/banner.jpg");
+    background-image: url("/images/banner4.png");
     background-repeat: no-repeat;
     background-size: 110%;
     background-position: left 98% center;
@@ -91,4 +91,11 @@
         -webkit-transform: translateX(-100%);
         transform: translateX(-100%);
     }
+}
+
+.tournament-bg {
+    background-image: url("/images/tournament-bg.jpeg");
+    background-repeat: no-repeat;
+    background-size: 110%;
+    background-position: left 98% center;
 }

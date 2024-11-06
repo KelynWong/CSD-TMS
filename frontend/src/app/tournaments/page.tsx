@@ -22,9 +22,10 @@ export default function Tournaments() {
     const [role, setRole] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('all');
     const [loading, setLoading] = useState(true);
-    // Set navbar context
-    const {setState} = useNavBarContext();
+    const [error, setError] = useState<string | null>(null);
+    const { setState } = useNavBarContext();
     setState("tournaments");
+
     const [categorizedTournaments, setCategorizedTournaments] = useState<{
         all: Tournament[],
         completed: Tournament[],
@@ -40,33 +41,36 @@ export default function Tournaments() {
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
     // Pagination states for each tab
-    const [currentAllPage, setCurrentAllPage] = useState(1);
-    const [currentCompletedPage, setCurrentCompletedPage] = useState(1);
-    const [currentOngoingPage, setCurrentOngoingPage] = useState(1);
-    const [currentUpcomingPage, setCurrentUpcomingPage] = useState(1);
-    
+    const [currentPage, setCurrentPage] = useState({
+        all: 1,
+        completed: 1,
+        ongoing: 1,
+        upcoming: 1
+    });
+
     const itemsPerPage = 12;
 
     useEffect(() => {
-		if (user) {
-			const getPlayerData = async () => {
-				try {
-					const data = await fetchUser(user.id);
-					setLoading(false);
-					setRole(data.role);
-				} catch (err) {
-					console.error("Failed to fetch player:", err);
-				}
-			};
-			getPlayerData();
-		}
-	}, [user]);
+        if (user) {
+            const getPlayerData = async () => {
+                try {
+                    const data = await fetchUser(user.id);
+                    setRole(data.role);
+                } catch (err) {
+                    console.error("Failed to fetch user:", err);
+                    setError("Failed to fetch user data.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+            getPlayerData();
+        }
+    }, [user]);
 
     useEffect(() => {
         const getTournamentsData = async () => {
             try {
                 const data = await fetchTournaments();
-                setLoading(false);
                 const mappedData: Tournament[] = data.map((tournament: any) => ({
                     id: tournament.id,
                     tournamentName: tournament.tournamentName,
@@ -79,9 +83,11 @@ export default function Tournaments() {
                     winner: tournament.winner,
                 }));
                 categorizeTournaments(mappedData);
-                console.log(mappedData)
             } catch (err) {
                 console.error("Failed to fetch tournaments:", err);
+                setError("Failed to fetch tournaments.");
+            } finally {
+                setLoading(false);
             }
         };
         getTournamentsData();
@@ -90,7 +96,7 @@ export default function Tournaments() {
     const categorizeTournaments = (data: Tournament[]) => {
         const completed = data.filter(tournament => tournament.status === 'Completed');
         const ongoing = data.filter(tournament => tournament.status === 'Ongoing');
-        const upcoming = data.filter(tournament => tournament.status === 'Scheduled' || tournament.status === 'Registration Start' || tournament.status === 'Registration Close');
+        const upcoming = data.filter(tournament => ['Scheduled', 'Registration Start', 'Registration Close', 'Matchmake'].includes(tournament.status));
         const all = data;
 
         setCategorizedTournaments({
@@ -115,38 +121,9 @@ export default function Tournaments() {
         upcoming: Math.ceil(categorizedTournaments.upcoming.length / itemsPerPage),
     };
 
-    const getCurrentPage = (tab: string) => {
-        switch (tab) {
-          case 'all':
-            return currentAllPage;
-          case 'completed':
-            return currentCompletedPage;
-          case 'ongoing':
-            return currentOngoingPage;
-          case 'upcoming':
-            return currentUpcomingPage;
-          default:
-            return 1;
-        }
+    const handlePageChange = (tab: string, page: number) => {
+        setCurrentPage(prevState => ({ ...prevState, [tab]: page }));
     };
-      
-    const handlePageChange = (tab: string) => (page: number) => {
-        switch (tab) {
-          case 'all':
-            setCurrentAllPage(page);
-            break;
-          case 'completed':
-            setCurrentCompletedPage(page);
-            break;
-          case 'ongoing':
-            setCurrentOngoingPage(page);
-            break;
-          case 'upcoming':
-            setCurrentUpcomingPage(page);
-            break;
-        }
-    };
-      
 
     const handleTabChange = (value: string) => {
         setActiveTab(value);
@@ -159,8 +136,19 @@ export default function Tournaments() {
     };
 
     if (loading) {
-		return <Loading />;
-	}
+        return <Loading />;
+    }
+
+    if (error) {
+        return (
+           <div className="w-[80%] h-full mx-auto py-16">
+                <div className="flex flex-col items-center justify-center h-full">
+                    <img src="/images/error.png" className="size-72" alt="No Ongoing Tournament" />
+                    <h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-[80%] mx-auto py-16">
@@ -204,60 +192,84 @@ export default function Tournaments() {
                     <TabsContent value="all" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">All Tournaments</h1>
-                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role === "ADMIN" && (
+                                <Link href="/tournaments/form/create">
+                                    <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+                                        <CirclePlus className="mr-2" size={18} />
+                                        Create New
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </TabsContent>
                     <TabsContent value="upcoming" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role === "ADMIN" && (
+                                <Link href="/tournaments/form/create">
+                                    <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+                                        <CirclePlus className="mr-2" size={18} />
+                                        Create New
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </TabsContent>
                     <TabsContent value="ongoing" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role === "ADMIN" && (
+                                <Link href="/tournaments/form/create">
+                                    <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+                                        <CirclePlus className="mr-2" size={18} />
+                                        Create New
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </TabsContent>
                     <TabsContent value="completed" className="mr-8 py-4">
                         <div className="flex items-center justify-between">
                             <h1 className="text-3xl mr-5">Completed Tournaments</h1>
-                            {role == "Admin" ? (<Link href="/tournaments/form/create"><Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg"><CirclePlus className="mr-2" size={18} />Create New</Button></Link>) : null}
+                            {role === "ADMIN" && (
+                                <Link href="/tournaments/form/create">
+                                    <Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+                                        <CirclePlus className="mr-2" size={18} />
+                                        Create New
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </TabsContent>
 
                     <TabsList className="TabsList px-2 py-6 rounded-lg">
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="all">
-                            All
-                            {activeTab === 'all' && <Badge className="ml-2 px-1.5">{tournamentCount.all}</Badge>}
-                        </TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="upcoming">
-                            Upcoming
-                            {activeTab === 'upcoming' && <Badge className="ml-2 px-1.5">{tournamentCount.upcoming}</Badge>}
-                        </TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="ongoing">
-                            Ongoing
-                            {activeTab === 'ongoing' && <Badge className="ml-2 px-1.5">{tournamentCount.ongoing}</Badge>}
-                        </TabsTrigger>
-                        <TabsTrigger className="TabsTrigger text-base px-4 py-1" value="completed">
-                            Completed
-                            {activeTab === 'completed' && <Badge className="ml-2 px-1.5">{tournamentCount.completed}</Badge>}
-                        </TabsTrigger>
+                        {(['all', 'upcoming', 'ongoing', 'completed'] as const).map((tab) => (
+                            <TabsTrigger key={tab} className="TabsTrigger text-base px-4 py-1" value={tab}>
+                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                {activeTab === tab && <Badge className="ml-2 px-1.5">{tournamentCount[tab]}</Badge>}
+                            </TabsTrigger>
+                        ))}
                     </TabsList>
                 </div>
 
                 {(['all', 'upcoming', 'ongoing', 'completed'] as const).map((tab) => (
                     <TabsContent key={tab} value={tab}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-                            {paginatedTournaments(categorizedTournaments[tab], tab === 'all' ? currentAllPage : tab === 'completed' ? currentCompletedPage : tab === 'ongoing' ? currentOngoingPage : currentUpcomingPage).map((tournament: Tournament) => (
-                                <TournamentCard role={role} key={tournament.id} {...tournament} />
-                            ))}
+                            {paginatedTournaments(categorizedTournaments[tab], currentPage[tab]).length === 0 ? (
+                                <div className="col-span-full text-center text-md italic mt-8">
+                                    No tournaments found.
+                                </div>
+                            ) : (
+                                paginatedTournaments(categorizedTournaments[tab], currentPage[tab]).map((tournament: Tournament) => (
+                                    <TournamentCard role={role} key={tournament.id} {...tournament} />
+                                ))
+                            )}
                         </div>
                         {totalPages[tab] > 1 && (
                             <Pagination
-                                currentPage={getCurrentPage(tab)}
+                                currentPage={currentPage[tab]}
                                 totalPages={totalPages[tab]}
-                                onPageChange={handlePageChange(tab)}
+                                onPageChange={(page) => handlePageChange(tab, page)}
                             />
                         )}
                     </TabsContent>

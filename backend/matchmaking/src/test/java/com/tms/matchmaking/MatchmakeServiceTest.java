@@ -5,6 +5,7 @@ import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
+import com.tms.message.MessageService;
 import com.tms.player.Player;
 import com.tms.player.Rating;
 import com.tms.player.RatingCalculator;
@@ -38,12 +39,14 @@ public class MatchmakeServiceTest {
 
     private RatingCalculator ratingCalc;
 
+    private MessageService messageService;
+
     private MatchmakeService matchmakeService;
 
     @BeforeEach
     void setUp() {
         ratingCalc = new RatingCalculator(); // Use the actual implementation
-        matchmakeService = new MatchmakeService(apiManager, ratingCalc);
+        matchmakeService = new MatchmakeService(apiManager, ratingCalc, messageService);
     }
 
     @Test

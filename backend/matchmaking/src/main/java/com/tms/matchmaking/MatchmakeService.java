@@ -4,6 +4,7 @@ import com.tms.exceptions.TournamentExistsException;
 import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
+import com.tms.message.MessageService;
 import com.tms.player.Player;
 import com.tms.player.RatingCalculator;
 import com.tms.player.ResultsDTO;
@@ -22,12 +23,18 @@ public class MatchmakeService {
 
     private final ApiManager apiManager;
     private final RatingCalculator ratingCalc;
+    private final MessageService messageService;
 
-    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc) {
+    public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc, MessageService messageService) {
         this.apiManager = apiManager;
         this.ratingCalc = ratingCalc;
+        this.messageService = messageService;
     }
 
+    /**
+     * @param tournamentId ID of the tournament to matchmake
+     * @return List of MatchJson objects representing the matches created
+     */
     public List<MatchJson> matchmake(Long tournamentId) {
         List<MatchJson> matches = new ArrayList<>();
         try {
@@ -39,10 +46,10 @@ public class MatchmakeService {
         } catch (TournamentNotFoundException e) {
             System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
             List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
-            int n = playerIds.size();
-            int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
+            int numPlayers = playerIds.size();
+            int numRounds = (int) (Math.ceil(Math.log(numPlayers) / Math.log(2))); // k is height of tree, or number of rounds in tournament
 
-            int byes = (int) Math.pow(2, k) - n;
+            int byes = (int) Math.pow(2, numRounds) - numPlayers;
             // choose top x players to get byes.
             List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
             playerRatings = shuffleRatings(playerRatings);
@@ -56,7 +63,7 @@ public class MatchmakeService {
             }
 
             // create remaining matches for base layer
-            List<Player> remainingPlayers = playerRatings.subList(byes, n);
+            List<Player> remainingPlayers = playerRatings.subList(byes, numPlayers);
             int start = 0;
             int end = remainingPlayers.size() - 1;
 
@@ -73,8 +80,8 @@ public class MatchmakeService {
                 end--;
             }
 
-            double numMatchesAtBase = Math.pow(2, k - 1);
-            double numMatchesRemaining = (Math.pow(2, k) - 1) - numMatchesAtBase;
+            double numMatchesAtBase = Math.pow(2, numRounds - 1);
+            double numMatchesRemaining = (Math.pow(2, numRounds) - 1) - numMatchesAtBase;
 
             // create matches for the rest of the tree
             // Create a list with the element repeated multiple times
@@ -84,11 +91,22 @@ public class MatchmakeService {
             // Add all elements to the matches list
             matches.addAll(repeatedMatches);
             apiManager.sendCreateMatchesRequest(matches, numMatchesAtBase);
+
+            Tournament tournament = apiManager.fetchTournamentData(tournamentId);
+            Map<String, Player> idToPlayer = mapPlayersById(playerRatings);
+            messageService.sendMessagesToSQS(tournament, matches, idToPlayer, numRounds);
+
             return matches;
         }
         return matches;
     }
 
+    /**
+     * Shuffle the ratings of the players to randomize the match pairings
+     *
+     * @param players List of players to shuffle
+     * @return List of players with shuffled ratings
+     */
     private List<Player> shuffleRatings(List<Player> players) {
         List<Player> shuffledRatings = new ArrayList<>(players);
         int start = 0;
@@ -112,6 +130,13 @@ public class MatchmakeService {
         return shuffledRatings;
     }
 
+    /**
+     * Create a match with the given tournament ID and players
+     *
+     * @param tournamentId ID of the tournament
+     * @param matchPlayers List of players in the match
+     * @return MatchJson object representing the match
+     */
     private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
         String player1;
         String player2 = null;
@@ -128,10 +153,23 @@ public class MatchmakeService {
         return new MatchJson(tournamentId, player1, player2);
     }
 
+    /**
+     * Create a match with the given tournament ID and no players
+     *
+     * @param tournamentId ID of the tournament
+     * @return MatchJson object representing the match
+     */
     private MatchJson createMatchWithoutPlayers(Long tournamentId) {
         return new MatchJson(tournamentId, null, null);
     }
 
+    /**
+     * Update the result of a match and update the player ratings
+     *
+     * @param matchId ID of the match
+     * @param games List of games in the match
+     * @return MatchJson object representing the updated match
+     */
     public MatchJson updateMatchRes(Long matchId, List<Game> games) {
         // update games in match ms
         MatchJson match = apiManager.updateGames(matchId, games);
@@ -154,6 +192,12 @@ public class MatchmakeService {
         return match;
     }
 
+    /**
+     * Set up the simulation of a tournament
+     *
+     * @param tournamentId ID of the tournament
+     * @return TournamentSimSetup object containing maps of the matches and players
+     */
     private TournamentSimSetup setupTournamentSimulation(Long tournamentId) {
         List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
         List<Player> playerRatings = apiManager.fetchPlayerData(playerIds);
@@ -166,6 +210,12 @@ public class MatchmakeService {
         return new TournamentSimSetup(idToMatch, idToPlayer);
     }
 
+    /**
+     * Simulate a tournament multiple times and return the players and their percentages
+     *
+     * @param tournamentId ID of the tournament
+     * @return List of TournamentSimRes objects representing the simulation results
+     */
     public List<TournamentSimRes> simManyTournament(Long tournamentId) {
         final int NUM_SIMULATIONS = 1000;
         TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
@@ -202,6 +252,12 @@ public class MatchmakeService {
         return resList;
     }
 
+    /**
+     * Deep clone a map of MatchJson objects
+     *
+     * @param original Original map to clone
+     * @return Cloned map of MatchJson objects
+     */
     private Map<Long, MatchJson> deepCloneMap(Map<Long, MatchJson> original) {
         Map<Long, MatchJson> clone = new LinkedHashMap<>();
         for (Map.Entry<Long, MatchJson> entry : original.entrySet()) {
@@ -212,6 +268,12 @@ public class MatchmakeService {
         return clone;
     }
 
+    /**
+     * Simulate a tournament and return the results
+     *
+     * @param tournamentId ID of the tournament
+     * @return List of MatchJson objects representing the matches in the tournament
+     */
     public List<MatchJson> simTournament(Long tournamentId) {
         TournamentSimSetup setup = setupTournamentSimulation(tournamentId);
         Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
@@ -222,6 +284,12 @@ public class MatchmakeService {
         return new ArrayList<>(idToMatch.values());
     }
 
+    /**
+     * Maps a list of MatchJson objects to a LinkedHashMap with their IDs as keys.
+     *
+     * @param matches List of MatchJson objects to be mapped.
+     * @return A LinkedHashMap where the keys are the IDs of the MatchJson objects and the values are the MatchJson objects themselves.
+     */
     private Map<Long, MatchJson> mapMatchesById(List<MatchJson> matches) {
         return matches.stream()
                 .collect(Collectors.toMap(
@@ -232,11 +300,22 @@ public class MatchmakeService {
                 ));
     }
 
+    /**
+     * Maps a list of Player objects to a Map with their IDs as keys.
+     *
+     * @param playerRatings List of Player objects to be mapped.
+     * @return A Map where the keys are the IDs of the Player objects and the values are the Player objects themselves.
+     */
     private Map<String, Player> mapPlayersById(List<Player> playerRatings) {
         return playerRatings.stream()
                 .collect(Collectors.toMap(Player::getId, Function.identity()));
     }
 
+    /**
+     * Sets the parent matches for each match in the given map.
+     *
+     * @param idToMatch Map of match IDs to MatchJson objects.
+     */
     private void setParentMatches(Map<Long, MatchJson> idToMatch) {
         for (MatchJson match : idToMatch.values()) {
             if (match.getLeft() != null) {
@@ -251,6 +330,14 @@ public class MatchmakeService {
         }
     }
 
+    /**
+     * Simulates matches and games updates the results in place.
+     *
+     * @param idToMatch Map of match IDs to MatchJson objects.
+     * @param idToPlayer Map of player IDs to Player objects.
+     * @param random Random instance for generating random outcomes.
+     * @param simulateGames Flag indicating whether to simulate individual games within matches.
+     */
     private void simulateMatches(Map<Long, MatchJson> idToMatch, Map<String, Player> idToPlayer, Random random,
                                  boolean simulateGames) {
         for (MatchJson match : idToMatch.values()) {
@@ -258,8 +345,12 @@ public class MatchmakeService {
                 Player player1 = idToPlayer.get(match.getPlayer1Id());
                 Player player2 = idToPlayer.get(match.getPlayer2Id());
 
-                double winProb = ratingCalc.calcWinProb(player1.getRating().getRating(), player1.getRating().getRatingDeviation(),
-                        player2.getRating().getRating(), player2.getRating().getRatingDeviation());
+                double player1Rating = player1.getRating().getRating();
+                double player1Deviation = player1.getRating().getRatingDeviation();
+                double player2Rating = player2.getRating().getRating();
+                double player2Deviation = player2.getRating().getRatingDeviation();
+
+                double winProb = ratingCalc.calcWinProb(player1Rating, player1Deviation, player2Rating, player2Deviation);
                 boolean player1Wins = getMatchWinner(random, winProb);
                 match.setWinnerId(player1Wins ? match.getPlayer1Id() : match.getPlayer2Id());
                 if (simulateGames) {
@@ -273,6 +364,12 @@ public class MatchmakeService {
         }
     }
 
+    /**
+     * Updates the next match with the winner of the current match.
+     *
+     * @param idToMatch Map of match IDs to MatchJson objects.
+     * @param match The current MatchJson object whose winner will be set in the next match.
+     */
     private void updateNextMatch(Map<Long, MatchJson> idToMatch, MatchJson match) {
         MatchJson nextMatch = idToMatch.get(match.getParent());
         if (nextMatch.getPlayer1Id() == null) {
@@ -286,6 +383,13 @@ public class MatchmakeService {
         return random.nextDouble() < winProb;
     }
 
+    /**
+     * Simulates games and returns a list of Game objects with the results.
+     *
+     * @param player1Wins Flag indicating whether player 1 wins the match.
+     * @param random Random instance for generating random outcomes.
+     * @return List of Game objects representing the simulated games.
+     */
     private List<Game> simulateGames(boolean player1Wins, Random random) {
         List<Game> games = new ArrayList<>();
         int numGames = random.nextBoolean() ? 2 : 3; // Randomly decide between 2 or 3 games
@@ -312,4 +416,6 @@ public class MatchmakeService {
 
         return games;
     }
+
+
 }

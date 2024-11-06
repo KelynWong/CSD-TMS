@@ -16,7 +16,7 @@ import CarouselComponent from "../_components/CarouselComponent";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
-import { fetchGamesByMatchId, fetchMatchByTournamentId } from "@/api/matches/api";
+import { fetchMatchByTournamentId } from "@/api/matches/api";
 import TournamentResultTable from "../_components/TournamentResultTable";
 import type { TournamentDetails, Match, Player } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
@@ -35,19 +35,19 @@ export default function TournamentDetails() {
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
     useEffect(() => {
-		if (user) {
-			const getPlayerData = async () => {
-				try {
-					const data = await fetchUser(user.id);
-					setLoading(false);
-					setRole(data.role);
-				} catch (err) {
-					console.error("Failed to fetch player:", err);
-				}
-			};
-			getPlayerData();
-		}
-	}, [user]);
+        if (user) {
+            const getPlayerData = async () => {
+                try {
+                    const data = await fetchUser(user.id);
+                    setLoading(false);
+                    setRole(data.role);
+                } catch (err) {
+                    console.error("Failed to fetch user:", err);
+                }
+            };
+            getPlayerData();
+        }
+    }, [user]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -71,8 +71,8 @@ export default function TournamentDetails() {
                 matches: [] as Match[], // Initialize matches with explicit type
             };
 
-            const isTournamentActive = tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
-
+            const isTournamentActive = tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
+            
             if (isTournamentActive) {
                 const playersData = await fetchAllPlayersByTournament(Number(id));
                 const fullPlayersData = await Promise.all(
@@ -95,7 +95,6 @@ export default function TournamentDetails() {
                 const matchesData = await fetchMatchByTournamentId(Number(id));
                 const enrichedMatches = await Promise.all(
                     matchesData.map(async (match) => {
-                        const games = await fetchGamesByMatchId(match.id);
                         const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
                         const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
                         const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
@@ -107,24 +106,19 @@ export default function TournamentDetails() {
                             winner,
                             left: match.left,
                             right: match.right,
-                            games: games.map((game) => ({
-                                id: game.id,
-                                setNum: game.setNum,
-                                player1Score: game.player1Score,
-                                player2Score: game.player2Score,
-                            })),
+                            games: match.games,
                             roundNum: match.roundNum,
                         };
                     })
                 );
-            
+
                 // Add matchmaking and match details without resetting dates unnecessarily
                 tournamentDetails = {
                     ...tournamentDetails,
                     players: fullPlayersData,
                     matches: enrichedMatches, // Add matches with sets
                 };
-            }                
+            }
 
             console.log(tournamentDetails);
             setTournamentDetails(tournamentDetails);
@@ -138,11 +132,6 @@ export default function TournamentDetails() {
     useEffect(() => {
         fetchData();
     }, [id]);
-
-    function getPlayerName(playerId: string): string {
-        const player = tournamentDetails?.players?.find((p) => p.id === playerId);
-        return player ? player.fullname : 'Unknown Player';
-    }
 
     if (loading) {
         return <Loading />;
@@ -219,34 +208,34 @@ export default function TournamentDetails() {
                         <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">Tournament Information</h2>
                         <div className="text-slate-600">
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Organizer:</span>
-                                <span className="w-3/12">{tournamentDetails.organizer}</span>
+                                <span className="w-8/12">Organizer:</span>
+                                <span className="w-4/12">{tournamentDetails.organizer}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Registration Dates:</span>
-                                <span className="w-3/12">{formattedRegStartDate}, {regStartTime} - {formattedRegEndDate}, {regEndTime}</span>
+                                <span className="w-8/12">Registration:</span>
+                                <span className="w-4/12">Start: {formattedRegStartDate}, {regStartTime}<br />End: {formattedRegEndDate}, {regEndTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Tournament Dates:</span>
-                                <span className="w-3/12">{formattedStartDate}, {startTime} - {formattedEndDate}, {endTime}</span>
+                                <span className="w-8/12">Tournament:</span>
+                                <span className="w-4/12">Start: {formattedStartDate}, {startTime}<br />End: {formattedEndDate}, {endTime}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">Status: </span>
-                                <span className="w-3/12">{tournamentDetails.status}</span>
+                                <span className="w-8/12">Status: </span>
+                                <span className="w-4/12">{tournamentDetails.status}</span>
                             </div>
                             <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-9/12">No. of Match: </span>
-                                <span className="w-3/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
+                                <span className="w-8/12">No. of Match: </span>
+                                <span className="w-4/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
                             </div>
                             <div className="flex justify-between px-6 py-3 font-semibold">
-                                <span className="w-9/12">Format:</span>
-                                <span className="w-3/12">Automatic Matching</span>
+                                <span className="w-8/12">Format:</span>
+                                <span className="w-4/12">Automatic Matching</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="w-full formatPlayer my-5 flex gap-4">
-                        <div className={`${tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? 'w-3/5' : 'w-full'} border border-slate-200 bg-white rounded-lg font-body`}>
+                        <div className={`${(tournamentDetails.status === "Matchmake"  || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? 'w-3/5' : 'w-full'} border border-slate-200 bg-white rounded-lg font-body`}>
                             <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">formats</h2>
                             <div className="p-6 pt-4 pb-16 text-slate-600">
                                 <p className="mb-2">Participants</p>
@@ -272,7 +261,7 @@ export default function TournamentDetails() {
                             </div>
                         </div>
 
-                        { tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
+                        {(tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                             <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
                                 <CarouselComponent tournament={{ ...tournamentDetails, players: tournamentDetails.players ?? [] }} />
@@ -282,80 +271,65 @@ export default function TournamentDetails() {
                         )}
                     </div>
 
-                    { tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
+                    {role === "ADMIN" || (tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                         tournamentDetails.matches.length > 0 ? (
+                            <div className="w-full my-5 results">
+                                <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
+
+                                <TournamentResultTable matchResult={tournamentDetails.matches} />
+                            </div>
+                        ) : (
                             <>
-                                <div className="w-full my-5 results">
-                                    <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
+                            </>
+                        )
+                    ) : (
+                        <></>
+                    )}
 
-                                    <TournamentResultTable matchResult={tournamentDetails.matches} />
-                                </div>
+                    {tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
+                        tournamentDetails.matches.length > 0 ? (
+                            <div className="w-full my-5 matches">
+                                <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {tournamentDetails?.matches?.map((match, matchIndex: number) => (
+                                        (match.player1 !== null && match.player2 !== null) && (
+                                            <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
+                                                <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
+                                                    <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${match.player1.fullname} vs ${match.player2.fullname}`}</h2>
 
-                                <div className="w-full my-5 matches">
-                                    <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {tournamentDetails?.matches?.map((match, matchIndex: number) => (
-                                            (match.player1 !== null && match.player2 !== null) && (
-                                                <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                                                    <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
-                                                        <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${match.player1.fullname} vs ${match.player2.fullname}`}</h2>
-                                                        
-                                                        {match.games.length === 0 && role === "ADMIN" && (
-                                                            <Sheet>
-                                                                <SheetTrigger asChild>
-                                                                    <CirclePlus stroke="#ec4344" strokeWidth="3" size={21} />
-                                                                </SheetTrigger>
+                                                    {match.games.length === 0 && role === "ADMIN" && (
+                                                        <Sheet>
+                                                            <SheetTrigger asChild>
+                                                                <CirclePlus stroke="#ec4344" strokeWidth="3" size={21} />
+                                                            </SheetTrigger>
 
-                                                                <SheetContent className="bg-white">
-                                                                    <SheetHeader className="mb-6">
-                                                                        <SheetTitle>Add Game Results for this Match</SheetTitle>
-                                                                        <SheetDescription>
-                                                                            <p className="text-red-500 font-bold">⚠️ Please ensure that the match is completed before submitting this form! ⚠️</p>
-                                                                            <p>Enter the scores for each player in each game.</p>
-                                                                        </SheetDescription>
-                                                                    </SheetHeader>
+                                                            <SheetContent className="bg-white">
+                                                                <SheetHeader className="mb-6">
+                                                                    <SheetTitle>Add Game Results for this Match</SheetTitle>
+                                                                    <SheetDescription>
+                                                                        <p className="text-red-500 font-bold">⚠️ Please ensure that the match is completed before submitting this form! ⚠️</p>
+                                                                        <p>Enter the scores for each player in each game.</p>
+                                                                    </SheetDescription>
+                                                                </SheetHeader>
 
-                                                                    <SetEditForm
-                                                                        matchId={match.id}
-                                                                        // game={game}
-                                                                        player1Name={match.player1.fullname} 
-                                                                        player2Name={match.player2.fullname}
-                                                                    />
+                                                                <SetEditForm
+                                                                    matchId={match.id}
+                                                                    // game={game}
+                                                                    player1Name={match.player1.fullname}
+                                                                    player2Name={match.player2.fullname}
+                                                                />
 
-                                                                </SheetContent>
-                                                            </Sheet>
-                                                        )}
-                                                    </div>
-                                                    <div className="text-slate-600">
-                                                        {match.games
-                                                            .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
-                                                            .map((game) =>
+                                                            </SheetContent>
+                                                        </Sheet>
+                                                    )}
+                                                </div>
+                                                <div className="text-slate-600">
+                                                    {match.games
+                                                        .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
+                                                        .map((game) =>
                                                             <>
                                                                 <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
                                                                     <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                                    {/* <Sheet>
-                                                                        <SheetTrigger asChild>
-                                                                            <Pencil stroke="#FFC107" strokeWidth="3" size={18} />
-                                                                        </SheetTrigger>
-
-                                                                        <SheetContent className="bg-white">
-                                                                            <SheetHeader>
-                                                                                <SheetTitle>Update Results for this Set</SheetTitle>
-                                                                                <SheetDescription>
-                                                                                    Enter the updated scores for each player in the set.
-                                                                                </SheetDescription>
-                                                                            </SheetHeader>
-
-                                                                            <SetEditForm
-                                                                                matchId={match.id}
-                                                                                game={game}
-                                                                                player1Name={getPlayerName(match.player1Id)} 
-                                                                                player2Name={getPlayerName(match.player2Id)}
-                                                                                onClose={refreshMatchData} // Pass the refresh callback
-                                                                            />
-
-                                                                        </SheetContent>
-                                                                    </Sheet> */}
                                                                 </div>
                                                                 <div className="flex justify-center border-b border-slate-200">
                                                                     <div
@@ -378,15 +352,15 @@ export default function TournamentDetails() {
                                                                 </div>
                                                             </>
                                                         )}
-                                                    </div>
                                                 </div>
-                                            )
-                                        ))}
-                                    </div>
+                                            </div>
+                                        )
+                                    ))}
                                 </div>
-                            </>
+                            </div>
                         ) : (
-                            <h2 className="text-base font-body font-bold uppercase">Loading match details...</h2>
+                            <>
+                            </>
                         )
                     ) : (
                         <></>
@@ -394,7 +368,7 @@ export default function TournamentDetails() {
                 </div>
             </div>
         ) : (
-            <Loading /> // Optional: Show a loading component or placeholder
+            <Loading />
         )
     );
 }

@@ -1,16 +1,12 @@
 package com.tms.match;
 
-import com.tms.MatchServiceApplication;
 import com.tms.exceptions.MatchNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +14,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MatchServiceImplTest {
@@ -407,50 +404,6 @@ class MatchServiceImplTest {
 
         // Assert
         assertNull(result);
-    }
-
-    @Test
-    void generateWinners_MatchFound() {
-        // Arrange
-        Long tournamentId = 1L;
-        Match match1 = new Match();
-        match1.setId(1L);
-        match1.setPlayer1Id("player1");
-        match1.setPlayer2Id("player2");
-        Match match2 = new Match();
-        match2.setId(2L);
-        match2.setPlayer1Id("player3");
-        match2.setPlayer2Id("player4");
-        match1.setTournamentId(tournamentId);
-        match2.setTournamentId(tournamentId);
-        List<Match> matches = Arrays.asList(match1, match2);
-        when(matchRepository.findByTournamentIdOrderByIdAsc(tournamentId)).thenReturn(matches);
-        when(matchRepository.findById(1L)).thenReturn(Optional.of(match1));
-
-        // Act
-        matchService.generateWinners(tournamentId);
-
-        // Assert
-        verify(matchRepository, atLeastOnce()).findByTournamentIdOrderByIdAsc(tournamentId);
-        verify(matchRepository, atLeastOnce()).save(any(Match.class));
-    }
-
-    @Test
-    void generateWinners_MatchNotFound_ThrowMatchNotFoundException() {
-        // Arrange
-        Long tournamentId = 1L;
-        Match match1 = new Match();
-        match1.setId(1L);
-        match1.setPlayer1Id("player1");
-        match1.setPlayer2Id("player2");
-        match1.setTournamentId(tournamentId);
-        List<Match> matches = Arrays.asList(match1);
-        when(matchRepository.findByTournamentIdOrderByIdAsc(tournamentId)).thenReturn(matches);
-        when(matchRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // Act Assert
-        assertThrows(MatchNotFoundException.class, () ->
-            matchService.generateWinners(tournamentId));
     }
 
     @Test
