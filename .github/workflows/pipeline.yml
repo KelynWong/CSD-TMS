@@ -276,9 +276,9 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournmanet_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournmanet_id type=string required=true
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournament_id type=string required=true
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
 
