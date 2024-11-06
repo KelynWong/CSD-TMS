@@ -171,9 +171,9 @@ public class TournamentController {
 
 
             Tournament deletedTournament = tournamentService.deleteTournament(id);
-            if (deletedTournament == null) {
-                throw new TournamentNotFoundException(id);
-            }
+            // if (deletedTournament == null) {
+            //     throw new TournamentNotFoundException(id);
+            // }
             // if all ok, return 200 (OK)
             return ResponseEntity.ok().build();
        

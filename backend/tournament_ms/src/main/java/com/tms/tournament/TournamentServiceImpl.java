@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.tms.exception.TournamentNotFoundException;
 import com.tms.tournamentplayer.Player;
 import com.tms.tournamentplayer.PlayerRepository;
 
@@ -15,12 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TournamentServiceImpl implements TournamentService {
 
     private TournamentRepository tournaments;
-    private PlayerRepository players;
     private AutoStatusUpdateService autoStatusUpdateService;
 
-    public TournamentServiceImpl(TournamentRepository tr, PlayerRepository pr, AutoStatusUpdateService as) {
+    public TournamentServiceImpl(TournamentRepository tr, AutoStatusUpdateService as) {
         this.tournaments = tr;
-        this.players = pr;
         this.autoStatusUpdateService = as;
     }
 
@@ -105,7 +104,7 @@ public class TournamentServiceImpl implements TournamentService {
 
             // Reaching here means specified tournament not found, throw
             // TournamentNotFoundException err 404
-        }).orElse(null);
+        }).orElseThrow(()-> new TournamentNotFoundException(id));
     }
 
     private void removeAllTournamentPlayers(Tournament tournament) {
