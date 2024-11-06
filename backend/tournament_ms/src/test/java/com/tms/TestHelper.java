@@ -129,4 +129,19 @@ public class TestHelper {
         }
     }
 
+    public void removeAllMapping() {
+
+        List<Tournament> t_list = tournaments.findAll();
+        for (Tournament t : t_list) {
+            t.setPlayers(new ArrayList<>());
+            tournaments.save(t);
+        }
+
+        List<Player> p_list = players.findAll();
+        for (Player p : p_list) {
+            p.setTournaments(new ArrayList<>());
+            players.save(p);
+        }
+    }
+
 }
