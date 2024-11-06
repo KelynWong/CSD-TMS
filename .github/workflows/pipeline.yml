@@ -185,7 +185,11 @@ jobs:
         fi
     
         # Resolve the public IP of the APIM instance
-        apim_public_ip=$(nslookup csdtmsapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
+        apim_public_ip=$(az network public-ip show \
+          --resource-group tms \
+          --name csdAPI \
+          --query "ipAddress" \
+          --output tsv)
     
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
