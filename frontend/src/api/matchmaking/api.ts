@@ -60,3 +60,27 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 		}
 	}
 };
+
+export const predictTournament = async (
+	tournament_id: number
+): Promise<any[]> => {
+	try {
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate`);
+		return response.data;
+	} catch (error) {
+		console.error("Error simulating matches", error);
+		throw error;
+	}
+};
+
+export const predictTournament1000 = async (
+	tournament_id: number
+): Promise<any[]> => {
+	try {
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate-many`);
+		return response.data;
+	} catch (error) {
+		console.error("Error simulating matches", error);
+		throw error;
+	}
+};

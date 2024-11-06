@@ -69,14 +69,14 @@ export default function Navbar() {
 						onClick={() => handleNavBarChange("rankings")}>
 						RANKINGS
 					</Link>
-					{/* <Link
-						href="/predictions"
+					<Link
+						href="/prediction"
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
 						onClick={() => handleNavBarChange("matchPredict")}>
-						MATCH PREDICTIONS
-					</Link> */}
+						MATCH PREDICTION
+					</Link>
 				</div>
 				<div className="flex items-center space-x-4">
 					{isAdmin && (
@@ -153,14 +153,14 @@ export default function Navbar() {
 						onClick={() => handleNavBarChange("rankings")}>
 						RANKINGS
 					</Link>
-					{/* <Link
-						href="/predictions"
+					<Link
+						href="/prediction"
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
 						onClick={() => handleNavBarChange("matchPredict")}>
-						MATCH PREDICTIONS
-					</Link> */}
+						MATCH PREDICTION
+					</Link>
 				</div>
 			)}
 		</nav>

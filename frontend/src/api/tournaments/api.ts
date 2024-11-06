@@ -110,6 +110,16 @@ export const fetchPlayerRegistrationStatus = async (
 	}
 };
 
+export const fetchTournamentsByStatus = async (status: String): Promise<Tournament[]> => {
+	try {
+		const response = await axios.get(`${URL}/status/${status}`);
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching tournaments", error);
+		throw error;
+	}
+};
+
 export const registerTournament = async (
 	tournament_id: number,
 	user_id: string
