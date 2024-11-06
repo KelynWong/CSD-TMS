@@ -92,8 +92,6 @@ export default function Home() {
 				setCompletedTournament(mappedData.slice(0, 1));
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
-			} finally {
-				setLoading(false);
 			}
 		};
 
@@ -114,8 +112,6 @@ export default function Home() {
 				setOngoingTournaments(mappedData.slice(0, 4));
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
-			} finally {
-				setLoading(false);
 			}
 		};
 
@@ -192,38 +188,39 @@ export default function Home() {
 				</div>
 			</div>
 
-			<div className="relative text-center py-12">
-				{showFireworks && (
-					<>
-						<div className="absolute top-0 left-0 w-full h-full z-0">
-							<Fireworks
-								options={{
-									hue: { min: 0, max: 345 },
-									delay: { min: 15, max: 30 },
-									particles: 50,
-									intensity: 5,
-									explosion: 10,
-								}}
-								className='w-full h-full' />
-						</div>
-						<div className="absolute top-0 left-0 w-full h-full z-0">
-							<Fireworks
-								options={{
-									hue: { min: 0, max: 345 },
-									delay: { min: 15, max: 30 },
-									particles: 50,
-									intensity: 5,
-									explosion: 10,
-								}}
-								className='w-full h-full' />
-						</div>
-					</>
-				)}
-				<div className="relative z-10">
-					<h2 className="text-3xl font-bold uppercase">🌟 Top performers 🌟</h2>
-					<div className="flex items-end justify-center mt-12 gap-6">
-						{playersRank.length != 0 && (
-							customOrder.map((orderIndex) => {
+			{playersRank.length != 0 && (
+				<div className="relative text-center py-12">
+					{showFireworks && (
+						<>
+							<div className="absolute top-0 left-0 w-full h-full z-0">
+								<Fireworks
+									options={{
+										hue: { min: 0, max: 345 },
+										delay: { min: 15, max: 30 },
+										particles: 50,
+										intensity: 5,
+										explosion: 10,
+									}}
+									className='w-full h-full' />
+							</div>
+							<div className="absolute top-0 left-0 w-full h-full z-0">
+								<Fireworks
+									options={{
+										hue: { min: 0, max: 345 },
+										delay: { min: 15, max: 30 },
+										particles: 50,
+										intensity: 5,
+										explosion: 10,
+									}}
+									className='w-full h-full' />
+							</div>
+						</>
+					)}
+					<div className="relative z-10">
+						<h2 className="text-3xl font-bold uppercase">🌟 Top performers 🌟</h2>
+						<div className="flex items-end justify-center mt-12 gap-6">
+
+							{customOrder.map((orderIndex) => {
 								const player = playersRank[orderIndex];
 								return (
 									<div key={player.id} className="flex flex-col items-center">
@@ -247,10 +244,11 @@ export default function Home() {
 									</div>
 								);
 							})
-						)}
+							}
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 
 			<div className="w-[80%] mx-auto py-12">
 				<div className="w-full formatPlayer py-5 flex gap-4">
