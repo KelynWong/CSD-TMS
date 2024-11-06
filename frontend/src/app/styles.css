@@ -92,3 +92,10 @@
         transform: translateX(-100%);
     }
 }
+
+.tournament-bg {
+    background-image: url("/images/tournament-bg.png");
+    background-repeat: no-repeat;
+    background-size: 110%;
+    background-position: left 98% center;
+}
