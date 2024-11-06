@@ -47,7 +47,7 @@ public class Tournament {
 
     @ManyToMany(mappedBy = "tournaments") // , cascade = CascadeType.ALL
     @JsonIgnore
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     // Custom Constructor
     public Tournament(String tournamentName, LocalDateTime startDT, LocalDateTime endDT, String status,
@@ -97,14 +97,13 @@ public class Tournament {
 
     // Purpose : Remove all player to tournament mapping
     public void removeAllPlayers() {
-        
+
         for (Player p : this.players) {
             p.getTournaments().remove(this);
         }
-        
+
         this.players = new ArrayList<>();
 
     }
-    
 
 }
