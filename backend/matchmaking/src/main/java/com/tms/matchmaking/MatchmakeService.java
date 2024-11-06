@@ -35,7 +35,7 @@ public class MatchmakeService {
      * @param tournamentId ID of the tournament to matchmake
      * @return List of MatchJson objects representing the matches created
      */
-    public List<MatchJson> matchmake(Long tournamentId) {
+    public List<MatchJson> matchmake(Long tournamentId, String pairingStrategy) {
         List<MatchJson> matches = new ArrayList<>();
         try {
             List<MatchJson> tournaments;
@@ -58,27 +58,31 @@ public class MatchmakeService {
             // create matches for byes
             for (int i = 0; i < byes; i++) {
                 List<Player> matchPlayers = byePlayers.subList(i, i + 1);
-                MatchJson match = createMatch(tournamentId, matchPlayers);
+                MatchJson match = new MatchJson(tournamentId, matchPlayers);
                 matches.add(match);
             }
 
             // create remaining matches for base layer
             List<Player> remainingPlayers = playerRatings.subList(byes, numPlayers);
-            int start = 0;
-            int end = remainingPlayers.size() - 1;
 
-            // pair strong players with weak players
-            while (start <= end) {
-                List<Player> matchPlayers = new ArrayList<>();
-                matchPlayers.add(remainingPlayers.get(start));
-                if (start != end) {
-                    matchPlayers.add(remainingPlayers.get(end));
-                }
-                MatchJson match = createMatch(tournamentId, matchPlayers);
-                matches.add(match);
-                start++;
-                end--;
-            }
+            PairingStrategy strategy = PairingStrategyFactory.getPairingStrategy(pairingStrategy);
+            matches.addAll(strategy.pairPlayers(remainingPlayers, tournamentId));
+
+//            int start = 0;
+//            int end = remainingPlayers.size() - 1;
+//
+//            // pair strong players with weak players
+//            while (start <= end) {
+//                List<Player> matchPlayers = new ArrayList<>();
+//                matchPlayers.add(remainingPlayers.get(start));
+//                if (start != end) {
+//                    matchPlayers.add(remainingPlayers.get(end));
+//                }
+//                MatchJson match = new MatchJson(tournamentId, matchPlayers);
+//                matches.add(match);
+//                start++;
+//                end--;
+//            }
 
             double numMatchesAtBase = Math.pow(2, numRounds - 1);
             double numMatchesRemaining = (Math.pow(2, numRounds) - 1) - numMatchesAtBase;
@@ -128,29 +132,6 @@ public class MatchmakeService {
         }
 
         return shuffledRatings;
-    }
-
-    /**
-     * Create a match with the given tournament ID and players
-     *
-     * @param tournamentId ID of the tournament
-     * @param matchPlayers List of players in the match
-     * @return MatchJson object representing the match
-     */
-    private MatchJson createMatch(Long tournamentId, List<Player> matchPlayers) {
-        String player1;
-        String player2 = null;
-
-        if (matchPlayers.size() == 2) {
-            player1 = matchPlayers.get(0).getId();
-            player2 = matchPlayers.get(1).getId();
-        } else if (matchPlayers.size() == 1) {
-            player1 = matchPlayers.get(0).getId();
-        } else {
-            throw new IllegalArgumentException("Invalid number of players");
-        }
-
-        return new MatchJson(tournamentId, player1, player2);
     }
 
     /**
