@@ -1,5 +1,6 @@
 package com.tms.rating;
 
+import com.tms.UserServiceApplication;
 import com.tms.ratingCalc.RatingCalculator;
 import com.tms.user.Role;
 import com.tms.user.User;
@@ -22,7 +23,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes= UserServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RatingControllerTest {
     @LocalServerPort
     private int port;
