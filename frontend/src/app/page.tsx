@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Badge } from "lucide-react";
 import { TypewriterEffect } from '@/components/ui/typewriter-effect';
 import Image from "next/image";
 
@@ -33,79 +33,81 @@ export default function Home() {
 	// 	router.push("/home");
 	// }, [router]);
 
-    const [categorizedTournaments, setCategorizedTournaments] = useState<Tournament[]>([]);
+	const [categorizedTournaments, setCategorizedTournaments] = useState<Tournament[]>([]);
 	const [playersRank, setPlayersRank] = useState<any[]>([]);
 	const [players, setPlayers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
+	const [loading, setLoading] = useState(true);
+	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
+	const customOrder = [1, 0, 2];
 
 	const words = [
 		{
 			text: "Welcome",
-            className: "text-sky-950"
+			className: "text-sky-950"
 		},
 		{
 			text: "to",
-            className: "text-sky-950"
+			className: "text-sky-950"
 		},
 		{
 			text: "RacketRush!",
-            className: "text-yellow-500"
+			className: "text-yellow-500"
 		},
 	];
 
-    useEffect(() => {
-        const getTournamentsData = async () => {
-            try {
-                const data = await fetchTournamentsByStatus("Ongoing");
-                const mappedData: Tournament[] = data.map((tournament: any) => ({
-                    id: tournament.id,
-                    tournamentName: tournament.tournamentName,
-                    startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
-                    endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
-                    status: tournament.status,
-                    regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
-                    regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
-                    createdBy: tournament.createdBy,
-                    winner: tournament.winner,
-                }));
-                setCategorizedTournaments(mappedData.slice(0, 4));
-            } catch (err) {
-                console.error("Failed to fetch tournaments:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
+	useEffect(() => {
+		const getTournamentsData = async () => {
+			try {
+				const data = await fetchTournamentsByStatus("Ongoing");
+				const mappedData: Tournament[] = data.map((tournament: any) => ({
+					id: tournament.id,
+					tournamentName: tournament.tournamentName,
+					startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
+					endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+					status: tournament.status,
+					regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
+					regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+					createdBy: tournament.createdBy,
+					winner: tournament.winner,
+				}));
+				setCategorizedTournaments(mappedData.slice(0, 4));
+			} catch (err) {
+				console.error("Failed to fetch tournaments:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
 
 		const getPlayersRank = async () => {
-            try {
-                const data = await fetchTopPlayers();
-                const filteredData = data.map(player => ({
+			try {
+				const data = await fetchTopPlayers();
+				const filteredData = data.map(player => ({
 					id: player.id,
 					fullname: player.fullname,
+					profilePic: player.profilePicture,
 					rank: player.rank,
 					rating: Math.floor(player.rating)
 				}));
 				setPlayers(data);
-                setPlayersRank(filteredData.slice(0, 10));
-            } catch (err) {
-                console.error("Failed to fetch players:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
+				setPlayersRank(filteredData.slice(0, 10));
+			} catch (err) {
+				console.error("Failed to fetch players:", err);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-        getTournamentsData();
+		getTournamentsData();
 		getPlayersRank();
-    }, []);
+	}, []);
 
-    if (loading) {
-        return <Loading />;
-    }
+	if (loading) {
+		return <Loading />;
+	}
 
-    return (
-        <div>
-            {/* <div className="header px-16 py-16">
+	return (
+		<div>
+			{/* <div className="header px-16 py-16">
 				<div className="match-overview w-100 flex flex-col items-end">
 					<div className="match w-1/4 my-3 p-6 rounded-xl">
 						<h2 className="text-2xl pb-2 text-center border-b border-gray-500">
@@ -192,11 +194,42 @@ export default function Home() {
 					</div>
 				</div>
 			</div>
-            <div className="w-[80%] mx-auto py-12">
-                <div className="w-full formatPlayer my-5 flex gap-4">
-                    <div className="w-3/5 rounded-lg font-body mr-6">
+			<div className="w-[80%] mx-auto py-12">
+				<div className="text-center pb-16">
+					<h2 className="text-3xl font-bold uppercase">Podium</h2>
+					<div className="flex items-end justify-center mt-12 gap-6">
+						{playersRank.length !== 0 && (
+							customOrder.map((orderIndex) => {
+									const player = playersRank[orderIndex];
+									return (
+										<div key={player.id} className="flex flex-col items-center">
+											<Link href={`/players/${player.id}`} className="flex flex-col items-center">
+												<Image
+													src={player.profilePic || "/images/default_profile.png"}
+													alt={`Player ${player.id}`}
+													width={200}
+													height={200}
+													className="w-16 h-16 object-cover rounded-full"
+												/>
+												<div className="w-36 text-ellipsis overflow-hidden text-lg mt-2">{player.fullname}</div>
+											</Link>
+											<div
+												className={`w-36 flex flex-col items-center justify-center mt-3 mx-2.5 p-2.5 rounded-md text-white ${orderIndex === 0 ? 'h-48 bg-yellow-500' : orderIndex === 1 ? 'h-40 bg-gray-400' : 'h-32 bg-orange-600'
+													}`}
+											>
+												<div className="font-bold text-3xl">{player.rank}</div>
+												<div className="text-lg">{player.rating}</div>
+											</div>
+										</div>
+									);
+								})
+						)}
+					</div>
+				</div>
+				<div className="w-full formatPlayer py-5 flex gap-4">
+					<div className="w-3/5 rounded-lg font-body mr-6">
 						<div className="flex items-center justify-between mb-3">
-							<h2 className="text-2xl rounded-t-lg font-bold uppercase">Ongoing Tournaments</h2>
+							<h2 className="text-2xl uppercase">Ongoing Tournaments</h2>
 							<Link href="/tournaments">
 								<Button className="text-md font-heading tracking-wider bg-red-500 hover:bg-red-700 text-white py-2 px-3 rounded-lg">
 									View All
@@ -204,15 +237,15 @@ export default function Home() {
 								</Button>
 							</Link>
 						</div>
-                        <div className="w-full flex flex-col gap-4">
-                            {categorizedTournaments.length === 0 ? (
-                                <div className="text-center text-md italic">
-                                    No ongoing tournaments found.
-                                </div>
-                            ) : (
-                                categorizedTournaments.map((tournament: Tournament) => (
+						{categorizedTournaments.length === 0 ? (
+							<div className="text-center text-md italic">
+								No ongoing tournaments found.
+							</div>
+						) : (
+							<div className="w-full grid grid-cols-2 gap-4">
+								{categorizedTournaments.map((tournament: Tournament) => (
 									<Link href={`/tournaments/${tournament.id}`}>
-										<div key={tournament.id} className="tournament tournament-bg w-1/2 flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+										<div key={tournament.id} className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
 											<div className="tournament-info">
 												<div className="tournament-details text-center">
 													<h3 className="text-xl font-bold text-white">{tournament.tournamentName}</h3>
@@ -227,11 +260,11 @@ export default function Home() {
 											</div>
 										</div>
 									</Link>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                    <div className="w-2/5 rounded-lg font-body">
+								))}
+							</div>
+						)}
+					</div>
+					<div className="w-2/5 rounded-lg font-body">
 						<div className="flex items-center justify-between mb-3">
 							<h2 className="text-2xl rounded-t-lg font-bold uppercase">Current Rankings</h2>
 							<Link href="/rankings">
@@ -240,16 +273,16 @@ export default function Home() {
 								</Button>
 							</Link>
 						</div>
-                        <div className="w-full flex flex-col gap-4">
-                            {playersRank.length === 0 ? (
-                                <div className="text-center text-md italic">
-                                    No players found.
-                                </div>
-                            ) : (
+						<div className="w-full flex flex-col gap-4">
+							{playersRank.length === 0 ? (
+								<div className="text-center text-md italic">
+									No players found.
+								</div>
+							) : (
 								<div className="tournament w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
 									<Table>
 										<TableHeader>
-											<TableRow>
+											<TableRow className='hover:bg-transparent'>
 												<TableHead>Rank</TableHead>
 												<TableHead>Name</TableHead>
 												<TableHead>Rating</TableHead>
@@ -257,23 +290,23 @@ export default function Home() {
 										</TableHeader>
 										<TableBody>
 											{playersRank.map((player) => (
-												<TableRow key={player.id} className="tournament-info">
+												<TableRow key={player.id} className="tournament-info hover:bg-slate-200">
 													{/* <div className="tournament-details text-center"> */}
-														<TableCell>{player.rank}</TableCell>
-														<TableCell>{player.fullname}</TableCell>
-														<TableCell>{player.rating}</TableCell>
+													<TableCell>{player.rank}</TableCell>
+													<TableCell><Link href={`/players/${player.id}`}>{player.fullname}</Link></TableCell>
+													<TableCell>{player.rating}</TableCell>
 													{/* </div> */}
 												</TableRow>
 											))}
 										</TableBody>
 									</Table>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
 
-				<div className="w-full formatPlayer my-8">
+				<div className="w-full formatPlayer py-8">
 					<div className="flex items-center justify-between mb-3">
 						<h2 className="text-2xl rounded-t-lg font-bold uppercase">Players Squad</h2>
 						<Link href="/players">
@@ -282,36 +315,40 @@ export default function Home() {
 							</Button>
 						</Link>
 					</div>
-					<div className="w-full flex flex-col gap-4">
-						{players.length === 0 ? (
-							<div className="text-center text-md italic">
-								No players found.
-							</div>
-						) : (
-							<div className="w-full flex flex-col gap-4">
-								{players.map((player) => (
+					{players.length === 0 ? (
+						<div className="text-center text-md italic">
+							No players found.
+						</div>
+					) : (
+						<div className="w-full grid grid-cols-4 gap-4">
+							{players.slice(0, 8).map((player) => (
+								<div key={player.id} className="p-4">
 									<Link href={`/players/${player.id}`}>
-										<div key={player.id} className="tournament tournament-bg w-1/4 flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
-											<div className="tournament-info">
-												<div className="tournament-details text-center">
-													<h3 className="text-xl font-bold text-white">{player.fullname}</h3>
-													<h4 className="text-lg text-yellow-500">Start Date: {new Date(player.startDT).toLocaleDateString()}</h4>
-													<h4 className="text-lg text-yellow-500">End Date: {new Date(player.endDT).toLocaleDateString()}</h4>
-												</div>
+										<div className="rounded-lg bg-slate-100">
+										<Image
+													src={player.profilePic || "/images/default_profile.png"}
+													alt={`Player ${player.id}`}
+													width={200}
+													height={200}
+													className="w-32 h-32 object-cover rounded-lg"
+												/>
+										</div>
+										<div className="flex flex-row justify-between items-center mt-2">
+											<div className="flex flex-col">
+												<p className="text-lg leading-none">{player.fullname}</p>
+												<p className="text-lg text-red-500 leading-2">{player.rating}</p>
 											</div>
-											<div className="tournament-action flex items-center justify-center gap-4 mt-4">
-												<Link href="/prediction">
-													<Button className="font-heading">Predict</Button>
-												</Link>
+											<div className="rounded-full size-8 bg-red-500">
+												<p className="text-lg text-white text-center h-full m-0 p-0 leading-8">{player.rank}</p>
 											</div>
 										</div>
 									</Link>
-								))}
-                        	</div>
-						)}
-					</div>
-                </div>
-            </div>
-        </div>
-    );
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
 }
