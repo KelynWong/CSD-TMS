@@ -6,7 +6,6 @@ import com.tms.match.Match;
 import com.tms.match.MatchJson;
 import com.tms.match.MatchRepository;
 import com.tms.match.MatchService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +15,15 @@ import java.util.Optional;
 @Service
 public class GameService {
 
-    @Autowired
-    private GameRepository games;
+    private final GameRepository games;
+    private final MatchRepository matches;
+    private final MatchService matchService;
 
-    @Autowired
-    private MatchRepository matches;
-
-    @Autowired
-    private MatchService matchService;
+    public GameService(GameRepository games, MatchRepository matches, MatchService matchService) {
+        this.games = games;
+        this.matches = matches;
+        this.matchService = matchService;
+    }
 
     /**
      * Retrieves all games associated with a given match ID.
@@ -178,7 +178,7 @@ public class GameService {
         validateGame(newGame);
 
         Optional<Match> optionalMatch = matches.findById(matchId);
-        if (!optionalMatch.isPresent()) {
+        if (optionalMatch.isEmpty()) {
             throw new MatchNotFoundException(matchId);
         }
         Match match = optionalMatch.get();
