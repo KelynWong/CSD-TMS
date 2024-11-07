@@ -30,10 +30,11 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 		const jwtToken = getJwtToken(); 
 		console.log("testing if matchMakeByTournament strategy shows", strategy);
 		const response = await axios.post(`${URL}/${tournament_id}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		return response.status === 200; 
 	} catch (error: unknown) {
 		if (axios.isAxiosError(error)) {
@@ -58,9 +59,10 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 		const jwtToken = getJwtToken(); 
 		const response = await axios.post(`${URL}/result/${match_id}`, gamesData, {
 			headers: {
-				'Content-Type': 'application/json',
-				"Authorization" : `Bearer ${jwtToken}`
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${jwtToken}`,
 			},
+			withCredentials: true,
 		});
 		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
@@ -86,11 +88,15 @@ export const predictTournament = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+		const response = await axios.get(
+			`${URL}/matches/${tournament_id}/simulate`,
+			{
+				headers: {
+					Authorization: `Bearer ${jwtToken}`,
+				},
+				withCredentials: true,
+			}
+		);
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);
@@ -103,11 +109,15 @@ export const predictTournament1000 = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate-many`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+		const response = await axios.get(
+			`${URL}/matches/${tournament_id}/simulate-many`,
+			{
+				headers: {
+					Authorization: `Bearer ${jwtToken}`,
+				},
+				withCredentials: true,
+			}
+		);
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);

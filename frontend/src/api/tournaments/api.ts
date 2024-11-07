@@ -33,10 +33,11 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
@@ -50,10 +51,11 @@ export const fetchTournamentByPlayerId = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/players/${player_id}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
 			(tournament: tournamentResponse) => ({
@@ -85,10 +87,11 @@ export const fetchTournamentById = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/id/${tournament_id}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		return response.data;
 	} catch (error) {
 		console.error(`Error fetching tournament ${tournament_id}`, error);
@@ -102,10 +105,11 @@ export const fetchAllPlayersByTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/${tournament_id}/players`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 
 		// Check if the response has data and return the array of players
 		if (response.status === 200 && response.data) {
@@ -127,10 +131,12 @@ export const fetchPlayerRegistrationStatus = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(
-			`${URL}/${tournament_id}/players/${user_id}`, {
+			`${URL}/${tournament_id}/players/${user_id}`,
+			{
 				headers: {
-					"Authorization" : `Bearer ${jwtToken}`
-				}
+					Authorization: `Bearer ${jwtToken}`,
+				},
+				withCredentials: true,
 			}
 		);
 		// Return true if the user is found and registered
@@ -153,10 +159,11 @@ export const fetchTournamentsByStatus = async (status: String): Promise<Tourname
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/status/${status}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
@@ -171,10 +178,12 @@ export const registerTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.post(
-			`${URL}/${tournament_id}/players/${user_id}/register`, {
+			`${URL}/${tournament_id}/players/${user_id}/register`,
+			{
 				headers: {
-					"Authorization" : `Bearer ${jwtToken}`
-				}
+					Authorization: `Bearer ${jwtToken}`,
+				},
+				withCredentials: true,
 			}
 		);
 		console.log(response);
@@ -192,10 +201,11 @@ export const withdrawTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		console.log(`${URL}/${tournament_id}/players/${user_id}/deregister`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 
 		const response = await axios.put(
 			`${URL}/${tournament_id}/players/${user_id}/deregister`
@@ -216,8 +226,9 @@ export const createTournaments = async (
 		const response = await axios.post(`${URL}`, tournamentData, {
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization" : `Bearer ${jwtToken}`
+				Authorization: `Bearer ${jwtToken}`,
 			},
+			withCredentials: true,
 		});
 		return response.status === 201;
 	} catch (error) {
@@ -237,8 +248,9 @@ export const updateTournaments = async (
 			{
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization" : `Bearer ${jwtToken}`
+					Authorization: `Bearer ${jwtToken}`,
 				},
+				withCredentials: true,
 			}
 		);
 
@@ -255,16 +267,13 @@ export const updateTournamentStatusById = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.put(
-			`${URL}/${tournament_id}/status`,
-			status,
-			{
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization" : `Bearer ${jwtToken}`
-				},
-			}
-		);
+		const response = await axios.put(`${URL}/${tournament_id}/status`, status, {
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 
 		return response.status === 200;
 	} catch (error) {
@@ -279,10 +288,11 @@ export const deleteTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.delete(`${URL}/${tournament_id}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			withCredentials: true,
+		});
 		return response.status === 204;
 	} catch (error) {
 		console.error("Error deleting tournaments", error);
