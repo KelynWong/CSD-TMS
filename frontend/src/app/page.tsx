@@ -300,7 +300,7 @@ export default function Home() {
 								{ongoingTournaments.length === 0 ? (
 									<div className="flex flex-col items-center justify-center">
 										<img src="/images/no_ongoing.png" className="size-72" alt="No Ongoing Tournament" />
-										<h1 className="text-2xl font-bold text-center mt-8">No Ongoing Tournaments...</h1>
+										<h1 className="text-lg font-body text-center mt-8">No Ongoing Tournaments...</h1>
 									</div>
 								) : (
 									<div className="w-full grid grid-cols-2 gap-4">
