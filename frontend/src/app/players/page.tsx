@@ -13,6 +13,7 @@ import SearchBar from "@/components/Search";
 export default function Players() {
 	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
 	// Set navbar context
 	const { setState } = useNavBarContext();
@@ -39,11 +40,12 @@ export default function Players() {
 					})
 				);
 				setPlayerCardProps(mappedData);
-				setLoading(false);
 			} catch (error) {
 				console.error("Failed to fetch players:", error);
-				setLoading(false);
-			}
+				setError("No Players Found.");
+			} finally {
+                setLoading(false);
+            }
 		};
 		fetchData();
 	}, []);
@@ -87,8 +89,26 @@ export default function Players() {
 		return <Loading />;
 	}
 
+	if (error) {
+		return (
+			<div className="w-[80%] h-full mx-auto py-16">
+				<div className="flex flex-col items-center justify-center h-full">
+					<img src="/images/error.png" className="size-72" alt="No Players Found" />
+					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
+				</div>
+			</div>
+		);
+	}
+
 	if (currentPlayers.length === 0) {
-		return <div>Error: No players found.</div>;
+		return (
+			<div className="w-[80%] h-full mx-auto py-16">
+				<div className="flex flex-col items-center justify-center h-full">
+					<img src="/images/no_ongoing.png" className="size-72" alt="No Players Found" />
+					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No players found.</h1>
+				</div>
+			</div>
+		);
 	}
 
 	return (

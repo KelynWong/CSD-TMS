@@ -15,6 +15,7 @@ interface PlayerWithRank extends PlayerResponse {
 export default function Players() {
     // Set loading state
     const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
     // Set navbar context
     const { setState } = useNavBarContext();
@@ -36,7 +37,10 @@ export default function Players() {
                 setLoading(false);
 			} catch (error) {
 				console.error("Failed to fetch top players", error);
-			}
+				setError("No Players Found.");
+			} finally {
+                setLoading(false);
+            }
 		};
 		fetchPlayers();
 	}, []);
@@ -47,6 +51,28 @@ export default function Players() {
     if (loading) {
         return <Loading />;
     }
+
+	if (error) {
+        return (
+            <div className="w-[80%] h-full mx-auto py-16">
+				<div className="flex flex-col items-center justify-center h-full">
+					<img src="/images/error.png" className="size-72" alt="No Players Found" />
+					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
+				</div>
+			</div>
+        );
+    }
+
+	if (topPlayers.length === 0 && top10Players.length === 0) {
+		return (
+			<div className="w-[80%] h-full mx-auto py-16">
+				<div className="flex flex-col items-center justify-center h-full">
+					<img src="/images/no_ongoing.png" className="size-72" alt="No Players Found" />
+					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No players found.</h1>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="w-full max-w-full overflow-hidden px-4 sm:px-6 lg:px-8">

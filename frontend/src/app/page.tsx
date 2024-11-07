@@ -61,6 +61,8 @@ export default function Home() {
 	const [players, setPlayers] = useState<any[]>([]);
 	const [randomPlayers, setRandomPlayers] = useState<Player[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [tournamentErr, setTournamentErr] = useState(false);
+	const [playersErr, setPlayersErr] = useState(false);
 	const [showFireworks, setShowFireworks] = useState(false);
 	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 	const customOrder = [1, 0, 2];
@@ -116,6 +118,7 @@ export default function Home() {
 				setCompletedTournament([mappedData]);
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
+				setTournamentErr(true);
 			}
 		};
 
@@ -144,6 +147,7 @@ export default function Home() {
 				setOngoingTournaments(mappedData.slice(0, 4));
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
+				setTournamentErr(true);
 			}
 		};
 
@@ -162,6 +166,7 @@ export default function Home() {
 				setPlayersRank(filteredData.slice(0, 10));
 			} catch (err) {
 				console.error("Failed to fetch players:", err);
+				setPlayersErr(true);
 			} finally {
 				setLoading(false);
 			}
@@ -206,258 +211,231 @@ export default function Home() {
 				<div className="w-4/5 players px-14 py-5 flex items-center">
 					<div id="scroll-text">
 						<div className="flex items-center">
-							{playersRank.length !== 0 ? (
-								<h3 className="text-xl mr-12">
-									🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}
-								</h3>
+							{playersErr && tournamentErr ? (
+								<h3 className="text-xl mr-12">No data found, please try again later. We apologies for the inconvenience caused.</h3>
 							) : (
-								<h3 className="text-xl mr-12">Have a good day!</h3>
-							)}
-							{ongoingTournaments.length !== 0 ? (
-								<h3 className="text-xl mr-12">
-									🎉 {ongoingTournaments[0].tournamentName} is ongoing now!
-								</h3>
-							) : (
-								<h3 className="text-xl mr-12">No Ongoing Tournaments D:</h3>
-							)}
-							{completedTournament.length !== 0 ? (
-								<h3 className="text-xl mr-12">
-									🏆 {completedTournament[0].winner} won{" "}
-									{completedTournament[0].tournamentName}
-								</h3>
-							) : (
-								<h3 className="text-xl mr-12">No Completed Tournaments</h3>
+								<>
+									{playersRank.length !== 0 ? (
+										<h3 className="text-xl mr-12">🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}</h3>
+									) : (
+										<h3 className="text-xl mr-12">Have a good day!</h3>
+									)}
+									{ongoingTournaments.length !== 0 ? (
+										<h3 className="text-xl mr-12">🎉 {ongoingTournaments[0].tournamentName} is ongoing now!</h3>
+									) : (
+										<h3 className="text-xl mr-12">No Ongoing Tournaments D:</h3>
+									)}
+									{completedTournament.length !== 0 ? (
+										<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}</h3>
+									) : (
+										<h3 className="text-xl mr-12">No Completed Tournaments</h3>
+									)}
+								</>
 							)}
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{playersRank.length != 0 && (
-				<div className="relative text-center py-12">
-					{showFireworks && (
-						<>
-							<div className="absolute top-0 left-0 w-full h-full z-0">
-								<Fireworks
-									options={{
-										hue: { min: 0, max: 345 },
-										delay: { min: 15, max: 30 },
-										particles: 50,
-										intensity: 5,
-										explosion: 10,
-									}}
-									className="w-full h-full"
-								/>
-							</div>
-							<div className="absolute top-0 left-0 w-full h-full z-0">
-								<Fireworks
-									options={{
-										hue: { min: 0, max: 345 },
-										delay: { min: 15, max: 30 },
-										particles: 50,
-										intensity: 5,
-										explosion: 10,
-									}}
-									className="w-full h-full"
-								/>
-							</div>
-						</>
-					)}
-					<div className="relative z-10">
-						<h2 className="text-3xl font-bold uppercase">
-							🌟 Top performers 🌟
-						</h2>
-						<div className="flex items-end justify-center mt-12 gap-6">
-							{customOrder.map((orderIndex) => {
-								const player = playersRank[orderIndex];
-								return (
-									<div key={player.id} className="flex flex-col items-center">
-										<Link
-											prefetch={true}
-											href={`/players/${player.id}`}
-											className="flex flex-col items-center">
-											<Image
-												src={player.profilePic || "/images/default_profile.png"}
-												alt={`Player ${player.id}`}
-												width={200}
-												height={200}
-												className="w-16 h-16 object-cover rounded-full"
-											/>
-											<div className="w-36 text-ellipsis overflow-hidden text-lg mt-2">
-												{player.fullname}
-											</div>
-										</Link>
-										<div
-											className={`w-36 flex flex-col items-center justify-center mt-3 mx-2.5 p-2.5 rounded-md text-white ${
-												orderIndex === 0
-													? "h-48 bg-yellow-500"
-													: orderIndex === 1
-													? "h-40 bg-gray-400"
-													: "h-32 bg-orange-600"
-											}`}>
-											<div className="font-bold text-3xl">{player.rank}</div>
-											<div className="text-lg">{player.rating}</div>
-										</div>
-									</div>
-								);
-							})}
-						</div>
+			{playersErr && tournamentErr ? (
+				<div className="w-[80%] h-full mx-auto py-16">
+					<div className="flex flex-col items-center justify-center h-full">
+						<img src="/images/error.png" className="size-72" alt="No Tournaments" />
+						<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No data found.</h1>
 					</div>
 				</div>
-			)}
+			) : (
+				<>
+					{playersRank.length != 0 && (
+						<div className="relative text-center py-12">
+							{showFireworks && (
+								<>
+									<div className="absolute top-0 left-0 w-full h-full z-0">
+										<Fireworks
+											options={{
+												hue: { min: 0, max: 345 },
+												delay: { min: 15, max: 30 },
+												particles: 50,
+												intensity: 5,
+												explosion: 10,
+											}}
+											className='w-full h-full' />
+									</div>
+									<div className="absolute top-0 left-0 w-full h-full z-0">
+										<Fireworks
+											options={{
+												hue: { min: 0, max: 345 },
+												delay: { min: 15, max: 30 },
+												particles: 50,
+												intensity: 5,
+												explosion: 10,
+											}}
+											className='w-full h-full' />
+									</div>
+								</>
+							)}
+							<div className="relative z-10">
+								<h2 className="text-3xl font-bold uppercase">🌟 Top performers 🌟</h2>
+								<div className="flex items-end justify-center mt-12 gap-6">
 
-			<div className="w-[80%] mx-auto py-12">
-				<div className="w-full formatPlayer py-5 flex gap-4">
-					<div className="w-3/5 rounded-lg font-body mr-6">
-						<div className="flex items-center justify-between mb-3">
-							<h2 className="text-2xl uppercase">Ongoing Tournaments</h2>
-							<Link href="/tournaments" prefetch={true}>
-								<Button className="text-md font-heading tracking-wider bg-red-500 hover:bg-red-700 text-white py-2 px-3 rounded-lg">
-									View All
-									<ArrowRight className="ml-2" size={18} />
-								</Button>
-							</Link>
-						</div>
-						{ongoingTournaments.length === 0 ? (
-							<div className="text-center text-md italic mt-16">
-								No ongoing tournaments found.
-							</div>
-						) : (
-							<div className="w-full grid grid-cols-2 gap-4">
-								{ongoingTournaments.map((tournament: Tournament) => (
-									<Link href={`/tournaments/${tournament.id}`} prefetch={true}>
-										<div
-											key={tournament.id}
-											className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
-											<div className="tournament-info">
-												<div className="tournament-details text-center">
-													<h3 className="text-xl font-bold text-white">
-														{tournament.tournamentName}
-													</h3>
-													<h4 className="text-lg text-yellow-500">
-														Start Date:{" "}
-														{new Date(tournament.startDT).toLocaleDateString()}
-													</h4>
-													<h4 className="text-lg text-yellow-500">
-														End Date:{" "}
-														{new Date(tournament.endDT).toLocaleDateString()}
-													</h4>
+									{customOrder.map((orderIndex) => {
+										const player = playersRank[orderIndex];
+										return (
+											<div key={player.id} className="flex flex-col items-center">
+												<Link href={`/players/${player.id}`} className="flex flex-col items-center">
+													<Image
+														src={player.profilePic || "/images/default_profile.png"}
+														alt={`Player ${player.id}`}
+														width={200}
+														height={200}
+														className="w-16 h-16 object-cover rounded-full"
+													/>
+													<div className="w-36 text-ellipsis overflow-hidden text-lg mt-2">{player.fullname}</div>
+												</Link>
+												<div
+													className={`w-36 flex flex-col items-center justify-center mt-3 mx-2.5 p-2.5 rounded-md text-white ${orderIndex === 0 ? 'h-48 bg-yellow-500' : orderIndex === 1 ? 'h-40 bg-gray-400' : 'h-32 bg-orange-600'
+														}`}
+												>
+													<div className="font-bold text-3xl">{player.rank}</div>
+													<div className="text-lg">{player.rating}</div>
 												</div>
 											</div>
-											<div className="tournament-action flex items-center justify-center gap-4 mt-4">
-												<Link href="/prediction" prefetch={true}>
-													<Button className="font-heading">Predict</Button>
-												</Link>
-											</div>
-										</div>
-									</Link>
-								))}
+										);
+									})
+									}
+								</div>
 							</div>
-						)}
-					</div>
-					<div className="w-2/5 rounded-lg font-body">
-						<div className="flex items-center justify-between mb-3">
-							<h2 className="text-2xl rounded-t-lg font-bold uppercase">
-								Current Rankings
-							</h2>
-							<Link href="/rankings" prefetch={true}>
-								<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-									<ArrowUpRight size={18} />
-								</Button>
-							</Link>
 						</div>
-						<div className="w-full flex flex-col gap-4">
-							{playersRank.length === 0 ? (
+					)}
+					<div className="w-[80%] mx-auto py-12">
+						<div className="w-full formatPlayer py-5 flex gap-4">
+							<div className="w-3/5 rounded-lg font-body mr-6">
+								<div className="flex items-center justify-between mb-3">
+									<h2 className="text-2xl uppercase">Ongoing Tournaments</h2>
+									<Link href="/tournaments">
+										<Button className="text-md font-heading tracking-wider bg-red-500 hover:bg-red-700 text-white py-2 px-3 rounded-lg">
+											View All
+											<ArrowRight className="ml-2" size={18} />
+										</Button>
+									</Link>
+								</div>
+								{ongoingTournaments.length === 0 ? (
+									<div className="flex flex-col items-center justify-center">
+										<img src="/images/no_ongoing.png" className="size-72" alt="No Ongoing Tournament" />
+										<h1 className="text-lg font-body text-center mt-8">No Ongoing Tournaments...</h1>
+									</div>
+								) : (
+									<div className="w-full grid grid-cols-2 gap-4">
+										{ongoingTournaments.map((tournament: Tournament) => (
+											<Link href={`/tournaments/${tournament.id}`}>
+												<div key={tournament.id} className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
+													<div className="tournament-info">
+														<div className="tournament-details text-center">
+															<h3 className="text-xl font-bold text-white">{tournament.tournamentName}</h3>
+															<h4 className="text-lg text-yellow-500">Start Date: {new Date(tournament.startDT).toLocaleDateString()}</h4>
+															<h4 className="text-lg text-yellow-500">End Date: {new Date(tournament.endDT).toLocaleDateString()}</h4>
+														</div>
+													</div>
+													<div className="tournament-action flex items-center justify-center gap-4 mt-4">
+														<Link href="/prediction">
+															<Button className="font-heading">Predict</Button>
+														</Link>
+													</div>
+												</div>
+											</Link>
+										))}
+									</div>
+								)}
+							</div>
+							<div className="w-2/5 rounded-lg font-body">
+								<div className="flex items-center justify-between mb-3">
+									<h2 className="text-2xl rounded-t-lg font-bold uppercase">Current Rankings</h2>
+									<Link href="/rankings">
+										<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+											<ArrowUpRight size={18} />
+										</Button>
+									</Link>
+								</div>
+								<div className="w-full flex flex-col gap-4">
+									{playersRank.length === 0 ? (
+										<div className="text-center text-md italic">
+											No players found.
+										</div>
+									) : (
+										<div className="tournament w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+											<Table>
+												<TableHeader>
+													<TableRow className='hover:bg-transparent'>
+														<TableHead>Rank</TableHead>
+														<TableHead>Name</TableHead>
+														<TableHead>Rating</TableHead>
+													</TableRow>
+												</TableHeader>
+												<TableBody>
+													{playersRank.map((player) => (
+														<TableRow key={player.id} className="tournament-info hover:bg-slate-200">
+															{/* <div className="tournament-details text-center"> */}
+															<TableCell>{player.rank}</TableCell>
+															<TableCell><Link href={`/players/${player.id}`}>{player.fullname}</Link></TableCell>
+															<TableCell>{player.rating}</TableCell>
+															{/* </div> */}
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+
+						<div className="w-full formatPlayer py-8">
+							<div className="flex items-center justify-between mb-3">
+								<h2 className="text-2xl rounded-t-lg font-bold uppercase">Players Squad</h2>
+								<Link href="/players">
+									<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
+										<ArrowUpRight size={18} />
+									</Button>
+								</Link>
+							</div>
+							{players.length === 0 ? (
 								<div className="text-center text-md italic">
 									No players found.
 								</div>
 							) : (
-								<div className="tournament w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
-									<Table>
-										<TableHeader>
-											<TableRow className="hover:bg-transparent">
-												<TableHead>Rank</TableHead>
-												<TableHead>Name</TableHead>
-												<TableHead>Rating</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{playersRank.map((player) => (
-												<TableRow
-													key={player.id}
-													className="tournament-info hover:bg-slate-200">
-													{/* <div className="tournament-details text-center"> */}
-													<TableCell>{player.rank}</TableCell>
-													<TableCell>
-														<Link
-															href={`/players/${player.id}`}
-															prefetch={true}>
-															{player.fullname}
-														</Link>
-													</TableCell>
-													<TableCell>{player.rating}</TableCell>
-													{/* </div> */}
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+								<div className="w-full grid grid-cols-4 gap-6">
+									{randomPlayers.map((player) => (
+										<div key={player.id}>
+											<Link href={`/players/${player.id}`}>
+												<Image
+													src={
+														player.gender === 'Female'
+															? player.profilePic || "/images/female.jpeg"
+															: player.profilePic || "/images/male.jpeg"
+													}
+													alt={`Player ${player.id}`}
+													width={200}
+													height={200}
+													className="object-cover object-top rounded-lg w-full h-44"
+												/>
+												<div className="flex flex-row justify-between items-start mt-3">
+													<div className="flex flex-col">
+														<p className="text-lg font-bold leading-none">{player.fullname}</p>
+														<p className="text-md font-bold text-red-500 leading-2">{player.rating}</p>
+													</div>
+													<div className="rounded-full size-8 bg-red-500">
+														<p className="text-lg text-white text-center h-full m-0 p-0 leading-8">{player.rank}</p>
+													</div>
+												</div>
+											</Link>
+										</div>
+									))}
 								</div>
 							)}
 						</div>
 					</div>
-				</div>
-
-				<div className="w-full formatPlayer py-8">
-					<div className="flex items-center justify-between mb-3">
-						<h2 className="text-2xl rounded-t-lg font-bold uppercase">
-							Players Squad
-						</h2>
-						<Link href="/players" prefetch={true}>
-							<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-								<ArrowUpRight size={18} />
-							</Button>
-						</Link>
-					</div>
-					{players.length === 0 ? (
-						<div className="text-center text-md italic">No players found.</div>
-					) : (
-						<div className="w-full grid grid-cols-4 gap-6">
-							{randomPlayers.map((player) => (
-								<div key={player.id}>
-									<Link href={`/players/${player.id}`} prefetch={true}>
-										<Image
-											src={
-												player.gender === "Female"
-													? player.profilePic || "/images/female.jpeg"
-													: player.profilePic || "/images/male.jpeg"
-											}
-											alt={`Player ${player.id}`}
-											width={200}
-											height={200}
-											className="object-cover object-top rounded-lg w-full h-44"
-										/>
-										<div className="flex flex-row justify-between items-start mt-3">
-											<div className="flex flex-col">
-												<p className="text-lg font-bold leading-none">
-													{player.fullname}
-												</p>
-												<p className="text-md font-bold text-red-500 leading-2">
-													{player.rating}
-												</p>
-											</div>
-											<div className="rounded-full size-8 bg-red-500">
-												<p className="text-lg text-white text-center h-full m-0 p-0 leading-8">
-													{player.rank}
-												</p>
-											</div>
-										</div>
-									</Link>
-								</div>
-							))}
-						</div>
-					)}
-				</div>
-			</div>
+				</>
+			)}
 		</div>
 	);
 }
