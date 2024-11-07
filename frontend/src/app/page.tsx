@@ -218,7 +218,7 @@ export default function Home() {
 			{playersErr && tournamentErr ? (
 				<div className="w-[80%] h-full mx-auto py-16">
 					<div className="flex flex-col items-center justify-center h-full">
-						<img src="/images/error.png" className="size-72" alt="No Ongoing Tournament" />
+						<img src="/images/error.png" className="size-72" alt="No Tournaments" />
 						<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No data found.</h1>
 					</div>
 				</div>
@@ -298,8 +298,9 @@ export default function Home() {
 									</Link>
 								</div>
 								{ongoingTournaments.length === 0 ? (
-									<div className="text-center text-md italic mt-16">
-										No ongoing tournaments found.
+									<div className="flex flex-col items-center justify-center">
+										<img src="/images/no_ongoing.png" className="size-72" alt="No Ongoing Tournament" />
+										<h1 className="text-2xl font-bold text-center mt-8">No Ongoing Tournaments...</h1>
 									</div>
 								) : (
 									<div className="w-full grid grid-cols-2 gap-4">
