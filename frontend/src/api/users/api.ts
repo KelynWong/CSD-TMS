@@ -53,14 +53,21 @@ export const getJwtToken = (): string | null => {
 
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
+		// const jwtToken = getJwtToken();
+		// console.log("jwtToken: ", jwtToken);
+		// const response = await axios.get(`${URL}`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
+			
+		// });
 		const jwtToken = getJwtToken();
 		console.log("jwtToken: ", jwtToken);
-		const response = await axios.get(`${URL}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
-		});
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}`, {
+            headers,
+        });
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
 			username: user.username,
@@ -82,13 +89,20 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 
 export const fetchOrganizer = async (id: string): Promise<string> => {
 	try {
-		const jwtToken = getJwtToken();
-		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		// const jwtToken = getJwtToken();
+		// const response = await axios.get(`${URL}/${id}`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
 			
-		});
+		// });
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/${id}`, {
+            headers,
+        });
 		return response.data.fullname;
 	} catch (error) {
 		console.error("Error fetching organizer", error);
@@ -98,13 +112,20 @@ export const fetchOrganizer = async (id: string): Promise<string> => {
 
 export const fetchUser = async (id: string): Promise<any> => {
 	try {
-		const jwtToken = getJwtToken();
-		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		// const jwtToken = getJwtToken();
+		// const response = await axios.get(`${URL}/${id}`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
 			
-		});
+		// });
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/${id}`, {
+            headers,
+        });
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching organizer", error);
@@ -114,13 +135,20 @@ export const fetchUser = async (id: string): Promise<any> => {
 
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
-		const jwtToken = getJwtToken();
-		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		// const jwtToken = getJwtToken();
+		// const response = await axios.get(`${URL}/${id}`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
 			
-		});
+		// });
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/${id}`, {
+            headers,
+        });
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -144,13 +172,20 @@ export const fetchUserByRoles = async (
 	role: string
 ): Promise<PlayerResponse[] | AdminResponse[]> => {
 	try {
-		const jwtToken = getJwtToken();
-		const response = await axios.get(`${URL}/role/${role}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		// const jwtToken = getJwtToken();
+		// const response = await axios.get(`${URL}/role/${role}`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
 			
-		});
+		// });
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/role/${role}`, {
+            headers,
+        });
 		if (role === "PLAYER") {
 			return response.data.map((player: any) => ({
 				id: player.id,
@@ -185,12 +220,19 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
 		console.log("jwtToken: ", jwtToken);
-		const response = await axios.get(`${URL}/top-players`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/top-players`, {
+            headers,
+        });
+		// const jwtToken = getJwtToken();
+		// console.log("jwtToken: ", jwtToken);
+		// const response = await axios.get(`${URL}/top-players`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
 			
-		});
+		// });
 		const formattedData: PlayerResponse[] = response.data.map(
 			(player: any) => ({
 				id: player.id,
@@ -214,14 +256,22 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 
 export const getPlayerRank = async (id: string): Promise<number> => {
 	try {
+		// const jwtToken = getJwtToken();
+		// console.log("jwtToken: ", jwtToken);
+		// const response = await axios.get(`${URL}/${id}/rank`, {
+		// 	headers: {
+		// 		Authorization: `Bearer ${jwtToken}`,
+		// 	},
+			
+		// });
+
 		const jwtToken = getJwtToken();
 		console.log("jwtToken: ", jwtToken);
-		const response = await axios.get(`${URL}/${id}/rank`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
-		});
+		console.log("URL: ", URL);
+        const headers = jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {};
+        const response = await axios.get(`${URL}/${id}/rank`, {
+            headers,
+        });
 
 		return response.data;
 		// Assuming the API response contains a 'rank' field
