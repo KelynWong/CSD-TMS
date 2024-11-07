@@ -114,7 +114,7 @@ export const fetchPlayerMatches = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			withCredentials: true, 
 		});
 		return response.data;
 	} catch (error) {

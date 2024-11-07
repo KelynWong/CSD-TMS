@@ -16,7 +16,9 @@ export const columns: ColumnDef<Match>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`/tournaments/${row.original.tournament_id}`}>
+					<Link
+						href={`/tournaments/${row.original.tournament_id}`}
+						prefetch={true}>
 						{row.getValue("tournament_name")}
 					</Link>
 				</Button>
@@ -31,9 +33,7 @@ export const columns: ColumnDef<Match>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} >
-						{row.getValue("round")}
-					</Link>
+					<Link href={`#`}>{row.getValue("round")}</Link>
 				</Button>
 			);
 		},
@@ -46,9 +46,7 @@ export const columns: ColumnDef<Match>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} >
-						{row.getValue("set_number")}
-					</Link>
+					<Link href={`#`}>{row.getValue("set_number")}</Link>
 				</Button>
 			);
 		},
@@ -59,10 +57,9 @@ export const columns: ColumnDef<Match>[] = [
 			<DataTableColumnHeader column={column} title="Opponent" />
 		),
 		cell: ({ row }) => {
-
 			return (
 				<Button variant="link" asChild>
-					<Link href={`/players/${row.original.opponent_id}`} >
+					<Link href={`/players/${row.original.opponent_id}`}>
 						{row.getValue("opponent")}
 					</Link>
 				</Button>
@@ -77,9 +74,7 @@ export const columns: ColumnDef<Match>[] = [
 		cell: ({ row }) => {
 			return (
 				<Button variant="link" asChild>
-					<Link href={`#`} >
-						{row.getValue("score")}
-					</Link>
+					<Link href={`#`}>{row.getValue("score")}</Link>
 				</Button>
 			);
 		},
