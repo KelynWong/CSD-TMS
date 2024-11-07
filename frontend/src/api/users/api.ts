@@ -54,11 +54,12 @@ export const getJwtToken = (): string | null => {
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
@@ -86,7 +87,7 @@ export const fetchOrganizer = async (id: string): Promise<string> => {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data.fullname;
 	} catch (error) {
@@ -102,7 +103,7 @@ export const fetchUser = async (id: string): Promise<any> => {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -118,7 +119,7 @@ export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
@@ -148,7 +149,7 @@ export const fetchUserByRoles = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		if (role === "PLAYER") {
 			return response.data.map((player: any) => ({
@@ -183,11 +184,12 @@ export const fetchUserByRoles = async (
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/top-players`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		const formattedData: PlayerResponse[] = response.data.map(
 			(player: any) => ({
@@ -213,11 +215,12 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 export const getPlayerRank = async (id: string): Promise<number> => {
 	try {
 		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/${id}/rank`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 
 		return response.data;
