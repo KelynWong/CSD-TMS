@@ -1,5 +1,6 @@
 package com.tms.match;
 
+import com.tms.player.Player;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,30 @@ public class MatchJson {
     private List<Game> games;
     private Long parent;
     private int roundNum;
+
+    /**
+     * Create a match with the given tournament ID and players
+     *
+     * @param tournamentId ID of the tournament
+     * @param matchPlayers List of players in the match
+     */
+    public MatchJson(Long tournamentId, List<Player> matchPlayers) {
+        String player1;
+        String player2 = null;
+
+        if (matchPlayers.size() == 2) {
+            player1 = matchPlayers.get(0).getId();
+            player2 = matchPlayers.get(1).getId();
+        } else if (matchPlayers.size() == 1) {
+            player1 = matchPlayers.get(0).getId();
+        } else {
+            throw new IllegalArgumentException("Invalid number of players");
+        }
+
+        this.tournamentId = tournamentId;
+        this.player1Id = player1;
+        this.player2Id = player2;
+    }
 
     public MatchJson(Long tournamentId, String player1Id, String player2Id) {
         this.tournamentId = tournamentId;

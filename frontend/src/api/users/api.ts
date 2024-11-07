@@ -47,19 +47,20 @@ const getCookies = (): { [key: string]: string } => {
 };
 
 export const getJwtToken = (): string | null => {
-	const cookies = getCookies(); 
-	return cookies["__session"] || null; 
+	const cookies = getCookies();
+	return cookies["__session"] || null;
 };
-
 
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}`, {
-            headers: {
-                "Authorization" : `Bearer ${jwtToken}`
-            }
-        });
+			headers: {
+				Authorization: `Bearer ${jwtToken}`,
+			},
+			
+		});
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
 			username: user.username,
@@ -81,11 +82,12 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 
 export const fetchOrganizer = async (id: string): Promise<string> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 		return response.data.fullname;
 	} catch (error) {
@@ -96,11 +98,12 @@ export const fetchOrganizer = async (id: string): Promise<string> => {
 
 export const fetchUser = async (id: string): Promise<any> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -111,11 +114,12 @@ export const fetchUser = async (id: string): Promise<any> => {
 
 export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
@@ -140,11 +144,12 @@ export const fetchUserByRoles = async (
 	role: string
 ): Promise<PlayerResponse[] | AdminResponse[]> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/role/${role}`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 		if (role === "PLAYER") {
 			return response.data.map((player: any) => ({
@@ -178,11 +183,13 @@ export const fetchUserByRoles = async (
 // Fetch players ordered by rating
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
-        const jwtToken = getJwtToken(); 
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/top-players`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 		const formattedData: PlayerResponse[] = response.data.map(
 			(player: any) => ({
@@ -207,11 +214,13 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 
 export const getPlayerRank = async (id: string): Promise<number> => {
 	try {
-        const jwtToken = getJwtToken();
+		const jwtToken = getJwtToken();
+		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/${id}/rank`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
+			
 		});
 
 		return response.data;

@@ -25,9 +25,9 @@ public class Controller {
 
     // Creates all matches for a given tournament with no games.
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{tournamentId}")
-    public ResponseEntity<String> matchMake(@PathVariable Long tournamentId){
-        matchmakeService.matchmake(tournamentId);
+    @PostMapping("/{tournamentId}/strategy/{strategy}")
+    public ResponseEntity<String> matchMake(@PathVariable Long tournamentId, @PathVariable String strategy) {
+        matchmakeService.matchmake(tournamentId, strategy);
         return ResponseEntity.status(HttpStatus.CREATED).body("Matches created for tournament ID: " + tournamentId);
     }
 

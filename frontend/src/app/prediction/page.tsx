@@ -34,7 +34,7 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { useNavBarContext } from "@/context/navBarContext";
 import { Tournament } from "@/types/tournament";
-import { fetchAllPlayersByTournament, fetchTournamentById, fetchTournaments } from "@/api/tournaments/api";
+import { fetchAllPlayersByTournament, fetchTournamentsByStatus } from "@/api/tournaments/api";
 import TournamentResultTable from "../tournaments/_components/TournamentResultTable";
 import { predictTournament, predictTournament1000 } from "@/api/matchmaking/api";
 import { fetchPlayer } from "@/api/users/api";
@@ -56,12 +56,11 @@ export default function Prediction() {
     useEffect(() => {
         const getTournamentsData = async () => {
             try {
-                const data = await fetchTournaments();
-                const ongoingTournaments = data.filter(tournament => tournament.status === "Ongoing");
-                setCategorizedTournaments(ongoingTournaments);
-                if (ongoingTournaments.length > 0) {
-                    setSelectedTournamentId(ongoingTournaments[0].id.toString());
-                    fetchTournament(ongoingTournaments[0].id);
+                const data = await fetchTournamentsByStatus("Ongoing");
+                setCategorizedTournaments(data);
+                if (data.length > 0) {
+                    setSelectedTournamentId(data[0].id.toString());
+                    fetchTournament(data[0].id);
                 }
             } catch (err) {
                 console.error("Failed to fetch tournaments:", err);
@@ -202,11 +201,11 @@ export default function Prediction() {
     if (error) {
         return (
             <div className="w-[80%] h-full mx-auto py-16">
-                <div className="flex flex-col items-center justify-center">
-                    <img src="/images/error.png" className="size-72" alt="No Ongoing Tournament" />
-                    <h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
-                </div>
-            </div>
+				<div className="flex flex-col items-center justify-center h-full">
+					<img src="/images/error.png" className="size-72" alt="No Ongoing Tournament" />
+					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">{error}</h1>
+				</div>
+			</div>
         );
     }
 
