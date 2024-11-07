@@ -266,7 +266,7 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTopPlayers --display-name "Get Top Players" --method GET --url-template "/users/top-players"
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments"
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentPlayers --display-name "Get Tournament Players by Player ID" --method GET --url-template "/tournaments/players/{player_id}" --template-parameters name=player_id type=string required=true
 
