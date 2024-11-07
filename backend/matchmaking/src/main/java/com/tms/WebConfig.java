@@ -12,7 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addMapping("/**") // Adjust this to match your endpoint pattern
         .allowedOrigins("http://localhost:3000", "https://csd-tms.vercel.app") // Allow this origin
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify allowed methods
-        .allowedHeaders("*") // Allow credentials (optional)
-        .allowCredentials(true);
+        .allowedHeaders("*"); // Allow credentials (optional)
   }
 }
