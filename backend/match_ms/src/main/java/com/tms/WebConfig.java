@@ -11,8 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(@NonNull CorsRegistry registry) {
     registry.addMapping("/**") // Adjust this to match your endpoint pattern
-        .allowedOrigins("https://csd-tms.vercel.app") // Allow this origin
+        .allowedOrigins("http://localhost:3000", "https://csd-tms.vercel.app") // Allow this origin
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify allowed methods
-        .allowedHeaders("*");// Allow all headers
+        .allowedHeaders("*") // Allow all headers
+        .allowCredentials(true); // Allow credentials
   }
 }
