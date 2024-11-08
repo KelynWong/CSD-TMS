@@ -338,7 +338,7 @@ export default function Home() {
 													</div>
 													<div className="tournament-action flex items-center justify-center gap-4 mt-4">
 														<Link href="/prediction">
-															<Button className="font-heading">Predict</Button>
+															<Button className="font-heading predict">Predict</Button>
 														</Link>
 													</div>
 												</div>
