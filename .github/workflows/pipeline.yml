@@ -298,7 +298,7 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments"
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateTournament --display-name "Update Tournament" --method PUT --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
