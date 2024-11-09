@@ -34,7 +34,6 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
 		});
 		return response.status === 200; 
 	} catch (error: unknown) {
@@ -63,7 +62,7 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
@@ -95,7 +94,7 @@ export const predictTournament = async (
 				headers: {
 					Authorization: `Bearer ${jwtToken}`,
 				},
-				withCredentials: true,
+				
 			}
 		);
 		return response.data;
@@ -116,7 +115,7 @@ export const predictTournament1000 = async (
 				headers: {
 					Authorization: `Bearer ${jwtToken}`,
 				},
-				withCredentials: true,
+				
 			}
 		);
 		return response.data;

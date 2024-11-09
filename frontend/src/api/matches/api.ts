@@ -52,7 +52,7 @@ export const fetchMatchByTournamentId = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -68,7 +68,7 @@ export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 
 		return response.data;
@@ -89,7 +89,7 @@ export const fetchPlayerStats = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		const losses = lossResponse.data.length;
 		const gamesPlayed = wins + losses;
@@ -115,7 +115,7 @@ export const fetchPlayerMatches = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {

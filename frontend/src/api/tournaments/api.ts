@@ -39,7 +39,7 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -57,7 +57,7 @@ export const fetchTournamentByPlayerId = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
@@ -93,7 +93,7 @@ export const fetchTournamentById = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -111,7 +111,7 @@ export const fetchAllPlayersByTournament = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 
 		// Check if the response has data and return the array of players
@@ -139,7 +139,7 @@ export const fetchPlayerRegistrationStatus = async (
 				headers: {
 					Authorization: `Bearer ${jwtToken}`,
 				},
-				withCredentials: true,
+				
 			}
 		);
 		// Return true if the user is found and registered
@@ -165,7 +165,7 @@ export const fetchTournamentsByStatus = async (status: String): Promise<Tourname
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.data;
 	} catch (error) {
@@ -186,7 +186,7 @@ export const registerTournament = async (
 				headers: {
 					Authorization: `Bearer ${jwtToken}`,
 				},
-				withCredentials: true,
+				
 			}
 		);
 		console.log(response);
@@ -207,7 +207,7 @@ export const withdrawTournament = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 
 		const response = await axios.put(
@@ -231,7 +231,7 @@ export const createTournaments = async (
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.status === 201;
 	} catch (error) {
@@ -253,7 +253,7 @@ export const updateTournaments = async (
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${jwtToken}`,
 				},
-				withCredentials: true,
+				
 			}
 		);
 
@@ -275,7 +275,7 @@ export const updateTournamentStatusById = async (
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 
 		return response.status === 200;
@@ -294,7 +294,7 @@ export const deleteTournament = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			withCredentials: true,
+			
 		});
 		return response.status === 204;
 	} catch (error) {
