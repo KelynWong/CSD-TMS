@@ -48,7 +48,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
     const [showRegisterButton, setShowRegisterButton] = useState(false);
-    const [selectedStrategy, setSelectedStrategy] = useState('strong-weak');
+    const [selectedStrategy, setSelectedStrategy] = useState('strongweak');
 
     const handleValueChange = (value: SetStateAction<string>) => {
         setSelectedStrategy(value);
@@ -324,14 +324,14 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Confirm Matchmake</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                <Select defaultValue="strong-weak" onValueChange={handleValueChange}>
+                                                <Select defaultValue="strongweak" onValueChange={handleValueChange}>
                                                     <SelectTrigger className="w-1/2 mb-2 text-black font-body">
                                                         <SelectValue placeholder="Select a Matchmake strategy" />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                            <SelectItem value="strong-weak">Strong-Weak</SelectItem>
-                                                            <SelectItem value="strong-strong">Strong-Strong</SelectItem>
+                                                            <SelectItem value="strongweak">Strong-Weak</SelectItem>
+                                                            <SelectItem value="strongstrong">Strong-Strong</SelectItem>
                                                         </SelectGroup>
                                                     </SelectContent>
                                                 </Select>
