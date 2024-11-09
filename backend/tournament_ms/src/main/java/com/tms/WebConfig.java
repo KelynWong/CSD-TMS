@@ -13,6 +13,5 @@ public class WebConfig implements WebMvcConfigurer {
         .allowedOrigins("http://localhost:3000", "https://csd-tms.vercel.app") // Allow this origin
         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify allowed methods
         .allowedHeaders("*"); // Allow all headers
-        // .allowCredentials(true); // Allow credentials
   }
 }
