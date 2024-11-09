@@ -41,6 +41,7 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 			},
 			
 		});
+		console.log("AfetchTournaments PI Response:", response.data); // Log the response here
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
