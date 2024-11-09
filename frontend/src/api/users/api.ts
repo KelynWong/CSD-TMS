@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const URL = process.env.NEXT_PUBLIC_USER_API_URL;
+// const URL = process.env.NEXT_PUBLIC_USER_API_URL;
+const URL = '/api/users';
 
 export type PlayerResponse = {
 	id: string;
@@ -184,7 +185,6 @@ export const fetchUserByRoles = async (
 export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
-		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/top-players`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
@@ -215,7 +215,6 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 export const getPlayerRank = async (id: string): Promise<number> => {
 	try {
 		const jwtToken = getJwtToken();
-		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}/${id}/rank`, {
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,

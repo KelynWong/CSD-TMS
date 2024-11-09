@@ -68,22 +68,6 @@ public class MatchmakeService {
             PairingStrategy strategy = PairingStrategyFactory.getPairingStrategy(pairingStrategy);
             matches.addAll(strategy.pairPlayers(remainingPlayers, tournamentId));
 
-//            int start = 0;
-//            int end = remainingPlayers.size() - 1;
-//
-//            // pair strong players with weak players
-//            while (start <= end) {
-//                List<Player> matchPlayers = new ArrayList<>();
-//                matchPlayers.add(remainingPlayers.get(start));
-//                if (start != end) {
-//                    matchPlayers.add(remainingPlayers.get(end));
-//                }
-//                MatchJson match = new MatchJson(tournamentId, matchPlayers);
-//                matches.add(match);
-//                start++;
-//                end--;
-//            }
-
             double numMatchesAtBase = Math.pow(2, numRounds - 1);
             double numMatchesRemaining = (Math.pow(2, numRounds) - 1) - numMatchesAtBase;
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
+// const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
+const URL = '/api/matchmaking';
 
 type Game = {
 	setNum: number;
@@ -33,7 +34,6 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			
 		});
 		return response.status === 200; 
 	} catch (error: unknown) {

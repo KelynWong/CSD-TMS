@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import './styles.css';
-import { fetchTournamentsByStatus } from '@/api/tournaments/api';
-import { Tournament } from '@/types/tournament';
-import Loading from '@/components/Loading';
+import { useEffect, useState } from "react";
+import "./styles.css";
+import { fetchTournamentsByStatus } from "@/api/tournaments/api";
+import { Tournament } from "@/types/tournament";
+import Loading from "@/components/Loading";
 import { useNavBarContext } from "@/context/navBarContext";
 import { useRouter } from "next/navigation";
-import { fetchPlayer, fetchTopPlayers } from '@/api/users/api';
+import { fetchPlayer, fetchTopPlayers } from "@/api/users/api";
 import {
 	Table,
 	TableBody,
@@ -16,12 +16,12 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import Link from 'next/link';
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
-import { TypewriterEffect } from '@/components/ui/typewriter-effect';
+import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import Image from "next/image";
-import { Fireworks } from '@fireworks-js/react';
+import { Fireworks } from "@fireworks-js/react";
 
 interface Player {
 	id: string;
@@ -51,8 +51,12 @@ export default function Home() {
 	// 	router.push("/home");
 	// }, [router]);
 
-	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>([]);
-	const [completedTournament, setCompletedTournament] = useState<Tournament[]>([]);
+	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>(
+		[]
+	);
+	const [completedTournament, setCompletedTournament] = useState<Tournament[]>(
+		[]
+	);
 	const [playersRank, setPlayersRank] = useState<any[]>([]);
 	const [players, setPlayers] = useState<any[]>([]);
 	const [randomPlayers, setRandomPlayers] = useState<Player[]>([]);
@@ -72,7 +76,7 @@ export default function Home() {
 		},
 		{
 			text: "RacketRush!",
-			className: "text-white"
+			className: "text-white",
 		},
 	];
 
@@ -84,23 +88,33 @@ export default function Home() {
 					setCompletedTournament([]);
 					return;
 				}
-		
+
 				const firstTournament = data[0];
-				console.log(firstTournament)
-				const winnerData = firstTournament.winner ? await fetchPlayer(firstTournament.winner) : { fullname: "Unknown" };
+				console.log(firstTournament);
+				const winnerData = firstTournament.winner
+					? await fetchPlayer(firstTournament.winner)
+					: { fullname: "Unknown" };
 
 				const mappedData: Tournament = {
 					id: firstTournament.id,
 					tournamentName: firstTournament.tournamentName,
-					startDT: new Date(new Date(firstTournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
-					endDT: new Date(new Date(firstTournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+					startDT: new Date(
+						new Date(firstTournament.startDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
+					endDT: new Date(
+						new Date(firstTournament.endDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
 					status: firstTournament.status,
-					regStartDT: new Date(new Date(firstTournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
-					regEndDT: new Date(new Date(firstTournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+					regStartDT: new Date(
+						new Date(firstTournament.regStartDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
+					regEndDT: new Date(
+						new Date(firstTournament.regEndDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
 					createdBy: firstTournament.createdBy,
-					winner: winnerData.fullname, 
+					winner: winnerData.fullname,
 				};
-		
+
 				setCompletedTournament([mappedData]);
 			} catch (err) {
 				console.error("Failed to fetch tournaments:", err);
@@ -114,11 +128,19 @@ export default function Home() {
 				const mappedData: Tournament[] = data.map((tournament: any) => ({
 					id: tournament.id,
 					tournamentName: tournament.tournamentName,
-					startDT: new Date(new Date(tournament.startDT).getTime() + sgTimeZoneOffset).toISOString(),
-					endDT: new Date(new Date(tournament.endDT).getTime() + sgTimeZoneOffset).toISOString(),
+					startDT: new Date(
+						new Date(tournament.startDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
+					endDT: new Date(
+						new Date(tournament.endDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
 					status: tournament.status,
-					regStartDT: new Date(new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
-					regEndDT: new Date(new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
+					regStartDT: new Date(
+						new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
+					regEndDT: new Date(
+						new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset
+					).toISOString(),
 					createdBy: tournament.createdBy,
 					winner: tournament.winner,
 				}));
@@ -132,13 +154,13 @@ export default function Home() {
 		const getPlayersRank = async () => {
 			try {
 				const data = await fetchTopPlayers();
-				const filteredData = data.map(player => ({
+				const filteredData = data.map((player) => ({
 					id: player.id,
 					gender: player.gender,
 					fullname: player.fullname,
 					profilePic: player.profilePicture,
 					rank: player.rank,
-					rating: Math.floor(player.rating)
+					rating: Math.floor(player.rating),
 				}));
 				setPlayers(data);
 				setPlayersRank(filteredData.slice(0, 10));
@@ -316,7 +338,7 @@ export default function Home() {
 													</div>
 													<div className="tournament-action flex items-center justify-center gap-4 mt-4">
 														<Link href="/prediction">
-															<Button className="font-heading">Predict</Button>
+															<Button className="font-heading predict">Predict</Button>
 														</Link>
 													</div>
 												</div>

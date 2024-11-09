@@ -42,7 +42,7 @@ export default function PlayersCarousel({
 							key={player.id}
 							className="pl-2 md:pl-4 basis-full md:basis-1/3 lg:basis-1/5">
 							<div className="p-1">
-								<Link href={`/players/${player.id}`}>
+								<Link href={`/players/${player.id}`} prefetch={true}>
 									<Card className="w-full max-w-[300px] sm:max-w-[350px] md:max-w-[400px] mx-auto py-5">
 										<CardContent className="flex aspect-square items-center justify-center p-4 sm:p-6">
 											<div className="w-full h-full flex flex-col items-center justify-center">

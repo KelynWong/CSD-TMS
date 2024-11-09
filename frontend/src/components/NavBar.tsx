@@ -26,7 +26,7 @@ export default function Navbar() {
 	return (
 		<nav className="bg-black text-white py-2 px-6">
 			<div className="lg:container lg:mx-auto flex items-center justify-between">
-				<Link href="/" className="flex items-center space-x-2">
+				<Link href="/" className="flex items-center space-x-2" prefetch={true}>
 					<div className="-mb-11 z-50">
 						<Image
 							src="/images/logo.png"
@@ -42,7 +42,8 @@ export default function Navbar() {
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "home" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("home")}>
+						onClick={() => handleNavBarChange("home")}
+						prefetch={true}>
 						HOME
 					</Link>
 					<Link
@@ -50,7 +51,8 @@ export default function Navbar() {
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "tournaments" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("tournaments")}>
+						onClick={() => handleNavBarChange("tournaments")}
+						prefetch={true}>
 						TOURNAMENTS
 					</Link>
 					<Link
@@ -58,7 +60,8 @@ export default function Navbar() {
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "players" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("players")}>
+						onClick={() => handleNavBarChange("players")}
+						prefetch={true}>
 						PLAYERS
 					</Link>
 					<Link
@@ -66,7 +69,8 @@ export default function Navbar() {
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "rankings" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("rankings")}>
+						onClick={() => handleNavBarChange("rankings")}
+						prefetch={true}>
 						RANKINGS
 					</Link>
 					<Link
@@ -74,7 +78,8 @@ export default function Navbar() {
 						className={`font-heading text-lg tracking-wider hover:text-red-400 transition-colors ${
 							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("matchPredict")}>
+						onClick={() => handleNavBarChange("matchPredict")}
+						prefetch={true}>
 						MATCH PREDICTION
 					</Link>
 				</div>
@@ -85,7 +90,8 @@ export default function Navbar() {
 							className={`font-heading hover:text-red-400 transition-colors ${
 								currentState === "admin" ? "text-red-400" : ""
 							}`}
-							onClick={() => handleNavBarChange("admin")}>
+							onClick={() => handleNavBarChange("admin")}
+							prefetch={true}>
 							ADMIN
 						</Link>
 					)}
@@ -93,11 +99,10 @@ export default function Navbar() {
 						<Link
 							href={`/user-profile`}
 							className={`font-heading hover:text-red-400 transition-colors ${
-								currentState === "user-profile"
-									? "text-red-400"
-									: ""
+								currentState === "user-profile" ? "text-red-400" : ""
 							}`}
-							onClick={() => handleNavBarChange("user-profile")}>
+							onClick={() => handleNavBarChange("user-profile")}
+							prefetch={true}>
 							PROFILE
 						</Link>
 					)}
@@ -118,11 +123,7 @@ export default function Navbar() {
 					<button
 						onClick={toggleMenu}
 						className="lg:hidden p-2 rounded-full hover:bg-gray-700 transition-colors">
-						{isOpen ? (
-							<X className="w-6 h-6" />
-						) : (
-							<Menu className="w-6 h-6" />
-						)}
+						{isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
 						<span className="sr-only">Toggle menu</span>
 					</button>
 				</div>
@@ -134,7 +135,8 @@ export default function Navbar() {
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							currentState === "tournaments" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("tournaments")}>
+						onClick={() => handleNavBarChange("tournaments")}
+						prefetch={true}>
 						TOURNAMENT
 					</Link>
 					<Link
@@ -142,7 +144,8 @@ export default function Navbar() {
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							currentState === "players" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("players")}>
+						onClick={() => handleNavBarChange("players")}
+						prefetch={true}>
 						PLAYERS
 					</Link>
 					<Link
@@ -150,7 +153,8 @@ export default function Navbar() {
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							currentState === "rankings" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("rankings")}>
+						onClick={() => handleNavBarChange("rankings")}
+						prefetch={true}>
 						RANKINGS
 					</Link>
 					<Link
@@ -158,7 +162,8 @@ export default function Navbar() {
 						className={`font-heading text-lg block py-2 px-4 hover:text-red-400 transition-colors ${
 							currentState === "matchPredict" ? "text-red-400" : ""
 						}`}
-						onClick={() => handleNavBarChange("matchPredict")}>
+						onClick={() => handleNavBarChange("matchPredict")}
+						prefetch={true}>
 						MATCH PREDICTION
 					</Link>
 				</div>
