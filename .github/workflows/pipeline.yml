@@ -260,6 +260,8 @@ jobs:
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserLosses --display-name "Get User Losses" --method GET --url-template "/matches/user/loss/{user_id}" --template-parameters name=user_id type=string required=true
 
+        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserMatchPlayed --display-name "Get User Match Played" --method GET --url-template "/matches/user/played/{user_id}" --template-parameters name=user_id type=string required=true
+
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserById --display-name "Get User by ID" --method GET --url-template "/users/{id}" --template-parameters name=id type=string required=true
 
         az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserRole --display-name "Get User Role" --method GET --url-template "/users/role/{role}" --template-parameters name=role type=string required=true
