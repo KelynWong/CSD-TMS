@@ -35,13 +35,11 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 		const jwtToken = getJwtToken(); 
 		console.log("jwtToken: ", jwtToken);
 		console.log("URL: ", URL);
-		const response = await axios.get(`${URL}`); 
-			// {
-				// headers: {
-				// 	Authorization: `Bearer ${jwtToken}`,
-				// },
-			// }
-		// );
+		const response = await axios.get(URL, 
+			{
+				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+			}
+		);
 		console.log("fetchTournaments API Response:", response); 
 		console.log("fetchTournaments API Response data:", response.data);
 		return response.data;
