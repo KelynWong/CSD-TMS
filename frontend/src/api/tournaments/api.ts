@@ -56,10 +56,9 @@ export const fetchTournamentByPlayerId = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/players/${player_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			// headers: {
+			// 	Authorization: `Bearer ${jwtToken}`,
+			// },
 		});
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
@@ -95,7 +94,6 @@ export const fetchTournamentById = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			
 		});
 		return response.data;
 	} catch (error) {
