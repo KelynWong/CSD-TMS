@@ -1,7 +1,8 @@
 import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
-const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
+// const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
+const URL = '/api/tournaments';
 
 export interface tournamentResponse {
 	id: number;
