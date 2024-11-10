@@ -35,13 +35,13 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 		const jwtToken = getJwtToken(); 
 		console.log("jwtToken: ", jwtToken);
 		console.log("URL: ", URL);
-		const response = await axios.get(`${URL}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
-		});
-		console.log("AfetchTournaments PI Response:", response.data); // Log the response here
+		const response = await axios.get(URL, 
+			{
+				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+			}
+		);
+		console.log("fetchTournaments API Response:", response); 
+		console.log("fetchTournaments API Response data:", response.data);
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
@@ -55,10 +55,9 @@ export const fetchTournamentByPlayerId = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/players/${player_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			// headers: {
+			// 	Authorization: `Bearer ${jwtToken}`,
+			// },
 		});
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
@@ -94,7 +93,6 @@ export const fetchTournamentById = async (
 			headers: {
 				Authorization: `Bearer ${jwtToken}`,
 			},
-			
 		});
 		return response.data;
 	} catch (error) {
