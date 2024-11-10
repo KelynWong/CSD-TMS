@@ -48,21 +48,20 @@ public class TournamentServiceTest {
         // Arrange
         // - mock objects
         Tournament tournament = helper.createTestTournament("noError");
-
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
 
         // - mock methods/operations
         when(tournaments.findAll()).thenReturn(tournamentList);
+        doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
 
         // Act
-        log.info("INFO: LISTTOURNAMENTS ACT START!");
         List<Tournament> retrievedTournamentList = tournamentService.listTournaments();
-        log.info("INFO: LISTTOURNAMENTS ACT END!");
 
         // Assert
         assertNotNull(retrievedTournamentList);
         verify(tournaments).findAll();
+        verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
     }
 
     /*
