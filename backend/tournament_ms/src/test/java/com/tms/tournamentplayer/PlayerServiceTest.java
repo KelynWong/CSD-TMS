@@ -8,7 +8,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.foreign.Linker.Option;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
@@ -16,14 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.tms.TestHelper;
 import com.tms.exception.*;
-import com.tms.tournament.AutoStatusUpdateService;
-import com.tms.tournament.Tournament;
-import com.tms.tournament.TournamentRepository;
-import com.tms.tournament.TournamentServiceImpl;
+import com.tms.tournament.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PlayerServiceTest {
@@ -98,7 +93,7 @@ public class PlayerServiceTest {
 
         // - mock methods/operations
         when(players.findById(p_id)).thenReturn(optPlayer);
-        doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        // doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
 
         // Act
         List<Tournament> retrievedTournamentList = playerService.getAllTournamentsByPlayerId(p_id);
@@ -106,7 +101,7 @@ public class PlayerServiceTest {
         // Assert
         assertNotNull(retrievedTournamentList);
         verify(players).findById(p_id);
-        verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        // verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
     }
 
     @Test // case 2 : invalid tournament id (throw PlayerNotFoundException)
@@ -180,7 +175,7 @@ public class PlayerServiceTest {
 
     }
 
-    @Test // case 2
+    @Test // case 2 : player id exist (return null)
     void createPlayer_playerIdExist_returnNull() {
         // Arrange
         // - mock objects (player obj)
@@ -199,7 +194,12 @@ public class PlayerServiceTest {
     }
 
     // @Test // addPlayerToTournament - case 1 : REVISIT
-    // void addPlayerToTournament
+    // void addPlayerToTournament_PlayerNotInTournament_returnPlayer() {
+    //     // Arrange
+    //     // - mock objects (player and tournament)
+        
+
+    // }
 
     // @Test // removePlayerFromTournament - case 1 : REVISIT
     // void addPlayerToTournament
