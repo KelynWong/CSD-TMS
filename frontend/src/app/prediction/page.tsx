@@ -53,22 +53,29 @@ export default function Prediction() {
     const [error, setError] = useState<string | null>(null);
     const [predictionResults, setPredictionResults] = useState<any[]>([]);
 
-    useEffect(() => {
-        const getTournamentsData = async () => {
-            try {
-                const data = await fetchTournamentsByStatus("Ongoing");
-                setCategorizedTournaments(data);
-                if (data.length > 0) {
-                    setSelectedTournamentId(data[0].id.toString());
-                    fetchTournament(data[0].id);
-                }
-            } catch (err) {
-                console.error("Failed to fetch tournaments:", err);
-                setError("Failed to fetch tournaments.");
-            } finally {
-                setLoading(false);
+    const getTournamentsData = async () => {
+        try {
+            const [matchmakeData, ongoingData] = await Promise.all([
+                fetchTournamentsByStatus("Matchmake"),
+                fetchTournamentsByStatus("Ongoing")
+            ]);
+    
+            const combinedData = [...matchmakeData, ...ongoingData];
+            setCategorizedTournaments(combinedData);
+    
+            if (combinedData.length > 0) {
+                setSelectedTournamentId(combinedData[0].id.toString());
+                fetchTournament(combinedData[0].id);
             }
-        };
+        } catch (err) {
+            console.error("Failed to fetch tournaments:", err);
+            setError("Failed to fetch tournaments.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
         getTournamentsData();
     }, []);
 
