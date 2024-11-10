@@ -294,7 +294,7 @@ jobs:
         # ADMIN Routes
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
 
-        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}/strategy/${strategy}" --template-parameters name=tournament_id type=string required=true --template-parameters name=strategy type=string required=true
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
 
