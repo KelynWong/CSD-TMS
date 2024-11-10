@@ -30,10 +30,10 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 		const jwtToken = getJwtToken(); 
 		console.log(jwtToken);
 		console.log(strategy);
-		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {
+		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {}, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-		return response.status === 201; 
+		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
 		if (axios.isAxiosError(error)) {
 			// TypeScript now knows that `error` is an AxiosError
