@@ -70,7 +70,7 @@ public class PlayerController {
         Map<String, Boolean> result = new HashMap<>();
 
         // Get specified player by Id, if not found, throw PlayerNotFoundException error
-        // 404
+        // 404 (CHANGE TESTCASE)
         Player player = playerService.getPlayer(playerId);
         if (player == null) {
             result.put("IsRegistered", false);

@@ -306,7 +306,7 @@ public class MatchmakeService {
     private void simulateMatches(Map<Long, MatchJson> idToMatch, Map<String, Player> idToPlayer, Random random,
                                  boolean simulateGames) {
         for (MatchJson match : idToMatch.values()) {
-            if (match.getPlayer1Id() != null && match.getPlayer2Id() != null) {
+            if (match.getPlayer1Id() != null && match.getPlayer2Id() != null && match.getWinnerId() == null) {
                 Player player1 = idToPlayer.get(match.getPlayer1Id());
                 Player player2 = idToPlayer.get(match.getPlayer2Id());
 
