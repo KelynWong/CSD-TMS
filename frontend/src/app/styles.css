@@ -106,9 +106,13 @@
     }
 }
 
-.tournament-bg {
+.tournament {
     background-image: url("/images/tournament-bg.jpeg");
     background-repeat: no-repeat;
     background-size: 110%;
     background-position: left 98% center;
+}
+  
+.tournament:hover {
+    box-shadow: 0 0 12px #f5c205;
 }

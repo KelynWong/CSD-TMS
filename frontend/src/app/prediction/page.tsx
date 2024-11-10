@@ -53,22 +53,29 @@ export default function Prediction() {
     const [error, setError] = useState<string | null>(null);
     const [predictionResults, setPredictionResults] = useState<any[]>([]);
 
-    useEffect(() => {
-        const getTournamentsData = async () => {
-            try {
-                const data = await fetchTournamentsByStatus("Ongoing");
-                setCategorizedTournaments(data);
-                if (data.length > 0) {
-                    setSelectedTournamentId(data[0].id.toString());
-                    fetchTournament(data[0].id);
-                }
-            } catch (err) {
-                console.error("Failed to fetch tournaments:", err);
-                setError("Failed to fetch tournaments.");
-            } finally {
-                setLoading(false);
+    const getTournamentsData = async () => {
+        try {
+            const [matchmakeData, ongoingData] = await Promise.all([
+                fetchTournamentsByStatus("Matchmake"),
+                fetchTournamentsByStatus("Ongoing")
+            ]);
+    
+            const combinedData = [...matchmakeData, ...ongoingData];
+            setCategorizedTournaments(combinedData);
+    
+            if (combinedData.length > 0) {
+                setSelectedTournamentId(combinedData[0].id.toString());
+                fetchTournament(combinedData[0].id);
             }
-        };
+        } catch (err) {
+            console.error("Failed to fetch tournaments:", err);
+            setError("Failed to fetch tournaments.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
         getTournamentsData();
     }, []);
 
@@ -211,7 +218,7 @@ export default function Prediction() {
 
     return (
         <div className="w-[80%] h-full mx-auto py-16">
-            <h1 className="text-3xl font-bold text-start">Predict results for ongoing tournament</h1>
+            <h1 className="text-3xl font-bold text-start">Predict results for tournaments</h1>
             <div className="flex flex-row items-center gap-2">
                 <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
                     <SelectTrigger className="w-[320px] my-6 text-md">
@@ -235,7 +242,7 @@ export default function Prediction() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
+                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 10000 Times</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
@@ -255,7 +262,7 @@ export default function Prediction() {
                                         <TableRow key={index}>
                                             <TableCell className="font-medium">{result.rank}</TableCell>
                                             <TableCell>{result.playerName}</TableCell>
-                                            <TableCell>{result.winRate}</TableCell>
+                                            <TableCell>{result.winRate.toFixed(1)}%</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

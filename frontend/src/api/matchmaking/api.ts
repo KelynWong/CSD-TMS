@@ -28,11 +28,12 @@ export const getJwtToken = (): string | null => {
 export const matchMakeByTournamentId = async (tournament_id: number, strategy: string): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		console.log("testing if matchMakeByTournament strategy shows", strategy);
-		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {
+		console.log(jwtToken);
+		console.log(strategy);
+		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {}, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-		return response.status === 200; 
+		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
 		if (axios.isAxiosError(error)) {
 			// TypeScript now knows that `error` is an AxiosError
