@@ -1,41 +1,41 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	async rewrites() {
-		return [
-			{
-				source: '/api/matches',
-				destination: `${process.env.NEXT_PUBLIC_MATCH_API_URL}`,
-			},
-			{
-				source: '/api/matches/:path*',
-				destination: `${process.env.NEXT_PUBLIC_MATCH_API_URL}/:path*`,
-			},
-			{
-				source: '/api/matchmaking',
-				destination: `${process.env.NEXT_PUBLIC_MATCHMAKING_API_URL}`,
-			},
-			{
-				source: '/api/matchmaking/:path*',
-				destination: `${process.env.NEXT_PUBLIC_MATCHMAKING_API_URL}/:path*`,
-			},
-			{
-				source: '/api/tournaments',
-				destination: `${process.env.NEXT_PUBLIC_TOURNAMENT_API_URL}`,
-			},
-			{
-				source: '/api/tournaments/:path*',
-				destination: `${process.env.NEXT_PUBLIC_TOURNAMENT_API_URL}/:path*`,
-			},
-			{
-				source: '/api/users',
-				destination: `${process.env.NEXT_PUBLIC_USER_API_URL}`,
-			},
-			{
-				source: '/api/users/:path*',
-				destination: `${process.env.NEXT_PUBLIC_USER_API_URL}/:path*`,
-			},
-		];
-	},
+	// async rewrites() {
+	// 	return [
+	// 		{
+	// 			source: '/api/matches',
+	// 			destination: `${process.env.NEXT_PUBLIC_MATCH_API_URL}`,
+	// 		},
+	// 		{
+	// 			source: '/api/matches/:path*',
+	// 			destination: `${process.env.NEXT_PUBLIC_MATCH_API_URL}/:path*`,
+	// 		},
+	// 		{
+	// 			source: '/api/matchmaking',
+	// 			destination: `${process.env.NEXT_PUBLIC_MATCHMAKING_API_URL}`,
+	// 		},
+	// 		{
+	// 			source: '/api/matchmaking/:path*',
+	// 			destination: `${process.env.NEXT_PUBLIC_MATCHMAKING_API_URL}/:path*`,
+	// 		},
+	// 		{
+	// 			source: '/api/tournaments',
+	// 			destination: `${process.env.NEXT_PUBLIC_TOURNAMENT_API_URL}`,
+	// 		},
+	// 		{
+	// 			source: '/api/tournaments/:path*',
+	// 			destination: `${process.env.NEXT_PUBLIC_TOURNAMENT_API_URL}/:path*`,
+	// 		},
+	// 		{
+	// 			source: '/api/users',
+	// 			destination: `${process.env.NEXT_PUBLIC_USER_API_URL}`,
+	// 		},
+	// 		{
+	// 			source: '/api/users/:path*',
+	// 			destination: `${process.env.NEXT_PUBLIC_USER_API_URL}/:path*`,
+	// 		},
+	// 	];
+	// },
 	images: {
 		disableStaticImages: true,
 		remotePatterns: [
