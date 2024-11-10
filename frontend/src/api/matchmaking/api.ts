@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
-// const URL = '/api/matchmaking';
 
 type Game = {
 	setNum: number;
@@ -82,12 +81,9 @@ export const predictTournament = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(
-			`${URL}/matches/${tournament_id}/simulate`,
-			{
-				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
-			}
-		);
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);
@@ -100,12 +96,9 @@ export const predictTournament1000 = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(
-			`${URL}/matches/${tournament_id}/simulate-many`,
-			{
-				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
-			}
-		);
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate-many`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);
