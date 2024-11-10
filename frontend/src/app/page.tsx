@@ -328,7 +328,7 @@ export default function Home() {
 									<div className="w-full grid grid-cols-2 gap-4">
 										{ongoingTournaments.map((tournament: Tournament) => (
 											<Link href={`/tournaments/${tournament.id}`}>
-												<div key={tournament.id} className="tournament tournament-bg flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
+												<div key={tournament.id} className="tournament flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
 													<div className="tournament-info">
 														<div className="tournament-details text-center">
 															<h3 className="text-xl font-bold text-white">{tournament.tournamentName}</h3>
@@ -362,7 +362,7 @@ export default function Home() {
 											No players found.
 										</div>
 									) : (
-										<div className="tournament w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+										<div className="w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
 											<Table>
 												<TableHeader>
 													<TableRow className='hover:bg-transparent'>
@@ -374,11 +374,9 @@ export default function Home() {
 												<TableBody>
 													{playersRank.map((player) => (
 														<TableRow key={player.id} className="tournament-info hover:bg-slate-200">
-															{/* <div className="tournament-details text-center"> */}
 															<TableCell>{player.rank}</TableCell>
 															<TableCell><Link href={`/players/${player.id}`}>{player.fullname}</Link></TableCell>
 															<TableCell>{player.rating}</TableCell>
-															{/* </div> */}
 														</TableRow>
 													))}
 												</TableBody>
