@@ -86,22 +86,31 @@ jobs:
           echo "VNet already exists, skipping creation."
         fi
 
-    - name: Deploy other Microservices
-      run: |
-        # Deploy user_ms
-        az container create --resource-group tmsSG --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet2 \
-        --subnet aciSubnet2
-
-        # Deploy tournament_ms
-        az container create --resource-group tmsSG --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet2 \
-        --subnet aciSubnet2 
-
-        # Deploy match_ms
-        az container create --resource-group tmsSG --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
-        --vnet tmsVNet2 \
-        --subnet aciSubnet2 
+        - name: Deploy other Microservices
+        run: |
+          # Delete user-ms if it exists
+          az container delete --resource-group tmsSG --name user-ms --yes 
+      
+          # Deploy user_ms
+          az container create --resource-group tmsSG --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+          --vnet tmsVNet2 \
+          --subnet aciSubnet2
+      
+          # Delete tournament-ms if it exists
+          az container delete --resource-group tmsSG --name tournament-ms --yes 
+      
+          # Deploy tournament_ms
+          az container create --resource-group tmsSG --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+          --vnet tmsVNet2 \
+          --subnet aciSubnet2 
+      
+          # Delete match-ms if it exists
+          az container delete --resource-group tmsSG --name match-ms --yes 
+      
+          # Deploy match_ms
+          az container create --resource-group tmsSG --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+          --vnet tmsVNet2 \
+          --subnet aciSubnet2       
 
     - name: Build and Deploy Matchmaking MS
       run: |
@@ -117,6 +126,9 @@ jobs:
           --build-arg AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
           --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" 
         docker push csdtms.azurecr.io/matchmaking:latest
+
+        # Delete matchmaking if it exists
+        az container delete --resource-group tmsSG --name matchmaking --yes 
 
         # Deploy matchmaking MS
         az container create --resource-group tmsSG --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
