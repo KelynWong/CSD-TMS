@@ -69,13 +69,13 @@ public class PlayerControllerTest {
 	public void getAllPlayersByTournamentId_ValidTournamentId_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player -> map them)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		String p_id = "userTesting123";
 		Player player = players.save(new Player(p_id, new ArrayList<>()));
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		// - prepare the uri
@@ -97,7 +97,7 @@ public class PlayerControllerTest {
 	public void getAllPlayersByTournamentId_InvalidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		tournaments.deleteById(t_id);
@@ -115,10 +115,10 @@ public class PlayerControllerTest {
 	public void getTournamentsByPlayer_ValidPlayerId_Success() throws Exception {
 
 		// input - valid player id (create player and tournament -> map them)
-		Player player = players.save(helper.createTestPlayer());
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Player player = players.save(helper.createPlayerObj());
+		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/players/" + player.getId());
@@ -138,7 +138,7 @@ public class PlayerControllerTest {
 	public void getTournamentsByPlayer_InvalidPlayerId_Failure() throws Exception {
 
 		// input - invalid player id (create player -> del it)
-		Player player = players.save(helper.createTestPlayer());
+		Player player = players.save(helper.createPlayerObj());
 		players.deleteById(player.getId());
 
 		// call the api 
@@ -154,13 +154,13 @@ public class PlayerControllerTest {
 	public void isRegistered_ValidTournamentIdAndPlayerRegistered_Success() throws Exception {
 		
 		// input - all valid and got mapping (create tournament and player -> map them)
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
-		Player player = players.save(helper.createTestPlayer());
+		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Player player = players.save(helper.createPlayerObj());
 
 		Long t_id = tournament.getId();
 		String p_id = player.getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
@@ -178,8 +178,8 @@ public class PlayerControllerTest {
 	public void isRegistered_ValidTournamentIdAndPlayerNotRegistered_Success() throws Exception {
 		
 		// input - all valid but no mapping (create tournament and player) 
-		Long t_id = tournaments.save(helper.createTestTournament("noError")).getId();
-		String p_id = players.save(helper.createTestPlayer()).getId();
+		Long t_id = tournaments.save(helper.createTournamentInDB("noError")).getId();
+		String p_id = players.save(helper.createPlayerObj()).getId();
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
@@ -197,8 +197,8 @@ public class PlayerControllerTest {
 	public void isRegistered_InvalidTournamentId_Failure() throws Exception {
 		
 		// input - invalid tournament id (create tournament and player -> del tournament)
-		Long t_id = tournaments.save(helper.createTestTournament("noError")).getId();
-		String p_id = players.save(helper.createTestPlayer()).getId();
+		Long t_id = tournaments.save(helper.createTournamentInDB("noError")).getId();
+		String p_id = players.save(helper.createPlayerObj()).getId();
 
 		tournaments.deleteById(t_id);
 
@@ -217,7 +217,7 @@ public class PlayerControllerTest {
 	public void registerPlayer_ValidTournamentId_NotRegisteredPlayer_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		Player player = new Player("userTesting234", new ArrayList<>());
@@ -249,13 +249,13 @@ public class PlayerControllerTest {
 	public void registerPlayer_ValidTournamentId_RegisteredPlayer_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player -> map them)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		Player player = new Player("userTesting234", new ArrayList<>());
 		String p_id = players.save(player).getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id + "/register");
@@ -275,7 +275,7 @@ public class PlayerControllerTest {
 	public void registerPlayer_InvalidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament and player -> del tournament)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		Player player = new Player("userTesting234", new ArrayList<>());
@@ -299,13 +299,13 @@ public class PlayerControllerTest {
 	public void deregisterPlayer_ValidTournamentAndPlayerId_Success() throws Exception {
 
 		// input - valid tournament and player id (create both obj -> map them)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		Player player = new Player("userTesting234", new ArrayList<>());
 		String p_id = players.save(player).getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id + "/deregister");
@@ -333,7 +333,7 @@ public class PlayerControllerTest {
 	public void deregisterPlayer_InvalidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id but valid player id (create both obj -> del tournament)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 		tournaments.deleteById(t_id);
 
@@ -356,13 +356,13 @@ public class PlayerControllerTest {
 	public void deregisterPlayer_InvalidPlayerId_Failure() throws Exception {
 
 		// input - invalid player id but valid tournament id (create both obj -> map them -> del player)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentInDB("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		Player player = new Player("userTesting234", new ArrayList<>());
 		String p_id = players.save(player).getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		players.deleteById(p_id);
 
@@ -382,7 +382,7 @@ public class PlayerControllerTest {
 	public void deletePlayer_ValidPlayerId_Success() throws Exception {
 		
 		// input - valid player id (create player)
-		Player player = helper.createTestPlayer();
+		Player player = helper.createPlayerObj();
 		String p_id = players.save(player).getId();
 
 		// call api
@@ -399,11 +399,11 @@ public class PlayerControllerTest {
 	public void deletePlayer_ValidPlayerIdWithTournamentMapping_Success() throws Exception {
 		
 		// input - valid player w mapping (create both player and tournament -> map them)
-		Player player = helper.createTestPlayer();
+		Player player = helper.createPlayerObj();
 		String p_id = players.save(player).getId();
 
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
-		helper.mapTournamentPlayer(tournament, player); // map them
+		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		helper.mapTournamentPlayerInDB(tournament, player); // map them
 
 		// call api
 		URI uri = new URI(baseURL + port + "/tournaments/players/" + p_id);
@@ -421,7 +421,7 @@ public class PlayerControllerTest {
 	public void deletePlayer_InvalidPlayerId_Failure() throws Exception {
 		
 		// input - invalid player id (create new player -> delete it)
-		Player player = helper.createTestPlayer();
+		Player player = helper.createPlayerObj();
 		String p_id = players.save(player).getId();
 		players.deleteById(p_id);
 

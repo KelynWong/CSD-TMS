@@ -156,6 +156,7 @@ public class TournamentController {
 
         // Winner found : set tournament winner
         tournament.setWinner(modifiedWinner);
+        tournament.setStatus(TournamentStatus.COMPLETED); // (CHANGE TESTCASE)
 
         // Update and return tournament
         return tournamentService.updateTournament(id, tournament);

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.tms.tournament.*;
@@ -27,7 +26,9 @@ public class TestHelper {
     }
 
     /* HELPER METHODS */
-    public Tournament createTestTournament(String typeOfErr) { // no err - input "noError"
+
+    // Purpose : create tournament obj
+    public Tournament createTournamentObj() {
 
         // - mock tournament objects
         String tournamentName = "Tournament Controller Testing - Invalid";
@@ -41,6 +42,17 @@ public class TestHelper {
 
         Tournament tournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
                 winner);
+
+        return tournament;
+    }
+
+    // Purpose : create tournament in db
+    public Tournament createTournamentInDB(String typeOfErr) { // no err - input "noError"
+        Tournament tournament = createTournamentObj();
+        LocalDateTime regStartDT = tournament.getRegStartDT();
+        LocalDateTime regEndDT = tournament.getRegEndDT();
+        LocalDateTime startDT = tournament.getStartDT();
+        LocalDateTime endDT = tournament.getEndDT();
 
         // set up any specified error
         switch (typeOfErr) {
@@ -70,18 +82,25 @@ public class TestHelper {
                 // no err - tournament is valid
                 tournament.setTournamentName("Tournament Controller Testing - Valid");
                 break;
-
         }
 
         return tournament;
     }
 
-    public Player createTestPlayer() {
+    // Purpose : create player obj
+    public Player createPlayerObj() {
         Player player = new Player("usertesting123", new ArrayList<>());
         return player;
     }
 
-    public void mapTournamentPlayer(Tournament tournament, Player player) {
+    // Purpose : create player in db
+    public Player createPlayerInDB() {
+        Player player = new Player("usertesting123", new ArrayList<>());
+        return players.save(player);
+    }
+
+    // Purpsoe : map tournament and player (for controller testing)
+    public void mapTournamentPlayerInDB(Tournament tournament, Player player) {
         // map the player and tournament
         List<Player> playerList = new ArrayList<>();
         List<Tournament> tournamentList = new ArrayList<>();
@@ -91,45 +110,20 @@ public class TestHelper {
         tournament.setPlayers(playerList);
         player.setTournaments(tournamentList);
 
-        players.save(player);
         tournaments.save(tournament);
     }
 
-    public void reset(Long t_id, String p_id) {
-
-        if (t_id == null) {
-            // if no tournament, just del player
-            players.deleteById(p_id);
-        } else if (p_id == null) {
-            // if no player, just del tournament
-            tournaments.deleteById(t_id);
-
-        } else {
-            // if got both
-            Tournament t = tournaments.findById(t_id).get();
-            Player p = players.findById(p_id).get();
-            // - remove the mapping
-            t.setPlayers(new ArrayList<>());
-            p.setTournaments(new ArrayList<>());
-            // - save the changes
-            players.save(p);
-            tournaments.save(t);
-            // - delete both objects
-            tournaments.deleteById(t_id);
-            players.deleteById(p_id);
-        }
-
-    }
-
+    // Purpose : log pass-in msg into out.txt
     public void log(String msg) {
 
-		try (PrintStream out = new PrintStream(new FileOutputStream("out.txt",true))){
+        try (PrintStream out = new PrintStream(new FileOutputStream("out.txt", true))) {
             out.println("Raw JSON Response: " + msg); // write into out.txt
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
+    // Purpose : remove all mapping (for deleteAll in controller test)
     public void removeAllMapping() {
 
         List<Tournament> t_list = tournaments.findAll();

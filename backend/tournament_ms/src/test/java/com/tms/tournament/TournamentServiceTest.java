@@ -47,7 +47,7 @@ public class TournamentServiceTest {
     void listTournaments_ReturnTournaments() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
 
@@ -73,7 +73,7 @@ public class TournamentServiceTest {
     void getTournament_Found_ReturnTournament() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
         Long id = tournament.getId();
 
         Optional<Tournament> optTournament = Optional.of(tournament);
@@ -119,7 +119,7 @@ public class TournamentServiceTest {
     void addTournament_NewName_ReturnSavedTournament() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
 
         // - mock methods/operations
         // when(tournaments.findByTournamentName(any(String.class))).thenReturn(new
@@ -143,7 +143,7 @@ public class TournamentServiceTest {
     // void addTournament_SameName_ReturnNull() {
     // // Arrange
     // // - mock objects
-    // Tournament tournament = helper.createTestTournament("noError");
+    // Tournament tournament = helper.createTournamentObj();
 
     // List<Tournament> tournamentOfSameName = new ArrayList<>();
     // tournamentOfSameName.add(tournament);
@@ -170,7 +170,7 @@ public class TournamentServiceTest {
     void updateTournament_Found_ReturnSavedTournament() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
         Long id = tournament.getId();
 
         Optional<Tournament> optTournament = Optional.of(tournament);
@@ -195,7 +195,7 @@ public class TournamentServiceTest {
     void updateTournament_NotFound_ReturnNull() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
         Long id = tournament.getId();
 
         // - mock methods/operations
@@ -220,7 +220,7 @@ public class TournamentServiceTest {
     void deleteTournament_Found_ReturnNothing() {
         // Arrange
         // - mock objects
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj();
         Long id = tournament.getId();
 
         Optional<Tournament> optTournament = Optional.of(tournament);
