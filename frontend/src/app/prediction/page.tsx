@@ -235,7 +235,7 @@ export default function Prediction() {
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 1000 Times</Button>
+                        <Button variant="outline" className="hover:bg-red-700 hover:text-white" onClick={handlePredict1000Times}>Predict 10000 Times</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
@@ -255,7 +255,7 @@ export default function Prediction() {
                                         <TableRow key={index}>
                                             <TableCell className="font-medium">{result.rank}</TableCell>
                                             <TableCell>{result.playerName}</TableCell>
-                                            <TableCell>{result.winRate}</TableCell>
+                                            <TableCell>{result.winRate.toFixed(1)}%</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

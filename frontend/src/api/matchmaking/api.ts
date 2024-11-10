@@ -28,7 +28,6 @@ export const getJwtToken = (): string | null => {
 export const matchMakeByTournamentId = async (tournament_id: number, strategy: string): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		console.log("testing if matchMakeByTournament strategy shows", strategy);
 		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
