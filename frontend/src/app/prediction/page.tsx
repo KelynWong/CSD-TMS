@@ -218,7 +218,7 @@ export default function Prediction() {
 
     return (
         <div className="w-[80%] h-full mx-auto py-16">
-            <h1 className="text-3xl font-bold text-start">Predict results for ongoing tournament</h1>
+            <h1 className="text-3xl font-bold text-start">Predict results for tournaments</h1>
             <div className="flex flex-row items-center gap-2">
                 <Select value={selectedTournamentId} onValueChange={handleTournamentChange}>
                     <SelectTrigger className="w-[320px] my-6 text-md">
