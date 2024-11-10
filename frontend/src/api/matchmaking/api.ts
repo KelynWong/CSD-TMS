@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
-const URL = '/api/matchmaking';
+const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
+// const URL = '/api/matchmaking';
 
 type Game = {
 	setNum: number;

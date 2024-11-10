@@ -1,8 +1,8 @@
 import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
-const URL = '/api/tournaments';
+const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
+// const URL = '/api/tournaments';
 
 export interface tournamentResponse {
 	id: number;
@@ -35,7 +35,7 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 		const jwtToken = getJwtToken(); 
 		console.log("jwtToken: ", jwtToken);
 		console.log("URL: ", URL);
-		const response = await axios.get(URL, 
+		const response = await axios.get(`${URL}`, 
 			{
 				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 			}

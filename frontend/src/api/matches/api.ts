@@ -1,6 +1,6 @@
 import axios from "axios";
-// const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
-const URL = '/api/matches';
+const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
+// const URL = '/api/matches';
 
 export type GameResponse = {
 	id: number;

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_USER_API_URL;
-const URL = '/api/users';
+const URL = process.env.NEXT_PUBLIC_USER_API_URL;
+// const URL = '/api/users';
 
 export type PlayerResponse = {
 	id: string;
