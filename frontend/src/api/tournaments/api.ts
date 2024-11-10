@@ -1,8 +1,7 @@
 import { Tournament } from "@/types/tournament";
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
-const URL = '/api/tournaments';
+const URL = process.env.NEXT_PUBLIC_TOURNAMENT_API_URL;
 
 export interface tournamentResponse {
 	id: number;
@@ -35,11 +34,9 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 		const jwtToken = getJwtToken(); 
 		console.log("jwtToken: ", jwtToken);
 		console.log("URL: ", URL);
-		const response = await axios.get(URL, 
-			{
-				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
-			}
-		);
+		const response = await axios.get(`${URL}`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		console.log("fetchTournaments API Response:", response); 
 		console.log("fetchTournaments API Response data:", response.data);
 		return response.data;
@@ -55,9 +52,7 @@ export const fetchTournamentByPlayerId = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/players/${player_id}`, {
-			// headers: {
-			// 	Authorization: `Bearer ${jwtToken}`,
-			// },
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		console.log(response.data);
 		const formattedData: tournamentResponse[] = response.data.map(
@@ -90,9 +85,7 @@ export const fetchTournamentById = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/id/${tournament_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.data;
 	} catch (error) {
@@ -107,10 +100,7 @@ export const fetchAllPlayersByTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/${tournament_id}/players`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 
 		// Check if the response has data and return the array of players
@@ -132,15 +122,9 @@ export const fetchPlayerRegistrationStatus = async (
 	
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(
-			`${URL}/${tournament_id}/players/${user_id}`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtToken}`,
-				},
-				
-			}
-		);
+		const response = await axios.get(`${URL}/${tournament_id}/players/${user_id}`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		// Return true if the user is found and registered
 		return response.data.IsRegistered;
 	} catch (error) {
@@ -161,10 +145,7 @@ export const fetchTournamentsByStatus = async (status: String): Promise<Tourname
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.get(`${URL}/status/${status}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.data;
 	} catch (error) {
@@ -179,15 +160,9 @@ export const registerTournament = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.post(
-			`${URL}/${tournament_id}/players/${user_id}/register`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtToken}`,
-				},
-				
-			}
-		);
+		const response = await axios.post(`${URL}/${tournament_id}/players/${user_id}/register`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		console.log(response);
 		return response.status === 200;
 	} catch (error) {
@@ -203,10 +178,7 @@ export const withdrawTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		console.log(`${URL}/${tournament_id}/players/${user_id}/deregister`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 
 		const response = await axios.put(
@@ -228,9 +200,8 @@ export const createTournaments = async (
 		const response = await axios.post(`${URL}`, tournamentData, {
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+				...(jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {})
+			}
 		});
 		return response.status === 201;
 	} catch (error) {
@@ -250,9 +221,8 @@ export const updateTournaments = async (
 			{
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${jwtToken}`,
-				},
-				
+					...(jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {})
+				}
 			}
 		);
 
@@ -272,9 +242,8 @@ export const updateTournamentStatusById = async (
 		const response = await axios.put(`${URL}/${tournament_id}/status`, status, {
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+				...(jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {})
+			}
 		});
 
 		return response.status === 200;
@@ -290,11 +259,8 @@ export const deleteTournament = async (
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.delete(`${URL}/${tournament_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
-		});
+				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+			});
 		return response.status === 204;
 	} catch (error) {
 		console.error("Error deleting tournaments", error);

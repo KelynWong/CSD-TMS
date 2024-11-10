@@ -1,7 +1,6 @@
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_USER_API_URL;
-const URL = '/api/users';
+const URL = process.env.NEXT_PUBLIC_USER_API_URL;
 
 export type PlayerResponse = {
 	id: string;
@@ -57,11 +56,9 @@ export const fetchUsers = async (): Promise<UserResponse[]> => {
 		const jwtToken = getJwtToken();
 		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		const formattedData: UserResponse[] = response.data.map((user: any) => ({
 			id: user.id,
 			username: user.username,
@@ -85,11 +82,9 @@ export const fetchOrganizer = async (id: string): Promise<string> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		return response.data.fullname;
 	} catch (error) {
 		console.error("Error fetching organizer", error);
@@ -101,11 +96,9 @@ export const fetchUser = async (id: string): Promise<any> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching organizer", error);
@@ -117,11 +110,9 @@ export const fetchPlayer = async (id: string): Promise<PlayerResponse> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		const formattedData: PlayerResponse = {
 			id: response.data.id,
 			username: response.data.username,
@@ -147,11 +138,9 @@ export const fetchUserByRoles = async (
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/role/${role}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		if (role === "PLAYER") {
 			return response.data.map((player: any) => ({
 				id: player.id,
@@ -186,11 +175,9 @@ export const fetchTopPlayers = async (): Promise<PlayerResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/top-players`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
+
 		const formattedData: PlayerResponse[] = response.data.map(
 			(player: any) => ({
 				id: player.id,
@@ -216,10 +203,7 @@ export const getPlayerRank = async (id: string): Promise<number> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${id}/rank`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 
 		return response.data;

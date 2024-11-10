@@ -1,7 +1,6 @@
 import axios from "axios";
 
-// const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
-const URL = '/api/matchmaking';
+const URL = process.env.NEXT_PUBLIC_MATCHMAKING_API_URL;
 
 type Game = {
 	setNum: number;
@@ -30,10 +29,8 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 	try {
 		const jwtToken = getJwtToken(); 
 		console.log("testing if matchMakeByTournament strategy shows", strategy);
-		const response = await axios.post(`${URL}/${tournament_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
+		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.status === 200; 
 	} catch (error: unknown) {
@@ -58,11 +55,7 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 	try {
 		const jwtToken = getJwtToken(); 
 		const response = await axios.post(`${URL}/result/${match_id}`, gamesData, {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.status === 201 || response.status === 200; 
 	} catch (error: unknown) {
@@ -88,15 +81,9 @@ export const predictTournament = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(
-			`${URL}/matches/${tournament_id}/simulate`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtToken}`,
-				},
-				
-			}
-		);
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);
@@ -109,15 +96,9 @@ export const predictTournament1000 = async (
 ): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.get(
-			`${URL}/matches/${tournament_id}/simulate-many`,
-			{
-				headers: {
-					Authorization: `Bearer ${jwtToken}`,
-				},
-				
-			}
-		);
+		const response = await axios.get(`${URL}/matches/${tournament_id}/simulate-many`, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
 		return response.data;
 	} catch (error) {
 		console.error("Error simulating matches", error);

@@ -1,6 +1,5 @@
 import axios from "axios";
-// const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
-const URL = '/api/matches';
+const URL = process.env.NEXT_PUBLIC_MATCH_API_URL;
 
 export type GameResponse = {
 	id: number;
@@ -49,10 +48,7 @@ export const fetchMatchByTournamentId = async (
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/tournament/${tournament_id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.data;
 	} catch (error) {
@@ -65,10 +61,7 @@ export const fetchGamesByMatchId = async (match_id: number): Promise<any[]> => {
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/${match_id}/games`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 
 		return response.data;
@@ -86,10 +79,7 @@ export const fetchPlayerStats = async (
 		const winResponse = await axios.get(`${URL}/user/win/${Id}`);
 		const wins = winResponse.data.length;
 		const lossResponse = await axios.get(`${URL}/user/loss/${Id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		const losses = lossResponse.data.length;
 		const gamesPlayed = wins + losses;
@@ -112,10 +102,7 @@ export const fetchPlayerMatches = async (
 	try {
 		const jwtToken = getJwtToken();
 		const response = await axios.get(`${URL}/user/played/${Id}`, {
-			headers: {
-				Authorization: `Bearer ${jwtToken}`,
-			},
-			
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		return response.data;
 	} catch (error) {
