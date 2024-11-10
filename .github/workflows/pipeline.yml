@@ -646,3 +646,24 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
 
+  connect-to-supabase:
+    name: Connect to Supabase and Run init.sql
+    runs-on: ubuntu-latest
+    needs: 
+      - build-and-analyze-with-sonarcloud
+      - build-and-deploy  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install psql client
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Run init.sql on Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL_AND_PORT }}
+          SUPABASE_DB_USER: ${{ secrets.DB_USER }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.DB_PW }}
+          SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
+        run: |
+          psql "postgres://${SUPABASE_DB_USER}:${SUPABASE_DB_PASSWORD}@${SUPABASE_URL}/${SUPABASE_DB_NAME}" -f backend/init.sql
