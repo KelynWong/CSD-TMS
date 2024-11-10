@@ -77,7 +77,8 @@ public class TestHelper {
     }
 
     public Player createTestPlayer() {
-        return new Player("usertesting123", new ArrayList<>());
+        Player player = new Player("usertesting123", new ArrayList<>());
+        return player;
     }
 
     public void mapTournamentPlayer(Tournament tournament, Player player) {

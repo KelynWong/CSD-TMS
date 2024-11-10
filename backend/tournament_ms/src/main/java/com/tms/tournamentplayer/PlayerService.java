@@ -16,88 +16,97 @@ public class PlayerService {
     private AutoStatusUpdateService autoStatusUpdateService;
 
     public PlayerService(TournamentRepository tr, PlayerRepository pr, AutoStatusUpdateService as) {
-        // bind tournament Repo
         this.tournaments = tr;
         this.players = pr;
         this.autoStatusUpdateService = as;
     }
 
-    public Player getPlayer(String id) {
-        /// find tournament using specified id
-        return players.findById(id).map(player -> { // findById(id) return Optional<Tournament> so map to extract
-                                                    // Tournament obj
-            // return retrieved tournament
-            return player;
-
-        }).orElse(null); // if cannot find tournament, return null
-    }
-
+    // Purpose : get all players from specified tournament
     public List<Player> getAllPlayersByTournamentId(Long tournamentId) {
 
         // Find tournament specified by id
         return tournaments.findById(tournamentId).map(tournament -> {
-
+            // Auto update the tournament Status by datetime
             autoStatusUpdateService.autoUpdateTournament(tournament);
-
             // Return tournament's players
             return tournament.getPlayers();
 
             // Else, means specified tournament not found, throw TournamentNotFoundException
             // err 404
-        }).orElse(null);
+        }).orElseThrow(() -> new TournamentNotFoundException(tournamentId));
     }
 
+    // Purpose : get all tournaments from specified player
     public List<Tournament> getAllTournamentsByPlayerId(String playerId) {
         // Find player specified by id
         return players.findById(playerId).map(player -> {
-
             // Get all tournaments of player
             List<Tournament> t_list = player.getTournaments();
-
-            // For every tournament, Check and Update tournament Status based on regDTs
+            // Auto update the tournament Status by datetime
             autoStatusUpdateService.autoUpdateTournaments(t_list);
-
+            // return player's tournaments
             return t_list;
 
             // Else, means specified player not found, throw PlayerNotFoundException err 404
         }).orElseThrow(() -> new PlayerNotFoundException(playerId)); // null or exception??
     }
 
+    public Player getPlayer(String id) {
+        // find tournament using specified id
+        // - findById(id) return Optional<Tournament> so map to extract Tournament obj
+        return players.findById(id).map(player -> {
+            // return retrieved tournament
+            return player;
+
+        }).orElse(null); // if cannot find tournament, return null
+    }
+
+    // Purpose : create a player 
     public Player createPlayer(String playerId) {
-        // create player obj
+
+        // Check if player id alrdy exist
+        if (players.existsById(playerId)) {
+            // return null
+            return null;
+        }
+
+        // If not exist, create player
         Player player = new Player(playerId, new ArrayList<>());
-        // return saved the new player
+        // save player in db and return it
         return players.save(player);
 
     }
 
+    // Purpose : map player to tournament
     public Player addPlayerToTournament(Player player, Tournament tournament) {
-
-        // [WARN] currently, if player is already registered, no err will be thrown. It
-        // just dont update anything
 
         // If player is not registered in the tournament
         if (!tournament.isPlayerInTournament(player)) {
             // Add player into tournament (this function does mapping to both table)
+            // but not save in db yet
             tournament.addPlayer(player);
         }
 
-        // Return the player (no need to save in the DB - will auto save)
+        // Save changes in db and return player
         return players.save(player);
     }
 
+    // Purpose : remove mapping between specified player and tournament
     public Player removePlayerFromTournament(Player player, Tournament tournament) {
 
-        // If player is map to tournament, remove it.
+        // If player is map to tournament
         if (tournament.isPlayerInTournament(player)) {
+            // remove player from tournament
             tournament.removePlayer(player);
+            // save changes and return player
             return players.save(player);
         }
 
-        // Else, return null
+        // Else, player alrdy not in tournament, return null
         return null;
     }
 
+    // Purpose : delete player
     public Player deletePlayer(String id) {
 
         // find player specified by id
@@ -110,16 +119,18 @@ public class PlayerService {
             // if all ok, return player
             return player;
 
-            // Reaching here means specified player not found, throw
-            // PlayerNotFoundException err 404
+            // Reaching here means specified player not found
+            // return null
         }).orElse(null);
 
     }
 
+    // Purpose : remove all tournament mapping to specified player
     private void removeAllPlayerTournaments(Player player) {
-
-       player.removeAllTournaments();
-       players.save(player);
+        // remove all tournament mapping
+        player.removeAllTournaments();
+        // save changes
+        players.save(player);
 
     }
 
