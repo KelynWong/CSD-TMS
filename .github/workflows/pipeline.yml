@@ -128,7 +128,7 @@ jobs:
       run: |
         # Create API Management instance
         az apim create \
-          --name csdAPI \
+          --name csdtmsSGAPI \
           --resource-group tmsSG \
           --location southeastasia \
           --sku-name Developer \
