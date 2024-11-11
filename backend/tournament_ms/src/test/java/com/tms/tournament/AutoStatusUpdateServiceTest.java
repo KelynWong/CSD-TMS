@@ -50,16 +50,9 @@ public class AutoStatusUpdateServiceTest {
 
     }
 
-    // @Test // null test case
-
     /*
      * Mock Tournament Object:
-     * - regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
-     * - regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
-     * - startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
-     * - endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-     * - String status = "Scheduled";
-     * - no id oso
+     * - default status is "Scheduled";
      */
 
     @Test
@@ -119,7 +112,7 @@ public class AutoStatusUpdateServiceTest {
     }
 
     @Test
-    void autoUpdateTournament_Found_WithinRegPeriod_sameRegEndTime_changedToRegStart() {
+    void autoUpdateTournament_Found_WithinRegPeriod_sameRegEndTime_changedToRegClose() {
         // Arrange
         // - mock obj (tournament and current datetime)
         Tournament tournament = helper.createTournamentObj("noError");
@@ -175,7 +168,7 @@ public class AutoStatusUpdateServiceTest {
     }
 
     @Test
-    void autoUpdateTournament_Found_WithinRegPeriod_1minAfterRegEndTime_changedToRegStart() {
+    void autoUpdateTournament_Found_WithinRegPeriod_1minAfterRegEndTime_changedToRegClose() {
         // Arrange
         // - mock obj (tournament and current datetime)
         Tournament tournament = helper.createTournamentObj("noError");
