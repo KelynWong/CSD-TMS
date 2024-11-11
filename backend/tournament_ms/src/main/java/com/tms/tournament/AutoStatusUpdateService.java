@@ -7,12 +7,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.tms.exception.TournamentNotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class AutoStatusUpdateService {
-    
+
     private TournamentRepository tournaments;
 
     public AutoStatusUpdateService(TournamentRepository tr) {
@@ -23,9 +25,15 @@ public class AutoStatusUpdateService {
     // Purpose : Auto update status
     public void autoUpdateTournament(Tournament tournament) {
 
-        /*             regS             regE     Makemake       tourS            tourE
-         *              |----------------|----------|-------------|----------------|
-         * Scheduled   ->   RegStart     ->  RegEnd -> Matchmake  ->  Ongoing      ->  Completed
+        // Check if tournament exist or not
+        if (!tournaments.existsById(tournament.getId())) {
+            throw new TournamentNotFoundException(tournament.getId());
+        }
+
+        /*
+         * regS regE Makemake tourS tourE
+         * |----------------|----------|-------------|----------------|
+         * Scheduled -> RegStart -> RegEnd -> Matchmake -> Ongoing -> Completed
          */
 
         // Get current datetime
@@ -34,28 +42,30 @@ public class AutoStatusUpdateService {
 
         log.info("[AutoUpdate] Current datetime: " + localNow);
 
+        // SCHEDULED : before registration start
+        if (localNow.isBefore(tournament.getRegStartDT())) {
+            log.info("[AutoUpdate] CHANGE TO SCHEDULED");
+            tournament.setStatus(TournamentStatus.SCHEDULED);
+        }
+
         // REGISTRATION_START : within registration period
-        if (isWithin(localNow, tournament.getRegStartDT(), tournament.getRegEndDT())) {
+        else if (isWithin(localNow, tournament.getRegStartDT(), tournament.getRegEndDT())) {
             log.info("[AutoUpdate] CHANGE TO REG_START");
             tournament.setStatus(TournamentStatus.REGISTRATION_START);
         }
 
-        // REGISTRATION_CLOSE : after Registration End and Before matchmake is done
-        else if (tournament.getStatus() != TournamentStatus.MATCHMAKE && isWithin(localNow, tournament.getRegEndDT(), tournament.getStartDT())) {
-            log.info("[AutoUpdate] CHANGE TO REG_CLOSE");
-            tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE);
-        }
-
         // ONGOING : within tournament period
-        else if (tournament.getStatus() != TournamentStatus.COMPLETED &&  isWithin(localNow, tournament.getStartDT(), tournament.getEndDT())) {
+        else if (tournament.getStatus() != TournamentStatus.COMPLETED
+                && isWithin(localNow, tournament.getStartDT(), tournament.getEndDT())) {
             log.info("[AutoUpdate] CHANGE TO ONGOING");
             tournament.setStatus(TournamentStatus.ONGOING);
         }
 
-        // SCHEDULED : before registration start
-        else if (localNow.isBefore(tournament.getRegStartDT())) {
-            log.info("[AutoUpdate] CHANGE TO SCHEDULED");
-            tournament.setStatus(TournamentStatus.SCHEDULED);
+        // REGISTRATION_CLOSE : after Registration End and Before matchmake is done
+        else if (tournament.getStatus() != TournamentStatus.MATCHMAKE
+                && isWithin(localNow, tournament.getRegEndDT(), tournament.getStartDT())) {
+            log.info("[AutoUpdate] CHANGE TO REG_CLOSE");
+            tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE);
         }
 
         // Save updates in db
@@ -65,6 +75,12 @@ public class AutoStatusUpdateService {
 
     // Purpose : Update all tournaments in a list
     public void autoUpdateTournaments(List<Tournament> t_list) {
+
+        // if tournament list is null, throw NullPointerException
+        if (t_list == null) {
+            throw new NullPointerException("Tournament list given is null!");
+        }
+
         // For every tournament, Check and Update tournament Status based on regDTs
         for (Tournament t : t_list) {
             autoUpdateTournament(t);
@@ -72,7 +88,7 @@ public class AutoStatusUpdateService {
     }
 
     // Purpose : Check if datetime given falls within range
-    public boolean isWithin(LocalDateTime dt, LocalDateTime startRange, LocalDateTime endRange) {
+    private boolean isWithin(LocalDateTime dt, LocalDateTime startRange, LocalDateTime endRange) {
 
         return !dt.isBefore(startRange) && !dt.isAfter(endRange);
 

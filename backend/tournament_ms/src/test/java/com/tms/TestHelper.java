@@ -36,7 +36,7 @@ public class TestHelper {
         LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
         LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
         LocalDateTime endDT = LocalDateTime.of(2024, 10, 30, 10, 00, 00);
-        String status = "Registration Start";
+        String status = "Scheduled";
         String createdBy = "admin1";
         String winner = null;
 
