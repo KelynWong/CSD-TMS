@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class MatchmakeServiceTest {
+class MatchmakeServiceTest {
 
     private final int DEFAULT_RATING = 1500;
     private final int DEFAULT_RATING_DEVIATION = 350;
@@ -106,7 +106,6 @@ public class MatchmakeServiceTest {
         int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
         double numMatches = Math.pow(2, k) - 1;
         int byes = (int) Math.pow(2, k) - n;
-        double numMatchesAtBase = Math.pow(2, k - 1);
 
         List<MatchJson> expectedMatches = createExpectedMatches(byes, players);
 

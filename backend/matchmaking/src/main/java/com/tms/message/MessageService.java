@@ -32,7 +32,6 @@ public class MessageService {
         try {
             // Convert the message data to JSON format
             String messageBody = objectMapper.writeValueAsString(messageData);
-            System.out.println("Sending message: " + messageBody);
             // Build the SendMessageRequest with the target SQS queue URL and message body
             SendMessageRequest sendMsgRequest = SendMessageRequest.builder()
                     .queueUrl("https://sqs.ap-southeast-1.amazonaws.com/654654510601/email-queue")
@@ -41,24 +40,20 @@ public class MessageService {
 
             // Send the message to SQS and capture the response
             SendMessageResponse sendMsgResponse = sqsClient.sendMessage(sendMsgRequest);
-            System.out.println("Message sent with ID: " + sendMsgResponse.messageId());
 
         } catch (JsonProcessingException e) {
             // Handle JSON processing errors
-            System.err.println("Failed to process message data as JSON: " + e.getMessage());
             e.printStackTrace();
         } catch (SqsException e) {
             // Handle SQS client-related errors
-            System.err.println("Failed to send message to SQS: " + e.awsErrorDetails().errorMessage());
             e.printStackTrace();
         } catch (Exception e) {
             // Handle any other unforeseen errors
-            System.err.println("An unexpected error occurred: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void sendMessagesToSQS(Tournament tournament, List<MatchJson> matches, Map<String, Player> idToPlayer, int numRounds) {
+    public void sendMessagesToSQS(Tournament tournament, List<MatchJson> matches, Map<String, Player> idToPlayer, double numRounds) {
         String emailContent = formatMessage(tournament, matches, idToPlayer, numRounds);
         String tournamentName = tournament.getTournamentName();
         for (Player player : idToPlayer.values()) {
@@ -69,7 +64,7 @@ public class MessageService {
     }
 
     private String formatMessage(Tournament tournament, List<MatchJson> matches, Map<String, Player> idToPlayer,
-                            int numRounds) {
+                            double numRounds) {
         String tournamentName = tournament.getTournamentName();
         Long tournamentId = tournament.getId();
         LocalDateTime startDT = tournament.getStartDT();
@@ -106,7 +101,7 @@ public class MessageService {
      * @param numRounds number of rounds in the tournament
      * @return HTML table string
      */
-    private String convertTournamentToHTML(List<MatchJson> matches, Map<String, Player> idToPlayer, int numRounds) {
+    private String convertTournamentToHTML(List<MatchJson> matches, Map<String, Player> idToPlayer, double numRounds) {
         StringBuilder sb = new StringBuilder();
 
         // Start HTML
@@ -128,7 +123,7 @@ public class MessageService {
         for (int i = 0; i < numBaseMatches; i++) {
             // First player row
             sb.append("<tr>");
-            int numLoops = calculateNumLoops(i, numBaseMatches, numRounds);
+            double numLoops = calculateNumLoops(i, numBaseMatches, numRounds);
 
             for (int round = 0; round < numLoops; round++) {
                 int rowspan = (int) Math.pow(2, round);
@@ -155,7 +150,7 @@ public class MessageService {
         return sb.toString();
     }
 
-    private int calculateNumLoops(int i, int numBaseMatches, int numRounds) {
+    private double calculateNumLoops(int i, int numBaseMatches, double numRounds) {
         for (int j = 1; j <= numRounds; j++) {
             if (i % (numBaseMatches / Math.pow(2, j)) == 0) {
                 return numRounds - (j - 1);

@@ -9,6 +9,6 @@ class MatchmakingApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// test the context loads
 	}
-
 }

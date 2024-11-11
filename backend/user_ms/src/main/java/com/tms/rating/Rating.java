@@ -13,6 +13,7 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Holds an individual's Glicko-2 rating.
@@ -76,8 +77,17 @@ public class Rating implements Cloneable {
 		}
 	}
 
-	public boolean equals(Rating other) {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		Rating other = (Rating) obj;
 		return this.user.getId().equals(other.user.getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(user.getId());
 	}
 
 	public boolean propertiesEqual(Rating other) {

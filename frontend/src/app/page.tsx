@@ -338,7 +338,7 @@ export default function Home() {
 													</div>
 													<div className="tournament-action flex items-center justify-center gap-4 mt-4">
 														<Link href="/prediction">
-															<Button className="font-heading predict">Predict</Button>
+															<Button className="font-heading predict"><span>Predict</span></Button>
 														</Link>
 													</div>
 												</div>
@@ -404,7 +404,7 @@ export default function Home() {
 								<div className="w-full grid grid-cols-4 gap-6">
 									{randomPlayers.map((player) => (
 										<div key={player.id}>
-											<Link href={`/players/${player.id}`}>
+											<Link href={`/players/${player.id}`} className="player">
 												<Image
 													src={
 														player.gender === 'Female'
@@ -414,7 +414,7 @@ export default function Home() {
 													alt={`Player ${player.id}`}
 													width={200}
 													height={200}
-													className="object-cover object-top rounded-lg w-full h-44"
+													className="img object-cover object-top rounded-lg w-full h-44"
 												/>
 												<div className="flex flex-row justify-between items-start mt-3">
 													<div className="flex flex-col">

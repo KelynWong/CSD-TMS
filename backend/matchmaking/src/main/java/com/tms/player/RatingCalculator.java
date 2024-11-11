@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RatingCalculator {
-    private final static double q = Math.log(10) / 400;
+    private static final double q = Math.log(10) / 400;
 
     private double g(double deviation) {
         return 1.0 / ( Math.sqrt( 1.0 + ( 3.0 * Math.pow(q,2) * Math.pow(deviation, 2) / Math.pow(Math.PI,2) )));
