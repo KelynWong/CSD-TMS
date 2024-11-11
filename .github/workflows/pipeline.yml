@@ -618,47 +618,47 @@ jobs:
         working-directory: backend/match_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_MATCHMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMS
 
       # Build and analyze tournament_ms
       - name: Build and analyze tournament_ms
         working-directory: backend/tournament_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_TOURNAMENTMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-TOURNAMENTMS
 
       # Build and analyze user_ms
       - name: Build and analyze user_ms
         working-directory: backend/user_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_USERMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
           CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-USERMS
 
       # Build and analyze matchmaking
       - name: Build and analyze matchmaking
         working-directory: backend/matchmaking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_MATCHMAKING }}
           MATCH_URL: http://match-ms:8080/matches
           TOURNAMENT_URL: http://tournament-ms:8082/tournaments
           PLAYER_URL: http://user-ms:8083/users
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMAKING
 
   connect-to-supabase:
     name: Connect to Supabase and Run init.sql

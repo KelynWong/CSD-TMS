@@ -37,10 +37,22 @@ import { Tournament } from "@/types/tournament";
 import { fetchAllPlayersByTournament, fetchTournamentsByStatus } from "@/api/tournaments/api";
 import TournamentResultTable from "../tournaments/_components/TournamentResultTable";
 import { predictTournament, predictTournament1000 } from "@/api/matchmaking/api";
-import { fetchPlayer } from "@/api/users/api";
-import { Player } from "@/types/tournamentDetails";
+import { getAllPlayerDetails } from "@/api/users/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { fetchMatchByTournamentId } from "@/api/matches/api";
+
+export type PlayerResponse = {
+	id: string;
+	username: string;
+	fullname: string;
+	gender: string;
+	rating: number;
+	country: string;
+	profilePicture: string;
+	email: string;
+	role: string;
+	rank: number;
+};
 
 export default function Prediction() {
     const [loading, setLoading] = useState(true);
@@ -83,29 +95,13 @@ export default function Prediction() {
         setLoading(true);
         try {
             const playersData = await fetchAllPlayersByTournament(Number(tournament_id));
-            const fullPlayersData = await Promise.all(
-                playersData.map(async (player) => {
-                    const playerData = await fetchPlayer(player.id);
-                    return {
-                        id: player.id,
-                        username: playerData.username,
-                        fullname: playerData.fullname,
-                        gender: playerData.gender,
-                        rating: playerData.rating,
-                        country: playerData.country,
-                        profilePicture: playerData.profilePicture,
-                        email: playerData.email,
-                        role: playerData.role,
-                    };
-                })
-            );
-
+            const fullPlayersData = await getAllPlayerDetails(playersData);
             const matchesData = await fetchMatchByTournamentId(Number(tournament_id));
             const enrichedMatches = await Promise.all(
                 matchesData.map(async (match) => {
-                    const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
-                    const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
-                    const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
+                    const player1 = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.player1Id) || null : null;
+                    const player2 = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.player2Id) || null : null;
+                    const winner = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.winnerId) || null : null;
                     return {
                         id: match.id,
                         tournamentId: match.tournamentId,
@@ -134,29 +130,12 @@ export default function Prediction() {
             setLoading(true);
             try {
                 const results = await predictTournament(Number(selectedTournamentId));
-    
                 const playersData = await fetchAllPlayersByTournament(Number(selectedTournamentId));
-                const fullPlayersData = await Promise.all(
-                    playersData.map(async (player) => {
-                        const playerData = await fetchPlayer(player.id);
-                        return {
-                            id: player.id,
-                            username: playerData.username,
-                            fullname: playerData.fullname,
-                            gender: playerData.gender,
-                            rating: playerData.rating,
-                            country: playerData.country,
-                            profilePicture: playerData.profilePicture,
-                            email: playerData.email,
-                            role: playerData.role,
-                        };
-                    })
-                );
-    
+                const fullPlayersData = await getAllPlayerDetails(playersData);
                 const enrichedMatches = results.map((match) => {
-                    const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
-                    const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
-                    const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
+                    const player1 = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.player1Id) || null : null;
+                    const player2 = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.player2Id) || null : null;
+                    const winner = Array.isArray(fullPlayersData) ? fullPlayersData.find((player: PlayerResponse) => player.id === match.winnerId) || null : null;
                     const formattedScores = match.games.map((game: { player1Score: any; player2Score: any; }) => `${game.player1Score}-${game.player2Score}`).join(' / ');
                     return {
                         id: match.id,
