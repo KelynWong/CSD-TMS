@@ -37,6 +37,10 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public List<Tournament> getTournamentsByStatus(TournamentStatus status) {
+        // get all tournaments from db
+        List<Tournament> t_list = tournaments.findAll();
+        // update status by datetime
+        autoStatusUpdateService.autoUpdateTournaments(t_list);
         // return all tournaments with specified status (jpa - custom)
         return tournaments.findByStatus(status);
     }
@@ -95,8 +99,12 @@ public class TournamentServiceImpl implements TournamentService {
     public Tournament deleteTournament(Long id) {
         // find tournament specified by id
         return tournaments.findById(id).map(tournament -> {
-            // Remove all tournament-player mapping
-            removeAllTournamentPlayers(tournament);
+
+            // if player has mapping to tournaments
+            if (!tournament.getPlayers().isEmpty()) {
+                // Remove all tournament-player mapping
+                removeAllTournamentPlayers(tournament);
+            }
             // Now, no mapping can delete player
             tournaments.delete(tournament);
             // if all ok, return player
@@ -104,12 +112,13 @@ public class TournamentServiceImpl implements TournamentService {
 
             // Reaching here means specified tournament not found, throw
             // TournamentNotFoundException err 404
-        }).orElseThrow(()-> new TournamentNotFoundException(id));
+        }).orElseThrow(() -> new TournamentNotFoundException(id));
     }
 
     private void removeAllTournamentPlayers(Tournament tournament) {
-
+        // remove all player mapping
         tournament.removeAllPlayers();
+        // save changes
         tournaments.save(tournament);
 
     }

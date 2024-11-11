@@ -90,9 +90,11 @@ public class PlayerServiceTest {
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
 
+        player.setTournaments(tournamentList);
+
         // - mock methods/operations
         when(players.findById(p_id)).thenReturn(optPlayer);
-        // doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
 
         // Act
         List<Tournament> retrievedTournamentList = playerService.getAllTournamentsByPlayerId(p_id);
@@ -100,7 +102,7 @@ public class PlayerServiceTest {
         // Assert
         assertNotNull(retrievedTournamentList);
         verify(players).findById(p_id);
-        // verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
     }
 
     @Test // case 2 : invalid tournament id (throw PlayerNotFoundException)

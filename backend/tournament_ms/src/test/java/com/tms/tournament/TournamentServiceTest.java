@@ -21,6 +21,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import com.tms.TestHelper;
 import com.tms.exception.TournamentNotFoundException;
+import com.tms.tournamentplayer.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +66,60 @@ public class TournamentServiceTest {
     }
 
     /*
+     *  getTournamentsByStatus()
+     *  // Assumption : its valid status 
+     */
+     @Test
+     void getTournamentsByStatus_ReturnTournaments() {
+         // Arrange
+         // - mock objects
+         Tournament tournament = helper.createTournamentObj();
+         List<Tournament> tournamentList = new ArrayList<>();
+         tournamentList.add(tournament);
+         TournamentStatus status = tournament.getStatus();
+ 
+         // - mock methods/operations
+         when(tournaments.findAll()).thenReturn(tournamentList);
+         doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+         when(tournaments.findByStatus(status)).thenReturn(tournamentList);
+ 
+         // Act
+         List<Tournament> retrievedTournamentList = tournamentService.getTournamentsByStatus(status);
+ 
+         // Assert
+         assertNotNull(retrievedTournamentList);
+         verify(tournaments).findAll();
+         verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+         verify(tournaments).findByStatus(status);
+    }
+
+    /*
+     *  getTournamentsByTournamentName()
+     *  // Assumption : its valid status 
+     */
+    @Test
+    void getTournamentsByTournamentName_ReturnTournaments() {
+        // Arrange
+        // - mock objects
+        Tournament tournament = helper.createTournamentObj();
+        List<Tournament> tournamentList = new ArrayList<>();
+        tournamentList.add(tournament);
+        String name = tournament.getTournamentName();
+
+        // - mock methods/operations
+        when(tournaments.findByTournamentName(name)).thenReturn(tournamentList);
+        doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+
+        // Act
+        List<Tournament> retrievedTournamentList = tournamentService.getTournamentsByTournamentName(name);
+
+        // Assert
+        assertNotNull(retrievedTournamentList);
+        verify(tournaments).findByTournamentName(name);
+        verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+   }
+
+    /*
      * getTournament()
      * 1. Found
      * 2. Not Found
@@ -80,15 +135,15 @@ public class TournamentServiceTest {
 
         // - mock methods/operations
         when(tournaments.findById(id)).thenReturn(optTournament);
+        doNothing().when(autoStatusUpdateService).autoUpdateTournament(tournament);
 
         // Act
-        log.info("INFO: GETTOURNAMENT_FOUND ACT START!");
         Tournament savedTournament = tournamentService.getTournament(id);
-        log.info("INFO: GETTOURNAMENT_FOUND ACT END!");
 
         // Assert
         assertNotNull(savedTournament);
         verify(tournaments).findById(id);
+        verify(autoStatusUpdateService).autoUpdateTournament(tournament);
     }
 
     @Test
@@ -101,9 +156,7 @@ public class TournamentServiceTest {
         when(tournaments.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        log.info("INFO: GETTOURNAMENT_NOTFOUND ACT START!");
         Tournament tournament = tournamentService.getTournament(id);
-        log.info("INFO: GETTOURNAMENT_NOTFOUND ACT END!");
 
         // Assert
         assertNull(tournament);
@@ -112,8 +165,7 @@ public class TournamentServiceTest {
 
     /*
      * addTournament()
-     * 1. newName
-     * 2. sameName
+     * - Assumption : input validation done alrdy in controller
      */
     @Test
     void addTournament_NewName_ReturnSavedTournament() {
@@ -122,49 +174,22 @@ public class TournamentServiceTest {
         Tournament tournament = helper.createTournamentObj();
 
         // - mock methods/operations
-        // when(tournaments.findByTournamentName(any(String.class))).thenReturn(new
-        // ArrayList<Tournament>());
         when(tournaments.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
-        log.info("INFO: ADDTOURNAMENT_SUCCESS ACT START!");
         Tournament savedTournament = tournamentService.addTournament(tournament);
-        log.info("INFO: ADDTOURNAMENT_SUCCESS ACT END!");
 
         // Assert
         assertNotNull(savedTournament);
-
-        // verify(tournaments).findByTournamentName(tournament.getTournamentName());
         verify(tournaments).save(tournament);
 
     }
-
-    // @Test
-    // void addTournament_SameName_ReturnNull() {
-    // // Arrange
-    // // - mock objects
-    // Tournament tournament = helper.createTournamentObj();
-
-    // List<Tournament> tournamentOfSameName = new ArrayList<>();
-    // tournamentOfSameName.add(tournament);
-
-    // // - mock methods/operations
-    // when(tournaments.findByTournamentName(any(String.class))).thenReturn(tournamentOfSameName);
-
-    // // Act
-    // log.info("INFO: ADDTOURNAMENT_SAMENAME ACT START!");
-    // Tournament savedTournament = tournamentService.addTournament(tournament);
-    // log.info("INFO: ADDTOURNAMENT_SAMENAME ACT END!");
-
-    // // Assert
-    // assertNull(savedTournament);
-    // verify(tournaments).findByTournamentName(tournament.getTournamentName());
-    // }
 
     /*
      * updateTournament()
      * 1. Found
      * 2. NotFound
+     *  - Assumption : Input validation done in controller
      */
     @Test
     void updateTournament_Found_ReturnSavedTournament() {
@@ -180,9 +205,7 @@ public class TournamentServiceTest {
         when(tournaments.save(any(Tournament.class))).thenReturn(tournament);
 
         // Act
-        log.info("INFO: UPDATETOURNAMENT_FOUND ACT START!");
         Tournament savedTournament = tournamentService.updateTournament(id, tournament);
-        log.info("INFO: UPDATETOURNAMENT_FOUND ACT END!");
 
         // Assert
         assertNotNull(savedTournament);
@@ -202,9 +225,7 @@ public class TournamentServiceTest {
         when(tournaments.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        log.info("INFO: UPDATETOURNAMENT_NOTFOUND ACT START!");
         Tournament savedTournament = tournamentService.updateTournament(id, tournament);
-        log.info("INFO: UPDATETOURNAMENT_NOTFOUND ACT END!");
 
         // Assert
         assertNull(savedTournament);
@@ -212,12 +233,13 @@ public class TournamentServiceTest {
     }
 
     /*
-     * deleteTournament() - TBC
-     * 1. Found
-     * 2. NotFound
+     * deleteTournament()
+     * 1. Found without mapping
+     * 2. Found with mapping
+     * 3. NotFound
      */
     @Test
-    void deleteTournament_Found_ReturnNothing() {
+    void deleteTournament_FoundWithoutMapping_ReturnTournament() {
         // Arrange
         // - mock objects
         Tournament tournament = helper.createTournamentObj();
@@ -228,20 +250,42 @@ public class TournamentServiceTest {
         // - mock methods/operations
         when(tournaments.findById(id)).thenReturn(optTournament);
         doNothing().when(tournaments).delete(tournament);
-        // - mock methods/operations
-        // doNothing().when(tournaments).deleteById(id);
 
         // Act
         Tournament deletedTournament = tournamentService.deleteTournament(id);
-        log.info("INFO: GETTOURNAMENT_FOUND ACT END!");
 
         // Assert
         assertNotNull(deletedTournament);
         verify(tournaments).findById(id);
         verify(tournaments).delete(tournament);
 
+    }
+
+    @Test
+    void deleteTournament_FoundWithMapping_ReturnTournament() {
+        // Arrange
+        // - mock objects
+        Tournament tournament = helper.createTournamentObj();
+        Long id = tournament.getId();
+
+        Player player = helper.createPlayerObj();
+        tournament.addPlayer(player);
+
+        Optional<Tournament> optTournament = Optional.of(tournament);
+
+        // - mock methods/operations
+        when(tournaments.findById(id)).thenReturn(optTournament);
+        when(tournaments.save(any(Tournament.class))).thenReturn(tournament);
+        doNothing().when(tournaments).delete(tournament);
+
+        // Act
+        Tournament deletedTournament = tournamentService.deleteTournament(id);
+
         // Assert
-        // verify(tournaments, times(1)).deleteById(id); // Verify interaction
+        assertNotNull(deletedTournament);
+        verify(tournaments).findById(id);
+        verify(tournaments).save(tournament);
+        verify(tournaments).delete(tournament);
 
     }
 
@@ -253,14 +297,11 @@ public class TournamentServiceTest {
 
         // - mock methods/operations
         when(tournaments.findById(id)).thenReturn(Optional.empty());
-        // doThrow(new
-        // EmptyResultDataAccessException(0)).when(tournaments).deleteById(id);
 
         // Act & Assert: Validate that the exception is thrown
         assertThrows(TournamentNotFoundException.class, () -> tournamentService.deleteTournament(id));
 
         // Verify that deleteById was called exactly once
-        // verify(tournaments, times(1)).deleteById(id);
         verify(tournaments).findById(id);
     }
 
