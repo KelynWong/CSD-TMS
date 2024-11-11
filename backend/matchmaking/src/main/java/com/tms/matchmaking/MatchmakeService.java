@@ -44,10 +44,9 @@ public class MatchmakeService {
                 throw new TournamentExistsException(tournamentId);
             }
         } catch (TournamentNotFoundException e) {
-            System.out.println("Tournament not found. Creating matches for tournament ID: " + tournamentId);
             List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
             int numPlayers = playerIds.size();
-            int numRounds = (int) (Math.ceil(Math.log(numPlayers) / Math.log(2))); // k is height of tree, or number of rounds in tournament
+            double numRounds = Math.ceil(Math.log(numPlayers) / Math.log(2)); // k is height of tree, or number of rounds in tournament
 
             int byes = (int) Math.pow(2, numRounds) - numPlayers;
             // choose top x players to get byes.
@@ -361,7 +360,8 @@ public class MatchmakeService {
 
         for (int i = 0; i < numGames; i++) {
             int loserPoints = random.nextInt(15) + 5; // Random points between 5 and 19 for the loser
-            short player1Score, player2Score;
+            short player1Score;
+            short player2Score;
 
             if (numGames == 2 || i == 2) {
                 player1Score = player1Wins ? 21 : (short) loserPoints;

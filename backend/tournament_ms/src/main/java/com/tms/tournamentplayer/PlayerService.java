@@ -61,7 +61,7 @@ public class PlayerService {
         }).orElse(null); // if cannot find tournament, return null
     }
 
-    // Purpose : create a player 
+    // Purpose : create a player
     public Player createPlayer(String playerId) {
 
         // Check if player id alrdy exist
@@ -79,6 +79,8 @@ public class PlayerService {
 
     // Purpose : map player to tournament
     public Player addPlayerToTournament(Player player, Tournament tournament) {
+
+        // Assumption : player and tournament passed in both exist
 
         // If player is not registered in the tournament
         if (!tournament.isPlayerInTournament(player)) {
@@ -112,8 +114,12 @@ public class PlayerService {
         // find player specified by id
         return players.findById(id).map(player -> {
 
-            // Remove all tournament-player mapping
-            removeAllPlayerTournaments(player);
+            // if player has mapping to tournaments
+            if (!player.getTournaments().isEmpty()) {
+                // Remove all tournament-player mapping
+                removeAllPlayerTournaments(player);
+            }
+
             // Now, no mapping can delete player
             players.delete(player);
             // if all ok, return player

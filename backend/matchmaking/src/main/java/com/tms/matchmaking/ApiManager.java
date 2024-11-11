@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class ApiManager {
@@ -43,7 +44,7 @@ public class ApiManager {
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
 
-        if (playerIdRes.getStatusCode() != HttpStatus.OK || playerIdRes.getBody().isEmpty()) {
+        if (playerIdRes.getStatusCode() != HttpStatus.OK || Objects.requireNonNull(playerIdRes.getBody()).isEmpty()) {
             throw new NoPlayersRegisteredException("No players registered for tournament");
         }
 
@@ -87,8 +88,8 @@ public class ApiManager {
                 .toEntity(new ParameterizedTypeReference<>() {
                 });
 
-        if (matchRes.getStatusCode() != HttpStatus.OK || matchRes.getBody().isEmpty()) {
-            throw new TournamentNotFoundException(tournamentId, true);
+        if (matchRes.getStatusCode() != HttpStatus.OK || Objects.requireNonNull(matchRes.getBody()).isEmpty()) {
+            throw new TournamentFoundNoMatchException(tournamentId);
         }
 
         return matchRes.getBody();

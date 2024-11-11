@@ -54,7 +54,6 @@ export const getJwtToken = (): string | null => {
 export const fetchUsers = async (): Promise<UserResponse[]> => {
 	try {
 		const jwtToken = getJwtToken();
-		console.log("jwtToken: ", jwtToken);
 		const response = await axios.get(`${URL}`, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
