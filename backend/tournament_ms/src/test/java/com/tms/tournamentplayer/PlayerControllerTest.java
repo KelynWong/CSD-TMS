@@ -1,6 +1,7 @@
 package com.tms.tournamentplayer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
@@ -213,6 +214,21 @@ public class PlayerControllerTest {
 		//helper.reset(null, p_id);
 	}
 
+	@Test // isRegistered - case 4 : invalid player id
+	public void isRegistered_InvalidPlayerId_Failure() throws Exception {
+		
+		// input - invalid tournament id (create tournament and player -> del tournament)
+		Long t_id = tournaments.save(helper.createTournamentObj("noError")).getId();
+		String p_id = "invalid";
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id);
+		String result = restTemplate.getForObject(uri, String.class);
+
+		// verify output - no err : player not registered (result false)
+		assertTrue(result.contains("\"IsRegistered\":false"));
+	}
+
 	@Test // registerPlayer - case 1 : valid tournament id and not registered player
 	public void registerPlayer_ValidTournamentId_NotRegisteredPlayer_Success() throws Exception {
 
@@ -238,10 +254,6 @@ public class PlayerControllerTest {
 
 		// verify output - no err : player registered (result true)
 		assertTrue(result1.contains("\"IsRegistered\":true"));
-
-
-		// //helper.reset
-		// helper.reset(t_id, p_id);
 
 	}
 
@@ -295,8 +307,27 @@ public class PlayerControllerTest {
 
 	}
 
+	@Test // registerPlayer - case 4 : invalid player id
+	public void registerPlayer_InvalidPlayerId_Success() throws Exception {
+
+		// input - invalid tournament id (create tournament and player -> del tournament)
+		Tournament tournament = helper.createTournamentObj("noError");
+		Long t_id = tournaments.save(tournament).getId();
+
+		String p_id = "invalid";
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id + "/register");
+		ResponseEntity<Player> result = restTemplate.postForEntity(uri, tournament, Player.class);
+
+		// verify output result - 200 (OK) : player-tournament map successful (check if correct player id returned)
+		assertEquals(200, result.getStatusCode().value());
+		assertNotNull(result.getBody());
+
+	}
+
 	@Test // deregisterPlayer - case 1 : both id are valid
-	public void deregisterPlayer_ValidTournamentAndPlayerId_Success() throws Exception {
+	public void deregisterPlayer_ValidTournamentAndPlayerIdWithMapping_Success() throws Exception {
 
 		// input - valid tournament and player id (create both obj -> map them)
 		Tournament tournament = helper.createTournamentObj("noError");
@@ -375,6 +406,26 @@ public class PlayerControllerTest {
 
 		// //helper.reset
 		//helper.reset(null, p_id);
+
+	}
+
+	@Test // deregisterPlayer - case 4 : valid tournament and player but not mapped
+	public void deregisterPlayer_ValidTournamentAndPlayerIdNoMapping_Failure() throws Exception {
+
+		// input - valid tournament and player id (create both obj -> map them)
+		Tournament tournament = helper.createTournamentObj("noError");
+		Long t_id = tournaments.save(tournament).getId();
+
+		Player player = new Player("userTesting234", new ArrayList<>());
+		String p_id = players.save(player).getId();
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id + "/players/" + p_id + "/deregister");
+
+		ResponseEntity<Player> result = restTemplate.exchange(uri, HttpMethod.PUT, null, Player.class);
+
+		// verify output result - 404 (PlayerNotFoundException)
+		assertEquals(404, result.getStatusCode().value());
 
 	}
 

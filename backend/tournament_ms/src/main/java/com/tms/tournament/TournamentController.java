@@ -206,9 +206,9 @@ public class TournamentController {
             return false;
         }
 
-        /* Status needs to be valid and not null */
-        if (tournament.getStatus() == null || !TournamentStatus.isValid(tournament.getStatus())) {
-            log.error("ERROR: TOURNAMENT INPUT - INVALID OR NULL STATUS");
+        /* Status cannot be not null */
+        if (tournament.getStatus() == null) {
+            log.error("ERROR: TOURNAMENT INPUT - NULL STATUS");
             return false;
         }
 

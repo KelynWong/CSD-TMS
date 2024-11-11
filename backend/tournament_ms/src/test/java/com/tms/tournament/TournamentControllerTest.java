@@ -17,6 +17,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.tms.TestHelper;
@@ -65,6 +66,16 @@ class TournamentControllerTest {
 	}
 
 	/* START OF TESTING */
+
+	@Test
+    void healthCheck() throws Exception {
+        URI uri = new URI(baseURL + port + "/tournaments/health");
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Service is healthy", response.getBody());
+    }
+
+
 	@Test // getTournaments - case 1 : success (only one case)
 	public void getTournaments_Success() throws Exception {
 
@@ -85,9 +96,6 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(currentCount + 1, tournamentArr.length);
 
-		// reset
-		//helper.reset(t_id, null);
-
 	}
 
 	@Test // getTournamentById - case 1 : valid tournament id
@@ -104,9 +112,6 @@ class TournamentControllerTest {
 		// verify the output - 200 (OK) : check if returned name is same as added name
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals("Tournament Controller Testing - Valid", result.getBody().getTournamentName());
-
-		// reset
-		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentById - case 2 : invalid tournament id
@@ -146,8 +151,6 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertTrue(tournamentArr.length > 0);
 
-		// reset
-		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentsByStatus - case 2 : invalid status
@@ -181,8 +184,7 @@ class TournamentControllerTest {
 		assertEquals(201, result.getStatusCode().value());
 		assertEquals(tournament.getTournamentName(), result.getBody().getTournamentName());
 
-		// reset
-		//helper.reset(t_id, null);
+
 	}
 
 	@Test // addTournament - case 2 : invalid input
@@ -219,12 +221,8 @@ class TournamentControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments");
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
 
-		// verify the output - 409 (TournamentExistException)
+		// verify the output - 409 (TournamentInvalidInputException)
 		assertEquals(409, result.getStatusCode().value());
-
-		// always 409 instead of 201
-		// reset
-		//helper.reset(t_id, null);
 
 	}
 
@@ -246,9 +244,6 @@ class TournamentControllerTest {
 		// tournament name was saved in db correctly)
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals("Tournament Controller Testing - Updated", result.getBody().getTournamentName());
-
-		// reset
-		//helper.reset(t_id, null);
 
 	}
 
@@ -297,12 +292,31 @@ class TournamentControllerTest {
 			assertEquals(409, result.getStatusCode().value());
 		}
 
-		// reset
-		//helper.reset(t_id, null);
-
 	}
 
-	// updateTournament - case 4 : same name (ie tournament exist exception)
+	@Test // updateTournament - case 4 : same name (ie tournament exist exception)
+	public void updateTournament_SameName_Failure() throws Exception {
+
+		// input - save a tournament in db first (create tournament -> save in db)
+		Tournament tournament = helper.createTournamentObj("noError");
+		tournament.setTournamentName("Hello");
+
+		Tournament tournament1 = helper.createTournamentObj("noError");
+		tournament1.setTournamentName("Hello1");
+		Long t_id1 = tournaments.save(tournament).getId();
+
+		Tournament newTournament = helper.createTournamentObj("noError");
+		newTournament.setTournamentName("Hello");
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id1);
+		ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(newTournament),
+				Tournament.class);
+
+		// verify the output - 409 (TournamentInvalidInputException)
+		assertEquals(409, result.getStatusCode().value());
+
+	}
 
 	@Test // updateStatusByTournamentId - case 1 : valid status and tournament id
 	public void updateStatusByTournamentId_ValidStatusAndTournamentId_Success() throws Exception {
@@ -323,8 +337,7 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(newStatus, result.getBody().getStatus().getStatustStr());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -346,8 +359,7 @@ class TournamentControllerTest {
 		// verify the output - 409 (InvalidTournamentStatusException)
 		assertEquals(409, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -370,8 +382,7 @@ class TournamentControllerTest {
 		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -428,8 +439,7 @@ class TournamentControllerTest {
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, p_id);
+
 
 	}
 
@@ -456,8 +466,6 @@ class TournamentControllerTest {
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
 
 	}
 
@@ -484,8 +492,6 @@ class TournamentControllerTest {
 		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(null, p_id);
 
 	}
 
@@ -510,9 +516,6 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		Optional<Tournament> emptyValue = Optional.empty();
 		assertEquals(emptyValue, tournaments.findById(t_id));
-
-		// reset
-		//helper.reset(null, p_id);
 
 	}
 
