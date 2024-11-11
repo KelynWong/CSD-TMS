@@ -156,6 +156,7 @@ public class TournamentController {
 
         // Winner found : set tournament winner
         tournament.setWinner(modifiedWinner);
+        tournament.setStatus(TournamentStatus.COMPLETED); // (CHANGE TESTCASE)
 
         // Update and return tournament
         return tournamentService.updateTournament(id, tournament);
@@ -165,15 +166,10 @@ public class TournamentController {
     /* Delete tournament */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTournament(@PathVariable Long id) {
-
-
-            Tournament deletedTournament = tournamentService.deleteTournament(id);
-            // if (deletedTournament == null) {
-            //     throw new TournamentNotFoundException(id);
-            // }
-            // if all ok, return 200 (OK)
-            return ResponseEntity.ok().build();
-       
+        // delete tournament
+        tournamentService.deleteTournament(id);
+        // all good, return 200 http response
+        return ResponseEntity.ok().build();
 
     }
 
@@ -210,9 +206,9 @@ public class TournamentController {
             return false;
         }
 
-        /* Status needs to be valid and not null */
-        if (tournament.getStatus() == null || !TournamentStatus.isValid(tournament.getStatus())) {
-            log.error("ERROR: TOURNAMENT INPUT - INVALID OR NULL STATUS");
+        /* Status cannot be not null */
+        if (tournament.getStatus() == null) {
+            log.error("ERROR: TOURNAMENT INPUT - NULL STATUS");
             return false;
         }
 
@@ -253,5 +249,4 @@ public class TournamentController {
 
     }
 
-    
 }

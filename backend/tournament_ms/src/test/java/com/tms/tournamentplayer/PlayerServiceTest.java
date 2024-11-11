@@ -41,11 +41,11 @@ public class PlayerServiceTest {
     void getAllPlayersByTournamentId_ValidTournamentId_ReturnTournaments() {
         // Arrange
         // - mock objects (tournament and playerList)
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj("noError");
         Long t_id = tournament.getId();
         Optional<Tournament> optTournament = Optional.of(tournament);
 
-        Player player = helper.createTestPlayer();
+        Player player = helper.createPlayerObj();
         List<Player> playerList = new ArrayList<>();
         playerList.add(player);
 
@@ -78,22 +78,23 @@ public class PlayerServiceTest {
         verify(tournaments).findById(id);
     }
 
-
     @Test // case 1 : valid player (return tournamentList)
     void getAllTournamentsByPlayerId_Valid_ReturnTournaments() {
         // Arrange
         // - mock objects (player)
-        Player player = helper.createTestPlayer();
+        Player player = helper.createPlayerObj();
         String p_id = player.getId();
         Optional<Player> optPlayer = Optional.of(player);
 
-        Tournament tournament = helper.createTestTournament("noError");
+        Tournament tournament = helper.createTournamentObj("noError");
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
 
+        player.setTournaments(tournamentList);
+
         // - mock methods/operations
         when(players.findById(p_id)).thenReturn(optPlayer);
-        // doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        doNothing().when(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
 
         // Act
         List<Tournament> retrievedTournamentList = playerService.getAllTournamentsByPlayerId(p_id);
@@ -101,7 +102,7 @@ public class PlayerServiceTest {
         // Assert
         assertNotNull(retrievedTournamentList);
         verify(players).findById(p_id);
-        // verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
+        verify(autoStatusUpdateService).autoUpdateTournaments(tournamentList);
     }
 
     @Test // case 2 : invalid tournament id (throw PlayerNotFoundException)
@@ -123,7 +124,7 @@ public class PlayerServiceTest {
     void getPlayer_Found_ReturnPlayer() {
         // Arrange
         // - mock object (player)
-        Player player = helper.createTestPlayer();
+        Player player = helper.createPlayerObj();
         String id = player.getId();
         Optional<Player> optPlayer = Optional.of(player);
         // - mock methods/operations
@@ -157,16 +158,16 @@ public class PlayerServiceTest {
     void createPlayer_playerIdDontExist_returnPlayer() {
         // Arrange
         // - mock objects (player obj)
-        Player player = helper.createTestPlayer();
+        Player player = helper.createPlayerObj();
         String id = player.getId();
-        
+
         // - mock operations
         when(players.existsById(id)).thenReturn(false);
         when(players.save(player)).thenReturn(player);
 
         // Act
         Player createdPlayer = playerService.createPlayer(id);
-        
+
         // Assert
         assertNotNull(createdPlayer);
         assertEquals(createdPlayer.getId(), id);
@@ -180,50 +181,141 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player obj)
         String id = "existLiao";
-        
+
         // - mock operations
         when(players.existsById(id)).thenReturn(true);
 
         // Act
         Player createdPlayer = playerService.createPlayer(id);
-        
+
         // Assert
         assertNull(createdPlayer);
         verify(players).existsById(id);
 
     }
 
-    // @Test // addPlayerToTournament - case 1 : REVISIT
-    // void addPlayerToTournament_PlayerNotInTournament_returnPlayer() {
-    //     // Arrange
-    //     // - mock objects (player and tournament)
-        
+    @Test // case 1 : player not map to tournment (return mappedPlayer)
+    void addPlayerToTournament_PlayerNotInTournament_returnPlayer() {
+        // Arrange
+        // - mock objects (player and tournament)
+        Player player = helper.createPlayerObj();
+        Tournament tournament = helper.createTournamentObj("noError");
 
-    // }
+        // - mock operations
+        when(players.save(player)).thenReturn(player);
 
-    // @Test // removePlayerFromTournament - case 1 : REVISIT
-    // void addPlayerToTournament
+        // Act
+        Player mappedPlayer = playerService.addPlayerToTournament(player, tournament);
 
-    @Test // deletePlayer - case 1 : valid player
-    void deletePlayer_Found_returnPlayer() {
+        // verify
+        assertEquals(1, mappedPlayer.getTournaments().size());
+        verify(players).save(player);
+
+    }
+
+    @Test // case 2 : player mapped to tournament liao (return mappedPlayer)
+    void addPlayerToTournament_PlayerAlrdyInTournament_returnPlayer() {
+        // Arrange
+        // - mock objects (player and tournament)
+        Player player = helper.createPlayerObj();
+        Tournament tournament = helper.createTournamentObj("noError");
+        tournament.addPlayer(player);
+
+        // - mock operations
+        when(players.save(player)).thenReturn(player);
+
+        // Act
+        Player mappedPlayer = playerService.addPlayerToTournament(player, tournament);
+
+        // verify
+        assertEquals(1, mappedPlayer.getTournaments().size());
+        verify(players).save(player);
+
+    }
+
+    @Test // case 1 : player is map to tournament (return player)
+    void removePlayerFromTournament_PlayerInTournament_returnPlayer() {
+        // Arrange
+        // - mock objects (player and tournament -> map them)
+        Player player = helper.createPlayerObj();
+        Tournament tournament = helper.createTournamentObj("noError");
+        tournament.addPlayer(player);
+
+        // - mock operations
+        when(players.save(player)).thenReturn(player);
+
+        // Act
+        Player unmappedPlayer = playerService.removePlayerFromTournament(player, tournament);
+
+        // verify
+        assertEquals(0, unmappedPlayer.getTournaments().size());
+        verify(players).save(player);
+
+    }
+
+    @Test // case 2 : player is not map to tournament (return null)
+    void removePlayerFromTournament_PlayerNotInTournament_returnNull() {
+        // Arrange
+        // - mock objects (player and tournament)
+        Player player = helper.createPlayerObj();
+        Tournament tournament = helper.createTournamentObj("noError");
+
+        // Act
+        Player unmappedPlayer = playerService.removePlayerFromTournament(player, tournament);
+
+        // verify
+        assertNull(unmappedPlayer);
+
+    }
+
+    @Test // case 1 : valid player with no mapping to tournaments
+    void deletePlayer_FoundWithoutMapping_returnPlayer() {
         // Arrange
         // - mock objects (player)
-        Player player = helper.createTestPlayer();
+        Player player = helper.createPlayerObj();
         String id = player.getId();
         Optional<Player> optPlayer = Optional.of(player);
 
         // - mock methods/operations
         when(players.findById(id)).thenReturn(optPlayer);
+        doNothing().when(players).delete(player);
 
         // Act
-        Player retrievedPlayer = playerService.deletePlayer(id);
+        Player deletedPlyaer = playerService.deletePlayer(id);
 
         // Assert
-        assertNotNull(retrievedPlayer);
+        assertNotNull(deletedPlyaer);
         verify(players).findById(id);
+        verify(players).delete(player);
     }
 
-    @Test // deletePlayer - case 2 : invalid player
+    @Test // case 2 : valid player with mapping to tournaments
+    void deletePlayer_FoundWithMapping_returnPlayer() {
+        // Arrange
+        // - mock objects (player and tournament)
+        Player player = helper.createPlayerObj();
+        Tournament tournament = helper.createTournamentObj("noError");
+        tournament.addPlayer(player);
+
+        String p_id = player.getId();
+        Optional<Player> optPlayer = Optional.of(player);
+
+        // - mock methods/operations
+        when(players.findById(p_id)).thenReturn(optPlayer);
+        when(players.save(player)).thenReturn(player); // from removeAllPlayerTournament
+        doNothing().when(players).delete(player);
+
+        // Act
+        Player deletedPlayer = playerService.deletePlayer(p_id);
+
+        // Assert
+        assertNotNull(deletedPlayer);
+        verify(players).findById(p_id);
+        verify(players).save(player);
+        verify(players).delete(player);
+    }
+
+    @Test // case 3 : invalid player
     void deletePlayer_NotFound_returnNull() {
         // Arrange
         // - mock objects (player)
@@ -239,8 +331,5 @@ public class PlayerServiceTest {
         assertNull(retrievedPlayer);
         verify(players).findById(id);
     }
-
-    // @Test // removeAllPlayerTournaments - case 1 : REVISIT
-    // void removeAllPlayerTournaments
 
 }

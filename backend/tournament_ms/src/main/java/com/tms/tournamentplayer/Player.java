@@ -32,7 +32,6 @@ public class Player {
         for (Tournament t : this.tournaments) {
             t.getPlayers().remove(this);
         }
-        
         // Empty out this parents tournament list
         this.tournaments = new ArrayList<>();
     }
