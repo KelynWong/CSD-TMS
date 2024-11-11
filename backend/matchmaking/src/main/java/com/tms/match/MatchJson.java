@@ -78,4 +78,9 @@ public class MatchJson {
                 (Objects.equals(this.player2Id, otherMatch.player2Id)) &&
                 (Objects.equals(this.winnerId, otherMatch.winnerId));
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tournamentId, player1Id, player2Id, winnerId);
+    }
 }
