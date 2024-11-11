@@ -271,7 +271,9 @@ public class RatingCalculator {
               result.getOpponent(player).getGlicko2RatingDeviation())
             ));
     }
-
+    if (v == 0.0) {
+      throw new IllegalArgumentException("Variable v must not be zero.");
+    }
     return 1/v;
   }
 
