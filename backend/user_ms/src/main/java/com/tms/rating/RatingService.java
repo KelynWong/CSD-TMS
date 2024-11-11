@@ -90,14 +90,16 @@ public class RatingService {
     private void updateRatingInDb(Rating newRating) {
         String ratingId = newRating.getId();
 
-        ratingRepo.findById(ratingId).map(rating -> {
-            rating.setRating(newRating.getRating());
-            rating.setRatingDeviation(newRating.getRatingDeviation());
-            rating.setVolatility(newRating.getVolatility());
-            rating.setNumberOfResults(newRating.getNumberOfResults());
-            rating.setLastRatingPeriodEndDate(newRating.getLastRatingPeriodEndDate());
-            return ratingRepo.save(rating);
-        }).orElseThrow(() -> new RatingNotFoundException(ratingId));
+        Rating rating = ratingRepo.findById(ratingId).orElseThrow(
+                () -> new RatingNotFoundException(ratingId)
+        );
+
+        rating.setRating(newRating.getRating());
+        rating.setRatingDeviation(newRating.getRatingDeviation());
+        rating.setVolatility(newRating.getVolatility());
+        rating.setNumberOfResults(newRating.getNumberOfResults());
+        rating.setLastRatingPeriodEndDate(newRating.getLastRatingPeriodEndDate());
+        ratingRepo.save(rating);
     }
 
     public void deleteRating(String ratingId) {

@@ -76,7 +76,11 @@ public class Rating implements Cloneable {
 		}
 	}
 
-	public boolean equals(Rating other) {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		Rating other = (Rating) obj;
 		return this.user.getId().equals(other.user.getId());
 	}
 
