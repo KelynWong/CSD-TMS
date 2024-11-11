@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
     url = "NA")),
     servers = {
       @Server(url = "http://localhost:8083"),
-      @Server(url = "https://csdtmssgapi.azure-api.net/users")
+      @Server(url = "https://csdtmssgapi.azure-api.net")
     }
 )
 public class OpenAPIConfig {
