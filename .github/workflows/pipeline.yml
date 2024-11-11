@@ -264,6 +264,11 @@ jobs:
           --protocols https
 
         # PUBLIC Routes
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchSwagger --display-name "Get Match Swagger" --method GET --url-template "/matches/swagger-ui/index.html" 
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentSwagger --display-name "Get Tournament Swagger" --method GET --url-template "/tournaments/swagger-ui/index.html" 
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchmakingSwagger --display-name "Get Matchmaking Swagger" --method GET --url-template "/matchmaking/swagger-ui/index.html" 
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersSwagger --display-name "Get User Swagger" --method GET --url-template "/users/swagger-ui/index.html" 
+
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchGames --display-name "Get Match Games" --method GET --url-template "/matches/{match_id}/games" --template-parameters name=match_id type=string required=true
