@@ -1,10 +1,10 @@
 package com.tms.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -13,18 +13,18 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class UserControllerTest {
     @LocalServerPort
     private int port;
@@ -36,6 +36,9 @@ class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @BeforeEach
     void clear() {
@@ -89,22 +92,36 @@ class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        URI uri = new URI(baseUrl + port + "/users");
-        MockMultipartFile userJson = new MockMultipartFile("user", "", "application/json", 
-            "{\"email\":\"test1@example.com\", \"username\":\"Test User1\", \"role\":\"Player\"}".getBytes());
+        MockMultipartFile userJson = new MockMultipartFile(
+            "user", 
+            "", 
+            "application/json", 
+            ("{"
+                + "\"id\":\"1\","
+                + "\"username\":\"testuser1\","
+                + "\"fullname\":\"Test User1\","
+                + "\"gender\":\"Male\","
+                + "\"email\":\"test1@example.com\","
+                + "\"role\":\"PLAYER\","
+                + "\"country\":\"USA\","
+                + "\"profilePicture\":\"profile_pic_url\""
+                + "}").getBytes()
+        );
 
-        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-        parts.add("user", userJson);
+        MockMultipartFile profilePicture = new MockMultipartFile(
+            "profilePicture", 
+            "profile.jpg", 
+            MediaType.IMAGE_JPEG_VALUE, 
+            "dummy image content".getBytes()
+        );
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
-        ResponseEntity<User> response = restTemplate.postForEntity(uri, requestEntity, User.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("test1@example.com", response.getBody().getEmail());
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users")
+                .file(userJson)
+                .file(profilePicture)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value("test1@example.com"))
+            .andExpect(jsonPath("$.username").value("testuser1"));
     }
 
     @Test
