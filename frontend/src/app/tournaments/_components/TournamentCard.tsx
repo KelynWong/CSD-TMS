@@ -21,7 +21,7 @@ import {
     SelectValue,
   } from "@/components/ui/select";
 import { SetStateAction, useEffect, useState } from 'react';
-import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament, updateTournamentStatusById } from "@/api/tournaments/api";
+import { fetchPlayerRegistrationStatus, deleteTournament, registerTournament, withdrawTournament, updateTournamentStatusById, fetchAllPlayersByTournament } from "@/api/tournaments/api";
 import { fetchMatchByTournamentId } from '@/api/matches/api';
 import Loading from "@/components/Loading";
 import { useUserContext } from '@/context/userContext';
@@ -45,6 +45,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const { user } = useUserContext();
     const [availForMatchMake, setAvailForMatchMake] = useState(false);
     const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+    const [playerCount, setPlayerCount] = useState(0);
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
     const [showRegisterButton, setShowRegisterButton] = useState(false);
@@ -129,6 +130,16 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     
     useEffect(() => {
         setLoading(true);
+        const getPlayerCount = async () => {
+            try {
+                const playersData = await fetchAllPlayersByTournament(Number(id));
+                setPlayerCount(playersData.length);
+                setLoading(false);
+            } catch (err) {
+                console.error("Failed to fetch tournaments:", err);
+            }
+        };
+
         const getMatchCount = async () => {
             try {
                 const data = await fetchMatchByTournamentId(id);
@@ -138,14 +149,12 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 console.error("Failed to fetch tournaments:", err);
             }
         };
+        getPlayerCount();
         getMatchCount();
     }, []);
 
     useEffect(() => {
         const currentDate = new Date();
-        // console.log(id, currentDate, formattedRegStartDT, formattedRegEndDT);
-        // console.log(currentDate >= formattedRegStartDT && currentDate <= formattedRegEndDT)
-    
         if (currentDate >= formattedRegStartDT && currentDate <= formattedRegEndDT) {
           setShowRegisterButton(true);
         } else {
@@ -157,7 +166,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         if (status === 'Registration Close') {
             setAvailForMatchMake(true);
         } else {
-            setAvailForMatchMake(false);  // Reset to false if the status changes
+            setAvailForMatchMake(false); 
         }
     }, [status]);
 
@@ -168,15 +177,14 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             await updateTournamentStatusById(id, "Matchmake");
             message.success('Matchmake successful! :)');
             setTimeout(() => {
-                // window.location.reload();
                 router.push(`/tournaments/${id}`);
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to matchmake :( \n' + err);
             console.log(err);
-            // setTimeout(() => {
-            //     window.location.reload();
-            // }, 500); // Delay of 0.5 seconds before reloading
+            setTimeout(() => {
+                window.location.reload();
+            }, 500); // Delay of 0.5 seconds before reloading
         }
     };
 
@@ -239,7 +247,10 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     <p className="mr-1.5">🏁</p>
                     <p>{formattedEndDate}, {endTime}</p>
                 </div>
-                {/* <p className={`my-1 ${status === 'Completed' || status === 'Ongoing' ? '' : 'italic'}`}>{status}</p> */}
+                <div className="my-1 flex items-start">
+                    <p className="mr-1.5">🏸</p>
+                    <p>{playerCount} players</p>
+                </div>
                 {status === 'Completed' || status === 'Ongoing' ? (
                     <p className={`my-1 ${status === 'Ongoing' ? 'text-yellow-500' : 'text-black-600'}`}>{status} ({numMatches} Matches)</p>
                 ) : (
@@ -251,44 +262,42 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
                         
-                        {/* {showRegisterButton && isRegistered !== null && ( */}
                         {isRegistered ? (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button className="text-black bg-amber-400 hover:bg-amber-500">Withdraw</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="bg-white">
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Confirm Withdrawal</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                Are you sure you want to withdraw from this tournament?
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction className="text-black bg-amber-400 hover:bg-amber-500" onClick={deRegisterPlayer}>Withdraw</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            ) : (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                    <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="bg-white">
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction className="bg-red-500 hover:bg-red-700 text-white" onClick={registerPlayer}>Register</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            // )
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className="text-black bg-amber-400 hover:bg-amber-500">Withdraw</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-white">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirm Withdrawal</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to withdraw from this tournament?
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction className="text-black bg-amber-400 hover:bg-amber-500" onClick={deRegisterPlayer}>Withdraw</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        ) : (
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                <Button className="bg-red-500 hover:bg-red-700 text-white">Register</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-white">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            By registering, you agree to the tournament rules and conditions. Are you sure you want to register for this tournament?
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction className="bg-red-500 hover:bg-red-700 text-white" onClick={registerPlayer}>Register</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         )}
                     </div>
                 ) : role === "ADMIN" ? (
