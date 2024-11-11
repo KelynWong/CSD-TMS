@@ -3,11 +3,9 @@ package com.tms.tournament;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.*;
 import java.net.URI;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +81,7 @@ class TournamentControllerTest {
 		Long currentCount = tournaments.count();
 
 		Tournament tournament = helper.createTournamentObj("noError");
-		Long t_id = tournaments.save(tournament).getId();
+		tournaments.save(tournament);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
