@@ -42,8 +42,6 @@ public enum TournamentStatus {
     public static boolean isValid(String statusStr) {
         
         for (TournamentStatus ts : TournamentStatus.values()) {
-            log.info("mylog: " + statusStr);
-            log.info("mylog2: " + ts.getStatustStr());
             if (ts.getStatustStr().equals(statusStr)) {
                 return true;
             }

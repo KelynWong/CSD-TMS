@@ -460,8 +460,6 @@ public class PlayerControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments/players/" + p_id);
 		ResponseEntity<Void> result = restTemplate.exchange(uri, HttpMethod.DELETE, null, Void.class);
 
-		helper.log(result.toString());
-
 		// verify the output - 200 (OK) : player deleted (check empty optional is returned) 
 		assertEquals(200, result.getStatusCode().value());
 		Optional<Player> emptyValue = Optional.empty(); // findbyId alw return Optional dtype

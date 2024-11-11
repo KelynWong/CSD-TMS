@@ -198,7 +198,6 @@ class TournamentControllerTest {
 
 		// loop thr the errors
 		for (String err : errArr) {
-			helper.log(err);
 			// input - tournament with specified err
 			Tournament tournament = helper.createTournamentObj(err);
 			// call the api
@@ -401,8 +400,6 @@ class TournamentControllerTest {
 		helper.mapTournamentPlayerInDB(tournament, player);
 
 		String winner = p_id; // valid winner
-
-		helper.log(winner + t_id);
 
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
