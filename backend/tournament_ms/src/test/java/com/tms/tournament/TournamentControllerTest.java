@@ -17,6 +17,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.tms.TestHelper;
@@ -65,13 +66,23 @@ class TournamentControllerTest {
 	}
 
 	/* START OF TESTING */
+
+	@Test
+    void healthCheck() throws Exception {
+        URI uri = new URI(baseURL + port + "/tournaments/health");
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Service is healthy", response.getBody());
+    }
+
+
 	@Test // getTournaments - case 1 : success (only one case)
 	public void getTournaments_Success() throws Exception {
 
 		// input - current # of tournaments in db before adding & add 1 tournament to db
 		Long currentCount = tournaments.count();
 
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -85,16 +96,13 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(currentCount + 1, tournamentArr.length);
 
-		// reset
-		//helper.reset(t_id, null);
-
 	}
 
 	@Test // getTournamentById - case 1 : valid tournament id
 	public void getTournamentById_ValidTournamentId_Success() throws Exception {
 
 		// input - get a valid tournament id (create tournament -> save in db)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -104,16 +112,13 @@ class TournamentControllerTest {
 		// verify the output - 200 (OK) : check if returned name is same as added name
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals("Tournament Controller Testing - Valid", result.getBody().getTournamentName());
-
-		// reset
-		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentById - case 2 : invalid tournament id
 	public void getTournamentById_InvalidTournamentId_Failure() throws Exception {
 		// input - invalid tournament id (create tournament -> save in db -> del it in
 		// db)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 		tournaments.deleteById(t_id);
 
@@ -129,7 +134,7 @@ class TournamentControllerTest {
 	public void getTournamentsByStatus_ValidStatus_Success() throws Exception {
 
 		// input - valid tournament id (create tournament w no err)
-		Tournament tournament = helper.createTestTournament("noError"); // tournament status : Registration Start
+		Tournament tournament = helper.createTournamentObj("noError"); // tournament status : Registration Start
 		Tournament savedTournament = tournaments.save(tournament);
 
 		Long t_id = savedTournament.getId();
@@ -146,8 +151,6 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertTrue(tournamentArr.length > 0);
 
-		// reset
-		//helper.reset(t_id, null);
 	}
 
 	@Test // getTournamentsByStatus - case 2 : invalid status
@@ -169,7 +172,7 @@ class TournamentControllerTest {
 	public void addTournament_ValidInput_Success() throws Exception {
 
 		// input - valid tournament w no error (create tournament w no err)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
@@ -181,8 +184,7 @@ class TournamentControllerTest {
 		assertEquals(201, result.getStatusCode().value());
 		assertEquals(tournament.getTournamentName(), result.getBody().getTournamentName());
 
-		// reset
-		//helper.reset(t_id, null);
+
 	}
 
 	@Test // addTournament - case 2 : invalid input
@@ -192,12 +194,13 @@ class TournamentControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments");
 		// list the possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus", "nullCreater" };
+				"nullStatus", "nullCreater" };
 
 		// loop thr the errors
 		for (String err : errArr) {
+			helper.log(err);
 			// input - tournament with specified err
-			Tournament tournament = helper.createTestTournament(err);
+			Tournament tournament = helper.createTournamentObj(err);
 			// call the api
 			ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
 			// verify the output - 409 (TournamentInvalidInputException)
@@ -211,19 +214,15 @@ class TournamentControllerTest {
 	public void addTournament_SameName_Failure() throws Exception {
 
 		// input - save a tournament in db first (create tournament -> save in db)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api - try to re-add the same tournament
 		URI uri = new URI(baseURL + port + "/tournaments");
 		ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
 
-		// verify the output - 409 (TournamentExistException)
+		// verify the output - 409 (TournamentInvalidInputException)
 		assertEquals(409, result.getStatusCode().value());
-
-		// always 409 instead of 201
-		// reset
-		//helper.reset(t_id, null);
 
 	}
 
@@ -231,7 +230,7 @@ class TournamentControllerTest {
 	public void updateTournament_Success() throws Exception {
 
 		// input - all valid (create tournament w no err -> save it in db -> modify it)
-		Tournament newTournament = helper.createTestTournament("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		newTournament.setTournamentName("Tournament Controller Testing - Updated");
@@ -246,16 +245,13 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals("Tournament Controller Testing - Updated", result.getBody().getTournamentName());
 
-		// reset
-		//helper.reset(t_id, null);
-
 	}
 
 	@Test // updateTournament - case 2 : invalid tournament id
 	public void updateTournament_InvalidId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
-		Tournament newTournament = helper.createTestTournament("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		tournaments.deleteById(t_id);
@@ -273,7 +269,7 @@ class TournamentControllerTest {
 	public void updateTournament_InvalidInput_Failure() throws Exception {
 
 		// preparation (create a valid tournament to update)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// format the uri
@@ -281,12 +277,12 @@ class TournamentControllerTest {
 
 		// list of possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus", "nullCreater"};
+				"nullStatus", "nullCreater"};
 
 		// loop thr each error
 		for (String err : errArr) {
 			// input - invalid tournament (create tournament with specified err)
-			Tournament newTournament = helper.createTestTournament(err);
+			Tournament newTournament = helper.createTournamentObj(err);
 
 			// call the api
 			ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT,
@@ -296,18 +292,37 @@ class TournamentControllerTest {
 			assertEquals(409, result.getStatusCode().value());
 		}
 
-		// reset
-		//helper.reset(t_id, null);
-
 	}
 
-	// updateTournament - case 4 : same name (ie tournament exist exception)
+	@Test // updateTournament - case 4 : same name (ie tournament exist exception)
+	public void updateTournament_SameName_Failure() throws Exception {
+
+		// input - save a tournament in db first (create tournament -> save in db)
+		Tournament tournament = helper.createTournamentObj("noError");
+		tournament.setTournamentName("Hello");
+
+		Tournament tournament1 = helper.createTournamentObj("noError");
+		tournament1.setTournamentName("Hello1");
+		Long t_id1 = tournaments.save(tournament).getId();
+
+		Tournament newTournament = helper.createTournamentObj("noError");
+		newTournament.setTournamentName("Hello");
+
+		// call the api
+		URI uri = new URI(baseURL + port + "/tournaments/" + t_id1);
+		ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT, new HttpEntity<>(newTournament),
+				Tournament.class);
+
+		// verify the output - 409 (TournamentInvalidInputException)
+		assertEquals(409, result.getStatusCode().value());
+
+	}
 
 	@Test // updateStatusByTournamentId - case 1 : valid status and tournament id
 	public void updateStatusByTournamentId_ValidStatusAndTournamentId_Success() throws Exception {
 
 		// input - all valid (create tournament w no err -> save it in db -> modify it)
-		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		String newStatus = "Registration Start"; // valid status
@@ -322,8 +337,7 @@ class TournamentControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(newStatus, result.getBody().getStatus().getStatustStr());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -332,7 +346,7 @@ class TournamentControllerTest {
 
 		// input - valid tournament id but invalid status (create tournament w no err ->
 		// save it in db -> modify it)
-		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		String newStatus = "HAHAByeBye"; // invalid status
@@ -345,8 +359,7 @@ class TournamentControllerTest {
 		// verify the output - 409 (InvalidTournamentStatusException)
 		assertEquals(409, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -354,7 +367,7 @@ class TournamentControllerTest {
 	public void updateStatusByTournamentId_InvalidTournamentId_Success() throws Exception {
 
 		// input - invalid tournament (create tournament -> save it in db -> del it)
-		Tournament newTournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		tournaments.deleteById(t_id);
@@ -369,8 +382,7 @@ class TournamentControllerTest {
 		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
+
 
 	}
 
@@ -380,15 +392,17 @@ class TournamentControllerTest {
 
 		// input - all valid (create tournament n player -> map them -> set player as
 		// winner)
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createTestPlayer());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		String winner = p_id; // valid winner
+
+		helper.log(winner + t_id);
 
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
@@ -399,9 +413,7 @@ class TournamentControllerTest {
 		// tournament name was saved in db correctly)
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(winner, result.getBody().getWinner());
-
-		// reset
-		//helper.reset(t_id, p_id);
+		assertEquals(TournamentStatus.COMPLETED, result.getBody().getStatus());
 
 	}
 
@@ -411,10 +423,10 @@ class TournamentControllerTest {
 
 		// input - invalid winner but valid tournament and player
 		// (create tournament n player -> just set player as winner)
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createTestPlayer());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		String winner = p_id; // valid winner
@@ -427,8 +439,7 @@ class TournamentControllerTest {
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, p_id);
+
 
 	}
 
@@ -437,10 +448,10 @@ class TournamentControllerTest {
 
 		// input - invalid tournament but valid player (create both -> del player -> set
 		// player as winner)
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createTestPlayer());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		players.deleteById(p_id);
@@ -455,8 +466,6 @@ class TournamentControllerTest {
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(t_id, null);
 
 	}
 
@@ -465,10 +474,10 @@ class TournamentControllerTest {
 
 		// input - invalid tournament but valid player (create both -> del tournament ->
 		// set player as winner)
-		Tournament tournament = tournaments.save(helper.createTestTournament("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createTestPlayer());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		tournaments.deleteById(t_id);
@@ -483,8 +492,6 @@ class TournamentControllerTest {
 		// verify the output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// reset
-		//helper.reset(null, p_id);
 
 	}
 
@@ -492,13 +499,13 @@ class TournamentControllerTest {
 	public void deleteTournament_ValidTournamentIdWithPlayerMapping_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player -> map them)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
-		Player player = helper.createTestPlayer();
-		String p_id = player.getId();
+		Player player = helper.createPlayerObj();
+		String p_id = players.save(player).getId();
 
-		helper.mapTournamentPlayer(tournament, player);
+		helper.mapTournamentPlayerInDB(tournament, player);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments/" + t_id);
@@ -510,16 +517,13 @@ class TournamentControllerTest {
 		Optional<Tournament> emptyValue = Optional.empty();
 		assertEquals(emptyValue, tournaments.findById(t_id));
 
-		// reset
-		//helper.reset(null, p_id);
-
 	}
 
 	@Test // deleteTournament - case 2 : valid tournament with no mapping
 	public void deleteTournament_ValidTournamentIdWithNoMapping_Success() throws Exception {
 
 		// input - valid tournament id (create tournament)
-		Tournament tournament = helper.createTestTournament("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -538,7 +542,7 @@ class TournamentControllerTest {
 	public void deleteTournament_InValidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
-		Tournament newTournament = helper.createTestTournament("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		tournaments.deleteById(t_id);
