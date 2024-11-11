@@ -2,6 +2,7 @@ package com.tms.user;
 
 import com.tms.exception.RatingNotFoundException;
 import com.tms.exception.UserAlreadyExistsException;
+import com.tms.exception.UserNotFoundException;
 import com.tms.rating.RatingService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -109,7 +110,7 @@ public class UserService {
                 }
                 return userRepository.save(user);
             })
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }    
 
     public List<User> getUsersByRole(Role role) {
@@ -120,6 +121,8 @@ public class UserService {
         if (userRepository.findById(id).isPresent()){
             userRepository.deleteById(id);
             ratingService.deleteRating(id);
+        } else {
+            throw new UserNotFoundException("User with ID " + id + " not found");
         }
     }
 }
