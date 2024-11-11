@@ -622,7 +622,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_TMS-MATCHMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMS
 
       # Build and analyze tournament_ms
       - name: Build and analyze tournament_ms
@@ -633,7 +633,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_TMS-TOURNAMENTMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-TOURNAMENTMS
 
       # Build and analyze user_ms
       - name: Build and analyze user_ms
@@ -645,7 +645,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
           CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_TMS-USERMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-USERMS
 
       # Build and analyze matchmaking
       - name: Build and analyze matchmaking
@@ -658,7 +658,7 @@ jobs:
           PLAYER_URL: http://user-ms:8083/users
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_TMS-MATCHMAKING
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMAKING
 
   connect-to-supabase:
     name: Connect to Supabase and Run init.sql
