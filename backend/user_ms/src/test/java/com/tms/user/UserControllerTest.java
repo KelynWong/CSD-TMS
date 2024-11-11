@@ -1,5 +1,8 @@
 package com.tms.user;
 
+import com.tms.rating.Rating;
+import com.tms.rating.RatingRepository;
+import com.tms.ratingCalc.RatingCalculator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,20 +11,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -36,6 +37,12 @@ class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
+
+    @Autowired
+    private RatingCalculator ratingCalc;
 
     @Autowired
     private MockMvc mockMvc;
@@ -73,7 +80,14 @@ class UserControllerTest {
     @Test
     void getUserById_UserFound_ReturnUser() throws Exception {
         User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
+
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        ratingRepository.save(rating);
+
         String id = userRepository.save(user).getId();
+
         URI uri = new URI(baseUrl + port + "/users/" + id);
 
         ResponseEntity<User> response = restTemplate.getForEntity(uri, User.class);
