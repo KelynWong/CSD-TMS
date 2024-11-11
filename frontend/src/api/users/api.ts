@@ -84,7 +84,7 @@ export const fetchOrganizer = async (id: string): Promise<string> => {
 		const response = await axios.get(`${URL}/${id}`, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-
+		
 		return response.data.fullname;
 	} catch (error) {
 		console.error("Error fetching organizer", error);
@@ -210,6 +210,20 @@ export const getPlayerRank = async (id: string): Promise<number> => {
 		// Assuming the API response contains a 'rank' field
 	} catch (error) {
 		console.error("Failed to fetch player rank", error);
+		throw error;
+	}
+};
+
+export const getAllPlayerDetails = async (ids: Array<string>): Promise<PlayerResponse> => {
+	try {
+		const jwtToken = getJwtToken();
+		const response = await axios.post(`${URL}/ids`, ids, {
+			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+		});
+
+		return response.data;
+	} catch (error) {
+		console.error("Failed to fetch tournament player details", error);
 		throw error;
 	}
 };
