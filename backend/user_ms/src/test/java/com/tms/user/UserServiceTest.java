@@ -1,6 +1,7 @@
 package com.tms.user;
 
 import com.tms.exception.UserAlreadyExistsException;
+import com.tms.exception.UserNotFoundException;
 import com.tms.rating.RatingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -155,10 +156,10 @@ public class UserServiceTest {
     }
 
     @Test
-    void deleteUser_NonExistingUser_DoNothing() {
+    void deleteUser_NonExistingUser_ThrowsUserNotFoundException() {
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        userService.deleteUser("nonexistent_id");
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUser("nonexistent_id"));
 
         verify(userRepository, never()).deleteById(anyString());
         verify(ratingService, never()).deleteRating(anyString());
