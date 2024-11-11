@@ -298,6 +298,8 @@ jobs:
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
 
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersByIds --display-name "Get Users By Ids" --method POST --url-template "/users/ids" 
+
         # USER Routes
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
