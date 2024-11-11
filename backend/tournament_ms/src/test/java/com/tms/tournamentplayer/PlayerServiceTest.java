@@ -41,7 +41,7 @@ public class PlayerServiceTest {
     void getAllPlayersByTournamentId_ValidTournamentId_ReturnTournaments() {
         // Arrange
         // - mock objects (tournament and playerList)
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
         Long t_id = tournament.getId();
         Optional<Tournament> optTournament = Optional.of(tournament);
 
@@ -86,7 +86,7 @@ public class PlayerServiceTest {
         String p_id = player.getId();
         Optional<Player> optPlayer = Optional.of(player);
 
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
         List<Tournament> tournamentList = new ArrayList<>();
         tournamentList.add(tournament);
 
@@ -199,7 +199,7 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player and tournament)
         Player player = helper.createPlayerObj();
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
 
         // - mock operations
         when(players.save(player)).thenReturn(player);
@@ -218,8 +218,8 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player and tournament)
         Player player = helper.createPlayerObj();
-        Tournament tournament = helper.createTournamentObj();
-        helper.mapTournamentPlayerInDB(tournament, player);
+        Tournament tournament = helper.createTournamentObj("noError");
+        tournament.addPlayer(player);
 
         // - mock operations
         when(players.save(player)).thenReturn(player);
@@ -238,7 +238,7 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player and tournament -> map them)
         Player player = helper.createPlayerObj();
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
         tournament.addPlayer(player);
 
         // - mock operations
@@ -258,7 +258,7 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player and tournament)
         Player player = helper.createPlayerObj();
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
 
         // Act
         Player unmappedPlayer = playerService.removePlayerFromTournament(player, tournament);
@@ -294,7 +294,7 @@ public class PlayerServiceTest {
         // Arrange
         // - mock objects (player and tournament)
         Player player = helper.createPlayerObj();
-        Tournament tournament = helper.createTournamentObj();
+        Tournament tournament = helper.createTournamentObj("noError");
         tournament.addPlayer(player);
 
         String p_id = player.getId();

@@ -71,7 +71,7 @@ class TournamentControllerTest {
 		// input - current # of tournaments in db before adding & add 1 tournament to db
 		Long currentCount = tournaments.count();
 
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -94,7 +94,7 @@ class TournamentControllerTest {
 	public void getTournamentById_ValidTournamentId_Success() throws Exception {
 
 		// input - get a valid tournament id (create tournament -> save in db)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -113,7 +113,7 @@ class TournamentControllerTest {
 	public void getTournamentById_InvalidTournamentId_Failure() throws Exception {
 		// input - invalid tournament id (create tournament -> save in db -> del it in
 		// db)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 		tournaments.deleteById(t_id);
 
@@ -129,7 +129,7 @@ class TournamentControllerTest {
 	public void getTournamentsByStatus_ValidStatus_Success() throws Exception {
 
 		// input - valid tournament id (create tournament w no err)
-		Tournament tournament = helper.createTournamentInDB("noError"); // tournament status : Registration Start
+		Tournament tournament = helper.createTournamentObj("noError"); // tournament status : Registration Start
 		Tournament savedTournament = tournaments.save(tournament);
 
 		Long t_id = savedTournament.getId();
@@ -169,7 +169,7 @@ class TournamentControllerTest {
 	public void addTournament_ValidInput_Success() throws Exception {
 
 		// input - valid tournament w no error (create tournament w no err)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
@@ -192,12 +192,13 @@ class TournamentControllerTest {
 		URI uri = new URI(baseURL + port + "/tournaments");
 		// list the possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus", "nullCreater" };
+				"nullStatus", "nullCreater" };
 
 		// loop thr the errors
 		for (String err : errArr) {
+			helper.log(err);
 			// input - tournament with specified err
-			Tournament tournament = helper.createTournamentInDB(err);
+			Tournament tournament = helper.createTournamentObj(err);
 			// call the api
 			ResponseEntity<Tournament> result = restTemplate.postForEntity(uri, tournament, Tournament.class);
 			// verify the output - 409 (TournamentInvalidInputException)
@@ -211,7 +212,7 @@ class TournamentControllerTest {
 	public void addTournament_SameName_Failure() throws Exception {
 
 		// input - save a tournament in db first (create tournament -> save in db)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api - try to re-add the same tournament
@@ -231,7 +232,7 @@ class TournamentControllerTest {
 	public void updateTournament_Success() throws Exception {
 
 		// input - all valid (create tournament w no err -> save it in db -> modify it)
-		Tournament newTournament = helper.createTournamentInDB("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		newTournament.setTournamentName("Tournament Controller Testing - Updated");
@@ -255,7 +256,7 @@ class TournamentControllerTest {
 	public void updateTournament_InvalidId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
-		Tournament newTournament = helper.createTournamentInDB("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		tournaments.deleteById(t_id);
@@ -273,7 +274,7 @@ class TournamentControllerTest {
 	public void updateTournament_InvalidInput_Failure() throws Exception {
 
 		// preparation (create a valid tournament to update)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// format the uri
@@ -281,12 +282,12 @@ class TournamentControllerTest {
 
 		// list of possible input errors
 		String[] errArr = { "emptyName", "regEndDTBefRegStartDT", "regEndDTAftStartDT", "endDTBefStartDT",
-				"wrongStatus", "nullCreater"};
+				"nullStatus", "nullCreater"};
 
 		// loop thr each error
 		for (String err : errArr) {
 			// input - invalid tournament (create tournament with specified err)
-			Tournament newTournament = helper.createTournamentInDB(err);
+			Tournament newTournament = helper.createTournamentObj(err);
 
 			// call the api
 			ResponseEntity<Tournament> result = restTemplate.exchange(uri, HttpMethod.PUT,
@@ -307,7 +308,7 @@ class TournamentControllerTest {
 	public void updateStatusByTournamentId_ValidStatusAndTournamentId_Success() throws Exception {
 
 		// input - all valid (create tournament w no err -> save it in db -> modify it)
-		Tournament newTournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		String newStatus = "Registration Start"; // valid status
@@ -332,7 +333,7 @@ class TournamentControllerTest {
 
 		// input - valid tournament id but invalid status (create tournament w no err ->
 		// save it in db -> modify it)
-		Tournament newTournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		String newStatus = "HAHAByeBye"; // invalid status
@@ -354,7 +355,7 @@ class TournamentControllerTest {
 	public void updateStatusByTournamentId_InvalidTournamentId_Success() throws Exception {
 
 		// input - invalid tournament (create tournament -> save it in db -> del it)
-		Tournament newTournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament newTournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = newTournament.getId();
 
 		tournaments.deleteById(t_id);
@@ -380,15 +381,17 @@ class TournamentControllerTest {
 
 		// input - all valid (create tournament n player -> map them -> set player as
 		// winner)
-		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createPlayerInDB());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		helper.mapTournamentPlayerInDB(tournament, player);
 
 		String winner = p_id; // valid winner
+
+		helper.log(winner + t_id);
 
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
@@ -399,9 +402,7 @@ class TournamentControllerTest {
 		// tournament name was saved in db correctly)
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(winner, result.getBody().getWinner());
-
-		// reset
-		//helper.reset(t_id, p_id);
+		assertEquals(TournamentStatus.COMPLETED, result.getBody().getStatus());
 
 	}
 
@@ -411,10 +412,10 @@ class TournamentControllerTest {
 
 		// input - invalid winner but valid tournament and player
 		// (create tournament n player -> just set player as winner)
-		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createPlayerInDB());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		String winner = p_id; // valid winner
@@ -437,10 +438,10 @@ class TournamentControllerTest {
 
 		// input - invalid tournament but valid player (create both -> del player -> set
 		// player as winner)
-		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createPlayerInDB());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		players.deleteById(p_id);
@@ -465,10 +466,10 @@ class TournamentControllerTest {
 
 		// input - invalid tournament but valid player (create both -> del tournament ->
 		// set player as winner)
-		Tournament tournament = tournaments.save(helper.createTournamentInDB("noError"));
+		Tournament tournament = tournaments.save(helper.createTournamentObj("noError"));
 		Long t_id = tournament.getId();
 
-		Player player = players.save(helper.createPlayerInDB());
+		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
 		tournaments.deleteById(t_id);
@@ -492,11 +493,11 @@ class TournamentControllerTest {
 	public void deleteTournament_ValidTournamentIdWithPlayerMapping_Success() throws Exception {
 
 		// input - valid tournament id (create tournament and player -> map them)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
-		Player player = helper.createPlayerInDB();
-		String p_id = player.getId();
+		Player player = helper.createPlayerObj();
+		String p_id = players.save(player).getId();
 
 		helper.mapTournamentPlayerInDB(tournament, player);
 
@@ -519,7 +520,7 @@ class TournamentControllerTest {
 	public void deleteTournament_ValidTournamentIdWithNoMapping_Success() throws Exception {
 
 		// input - valid tournament id (create tournament)
-		Tournament tournament = helper.createTournamentInDB("noError");
+		Tournament tournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(tournament).getId();
 
 		// call the api
@@ -538,7 +539,7 @@ class TournamentControllerTest {
 	public void deleteTournament_InValidTournamentId_Failure() throws Exception {
 
 		// input - invalid tournament id (create tournament -> del it)
-		Tournament newTournament = helper.createTournamentInDB("noError");
+		Tournament newTournament = helper.createTournamentObj("noError");
 		Long t_id = tournaments.save(newTournament).getId();
 
 		tournaments.deleteById(t_id);

@@ -166,15 +166,10 @@ public class TournamentController {
     /* Delete tournament */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTournament(@PathVariable Long id) {
-
-
-            Tournament deletedTournament = tournamentService.deleteTournament(id);
-            // if (deletedTournament == null) {
-            //     throw new TournamentNotFoundException(id);
-            // }
-            // if all ok, return 200 (OK)
-            return ResponseEntity.ok().build();
-       
+        // delete tournament
+        tournamentService.deleteTournament(id);
+        // all good, return 200 http response
+        return ResponseEntity.ok().build();
 
     }
 
@@ -254,5 +249,4 @@ public class TournamentController {
 
     }
 
-    
 }

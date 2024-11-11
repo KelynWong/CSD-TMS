@@ -28,10 +28,10 @@ public class TestHelper {
     /* HELPER METHODS */
 
     // Purpose : create tournament obj
-    public Tournament createTournamentObj() {
+    public Tournament createTournamentObj(String typeOfErr) {
 
         // - mock tournament objects
-        String tournamentName = "Tournament Controller Testing - Invalid";
+        String tournamentName = "Tournament Controller Testing";
         LocalDateTime regStartDT = LocalDateTime.of(2024, 10, 01, 10, 00, 00);
         LocalDateTime regEndDT = LocalDateTime.of(2024, 10, 11, 10, 00, 00);
         LocalDateTime startDT = LocalDateTime.of(2024, 10, 21, 10, 00, 00);
@@ -41,18 +41,7 @@ public class TestHelper {
         String winner = null;
 
         Tournament tournament = new Tournament(tournamentName, startDT, endDT, status, regStartDT, regEndDT, createdBy,
-                winner);
-
-        return tournament;
-    }
-
-    // Purpose : create tournament in db
-    public Tournament createTournamentInDB(String typeOfErr) { // no err - input "noError"
-        Tournament tournament = createTournamentObj();
-        LocalDateTime regStartDT = tournament.getRegStartDT();
-        LocalDateTime regEndDT = tournament.getRegEndDT();
-        LocalDateTime startDT = tournament.getStartDT();
-        LocalDateTime endDT = tournament.getEndDT();
+        winner);
 
         // set up any specified error
         switch (typeOfErr) {
@@ -71,7 +60,7 @@ public class TestHelper {
                 tournament.setStartDT(endDT);
                 tournament.setEndDT(startDT);
                 break;
-            case "wrongStatus": // tbc
+            case "nullStatus":
                 tournament.setStatus(null);
                 break;
             case "nullCreater":
@@ -84,6 +73,7 @@ public class TestHelper {
                 break;
         }
 
+
         return tournament;
     }
 
@@ -91,12 +81,6 @@ public class TestHelper {
     public Player createPlayerObj() {
         Player player = new Player("usertesting123", new ArrayList<>());
         return player;
-    }
-
-    // Purpose : create player in db
-    public Player createPlayerInDB() {
-        Player player = new Player("usertesting123", new ArrayList<>());
-        return players.save(player);
     }
 
     // Purpsoe : map tournament and player (for controller testing)
@@ -107,9 +91,11 @@ public class TestHelper {
 
         playerList.add(player);
         tournamentList.add(tournament);
+
         tournament.setPlayers(playerList);
         player.setTournaments(tournamentList);
 
+        players.save(player);
         tournaments.save(tournament);
     }
 

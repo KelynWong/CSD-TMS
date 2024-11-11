@@ -42,8 +42,12 @@ public class AutoStatusUpdateService {
 
         log.info("[AutoUpdate] Current datetime: " + localNow);
 
+        if (tournament.getStatus() == TournamentStatus.COMPLETED) {
+            return;
+        }
+
         // SCHEDULED : before registration start
-        if (localNow.isBefore(tournament.getRegStartDT())) {
+        else if (localNow.isBefore(tournament.getRegStartDT())) {
             log.info("[AutoUpdate] CHANGE TO SCHEDULED");
             tournament.setStatus(TournamentStatus.SCHEDULED);
         }
@@ -54,18 +58,17 @@ public class AutoStatusUpdateService {
             tournament.setStatus(TournamentStatus.REGISTRATION_START);
         }
 
-        // ONGOING : within tournament period
-        else if (tournament.getStatus() != TournamentStatus.COMPLETED
-                && isWithin(localNow, tournament.getStartDT(), tournament.getEndDT())) {
-            log.info("[AutoUpdate] CHANGE TO ONGOING");
-            tournament.setStatus(TournamentStatus.ONGOING);
-        }
-
         // REGISTRATION_CLOSE : after Registration End and Before matchmake is done
         else if (tournament.getStatus() != TournamentStatus.MATCHMAKE
                 && isWithin(localNow, tournament.getRegEndDT(), tournament.getStartDT())) {
             log.info("[AutoUpdate] CHANGE TO REG_CLOSE");
             tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE);
+        }
+
+        // ONGOING : within tournament period
+        else if (isWithin(localNow, tournament.getStartDT(), tournament.getEndDT())) {
+            log.info("[AutoUpdate] CHANGE TO ONGOING");
+            tournament.setStatus(TournamentStatus.ONGOING);
         }
 
         // Save updates in db

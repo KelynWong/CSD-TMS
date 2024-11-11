@@ -1,16 +1,50 @@
-Raw JSON Response: <500 INTERNAL_SERVER_ERROR Internal Server Error,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", Transfer-Encoding:"chunked", Date:"Tue, 29 Oct 2024 06:24:49 GMT", Connection:"close"]>
-Raw JSON Response: <500 INTERNAL_SERVER_ERROR Internal Server Error,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Type:"application/json", Transfer-Encoding:"chunked", Date:"Tue, 29 Oct 2024 06:48:34 GMT", Connection:"close"]>
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 06:56:14 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 06:57:11 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 06:59:05 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Tue, 29 Oct 2024 08:52:34 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 04 Nov 2024 00:54:07 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: null
-Raw JSON Response: java.util.ConcurrentModificationException
-Raw JSON Response: org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: update or delete on table "tournament" violates foreign key constraint "fkrrm3jbmm1fxx5t9t5f8t46ebc" on table "tournament_player"
-  Detail: Key (id)=(1583) is still referenced from table "tournament_player".] [delete from tournament.tournament where id=?]; SQL [delete from tournament.tournament where id=?]; constraint [fkrrm3jbmm1fxx5t9t5f8t46ebc]
-Raw JSON Response: java.util.ConcurrentModificationException
-Raw JSON Response: java.util.ConcurrentModificationException
-Raw JSON Response: com.tms.exception.TournamentNotFoundException: Could not find tournament 1588
-Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 04 Nov 2024 18:17:27 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
-Raw JSON Response: com.tms.exception.TournamentNotFoundException: Could not find tournament 1619
+
+Raw JSON Response: usertesting123
+Raw JSON Response: usertesting1234199
+Raw JSON Response: usertesting1234200
+Raw JSON Response: usertesting1234201
+Raw JSON Response: usertesting1234205
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: usertesting1234226
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: usertesting1234264
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: usertesting1234283
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 11 Nov 2024 06:37:26 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
+Raw JSON Response: usertesting1234315
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: usertesting1234334
+Raw JSON Response: emptyName
+Raw JSON Response: regEndDTBefRegStartDT
+Raw JSON Response: regEndDTAftStartDT
+Raw JSON Response: endDTBefStartDT
+Raw JSON Response: nullStatus
+Raw JSON Response: nullCreater
+Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 11 Nov 2024 06:39:06 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
+Raw JSON Response: <200 OK OK,[Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", Content-Length:"0", Date:"Mon, 11 Nov 2024 06:40:05 GMT", Keep-Alive:"timeout=60", Connection:"keep-alive"]>
