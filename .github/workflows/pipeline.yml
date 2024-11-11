@@ -266,15 +266,19 @@ jobs:
         # PUBLIC Routes
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchSwagger --display-name "Get Match Swagger" --method GET --url-template "/matches/swagger-ui/*"
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchSwaggerDocs --display-name "Get Match Swagger Docs" --method GET --url-template "/matches/v3/api-docs"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchSwaggerConfig --display-name "Get Match Swagger Config" --method GET --url-template "/matches/v3/api-docs/swagger-config"
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentSwagger --display-name "Get Tournament Swagger" --method GET --url-template "/tournaments/swagger-ui/*"
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentSwaggerDocs --display-name "Get Tournament Swagger Docs" --method GET --url-template "/tournaments/v3/api-docs"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentSwaggerConfig --display-name "Get Tournament Swagger Config" --method GET --url-template "/tournaments/v3/api-docs/swagger-config"
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchmakingSwagger --display-name "Get Matchmaking Swagger" --method GET --url-template "/matchmaking/swagger-ui/*"
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchmakingSwaggerDocs --display-name "Get Matchmaking Swagger Docs" --method GET --url-template "/matchmaking/v3/api-docs"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchmakingSwaggerConfig --display-name "Get Matchmaking Swagger Config" --method GET --url-template "/matchmaking/v3/api-docs/swagger-config"
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersSwagger --display-name "Get User Swagger" --method GET --url-template "/users/swagger-ui/*"
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersSwaggerDocs --display-name "Get User Swagger Docs" --method GET --url-template "/users/v3/api-docs"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersSwaggerConfig --display-name "Get User Swagger Config" --method GET --url-template "/users/v3/api-docs/swagger-config"
 
         az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
