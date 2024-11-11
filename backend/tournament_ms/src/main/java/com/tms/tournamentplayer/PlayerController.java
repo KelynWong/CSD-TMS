@@ -31,15 +31,16 @@ public class PlayerController {
     @GetMapping("/{tournamentId}/players")
     public List<Player> getAllPlayersByTournamentId(@PathVariable(value = "tournamentId") Long tournamentId) {
 
-        // Get all the players of specified tournament
-        List<Player> p_list = playerService.getAllPlayersByTournamentId(tournamentId);
-        // if the received list is null
-        if (p_list == null) {
-            // throw TournamentNotFoundException (404)
-            throw new TournamentNotFoundException(tournamentId);
-        }
+        // // Get all the players of specified tournament
+        // List<Player> p_list =
+        // playerService.getAllPlayersByTournamentId(tournamentId);
+        // // if the received list is null
+        // if (p_list == null) {
+        // // throw TournamentNotFoundException (404)
+        // throw new TournamentNotFoundException(tournamentId);
+        // }
         // else return received list
-        return p_list;
+        return playerService.getAllPlayersByTournamentId(tournamentId);
 
     }
 
@@ -47,15 +48,16 @@ public class PlayerController {
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
         // Get all the players of specified tournament
-        List<Tournament> t_list = playerService.getAllTournamentsByPlayerId(playerId);
-        // if the received list is null
-        if (t_list == null) {
-            // throw PlayerNotFoundException (404)
-            throw new PlayerNotFoundException(playerId);
-        }
+        // List<Tournament> t_list =
+        // playerService.getAllTournamentsByPlayerId(playerId);
+        // // if the received list is null
+        // if (t_list == null) {
+        // // throw PlayerNotFoundException (404)
+        // throw new PlayerNotFoundException(playerId);
+        // }
         // else return received list
 
-        return t_list;
+        return playerService.getAllTournamentsByPlayerId(playerId);
 
     }
 
@@ -64,15 +66,16 @@ public class PlayerController {
     public Map<String, Boolean> isRegistered(@PathVariable(value = "tournamentId") Long tournamentId,
             @PathVariable(value = "playerId") String playerId) {
 
-        // Get specified player by Id, if not found, throw PlayerNotFoundException error
-        // 404
-        Player player = playerService.getPlayer(playerId);
-        if (player == null) {
-            throw new PlayerNotFoundException(playerId);
-        }
-
         // Store result in ("isRegistered" : false) format
         Map<String, Boolean> result = new HashMap<>();
+
+        // Get specified player by Id, if not found, throw PlayerNotFoundException error
+        // 404 (CHANGE TESTCASE)
+        Player player = playerService.getPlayer(playerId);
+        if (player == null) {
+            result.put("IsRegistered", false);
+            return result;
+        }
 
         // Get specified tournament
         Tournament tournament = tournamentService.getTournament(tournamentId);
@@ -117,23 +120,28 @@ public class PlayerController {
     public Player deregisterPlayer(@PathVariable(value = "tournamentId") Long tournamentId,
             @PathVariable(value = "playerId") String playerId) {
 
-        // Get specified player by Id, if not found, throw PlayerNotFoundException error
+        // Get specified player by Id
+        // if not found, throw PlayerNotFoundException error
         Player player = playerService.getPlayer(playerId);
         if (player == null) {
             throw new PlayerNotFoundException(playerId);
         }
 
         // Get specified tournament
+        // if not found, throw TournamentNotFoundException error
         Tournament tournament = tournamentService.getTournament(tournamentId);
         if (tournament == null) {
             throw new TournamentNotFoundException(tournamentId);
         }
 
+        // Remove player from tournament
+        // If player not found in tournament, throw PlayerNoFoundException err
         Player removedPlayer = playerService.removePlayerFromTournament(player, tournament);
         if (removedPlayer == null) {
             throw new PlayerNotFoundException(playerId, tournamentId);
         }
 
+        // return removed Player
         return removedPlayer;
 
     }
@@ -142,8 +150,9 @@ public class PlayerController {
     // Use a ResponseEntity to have more control over the response sent to client
     @DeleteMapping("/players/{playerId}")
     public ResponseEntity<?> deletePlayer(@PathVariable(value = "playerId") String playerId) {
-
+        // delete player
         Player deletedPlayer = playerService.deletePlayer(playerId);
+        // if player not found, throw PlayerNotFoundException err
         if (deletedPlayer == null) {
             throw new PlayerNotFoundException(playerId);
         }

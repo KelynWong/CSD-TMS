@@ -54,13 +54,13 @@ jobs:
     - name: Create Resource Group
       run: |
         # Create Resource Group
-        az group create --name tms --location eastus
+        az group create --name tmsSG --location southeastasia
     
     - name: Create Virtual Network and Subnets (if not exists)
       run: |
         # Check if VNet exists
         vnet_exists=$(az network vnet show \
-          --resource-group tms \
+          --resource-group tmsSG \
           --name tmsVNet2 \
           --query "id" \
           --output tsv || echo "VNetNotFound")
@@ -70,7 +70,7 @@ jobs:
           
           # Create VNet with two subnets
           az network vnet create \
-            --resource-group tms \
+            --resource-group tmsSG \
             --name tmsVNet2 \
             --address-prefix 10.0.0.0/16 \
             --subnet-name tmsSubnet2 \
@@ -78,7 +78,7 @@ jobs:
 
           # Create the second subnet (aciSubnet2)
           az network vnet subnet create \
-            --resource-group tms \
+            --resource-group tmsSG \
             --vnet-name tmsVNet2 \
             --name aciSubnet2 \
             --address-prefix 10.0.1.0/24
@@ -88,26 +88,35 @@ jobs:
 
     - name: Deploy other Microservices
       run: |
+        # Delete user-ms if it exists
+        az container delete --resource-group tmsSG --name user-ms --yes 
+      
         # Deploy user_ms
-        az container create --resource-group tms --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+        az container create --resource-group tmsSG --name user-ms --image csdtms.azurecr.io/user_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8083 --environment-variables SUPABASE_URL="${{ secrets.SUPABASE_URL }}" SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" SUPABASE_BUCKET="${{ secrets.SUPABASE_BUCKET }}" CLERK_SIGNING_SECRET="${{ secrets.CLERK_SIGNING_SECRET }}" DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet2 \
         --subnet aciSubnet2
-
+      
+        # Delete tournament-ms if it exists
+        az container delete --resource-group tmsSG --name tournament-ms --yes 
+      
         # Deploy tournament_ms
-        az container create --resource-group tms --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+        az container create --resource-group tmsSG --name tournament-ms --image csdtms.azurecr.io/tournament_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8082 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet2 \
         --subnet aciSubnet2 
-
+      
+        # Delete match-ms if it exists
+        az container delete --resource-group tmsSG --name match-ms --yes 
+      
         # Deploy match_ms
-        az container create --resource-group tms --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
+        az container create --resource-group tmsSG --name match-ms --image csdtms.azurecr.io/match_ms:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8080 --environment-variables DB_URL="${{ secrets.DB_URL }}" DB_USER="${{ secrets.DB_USER }}" DB_PW="${{ secrets.DB_PW }}" \
         --vnet tmsVNet2 \
-        --subnet aciSubnet2 
+        --subnet aciSubnet2       
 
     - name: Build and Deploy Matchmaking MS
       run: |
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tmsSG --name match-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tmsSG --name tournament-ms --query "ipAddress.ip" -o tsv)
+        USER_MS_IP=$(az container show --resource-group tmsSG --name user-ms --query "ipAddress.ip" -o tsv)
 
         # Build and push matchmaking
         docker build -t csdtms.azurecr.io/matchmaking:latest ./backend/matchmaking \
@@ -118,8 +127,11 @@ jobs:
           --build-arg AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" 
         docker push csdtms.azurecr.io/matchmaking:latest
 
+        # Delete matchmaking if it exists
+        az container delete --resource-group tmsSG --name matchmaking --yes 
+
         # Deploy matchmaking MS
-        az container create --resource-group tms --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
+        az container create --resource-group tmsSG --name matchmaking --image csdtms.azurecr.io/matchmaking:latest --cpu 1 --memory 1.5 --registry-login-server csdtms.azurecr.io --registry-username csdtms --registry-password "${{ secrets.AZURE_ACR_PASSWORD }}" --restart-policy OnFailure --ports 8081 \
         --environment-variables MATCH_URL="http://$MATCH_MS_IP:8080/matches" TOURNAMENT_URL="http://$TOURNAMENT_MS_IP:8082/tournaments" PLAYER_URL="http://$USER_MS_IP:8083/users" AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
         --vnet tmsVNet2 \
         --subnet aciSubnet2
@@ -128,9 +140,9 @@ jobs:
       run: |
         # Create API Management instance
         az apim create \
-          --name csdAPI \
-          --resource-group tms \
-          --location eastus \
+          --name csdtmsSGAPI \
+          --resource-group tmsSG \
+          --location southeastasia \
           --sku-name Developer \
           --publisher-email sonia.lim.2023@scis.smu.edu.sg \
           --publisher-name sonia \
@@ -140,7 +152,7 @@ jobs:
       run: |
         # Check if NSG is already attached to the subnet
         existing_nsg=$(az network vnet subnet show \
-          --resource-group tms \
+          --resource-group tmsSG \
           --vnet-name tmsVNet2 \
           --name tmsSubnet2 \
           --query "networkSecurityGroup.id" \
@@ -150,7 +162,7 @@ jobs:
         if [ -n "$existing_nsg" ]; then
           echo "Detaching existing NSG from the subnet..."
           az network vnet subnet update \
-            --resource-group tms \
+            --resource-group tmsSG \
             --vnet-name tmsVNet2 \
             --name tmsSubnet2 \
             --remove networkSecurityGroup
@@ -158,12 +170,12 @@ jobs:
     
         # Create Network Security Group (NSG) if it doesn't exist
         az network nsg create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --name appGatewayNSG
     
         # Check if NSG rule exists
         rule_exists=$(az network nsg rule list \
-          --resource-group tms \
+          --resource-group tmsSG \
           --nsg-name appGatewayNSG \
           --query "[?name=='AllowAppGatewayPorts']" \
           --output tsv)
@@ -171,7 +183,7 @@ jobs:
         if [ -z "$rule_exists" ]; then
           # If rule does not exist, create it
           az network nsg rule create \
-            --resource-group tms \
+            --resource-group tmsSG \
             --nsg-name appGatewayNSG \
             --name AllowAppGatewayPorts \
             --protocol Tcp \
@@ -185,11 +197,11 @@ jobs:
         fi
     
         # Resolve the public IP of the APIM instance
-        apim_public_ip=$(nslookup csdapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
+        apim_public_ip=$(nslookup csdtmssgapi.azure-api.net | grep 'Address' | tail -n 1 | awk '{print $2}')
     
         # Create NSG rule allowing access from APIM's public IP to Application Gateway
         az network nsg rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --nsg-name appGatewayNSG \
           --name AllowAPIMAccess \
           --protocol Tcp \
@@ -203,7 +215,7 @@ jobs:
       run: |
         # Attach NSG to the subnet
         az network vnet subnet update \
-          --resource-group tms \
+          --resource-group tmsSG \
           --vnet-name tmsVNet2 \
           --name tmsSubnet2 \
           --network-security-group appGatewayNSG
@@ -212,13 +224,13 @@ jobs:
       run: |
         # Create Public IP for the Application Gateway
         az network public-ip create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --name appGatewayPublicIP \
           --sku Standard
 
         # Create Application Gateway
         az network application-gateway create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --name appGateway \
           --sku Standard_v2 \
           --frontend-port 80 \
@@ -230,21 +242,21 @@ jobs:
           --priority 1000
 
         # Wait for the Application Gateway to be fully provisioned
-        az network application-gateway wait --created --name appGateway --resource-group tms
+        az network application-gateway wait --created --name appGateway --resource-group tmsSG
 
     - name: Create API in APIM with JWT Validation
       run: |
         # Retrieve the public IP of the Application Gateway
         appgw_public_ip=$(az network public-ip show \
-          --resource-group tms \
+          --resource-group tmsSG \
           --name appGatewayPublicIP \
           --query "ipAddress" \
           --output tsv)
 
         # Create API in APIM with public IP of Application Gateway
         az apim api create \
-          --resource-group tms \
-          --service-name csdapi \
+          --resource-group tmsSG \
+          --service-name csdtmssgapi \
           --api-id myApi \
           --path / \
           --display-name "TMS API" \
@@ -252,63 +264,69 @@ jobs:
           --protocols https
 
         # PUBLIC Routes
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchesByTournament --display-name "Get Matches by Tournament" --method GET --url-template "/matches/tournament/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getMatchGames --display-name "Get Match Games" --method GET --url-template "/matches/{match_id}/games" --template-parameters name=match_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getMatchGames --display-name "Get Match Games" --method GET --url-template "/matches/{match_id}/games" --template-parameters name=match_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserWins --display-name "Get User Wins" --method GET --url-template "/matches/user/win/{user_id}" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserWins --display-name "Get User Wins" --method GET --url-template "/matches/user/win/{user_id}" --template-parameters name=user_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserLosses --display-name "Get User Losses" --method GET --url-template "/matches/user/loss/{user_id}" --template-parameters name=user_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserLosses --display-name "Get User Losses" --method GET --url-template "/matches/user/loss/{user_id}" --template-parameters name=user_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserById --display-name "Get User by ID" --method GET --url-template "/users/{id}" --template-parameters name=id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserMatchPlayed --display-name "Get User Match Played" --method GET --url-template "/matches/user/played/{user_id}" --template-parameters name=user_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserRole --display-name "Get User Role" --method GET --url-template "/users/role/{role}" --template-parameters name=role type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserById --display-name "Get User by ID" --method GET --url-template "/users/{id}" --template-parameters name=id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTopPlayers --display-name "Get Top Players" --method GET --url-template "/users/top-players"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserRole --display-name "Get User Role" --method GET --url-template "/users/role/{role}" --template-parameters name=role type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTopPlayers --display-name "Get Top Players" --method GET --url-template "/users/top-players"
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentPlayers --display-name "Get Tournament Players by Player ID" --method GET --url-template "/tournaments/players/{player_id}" --template-parameters name=player_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsers --display-name "Get Users" --method GET --url-template "/users"
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentById --display-name "Get Tournament by ID" --method GET --url-template "/tournaments/id/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournaments --display-name "Get Tournaments" --method GET --url-template "/tournaments"
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentPlayers --display-name "Get Tournament Players by Player ID" --method GET --url-template "/tournaments/players/{player_id}" --template-parameters name=player_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentById --display-name "Get Tournament by ID" --method GET --url-template "/tournaments/id/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getTournamentPlayersByTournamentId --display-name "Get Tournament Players by Tournament ID" --method GET --url-template "/tournaments/{tournament_id}/players" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getStatus --display-name "Get status" --method GET --url-template "/tournaments/status/{status}" --template-parameters name=status type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getSimulation --display-name "Get simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate" --template-parameters name=tournament_id type=string required=true
+
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getManySimulation --display-name "Get many simulation" --method GET --url-template "/matchmaking/matches/{tournament_id}/simulate-many" --template-parameters name=tournament_id type=string required=true
+
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id clerkWebhook --display-name "Clerk Webhook" --method POST --url-template "/users/clerk-webhook" 
+
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUsersByIds --display-name "Get Users By Ids" --method POST --url-template "/users/ids" 
 
         # USER Routes
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id getUserPlayer --display-name "Get User Player" --method GET --url-template "/tournaments/{tournament_id}/players/{user_id}" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id registerPlayer --display-name "Register Player" --method POST --url-template "/tournaments/{tournament_id}/players/{user_id}/register" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/{tournament_id}/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id deregisterPlayer --display-name "Deregister Player" --method PUT --url-template "/tournaments/{tournament_id}/players/{user_id}/deregister" --template-parameters name=user_id type=string required=true --template-parameters name=tournament_id type=string required=true
 
         # ADMIN Routes
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id updateGame --display-name "Update Game" --method PUT --url-template "/matches/{match_id}/games/{game_id}" --template-parameters name=match_id type=string required=true --template-parameters name=game_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id createMatchmaking --display-name "Create Matchmaking for Tournament" --method POST --url-template "/matchmaking/{tournament_id}/strategy/{strategy}" --template-parameters name=tournament_id type=string required=true --template-parameters name=strategy type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id postMatchResult --display-name "Post Match Result" --method POST --url-template "/matchmaking/result/{match_id}" --template-parameters name=match_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments/tournament"
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id createTournamentMain --display-name "Create Tournament Main" --method POST --url-template "/tournaments"
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateTournament --display-name "Update Tournament" --method PUT --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id updateTournament --display-name "Update Tournament" --method PUT --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id updateTournamentStatus --display-name "Update Tournament Status" --method PUT --url-template "/tournaments/{tournament_id}/status" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id updateTournamentStatus --display-name "Update Tournament Status" --method PUT --url-template "/tournaments/{tournament_id}/status" --template-parameters name=tournament_id type=string required=true
 
-        az apim api operation create --resource-group tms --service-name csdapi --api-id myApi --operation-id deleteTournament --display-name "Delete Tournament" --method DELETE --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
+        az apim api operation create --resource-group tmsSG --service-name csdtmssgapi --api-id myApi --operation-id deleteTournament --display-name "Delete Tournament" --method DELETE --url-template "/tournaments/{tournament_id}" --template-parameters name=tournament_id type=string required=true
 
 
         # # Create GET operation
         # az apim api operation create \
-        #   --resource-group tms \
-        #   --service-name csdapi \
+        #   --resource-group tmsSG \
+        #   --service-name csdtmssgapi \
         #   --api-id myApi \
         #   --operation-id getOperation \
         #   --display-name "GET Operation" \
@@ -318,8 +336,8 @@ jobs:
         
         # # Create POST operation
         # az apim api operation create \
-        #   --resource-group tms \
-        #   --service-name csdapi \
+        #   --resource-group tmsSG \
+        #   --service-name csdtmssgapi \
         #   --api-id myApi \
         #   --operation-id postOperation \
         #   --display-name "POST Operation" \
@@ -329,8 +347,8 @@ jobs:
 
         # # Create PUT operation
         # az apim api operation create \
-        #   --resource-group tms \
-        #   --service-name csdapi \
+        #   --resource-group tmsSG \
+        #   --service-name csdtmssgapi \
         #   --api-id myApi \
         #   --operation-id putOperation \
         #   --display-name "PUT Operation" \
@@ -340,8 +358,8 @@ jobs:
         
         # # Create DELETE operation
         # az apim api operation create \
-        #   --resource-group tms \
-        #   --service-name csdapi \
+        #   --resource-group tmsSG \
+        #   --service-name csdtmssgapi \
         #   --api-id myApi \
         #   --operation-id deleteOperation \
         #   --display-name "DELETE Operation" \
@@ -351,8 +369,8 @@ jobs:
         
         # # Set up JWT validation in APIM for the API
         # az apim api operation policy update \
-        #   --resource-group tms \
-        #   --service-name csdapi \
+        #   --resource-group tmsSG \
+        #   --service-name csdtmssgapi \
         #   --api-id myApi \
         #   --operation-id all \
         #   --policy "<inbound><validate-jwt header-name=\"Authorization\" failed-validation-httpcode=\"401\" failed-validation-error-message=\"Unauthorized\"><issuer-signing-keys><key><value>${{ secrets.CLERK_SIGNING_SECRET }}</value></key></issuer-signing-keys></validate-jwt></inbound>"
@@ -361,32 +379,32 @@ jobs:
     - name: Configure Backend Pools
       run: |
         # Get IP addresses of the microservices
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+        USER_MS_IP=$(az container show --resource-group tmsSG --name user-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tmsSG --name tournament-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tmsSG --name match-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tmsSG --name matchmaking --query "ipAddress.ip" -o tsv)
 
         # Add backend pools for each microservice
         az network application-gateway address-pool create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name userMSBackendPool \
           --servers $USER_MS_IP
 
         az network application-gateway address-pool create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name tournamentMSBackendPool \
           --servers $TOURNAMENT_MS_IP
 
         az network application-gateway address-pool create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchMSBackendPool \
           --servers $MATCH_MS_IP
 
         az network application-gateway address-pool create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchmakingMSBackendPool \
           --servers $MATCHMAKING_MS_IP
@@ -394,14 +412,14 @@ jobs:
     - name: Configure Health Probes for Microservices
       run: |
         # Get IP addresses of the microservices
-        USER_MS_IP=$(az container show --resource-group tms --name user-ms --query "ipAddress.ip" -o tsv)
-        TOURNAMENT_MS_IP=$(az container show --resource-group tms --name tournament-ms --query "ipAddress.ip" -o tsv)
-        MATCH_MS_IP=$(az container show --resource-group tms --name match-ms --query "ipAddress.ip" -o tsv)
-        MATCHMAKING_MS_IP=$(az container show --resource-group tms --name matchmaking --query "ipAddress.ip" -o tsv)
+        USER_MS_IP=$(az container show --resource-group tmsSG --name user-ms --query "ipAddress.ip" -o tsv)
+        TOURNAMENT_MS_IP=$(az container show --resource-group tmsSG --name tournament-ms --query "ipAddress.ip" -o tsv)
+        MATCH_MS_IP=$(az container show --resource-group tmsSG --name match-ms --query "ipAddress.ip" -o tsv)
+        MATCHMAKING_MS_IP=$(az container show --resource-group tmsSG --name matchmaking --query "ipAddress.ip" -o tsv)
 
         # Create health probes using HTTP settings
         az network application-gateway probe create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name userMSHealthProbe \
           --protocol Http \
@@ -412,7 +430,7 @@ jobs:
 
         # Repeat for other services
         az network application-gateway probe create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name tournamentMSHealthProbe \
           --protocol Http \
@@ -422,7 +440,7 @@ jobs:
           --from-http-settings true
 
         az network application-gateway probe create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchMSHealthProbe \
           --protocol Http \
@@ -432,7 +450,7 @@ jobs:
           --from-http-settings true
 
         az network application-gateway probe create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchmakingMSHealthProbe \
           --protocol Http \
@@ -445,7 +463,7 @@ jobs:
       run: |
         # HTTP settings for user-ms
         az network application-gateway http-settings create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name userMSHttpSetting \
           --port 8083 \
@@ -455,7 +473,7 @@ jobs:
 
         # HTTP settings for tournament-ms
         az network application-gateway http-settings create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name tournamentMSHttpSetting \
           --port 8082 \
@@ -465,7 +483,7 @@ jobs:
 
         # HTTP settings for match-ms
         az network application-gateway http-settings create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchMSHttpSetting \
           --port 8080 \
@@ -475,7 +493,7 @@ jobs:
 
         # HTTP settings for matchmaking-ms
         az network application-gateway http-settings create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name matchmakingMSHttpSetting \
           --port 8081 \
@@ -487,7 +505,7 @@ jobs:
       run: |
         # Create a URL path map with a specific default backend pool for the user-ms
         az network application-gateway url-path-map create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name myPathMap \
           --paths /users/* \
@@ -497,7 +515,7 @@ jobs:
           --default-http-settings userMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name user \
@@ -507,7 +525,7 @@ jobs:
 
         # Add path rules for other microservices
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name tournamentMSRule \
@@ -516,7 +534,7 @@ jobs:
           --http-settings tournamentMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name tournament \
@@ -525,7 +543,7 @@ jobs:
           --http-settings tournamentMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name matchMSRule \
@@ -534,7 +552,7 @@ jobs:
           --http-settings matchMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name match \
@@ -543,7 +561,7 @@ jobs:
           --http-settings matchMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name matchmakingMSRule \
@@ -552,7 +570,7 @@ jobs:
           --http-settings matchmakingMSHttpSetting
 
         az network application-gateway url-path-map rule create \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --path-map-name myPathMap \
           --name matchmaking \
@@ -562,7 +580,7 @@ jobs:
 
         # Update existing routing rule that uses the URL path map
         az network application-gateway rule update \
-          --resource-group tms \
+          --resource-group tmsSG \
           --gateway-name appGateway \
           --name rule1 \
           --rule-type PathBasedRouting \
@@ -602,45 +620,66 @@ jobs:
         working-directory: backend/match_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_MATCHMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMS
 
       # Build and analyze tournament_ms
       - name: Build and analyze tournament_ms
         working-directory: backend/tournament_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_TOURNAMENTMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-TOURNAMENTMS
 
       # Build and analyze user_ms
       - name: Build and analyze user_ms
         working-directory: backend/user_ms
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_USERMS }}
           DB_URL: ${{ secrets.DB_URL }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PW: ${{ secrets.DB_PW }}
           CLERK_SIGNING_SECRET: ${{ secrets.CLERK_SIGNING_SECRET }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-USERMS
 
       # Build and analyze matchmaking
       - name: Build and analyze matchmaking
         working-directory: backend/matchmaking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_MATCHMAKING }}
           MATCH_URL: http://match-ms:8080/matches
           TOURNAMENT_URL: http://tournament-ms:8082/tournaments
           PLAYER_URL: http://user-ms:8083/users
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=KelynWong_CSD-TMS
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kelynwong_TMS-MATCHMAKING
 
+  connect-to-supabase:
+    name: Connect to Supabase and Run init.sql
+    runs-on: ubuntu-latest
+    needs: 
+      - build-and-analyze-with-sonarcloud
+      - build-and-deploy  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install psql client
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Run init.sql on Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL_AND_PORT }}
+          SUPABASE_DB_USER: ${{ secrets.DB_USER }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.DB_PW }}
+          SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
+        run: |
+          psql "postgres://${SUPABASE_DB_USER}:${SUPABASE_DB_PASSWORD}@${SUPABASE_URL}/${SUPABASE_DB_NAME}" -f backend/init.sql

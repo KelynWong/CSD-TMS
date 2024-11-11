@@ -32,10 +32,8 @@ export function DataTableRowActions<TData>({ row }: { row: TData }) {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-[160px]">
-					<Link href={`/players/${row.id}`} passHref>
-						<DropdownMenuItem >
-							View User Profile
-						</DropdownMenuItem>
+					<Link href={`/players/${row.id}`} passHref prefetch={true}>
+						<DropdownMenuItem>View User Profile</DropdownMenuItem>
 					</Link>
 					<DropdownMenuItem
 						onClick={() => {

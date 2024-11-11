@@ -116,6 +116,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 								(tournament) =>
 									tournament.id === match.tournament_id
 							)?.tournamentName,
+                            tournament_id: match.tournament_id,
 							match_id: match.match_id,
 							set_number: game.setNum,
 							round: match.roundNum,

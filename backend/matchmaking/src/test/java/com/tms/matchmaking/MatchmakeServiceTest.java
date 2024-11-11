@@ -39,6 +39,7 @@ public class MatchmakeServiceTest {
 
     private RatingCalculator ratingCalc;
 
+    @Mock
     private MessageService messageService;
 
     private MatchmakeService matchmakeService;
@@ -52,14 +53,14 @@ public class MatchmakeServiceTest {
     @Test
     void matchmake_TournamentAlreadyExists_ThrowsException() {
         when(apiManager.getTournamentMatches(any(Long.class))).thenReturn(List.of(new MatchJson(1L, "user1", "user2")));
-        assertThrows(TournamentExistsException.class, () -> matchmakeService.matchmake(1L));
+        assertThrows(TournamentExistsException.class, () -> matchmakeService.matchmake(1L, "strongweak"));
         verify(apiManager, times(1)).getTournamentMatches(any(Long.class));
     }
 
     // test logic for 7, 8 and 9 players. 8 is a magic number
     @ParameterizedTest
     @ValueSource(ints = {7, 8, 9})
-    void matchmake_TournamentNotFound_CreatesMatches(int numPlayers) {
+    void matchmake_TournamentNotFound_CreatesMatches_StrongWeakPairing(int numPlayers) {
         List<Player> players = createPlayers(numPlayers);
 
         int n = players.size();
@@ -68,15 +69,17 @@ public class MatchmakeServiceTest {
         int byes = (int) Math.pow(2, k) - n;
         double numMatchesAtBase = Math.pow(2, k - 1);
 
-        List<MatchJson> expectedMatches = createExpectedMatches(byes, numMatches, players);
+        List<MatchJson> expectedMatches = createExpectedMatches(byes, players);
 
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
         doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
 
-        List<MatchJson> actualMatches = matchmakeService.matchmake(1L);
+        List<MatchJson> actualMatches = matchmakeService.matchmake(1L, "strongweak");
 
+        assertEquals(numMatches, actualMatches.size());
         // assert that strong players are paired with the weaker players
         for (int i = byes; i < numMatchesAtBase; i++) {
             MatchJson match = actualMatches.get(i);
@@ -85,6 +88,35 @@ public class MatchmakeServiceTest {
             assertEquals(player1, "user" + (i + 1));
             assertEquals(player2, "user" + (n - i + byes));
         }
+
+        // assert correct number of byes are given
+        assertTrue(ListUtils.areFirstNItemsEqual(expectedMatches, actualMatches, byes));
+
+        verify(apiManager, times(1)).getTournamentMatches(any(Long.class));
+        verify(apiManager, times(1)).fetchTournamentPlayerIds(any(Long.class));
+        verify(apiManager, times(1)).fetchPlayerData(anyList());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {7, 8, 9})
+    void matchmake_TournamentNotFound_CreatesMatches_StrongStrongPairing(int numPlayers) {
+        List<Player> players = createPlayers(numPlayers);
+
+        int n = players.size();
+        int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
+        double numMatches = Math.pow(2, k) - 1;
+        int byes = (int) Math.pow(2, k) - n;
+        double numMatchesAtBase = Math.pow(2, k - 1);
+
+        List<MatchJson> expectedMatches = createExpectedMatches(byes, players);
+
+        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
+        when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
+        when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
+        doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
+
+        List<MatchJson> actualMatches = matchmakeService.matchmake(1L, "strongstrong");
 
         assertEquals(numMatches, actualMatches.size());
         // assert correct number of byes are given
@@ -105,7 +137,7 @@ public class MatchmakeServiceTest {
         return players;
     }
 
-    private List<MatchJson> createExpectedMatches(int byes, double numMatches, List<Player> players) {
+    private List<MatchJson> createExpectedMatches(int byes, List<Player> players) {
         List<MatchJson> matches = new ArrayList<>();
         for (int i = 0; i < byes; i++) {
             matches.add(new MatchJson(1L, players.get(i).getId(), null));
@@ -134,6 +166,7 @@ public class MatchmakeServiceTest {
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
         doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
 
         List<String> byePlayers = new ArrayList<>();
@@ -141,7 +174,7 @@ public class MatchmakeServiceTest {
 
         // run matchmake 20 times to test randomness of pairings
         for (int i = 0; i < 20; i++) {
-            List<MatchJson> matchesCreated = matchmakeService.matchmake(1L);
+            List<MatchJson> matchesCreated = matchmakeService.matchmake(1L, "strongweak");
             byePlayers.add(matchesCreated.get(0).getPlayer1Id());
 
             List<String[]> playerPairs = new ArrayList<>();

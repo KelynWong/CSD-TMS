@@ -4,19 +4,20 @@ import { NextResponse } from "next/server";
 // This Middleware does not protect any routes by default.
 // See https://clerk.com/docs/references/nextjs/clerk-middleware for more information about configuring your Middleware
 const isPublicRoute = createRouteMatcher([
-	"/home",
+	"/",
 	"/onboarding",
 	"/players",
 	"/players/:id*",
 	"/tournaments/:id*",
 	"/tournaments",
 	"/rankings",
+	"/prediction",
 ]);
 
 export default clerkMiddleware((auth, req) => {
 	const { userId, sessionClaims } = auth();
 	if (!isPublicRoute(req) && !userId) {
-		const forbiddenUrl = new URL("/home", req.url);
+		const forbiddenUrl = new URL("/", req.url);
 		return NextResponse.redirect(forbiddenUrl);
 	}
 
@@ -32,7 +33,7 @@ export default clerkMiddleware((auth, req) => {
 	const userRole = sessionClaims?.metadata?.role;
 	if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "ADMIN") {
 		// Redirect to a forbidden page or return an error response
-		const forbiddenUrl = new URL("/home", req.url);
+		const forbiddenUrl = new URL("/", req.url);
 		return NextResponse.redirect(forbiddenUrl);
 	}
 });
