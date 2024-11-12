@@ -3,11 +3,9 @@ package com.tms.tournament;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.*;
 import java.net.URI;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +34,7 @@ class TournamentControllerTest {
 	private int port;
 
 	private final String baseURL = "http://localhost:";
-
-	/**
-	 * Use TestRestTemplate for testing a real instance of your application as an
-	 * external actor.
-	 * TestRestTemplate is just a convenient subclass of RestTemplate that is
-	 * suitable for integration tests.
-	 * It is fault tolerant, and optionally can carry Basic authentication headers.
-	 */
+	
 	@Autowired
 	private TestRestTemplate restTemplate;
 
@@ -83,7 +74,7 @@ class TournamentControllerTest {
 		Long currentCount = tournaments.count();
 
 		Tournament tournament = helper.createTournamentObj("noError");
-		Long t_id = tournaments.save(tournament).getId();
+		tournaments.save(tournament);
 
 		// call the api
 		URI uri = new URI(baseURL + port + "/tournaments");
@@ -198,7 +189,6 @@ class TournamentControllerTest {
 
 		// loop thr the errors
 		for (String err : errArr) {
-			helper.log(err);
 			// input - tournament with specified err
 			Tournament tournament = helper.createTournamentObj(err);
 			// call the api
@@ -300,12 +290,11 @@ class TournamentControllerTest {
 		// input - save a tournament in db first (create tournament -> save in db)
 		Tournament tournament = helper.createTournamentObj("noError");
 		tournament.setTournamentName("Hello");
-
-		Tournament tournament1 = helper.createTournamentObj("noError");
-		tournament1.setTournamentName("Hello1");
-		Long t_id1 = tournaments.save(tournament).getId();
-
+		// create another tournament w diff name and save it
 		Tournament newTournament = helper.createTournamentObj("noError");
+		newTournament.setTournamentName("Hello1");
+		Long t_id1 = tournaments.save(tournament).getId();
+		// change tournament name to the first tournament's name
 		newTournament.setTournamentName("Hello");
 
 		// call the api
@@ -402,16 +391,14 @@ class TournamentControllerTest {
 
 		String winner = p_id; // valid winner
 
-		helper.log(winner + t_id);
-
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
 		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
 				new HttpEntity<>(winner), Tournament.class);
 
-		// verify the output - 200 (OK) : update successful (make sure the change in
-		// tournament name was saved in db correctly)
+		// verify the output - 200 (OK) : update successful
 		assertEquals(200, result.getStatusCode().value());
+		// make sure winner and status are updated correctly
 		assertEquals(winner, result.getBody().getWinner());
 		assertEquals(TournamentStatus.COMPLETED, result.getBody().getStatus());
 
@@ -429,7 +416,7 @@ class TournamentControllerTest {
 		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
-		String winner = p_id; // valid winner
+		String winner = p_id; // invalid winner
 
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");
@@ -438,8 +425,6 @@ class TournamentControllerTest {
 
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
-
-
 
 	}
 

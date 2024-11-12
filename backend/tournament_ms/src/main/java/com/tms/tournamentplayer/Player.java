@@ -14,6 +14,7 @@ import com.tms.tournament.Tournament;
 @Data
 public class Player {
 
+    /* ATTRIBUTES */
     @Id
     @Column(unique = true, nullable = false)
     private String id;
@@ -24,7 +25,7 @@ public class Player {
     @JsonIgnore
     private List<Tournament> tournaments = new ArrayList<>();
 
-    // Custom methods
+    /* CUSTOM METHODS */
 
     // Purpose : Remove all player-tournament mapping for player
     public void removeAllTournaments() {

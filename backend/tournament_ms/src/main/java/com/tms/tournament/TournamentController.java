@@ -156,7 +156,7 @@ public class TournamentController {
 
         // Winner found : set tournament winner
         tournament.setWinner(modifiedWinner);
-        tournament.setStatus(TournamentStatus.COMPLETED); // (CHANGE TESTCASE)
+        tournament.setStatus(TournamentStatus.COMPLETED);
 
         // Update and return tournament
         return tournamentService.updateTournament(id, tournament);
@@ -224,24 +224,30 @@ public class TournamentController {
 
     // Purpose : Check if name exist in existing tournaments
     private boolean nameDontExist(Tournament newTournament, String action) {
+        // get tournament name 
         String t_name = newTournament.getTournamentName();
+        // generate list of tournament with the same name
         List<Tournament> sameNames = tournamentService.getTournamentsByTournamentName(t_name);
 
+        // "creation" : adding tournament
         if (action.equals("creation")) {
+            // make sure no same names
             return sameNames.isEmpty();
         }
         // assume the only other action is "modification"
         else {
+            // get the existing tournament name
             Tournament oldTournament = tournamentService.getTournament(newTournament.getId());
+            // throw exception if existing tournament not found
             if (oldTournament == null) {
                 throw new TournamentNotFoundException(newTournament.getId());
             }
 
-            // if the name didn't change, min = 1
+            // if the name didn't change, sameNames list size min is 1
             if (oldTournament.getTournamentName().equals(t_name)) {
                 return sameNames.size() == 1;
             }
-            // else, if names are diff, min = 0
+            // else, if names are diff, min list size is 0
             else {
                 return sameNames.isEmpty();
             }

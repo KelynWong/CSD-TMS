@@ -48,9 +48,10 @@ public class PlayerService {
             return t_list;
 
             // Else, means specified player not found, throw PlayerNotFoundException err 404
-        }).orElseThrow(() -> new PlayerNotFoundException(playerId)); // null or exception??
+        }).orElseThrow(() -> new PlayerNotFoundException(playerId)); 
     }
 
+    // Purpose : get player by specified id
     public Player getPlayer(String id) {
         // find tournament using specified id
         // - findById(id) return Optional<Tournament> so map to extract Tournament obj

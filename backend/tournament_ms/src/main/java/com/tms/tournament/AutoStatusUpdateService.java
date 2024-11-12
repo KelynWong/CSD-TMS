@@ -31,9 +31,9 @@ public class AutoStatusUpdateService {
         }
 
         /*
-         * regS regE Makemake tourS tourE
-         * |----------------|----------|-------------|----------------|
-         * Scheduled -> RegStart -> RegEnd -> Matchmake -> Ongoing -> Completed
+         *regS                        regE     Makemake        tourS           tourE
+         * |---------------------------|----------|-------------|----------------|
+         * Scheduled -> RegStart -> RegEnd -> Matchmake ---> Ongoing ---> Completed
          */
 
         // Get current datetime
@@ -42,10 +42,12 @@ public class AutoStatusUpdateService {
 
         log.info("[AutoUpdate] Current datetime: " + localNow);
 
+        // if tournament is completed, don't update anything
         if (tournament.getStatus() == TournamentStatus.COMPLETED) {
             return;
         }
 
+        /* Here: Tournament is not completed */
         // SCHEDULED : before registration start
         else if (localNow.isBefore(tournament.getRegStartDT())) {
             log.info("[AutoUpdate] CHANGE TO SCHEDULED");
@@ -58,7 +60,7 @@ public class AutoStatusUpdateService {
             tournament.setStatus(TournamentStatus.REGISTRATION_START);
         }
 
-        // REGISTRATION_CLOSE : after Registration End and Before matchmake is done
+        // REGISTRATION_CLOSE :  Before matchmake is done and after Registration End
         else if (tournament.getStatus() != TournamentStatus.MATCHMAKE
                 && isWithin(localNow, tournament.getRegEndDT(), tournament.getStartDT())) {
             log.info("[AutoUpdate] CHANGE TO REG_CLOSE");
@@ -93,7 +95,8 @@ public class AutoStatusUpdateService {
     // Purpose : Check if datetime given falls within range
     private boolean isWithin(LocalDateTime dt, LocalDateTime startRange, LocalDateTime endRange) {
 
-        return !dt.isBefore(startRange) && !dt.isAfter(endRange);
+        // Range (dt >= startRange AND dt < endRange)
+        return !dt.isBefore(startRange) && dt.isBefore(endRange);
 
     }
 
