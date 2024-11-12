@@ -228,7 +228,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     };
 
     if (loading) {
-		return <Loading />;
+		return <Loading heightClass="h-full" />;
 	}
 
     return (
