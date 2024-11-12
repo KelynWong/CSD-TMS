@@ -48,7 +48,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
     const [playerCount, setPlayerCount] = useState(0);
     const [numMatches, setNumMatches] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [showRegisterButton, setShowRegisterButton] = useState(false);
     const [selectedStrategy, setSelectedStrategy] = useState('strongweak');
 
     const handleValueChange = (value: SetStateAction<string>) => {
@@ -136,7 +135,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 setPlayerCount(playersData.length);
                 setLoading(false);
             } catch (err) {
-                console.error("Failed to fetch tournaments:", err);
+                console.log("Failed to fetch tournaments:", err);
             }
         };
 
@@ -146,21 +145,12 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 setNumMatches(data.length);
                 setLoading(false);
             } catch (err) {
-                console.error("Failed to fetch tournaments:", err);
+                console.log("Failed to fetch tournaments:", err);
             }
         };
         getPlayerCount();
         getMatchCount();
     }, []);
-
-    useEffect(() => {
-        const currentDate = new Date();
-        if (currentDate >= formattedRegStartDT && currentDate <= formattedRegEndDT) {
-          setShowRegisterButton(true);
-        } else {
-          setShowRegisterButton(false);
-        }
-    }, [formattedRegStartDT, formattedRegEndDT]);
 
     useEffect(() => {
         if (status === 'Registration Close') {
@@ -181,7 +171,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to matchmake :( \n' + err);
-            console.log(err);
             setTimeout(() => {
                 window.location.reload();
             }, 500); // Delay of 0.5 seconds before reloading
@@ -197,7 +186,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Registration failed :(');
-            console.error("Failed to register for tournament:", err);
         }
     };
 
@@ -210,7 +198,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (err) {
             message.error('Failed to withdraw from tournament :(');
-            console.error("Failed to register for tournament:", err);
         }
     };
     
@@ -222,7 +209,6 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 window.location.reload();
             }, 500); // Delay of 0.5 seconds before reloading
         } catch (error) {
-            console.error('Failed to delete tournament:', error);
             message.error('Failed to delete tournament :(');
         }
     };
@@ -260,7 +246,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
             <CardFooter>
                 {role === "PLAYER" && status === 'Registration Start'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
-                        <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
+                        <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full hover:opacity-80">View</Button></Link>
                         
                         {isRegistered ? (
                             <AlertDialog>
@@ -303,7 +289,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                 ) : role === "ADMIN" ? (
                     <div className="grid grid-row-2 gap-2 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                            <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className=" w-full">View</Button></Link>
+                            <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full hover:opacity-80">View</Button></Link>
                             <Link href={`/tournaments/form/${id}`}><Button className="text-black bg-amber-400 hover:bg-amber-500 w-full">Edit</Button></Link>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -358,7 +344,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 w-full">
-                        <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full">View</Button></Link>
+                        <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full hover:opacity:80">View</Button></Link>
                     </div>
                 )}
             </CardFooter>

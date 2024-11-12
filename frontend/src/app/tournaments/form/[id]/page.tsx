@@ -86,7 +86,6 @@ export default function TournamentForm() {
             const getTournamentsData = async () => {
                 try {
                     const data = await fetchTournamentById(Number(id));
-                    console.log(data)
                     setInitialData({
                         ...data,
                         startDT: new Date(new Date(data.startDT).getTime() + sgTimeZoneOffset),
@@ -111,10 +110,6 @@ export default function TournamentForm() {
 
     const onSubmit = async (data: any) => {
         setLoading(true);
-
-        console.log(user.id);
-        console.log("data: ", data);
-        
         const payload = {
             ...data, // Include form data
             startDT: data.startDT.toISOString(),
@@ -129,11 +124,9 @@ export default function TournamentForm() {
             ...(!isEditing && { createdBy: user.id }) // Include createdBy if not editing
         };
     
-        console.log("payload: ", payload);
         const response = await (isEditing ? updateTournaments(payload) : createTournaments(payload));
     
         if (response) {
-            console.log(response)
             setLoading(false);
             message.success(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
             router.push('/tournaments');
@@ -151,8 +144,6 @@ export default function TournamentForm() {
     if (loading) {
 		return <Loading />;
 	}
-
-    console.log("initialData: ", initialData)
 
     return (
         <div className="w-[80%] mx-auto py-16">

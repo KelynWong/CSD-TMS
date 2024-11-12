@@ -115,7 +115,6 @@ export default function Prediction() {
                     };
                 })
             );
-            console.log("enrichedMatches", enrichedMatches);
             setMatchResults(enrichedMatches);
         } catch (err) {
             console.error("Failed to fetch tournament:", err);

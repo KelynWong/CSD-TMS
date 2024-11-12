@@ -71,7 +71,8 @@ export default function Tournaments() {
 		const getTournamentsData = async () => {
 			try {
 				const data = await fetchTournaments();
-				const mappedData: Tournament[] = data.map((tournament: any) => ({
+				const reverseData = data.reverse();
+				const mappedData: Tournament[] = reverseData.map((tournament: any) => ({
 					id: tournament.id,
 					tournamentName: tournament.tournamentName,
 					startDT: new Date(

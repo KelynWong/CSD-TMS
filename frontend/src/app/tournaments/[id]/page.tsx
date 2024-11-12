@@ -55,7 +55,6 @@ export default function TournamentDetails() {
             // Fetch tournament details
             const tournamentData = await fetchTournamentById(Number(id));
             const organiserData = await fetchOrganizer(tournamentData.createdBy);
-            console.log(organiserData);
 
             let tournamentDetails = {
                 id: tournamentData.id,
@@ -120,7 +119,6 @@ export default function TournamentDetails() {
                 };
             }
 
-            console.log(tournamentDetails);
             setTournamentDetails(tournamentDetails);
         } catch (error) {
             console.error('Error fetching data:', error);

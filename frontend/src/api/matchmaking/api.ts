@@ -28,8 +28,6 @@ export const getJwtToken = (): string | null => {
 export const matchMakeByTournamentId = async (tournament_id: number, strategy: string): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		console.log(jwtToken);
-		console.log(strategy);
 		const response = await axios.post(`${URL}/${tournament_id}/strategy/${strategy}`, {}, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
@@ -38,15 +36,12 @@ export const matchMakeByTournamentId = async (tournament_id: number, strategy: s
 		if (axios.isAxiosError(error)) {
 			// TypeScript now knows that `error` is an AxiosError
 			if (error.response) {
-				console.log(error.response.data.error);
 				throw error.response.data.error
 			} else {
-				console.log('Error', error.message);
 				throw error.message
 			}
 		} else {
 			// Handle errors that are not related to Axios
-			console.log('Unknown error', error);
 			throw error;
 		}
 	}
@@ -63,15 +58,12 @@ export const addGamesByMatchId = async (match_id: number, gamesData: Games): Pro
 		if (axios.isAxiosError(error)) {
 			// TypeScript now knows that `error` is an AxiosError
 			if (error.response) {
-				console.log(error.response.data.error);
 				throw error.response.data.error
 			} else {
-				console.log('Error', error.message);
 				throw error.message
 			}
 		} else {
 			// Handle errors that are not related to Axios
-			console.log('Unknown error', error);
 			throw error;
 		}
 	}

@@ -45,18 +45,8 @@ export default function Home() {
 	const { setState } = useNavBarContext();
 	setState("home");
 
-	const router = useRouter();
-
-	// useEffect(() => {
-	// 	router.push("/home");
-	// }, [router]);
-
-	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>(
-		[]
-	);
-	const [completedTournament, setCompletedTournament] = useState<Tournament[]>(
-		[]
-	);
+	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>([]);
+	const [completedTournament, setCompletedTournament] = useState<Tournament[]>([]);
 	const [playersRank, setPlayersRank] = useState<any[]>([]);
 	const [players, setPlayers] = useState<any[]>([]);
 	const [randomPlayers, setRandomPlayers] = useState<Player[]>([]);
@@ -90,7 +80,6 @@ export default function Home() {
 				}
 
 				const firstTournament = data[0];
-				console.log(firstTournament);
 				const winnerData = firstTournament.winner
 					? await fetchPlayer(firstTournament.winner)
 					: { fullname: "Unknown" };
@@ -212,23 +201,23 @@ export default function Home() {
 					<div id="scroll-text">
 						<div className="flex items-center">
 							{playersErr && tournamentErr ? (
-								<h3 className="text-xl mr-12">No data found, please try again later. We apologies for the inconvenience caused.</h3>
+								<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap">No data found, please try again later. We apologize for the inconvenience caused.</h3>
 							) : (
 								<>
 									{playersRank.length !== 0 ? (
-										<h3 className="text-xl mr-12">🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-64">🥇 Rank {playersRank[0].rank} - {playersRank[0].fullname}</h3>
 									) : (
-										<h3 className="text-xl mr-12">Have a good day!</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-64">Have a good day!</h3>
 									)}
 									{ongoingTournaments.length !== 0 ? (
-										<h3 className="text-xl mr-12">🎉 {ongoingTournaments[0].tournamentName} is ongoing now!</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-96">🎉 {ongoingTournaments[0].tournamentName} is ongoing now!</h3>
 									) : (
-										<h3 className="text-xl mr-12">No Ongoing Tournaments D:</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-64">No Ongoing Tournaments D:</h3>
 									)}
 									{completedTournament.length !== 0 ? (
-										<h3 className="text-xl mr-12">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-96">🏆 {completedTournament[0].winner} won {completedTournament[0].tournamentName}</h3>
 									) : (
-										<h3 className="text-xl mr-12">No Completed Tournaments</h3>
+										<h3 className="text-xl mr-12 text-ellipsis overflow-hidden whitespace-nowrap w-64">No Completed Tournaments</h3>
 									)}
 								</>
 							)}
@@ -328,7 +317,7 @@ export default function Home() {
 									<div className="w-full grid grid-cols-2 gap-4">
 										{ongoingTournaments.map((tournament: Tournament) => (
 											<Link href={`/tournaments/${tournament.id}`}>
-												<div key={tournament.id} className="tournament flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-6">
+												<div key={tournament.id} className="tournament flex flex-col items-center justify-between rounded-lg bg-slate-100 px-3 py-9 bg-black duration-300 hover:shadow-lg hover:shadow-gray-500">
 													<div className="tournament-info">
 														<div className="tournament-details text-center">
 															<h3 className="text-xl font-bold text-white">{tournament.tournamentName}</h3>
@@ -338,7 +327,7 @@ export default function Home() {
 													</div>
 													<div className="tournament-action flex items-center justify-center gap-4 mt-4">
 														<Link href="/prediction">
-															<Button className="font-heading predict"><span>Predict</span></Button>
+															<Button className="font-heading text-md predict"><span>Predict</span></Button>
 														</Link>
 													</div>
 												</div>
@@ -362,7 +351,7 @@ export default function Home() {
 											No players found.
 										</div>
 									) : (
-										<div className="w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 p-4">
+										<div className="w-full flex flex-col items-center justify-between rounded-lg bg-slate-100 px-4 py-3">
 											<Table>
 												<TableHeader>
 													<TableRow className='hover:bg-transparent'>
@@ -403,8 +392,8 @@ export default function Home() {
 							) : (
 								<div className="w-full grid grid-cols-4 gap-6">
 									{randomPlayers.map((player) => (
-										<div key={player.id}>
-											<Link href={`/players/${player.id}`} className="player">
+										<div key={player.id} className="duration-300 hover:scale-105">
+											<Link href={`/players/${player.id}`}>
 												<Image
 													src={
 														player.gender === 'Female'
@@ -414,7 +403,7 @@ export default function Home() {
 													alt={`Player ${player.id}`}
 													width={200}
 													height={200}
-													className="img object-cover object-top rounded-lg w-full h-44"
+													className="object-cover object-top rounded-lg w-full h-44 duration-300 hover:opacity-70"
 												/>
 												<div className="flex flex-row justify-between items-start mt-3">
 													<div className="flex flex-col">
