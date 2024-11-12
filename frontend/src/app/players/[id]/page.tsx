@@ -97,6 +97,9 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					for (const game of match.games) {
 						const opponentId =
 							params.id === match.player1Id ? match.player2Id : match.player1Id;
+						if (opponentId === null) {
+							continue; // skip this game
+						}
 						const opponent = opponentMap.get(opponentId);
 						const playerScore =
 							params.id === match.player1Id
