@@ -28,13 +28,12 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
-				const [data, stats, tournaments, matches] =
-					await Promise.all([
-						fetchPlayer(params.id),
-						fetchPlayerStats(params.id),
-						fetchTournamentByPlayerId(params.id),
-						fetchPlayerMatches(params.id),
-					]);
+				const [data, stats, tournaments, matches] = await Promise.all([
+					fetchPlayer(params.id),
+					fetchPlayerStats(params.id),
+					fetchTournamentByPlayerId(params.id),
+					fetchPlayerMatches(params.id),
+				]);
 				setLoading(false);
 				const mappedData: Player = {
 					id: data.id,
@@ -68,22 +67,22 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					player1Id: match.player1Id,
 					player2Id: match.player2Id,
 					games: match.games,
-                    roundNum: match.roundNum,
+					roundNum: match.roundNum,
 				}));
 
 				// Collect all opponent IDs
 				const opponentIds = new Set();
 				matchHistory.forEach((match) => {
 					const opponentId =
-						params.id === match.player1Id
-							? match.player2Id
-							: match.player1Id;
+						params.id === match.player1Id ? match.player2Id : match.player1Id;
 					opponentIds.add(opponentId);
 				});
 
 				// Fetch all opponents' data in one go
 				const opponentData: PlayerResponse[] = await Promise.all(
-					Array.from(opponentIds).map((id) => fetchPlayer(id))
+					Array.from(opponentIds)
+						.filter((id): id is string => id !== null) // Filter out null values
+						.map((id) => fetchPlayer(id))
 				);
 
 				// Create a map of opponent IDs to their names
@@ -97,9 +96,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				for (const match of matchHistory) {
 					for (const game of match.games) {
 						const opponentId =
-							params.id === match.player1Id
-								? match.player2Id
-								: match.player1Id;
+							params.id === match.player1Id ? match.player2Id : match.player1Id;
 						const opponent = opponentMap.get(opponentId);
 						const playerScore =
 							params.id === match.player1Id
@@ -113,18 +110,16 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 						gameHistory.push({
 							game_id: game.id,
 							tournament_name: tournamentHistory.find(
-								(tournament) =>
-									tournament.id === match.tournament_id
+								(tournament) => tournament.id === match.tournament_id
 							)?.tournamentName,
-                            tournament_id: match.tournament_id,
+							tournament_id: match.tournament_id,
 							match_id: match.match_id,
 							set_number: game.setNum,
 							round: match.roundNum,
 							opponent_id: opponentId,
 							opponent: opponent,
 							score: game.player1Score + "-" + game.player2Score,
-							result:
-								playerScore > opponentScore ? "Win" : "Loss",
+							result: playerScore > opponentScore ? "Win" : "Loss",
 						});
 					}
 				}
