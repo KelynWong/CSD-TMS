@@ -7,18 +7,6 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./DataTableViewOptions";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
 
-// need to get all tournaments from the database
-const tournamentOptions = [
-	{
-		value: "Singapore Open",
-		label: "Singapore Open",
-	},
-	{
-		value: "Malaysia Open",
-		label: "Malaysia Open",
-	},
-];
-
 const resultOptions = [
 	{
 		value: "Win",
@@ -32,12 +20,19 @@ const resultOptions = [
 
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
+	names: String[];
 }
 
 export function DataTableToolbar<TData>({
 	table,
+	names,
 }: DataTableToolbarProps<TData>) {
 	const isFiltered = table.getState().columnFilters.length > 0;
+
+	const tournamentOptions = names.map((name) => ({
+		value: name,
+		label: name,
+	}));
 
 	return (
 		<div className="flex items-center justify-between">

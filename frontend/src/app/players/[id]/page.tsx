@@ -24,6 +24,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [loading, setLoading] = useState(true);
 	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
 	const [gameHistory, setGameHistory] = useState([]);
+	const [tournamentNames, setTournamentNames] = useState<String[]>([]);
 
 	useEffect(() => {
 		const getPlayerData = async () => {
@@ -129,6 +130,14 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				setGameHistory(gameHistory);
 				setTournaments(tournamentHistory);
 				setPlayer(mappedData);
+
+				// Store a list of unique tournament names
+				const uniqueTournamentNames = Array.from(
+					new Set(
+						tournamentHistory.map((tournament) => tournament.tournamentName)
+					)
+				);
+				setTournamentNames(uniqueTournamentNames);
 			} catch (err) {
 				console.error("Failed to fetch player:", err);
 			}
@@ -145,7 +154,11 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Game History</p>
-				<DataTable columns={columns} data={gameHistory} />
+				<DataTable
+					columns={columns}
+					data={gameHistory}
+					tournamentNames={tournamentNames}
+				/>
 			</div>
 			<div className="container mx-auto py-5 px-5">
 				<TournamentHistory tournaments={tournaments} />
