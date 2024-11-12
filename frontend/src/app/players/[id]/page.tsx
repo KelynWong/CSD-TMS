@@ -5,7 +5,7 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import TournamentHistory from "./_components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
-import { fetchPlayer, getPlayerRank, PlayerResponse } from "@/api/users/api";
+import { fetchPlayer, PlayerResponse } from "@/api/users/api";
 import { fetchPlayerStats, fetchPlayerMatches } from "@/api/matches/api";
 import Loading from "@/components/Loading";
 import React, { useState, useEffect } from "react";

@@ -26,18 +26,18 @@ export default function UserProfile() {
 	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [gameHistory, setGameHistory] = useState([]);
+	const [tournamentNames, setTournamentNames] = useState<String[]>([]);
 
 	useEffect(() => {
 		if (user) {
 			const getPlayerData = async () => {
 				try {
-					const [data, stats, tournaments, matches] =
-						await Promise.all([
-							fetchPlayer(user.id),
-							fetchPlayerStats(user.id),
-							fetchTournamentByPlayerId(user.id),
-							fetchPlayerMatches(user.id),
-						]);
+					const [data, stats, tournaments, matches] = await Promise.all([
+						fetchPlayer(user.id),
+						fetchPlayerStats(user.id),
+						fetchTournamentByPlayerId(user.id),
+						fetchPlayerMatches(user.id),
+					]);
 					setLoading(false);
 					const mappedData: Player = {
 						id: user.id,
@@ -48,9 +48,7 @@ export default function UserProfile() {
 						rating: data.rating ? data.rating : 0,
 						wins: stats.wins ? stats.wins : 0,
 						losses: stats.losses ? stats.losses : 0,
-						total_matches: stats.gamesPlayed
-							? stats.gamesPlayed
-							: 0,
+						total_matches: stats.gamesPlayed ? stats.gamesPlayed : 0,
 						profilePicture: user.imageUrl,
 						country: user.publicMetadata.country,
 					};
@@ -81,15 +79,15 @@ export default function UserProfile() {
 					const opponentIds = new Set();
 					matchHistory.forEach((match) => {
 						const opponentId =
-							user.id === match.player1Id
-								? match.player2Id
-								: match.player1Id;
+							user.id === match.player1Id ? match.player2Id : match.player1Id;
 						opponentIds.add(opponentId);
 					});
 
-					// fetch all the opponents' data in one go
+					// Fetch all opponents' data in one go
 					const opponentData: PlayerResponse[] = await Promise.all(
-						Array.from(opponentIds).map((id) => fetchPlayer(id))
+						Array.from(opponentIds)
+							.filter((id): id is string => id !== null) // Filter out null values
+							.map((id) => fetchPlayer(id))
 					);
 
 					// create a map of opponent Ids to their names
@@ -103,9 +101,7 @@ export default function UserProfile() {
 					for (const match of matchHistory) {
 						for (const game of match.games) {
 							const opponentId =
-								user.id === match.player1Id
-									? match.player2Id
-									: match.player1Id;
+								user.id === match.player1Id ? match.player2Id : match.player1Id;
 							const opponent = opponentMap.get(opponentId);
 							const playerScore =
 								user.id === match.player1Id
@@ -119,27 +115,31 @@ export default function UserProfile() {
 							gameHistory.push({
 								game_id: game.id,
 								tournament_name: tournamentHistory.find(
-									(tournament) =>
-										tournament.id === match.tournament_id
+									(tournament) => tournament.id === match.tournament_id
 								)?.tournamentName,
 								match_id: match.match_id,
 								set_number: game.setNum,
 								round: match.roundNum,
 								opponent_id: opponentId,
 								opponent: opponent,
-								score:
-									game.player1Score + "-" + game.player2Score,
-								result:
-									playerScore > opponentScore
-										? "Win"
-										: "Loss",
+								score: game.player1Score + "-" + game.player2Score,
+								result: playerScore > opponentScore ? "Win" : "Loss",
 							});
 						}
 					}
 
 					setGameHistory(gameHistory);
 					setTournaments(tournamentHistory);
+                    console.log(tournamentHistory)
 					setPlayer(mappedData);
+
+					const uniqueTournamentNames = Array.from(
+						new Set(
+							tournamentHistory.map((tournament) => tournament.tournamentName)
+						)
+					);
+
+					setTournamentNames(uniqueTournamentNames);
 				} catch (err) {
 					console.error("Failed to fetch player:", err);
 				}
@@ -157,7 +157,11 @@ export default function UserProfile() {
 			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Game History</p>
-				<DataTable columns={columns} data={gameHistory} />
+				<DataTable
+					columns={columns}
+					data={gameHistory}
+					tournamentNames={tournamentNames}
+				/>
 			</div>
 			<div className="container mx-auto py-5 px-5">
 				<TournamentHistory tournaments={tournaments} />
