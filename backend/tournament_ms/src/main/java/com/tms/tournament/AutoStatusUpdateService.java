@@ -72,7 +72,11 @@ public class AutoStatusUpdateService {
             log.info("[AutoUpdate] CHANGE TO ONGOING");
             tournament.setStatus(TournamentStatus.ONGOING);
         }
-
+        // if nothing changed
+        else {
+            return;
+        }
+        
         // Save updates in db
         tournaments.save(tournament);
 
