@@ -290,12 +290,11 @@ class TournamentControllerTest {
 		// input - save a tournament in db first (create tournament -> save in db)
 		Tournament tournament = helper.createTournamentObj("noError");
 		tournament.setTournamentName("Hello");
-
-		Tournament tournament1 = helper.createTournamentObj("noError");
-		tournament1.setTournamentName("Hello1");
-		Long t_id1 = tournaments.save(tournament).getId();
-
+		// create another tournament w diff name and save it
 		Tournament newTournament = helper.createTournamentObj("noError");
+		newTournament.setTournamentName("Hello1");
+		Long t_id1 = tournaments.save(tournament).getId();
+		// change tournament name to the first tournament's name
 		newTournament.setTournamentName("Hello");
 
 		// call the api
@@ -417,7 +416,7 @@ class TournamentControllerTest {
 		Player player = players.save(helper.createPlayerObj());
 		String p_id = player.getId();
 
-		String winner = p_id; // valid winner
+		String winner = p_id; // invalid winner
 
 		// call the api
 		URI put_uri = new URI(baseURL + port + "/tournaments/" + t_id + "/winner");

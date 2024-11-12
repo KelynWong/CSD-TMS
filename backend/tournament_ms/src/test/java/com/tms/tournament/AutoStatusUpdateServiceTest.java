@@ -1,10 +1,7 @@
 package com.tms.tournament;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.cglib.core.Local;
 import java.util.*;
 
 import com.tms.TestHelper;
@@ -60,9 +56,10 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime same as registration start datetime
         tournament.setRegStartDT(localNow);
         tournament.setRegEndDT(localNow.plusDays(2L));
         tournament.setStartDT(localNow.plusYears(1L));
@@ -88,9 +85,10 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime is 1 min before registration start datetime
         tournament.setRegStartDT(localNow.plusMinutes(1L));
         tournament.setRegEndDT(localNow.plusDays(2L));
         tournament.setStartDT(localNow.plusYears(1L));
@@ -116,9 +114,10 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime same as registration end datetime
         tournament.setRegStartDT(localNow.minusDays(1L));
         tournament.setRegEndDT(localNow);
         tournament.setStartDT(localNow.plusYears(1L));
@@ -144,9 +143,10 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime is 1 min before registration end datetime
         tournament.setRegStartDT(localNow.minusDays(1L));
         tournament.setRegEndDT(localNow.plusMinutes(1L));
         tournament.setStartDT(localNow.plusYears(1L));
@@ -172,9 +172,10 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime is 1 min after registration end datetime
         tournament.setRegStartDT(localNow.minusDays(1L));
         tournament.setRegEndDT(localNow.minusMinutes(1L));
         tournament.setStartDT(localNow.plusYears(1L));
@@ -200,15 +201,16 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime between registration end date and event start date
         tournament.setRegStartDT(localNow.minusDays(1L));
         tournament.setRegEndDT(localNow.minusDays(1L));
         tournament.setStartDT(localNow.plusYears(1L));
         tournament.setEndDT(localNow.plusYears(2L));
 
-        tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE);
+        tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE); // no matchmake
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
@@ -230,15 +232,16 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime between registration end date and event start date
         tournament.setRegStartDT(localNow.minusDays(1L));
         tournament.setRegEndDT(localNow.minusMinutes(5L));
         tournament.setStartDT(localNow.plusYears(1L));
         tournament.setEndDT(localNow.plusYears(2L));
 
-        tournament.setStatus(TournamentStatus.MATCHMAKE);
+        tournament.setStatus(TournamentStatus.MATCHMAKE); // got matchmake
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
@@ -258,15 +261,16 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime during tournament event
         tournament.setRegStartDT(localNow.minusYears(2L));
         tournament.setRegEndDT(localNow.minusYears(1L));
         tournament.setStartDT(localNow.minusDays(5L));
         tournament.setEndDT(localNow.plusYears(2L));
 
-        tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE);
+        tournament.setStatus(TournamentStatus.MATCHMAKE);
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
@@ -288,15 +292,16 @@ public class AutoStatusUpdateServiceTest {
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
 
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime during tournament event
         tournament.setRegStartDT(localNow.minusYears(2L));
         tournament.setRegEndDT(localNow.minusYears(1L));
         tournament.setStartDT(localNow.minusDays(1L));
         tournament.setEndDT(localNow.plusYears(2L));
 
-        tournament.setStatus(TournamentStatus.COMPLETED);
+        tournament.setStatus(TournamentStatus.COMPLETED); // event completed 
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
@@ -327,9 +332,10 @@ public class AutoStatusUpdateServiceTest {
         // - mock object (create tournament -> add to list)
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
-        // Get current datetime
+        // Get current datetime + set respective datetimes
         ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
         LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime same as registration start datetime
         tournament.setRegStartDT(localNow);
         tournament.setRegEndDT(localNow.plusDays(2L));
         tournament.setStartDT(localNow.plusYears(1L));
