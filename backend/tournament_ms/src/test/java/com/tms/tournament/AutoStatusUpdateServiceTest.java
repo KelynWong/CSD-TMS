@@ -79,7 +79,7 @@ public class AutoStatusUpdateServiceTest {
     }
 
     @Test
-    void autoUpdateTournament_Found_WithinRegPeriod_1minBeforeRegStartTime_changedToRegStart() {
+    void autoUpdateTournament_Found_BeforeRegPeriod_1minBeforeRegStartTime_noChangesMade() {
         // Arrange
         // - mock obj (tournament and current datetime)
         Tournament tournament = helper.createTournamentObj("noError");
@@ -96,6 +96,35 @@ public class AutoStatusUpdateServiceTest {
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
+
+        // Act
+        autoStatusUpdateService.autoUpdateTournament(tournament);
+
+        // Assert
+        assertEquals(TournamentStatus.SCHEDULED, tournament.getStatus());
+
+    }
+
+    @Test
+    void autoUpdateTournament_Found_BeforeRegPeriod_DefaultIsRegStart_changeToScheduled() {
+        // Arrange
+        // - mock obj (tournament and current datetime)
+        Tournament tournament = helper.createTournamentObj("noError");
+        tournament.setId(1L);
+
+        // Get current datetime + set respective datetimes
+        ZonedDateTime zonedNow = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
+        LocalDateTime localNow = zonedNow.toLocalDateTime();
+        // current datetime is 1 min before registration start datetime
+        tournament.setRegStartDT(localNow.plusMinutes(1L));
+        tournament.setRegEndDT(localNow.plusDays(2L));
+        tournament.setStartDT(localNow.plusYears(1L));
+        tournament.setEndDT(localNow.plusYears(2L));
+        // change default status from Scheduled to Registration Start
+        tournament.setStatus(TournamentStatus.REGISTRATION_START);
+
+        // - mock operations
+        when(tournaments.existsById(tournament.getId())).thenReturn(true);
         when(tournaments.save(tournament)).thenReturn(tournament);
 
         // Act
@@ -108,7 +137,7 @@ public class AutoStatusUpdateServiceTest {
     }
 
     @Test
-    void autoUpdateTournament_Found_WithinRegPeriod_sameRegEndTime_changedToRegClose() {
+    void autoUpdateTournament_Found_AfterRegPeriod_sameRegEndTime_changedToRegClose() {
         // Arrange
         // - mock obj (tournament and current datetime)
         Tournament tournament = helper.createTournamentObj("noError");
@@ -166,7 +195,7 @@ public class AutoStatusUpdateServiceTest {
     }
 
     @Test
-    void autoUpdateTournament_Found_WithinRegPeriod_1minAfterRegEndTime_changedToRegClose() {
+    void autoUpdateTournament_Found_AfterRegPeriod_1minAfterRegEndTime_changedToRegClose() {
         // Arrange
         // - mock obj (tournament and current datetime)
         Tournament tournament = helper.createTournamentObj("noError");
@@ -209,8 +238,6 @@ public class AutoStatusUpdateServiceTest {
         tournament.setRegEndDT(localNow.minusDays(1L));
         tournament.setStartDT(localNow.plusYears(1L));
         tournament.setEndDT(localNow.plusYears(2L));
-
-        tournament.setStatus(TournamentStatus.REGISTRATION_CLOSE); // no matchmake
 
         // - mock operations
         when(tournaments.existsById(tournament.getId())).thenReturn(true);
