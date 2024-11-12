@@ -19,7 +19,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
   license = @License(
     name = "Apache License 2.0", 
     url = "NA")),
-  servers = @Server(url = "http://localhost:8083")
+    servers = {
+      @Server(url = "http://localhost:8083"),
+      @Server(url = "https://csdtmssgapi.azure-api.net")
+    }
 )
 public class OpenAPIConfig {
     

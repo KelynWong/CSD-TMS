@@ -24,11 +24,13 @@ public class MatchmakeService {
     private final ApiManager apiManager;
     private final RatingCalculator ratingCalc;
     private final MessageService messageService;
+    private final Random random;
 
     public MatchmakeService(ApiManager apiManager, RatingCalculator ratingCalc, MessageService messageService) {
         this.apiManager = apiManager;
         this.ratingCalc = ratingCalc;
         this.messageService = messageService;
+        this.random = new Random();
     }
 
     /**
@@ -186,7 +188,7 @@ public class MatchmakeService {
         Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
         Map<String, Player> idToPlayer = setup.getIdToPlayer();
 
-        Random random = new Random();
+        Random random = this.random;
         Map<String, Float> results = new HashMap<>();
         for (int i = 0; i < NUM_SIMULATIONS; i++) {
             Map<Long, MatchJson> clone = deepCloneMap(idToMatch);
@@ -243,7 +245,7 @@ public class MatchmakeService {
         Map<Long, MatchJson> idToMatch = setup.getIdToMatch();
         Map<String, Player> idToPlayer = setup.getIdToPlayer();
 
-        Random random = new Random();
+        Random random = this.random;
         simulateMatches(idToMatch, idToPlayer, random, true);
         return new ArrayList<>(idToMatch.values());
     }

@@ -74,7 +74,7 @@ class MatchmakeServiceTest {
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
-        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
         doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
 
         List<MatchJson> actualMatches = matchmakeService.matchmake(1L, "strongweak");
@@ -112,7 +112,7 @@ class MatchmakeServiceTest {
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
-        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
         doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
 
         List<MatchJson> actualMatches = matchmakeService.matchmake(1L, "strongstrong");
@@ -165,7 +165,7 @@ class MatchmakeServiceTest {
         when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
-        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyInt());
+        doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
         doNothing().when(apiManager).sendCreateMatchesRequest(anyList(), anyDouble());
 
         List<String> byePlayers = new ArrayList<>();
