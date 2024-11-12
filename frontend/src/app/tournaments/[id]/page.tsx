@@ -271,7 +271,7 @@ export default function TournamentDetails() {
                         )}
                     </div>
 
-                    {role === "ADMIN" || (tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
+                    {(tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                         tournamentDetails.matches.length > 0 ? (
                             <div className="w-full my-5 results">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
