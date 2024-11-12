@@ -7,17 +7,6 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./DataTableViewOptions";
 import { DataTableFacetedFilter } from "./DataTableFacetedFilter";
 
-const genderOptions = [
-  {
-    value: "male",
-    label: "Male",
-  },
-  {
-    value: "female",
-    label: "Female",
-  },
-];
-
 interface DataTableToolbarProps<TData> {
 	table: Table<TData>;
 }
@@ -50,13 +39,6 @@ export function DataTableToolbar<TData>({
 					}
 					className="h-8 w-[150px] lg:w-[250px]"
 				/>
-				{table.getColumn("gender") && (
-					<DataTableFacetedFilter
-						column={table.getColumn("gender")}
-						title="Gender"
-						options={genderOptions}
-					/>
-				)}
 				{isFiltered && (
 					<Button
 						variant="ghost"
