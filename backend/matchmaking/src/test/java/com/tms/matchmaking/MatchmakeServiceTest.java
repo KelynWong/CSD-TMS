@@ -2,7 +2,7 @@ package com.tms.matchmaking;
 
 import com.tms.ListUtils;
 import com.tms.exceptions.TournamentExistsException;
-import com.tms.exceptions.TournamentNotFoundException;
+import com.tms.exceptions.TournamentFoundNoMatchException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
 import com.tms.message.MessageService;
@@ -71,7 +71,7 @@ class MatchmakeServiceTest {
 
         List<MatchJson> expectedMatches = createExpectedMatches(byes, players);
 
-        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
+        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentFoundNoMatchException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
         doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
@@ -109,7 +109,7 @@ class MatchmakeServiceTest {
 
         List<MatchJson> expectedMatches = createExpectedMatches(byes, players);
 
-        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
+        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentFoundNoMatchException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
         doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
@@ -162,7 +162,7 @@ class MatchmakeServiceTest {
         int k = (int) (Math.ceil(Math.log(n) / Math.log(2))); // k is height of tree, or number of rounds in tournament
         double numMatchesAtBase = Math.pow(2, k - 1);
 
-        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentNotFoundException(1L));
+        when(apiManager.getTournamentMatches(any(Long.class))).thenThrow(new TournamentFoundNoMatchException(1L));
         when(apiManager.fetchTournamentPlayerIds(any(Long.class))).thenReturn(players);
         when(apiManager.fetchPlayerData(anyList())).thenReturn(players);
         doNothing().when(messageService).sendMessagesToSQS(any(), anyList(), anyMap(), anyDouble());
