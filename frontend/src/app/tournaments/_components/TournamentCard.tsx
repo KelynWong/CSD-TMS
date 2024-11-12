@@ -182,9 +182,9 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
         } catch (err) {
             message.error('Failed to matchmake :( \n' + err);
             console.log(err);
-            setTimeout(() => {
-                window.location.reload();
-            }, 500); // Delay of 0.5 seconds before reloading
+            // setTimeout(() => {
+            //     window.location.reload();
+            // }, 500); // Delay of 0.5 seconds before reloading
         }
     };
 
