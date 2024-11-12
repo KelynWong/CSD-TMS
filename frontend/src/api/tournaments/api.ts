@@ -160,7 +160,7 @@ export const registerTournament = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.post(`${URL}/${tournament_id}/players/${user_id}/register`, {
+		const response = await axios.post(`${URL}/${tournament_id}/players/${user_id}/register`, {}, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
 		console.log(response);
@@ -177,12 +177,10 @@ export const withdrawTournament = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		console.log(`${URL}/${tournament_id}/players/${user_id}/deregister`, {
-			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
-		});
-
 		const response = await axios.put(
-			`${URL}/${tournament_id}/players/${user_id}/deregister`
+			`${URL}/${tournament_id}/players/${user_id}/deregister`, {}, {
+				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+			}
 		);
 		console.log(response);
 		return response.status === 200;
