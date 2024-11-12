@@ -119,8 +119,8 @@ export default function OnboardingComponent() {
 									<SelectValue placeholder="Select your gender" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="male">Male</SelectItem>
-									<SelectItem value="female">Female</SelectItem>
+									<SelectItem value="Male">Male</SelectItem>
+									<SelectItem value="Female">Female</SelectItem>
 									<SelectItem value="other">Other</SelectItem>
 								</SelectContent>
 							</Select>
