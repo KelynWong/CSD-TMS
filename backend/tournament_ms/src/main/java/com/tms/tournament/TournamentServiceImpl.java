@@ -5,8 +5,6 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 
 import com.tms.exception.TournamentNotFoundException;
-import com.tms.tournamentplayer.Player;
-import com.tms.tournamentplayer.PlayerRepository;
 
 import lombok.extern.slf4j.Slf4j;
 

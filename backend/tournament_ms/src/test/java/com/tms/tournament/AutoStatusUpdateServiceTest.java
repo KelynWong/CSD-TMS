@@ -34,6 +34,7 @@ public class AutoStatusUpdateServiceTest {
     @InjectMocks
     private TestHelper helper;
 
+    /* Method : autoUpdateTournament */
     @Test
     void autoUpdateTournament_NotFound_ThrowException() {
         // Arrange
@@ -50,11 +51,8 @@ public class AutoStatusUpdateServiceTest {
 
     }
 
-    /*
-     * Mock Tournament Object:
-     * - default status is "Scheduled";
-     */
-
+    // For rest of the test cases, testing mainly the change in status. 
+    // Default status of mock obj : "Scheduled"
     @Test
     void autoUpdateTournament_Found_WithinRegPeriod_sameRegStartTime_changedToRegStart() {
         // Arrange
@@ -311,10 +309,11 @@ public class AutoStatusUpdateServiceTest {
 
     }
 
+    /* Method : autoUpdateTournaments */
     @Test
     void autoUpdateTournaments_Null_ThrowException() {
         // Arrange
-        // - mock object ("invalid" tournament)
+        // - mock object (null list)
         List<Tournament> t_list = null;
 
         // Act
@@ -325,7 +324,7 @@ public class AutoStatusUpdateServiceTest {
     @Test
     void autoUpdateTournaments_NotNull_ReturnNothing() {
         // Arrange
-        // - mock object ("invalid" tournament)
+        // - mock object (create tournament -> add to list)
         Tournament tournament = helper.createTournamentObj("noError");
         tournament.setId(1L);
         // Get current datetime

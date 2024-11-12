@@ -7,9 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.io.*;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +35,6 @@ public class PlayerControllerTest {
 
 	private final String baseURL = "http://localhost:";
 
-	/**
-	 * Use TestRestTemplate for testing a real instance of your application as an
-	 * external actor.
-	 * TestRestTemplate is just a convenient subclass of RestTemplate that is
-	 * suitable for integration tests.
-	 * It is fault tolerant, and optionally can carry Basic authentication headers.
-	 */
 	@Autowired
 	private TestRestTemplate restTemplate;
 
@@ -88,10 +79,6 @@ public class PlayerControllerTest {
 		// verify the output - 200 (OK) : got tournament's players (ans is only 1, check if tt is correct)
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(1, playerArr.length);
-
-		// //helper.reset
-		// //helper.reset(t_id, p_id);
-
 	}
 
 	@Test // getAllPlayersByTournamentId - case 2 : invalid tournament id
@@ -130,9 +117,6 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(1, tournamentArr.length); 
 
-		// //helper.reset
-		//helper.reset(tournament.getId(), player.getId());
-
 	}
 
 	@Test // getTournamentsByPlayer - case 2 : invalid player id
@@ -170,9 +154,6 @@ public class PlayerControllerTest {
 		// verify output - no err : player registered (result true)
 		assertTrue(result.contains("\"IsRegistered\":true"));
 
-		// //helper.reset
-		//helper.reset(t_id, p_id);
-
 	}
 
 	@Test // isRegistered - case 2 : valid tournament id and player is not registered
@@ -189,8 +170,6 @@ public class PlayerControllerTest {
 		// verify output - no err : player not registered (result false)
 		assertTrue(result.contains("\"IsRegistered\":false"));
 
-		// //helper.reset 
-		//helper.reset(t_id, p_id);
 
 	}
 
@@ -210,8 +189,6 @@ public class PlayerControllerTest {
 		// verify output - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
 
-		// //helper.reset
-		//helper.reset(null, p_id);
 	}
 
 	@Test // isRegistered - case 4 : invalid player id
@@ -278,9 +255,6 @@ public class PlayerControllerTest {
 		assertEquals(200, result.getStatusCode().value());
 		assertEquals(p_id, result_id);
 
-		// //helper.reset
-		//helper.reset(t_id, p_id);
-
 	}
 
 	@Test // registerPlayer - case 3 : invalid tournament id
@@ -301,9 +275,6 @@ public class PlayerControllerTest {
 
 		// verify output result - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
-
-		// //helper.reset
-		//helper.reset(null, p_id);
 
 	}
 
@@ -355,9 +326,6 @@ public class PlayerControllerTest {
 		// verify output - no err : player registered (result true)
 		assertTrue(result1.contains("\"IsRegistered\":false"));
 
-		// //helper.reset
-		//helper.reset(t_id, p_id);
-
 	}
 
 	@Test // deregisterPlayer - case 2 : tournament id not valid
@@ -377,9 +345,6 @@ public class PlayerControllerTest {
 
 		// verify output result - 404 (TournamentNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
-
-		// //helper.reset
-		//helper.reset(null, p_id);
 
 	}
 
@@ -403,9 +368,6 @@ public class PlayerControllerTest {
 		
 		// verify output result - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
-
-		// //helper.reset
-		//helper.reset(null, p_id);
 
 	}
 

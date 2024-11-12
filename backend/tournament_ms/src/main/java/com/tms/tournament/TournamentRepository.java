@@ -19,14 +19,9 @@ import java.util.*;
  */
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
-    // additional derived queries specified here will be implemented by Spring Data JPA
-    // start the derived query with "findBy", then reference the entity attributes you want to filter
-
+    // find tournaments by tournament name
     List<Tournament> findByTournamentName(String tournamentName);
-
+    // find tournaments by status
     List<Tournament> findByStatus(TournamentStatus status);
-
-    // @Query("DELETE FROM Game g WHERE g.match.id IN (SELECT m.id FROM Match m WHERE m.tournamentId = :tournamentId)")
-    // void truncateTable(@Param("tournamentId") Long tournamentId);
 
 }

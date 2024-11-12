@@ -34,14 +34,7 @@ class TournamentControllerTest {
 	private int port;
 
 	private final String baseURL = "http://localhost:";
-
-	/**
-	 * Use TestRestTemplate for testing a real instance of your application as an
-	 * external actor.
-	 * TestRestTemplate is just a convenient subclass of RestTemplate that is
-	 * suitable for integration tests.
-	 * It is fault tolerant, and optionally can carry Basic authentication headers.
-	 */
+	
 	@Autowired
 	private TestRestTemplate restTemplate;
 
@@ -404,9 +397,9 @@ class TournamentControllerTest {
 		ResponseEntity<Tournament> result = restTemplate.exchange(put_uri, HttpMethod.PUT,
 				new HttpEntity<>(winner), Tournament.class);
 
-		// verify the output - 200 (OK) : update successful (make sure the change in
-		// tournament name was saved in db correctly)
+		// verify the output - 200 (OK) : update successful
 		assertEquals(200, result.getStatusCode().value());
+		// make sure winner and status are updated correctly
 		assertEquals(winner, result.getBody().getWinner());
 		assertEquals(TournamentStatus.COMPLETED, result.getBody().getStatus());
 
@@ -433,8 +426,6 @@ class TournamentControllerTest {
 
 		// verify the output - 404 (PlayerNotFoundException)
 		assertEquals(404, result.getStatusCode().value());
-
-
 
 	}
 

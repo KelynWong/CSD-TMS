@@ -2,12 +2,9 @@ package com.tms.tournamentplayer;
 
 import com.tms.tournament.*;
 import com.tms.exception.*;
-import com.tms.exception.PlayerNotFoundException;
-import com.tms.exception.TournamentNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.http.ResponseEntity;
@@ -31,15 +28,7 @@ public class PlayerController {
     @GetMapping("/{tournamentId}/players")
     public List<Player> getAllPlayersByTournamentId(@PathVariable(value = "tournamentId") Long tournamentId) {
 
-        // // Get all the players of specified tournament
-        // List<Player> p_list =
-        // playerService.getAllPlayersByTournamentId(tournamentId);
-        // // if the received list is null
-        // if (p_list == null) {
-        // // throw TournamentNotFoundException (404)
-        // throw new TournamentNotFoundException(tournamentId);
-        // }
-        // else return received list
+        // Return all the players of specified tournament
         return playerService.getAllPlayersByTournamentId(tournamentId);
 
     }
@@ -47,16 +36,8 @@ public class PlayerController {
     /* Get all tournaments by player id */
     @GetMapping("/players/{playerId}")
     public List<Tournament> getAllTournamentsByPlayer(@PathVariable(value = "playerId") String playerId) {
-        // Get all the players of specified tournament
-        // List<Tournament> t_list =
-        // playerService.getAllTournamentsByPlayerId(playerId);
-        // // if the received list is null
-        // if (t_list == null) {
-        // // throw PlayerNotFoundException (404)
-        // throw new PlayerNotFoundException(playerId);
-        // }
-        // else return received list
-
+        
+        // Return all the players of specified tournament
         return playerService.getAllTournamentsByPlayerId(playerId);
 
     }
@@ -69,8 +50,8 @@ public class PlayerController {
         // Store result in ("isRegistered" : false) format
         Map<String, Boolean> result = new HashMap<>();
 
-        // Get specified player by Id, if not found, throw PlayerNotFoundException error
-        // 404 (CHANGE TESTCASE)
+        // Get specified player by Id, 
+        // if not found, return isRegistered : false
         Player player = playerService.getPlayer(playerId);
         if (player == null) {
             result.put("IsRegistered", false);
@@ -79,17 +60,20 @@ public class PlayerController {
 
         // Get specified tournament
         Tournament tournament = tournamentService.getTournament(tournamentId);
+        // tournament not found, throw err
         if (tournament == null) {
             throw new TournamentNotFoundException(tournamentId);
         }
 
+        // tournament found
+        // if player registered, return isRegistered : true
         if (tournament.isPlayerInTournament(player)) {
-            // Put IsRegistered to true, and return result
             result.put("IsRegistered", true);
             return result;
         }
 
-        // Else, player is not registered, put IsRegistered to false and return result
+        // Else, player is not registered, 
+        // return isRegistered : false
         result.put("IsRegistered", false);
         return result;
     }
@@ -105,12 +89,12 @@ public class PlayerController {
             player = playerService.createPlayer(playerId);
         }
 
-        // Get specified tournament
+        // Get specified tournament, if not found, throw err
         Tournament tournament = tournamentService.getTournament(tournamentId);
         if (tournament == null) {
             throw new TournamentNotFoundException(tournamentId);
         }
-
+        // all found, map them together
         return playerService.addPlayerToTournament(player, tournament);
 
     }
