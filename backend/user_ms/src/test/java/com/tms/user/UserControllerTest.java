@@ -15,10 +15,16 @@ import org.springframework.http.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.hamcrest.Matchers.containsString;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -78,6 +84,23 @@ class UserControllerTest {
     }
 
     @Test
+    void getTopPlayers() throws Exception {
+        User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        ratingRepository.save(rating);
+        userRepository.save(user);
+        URI uri = new URI(baseUrl + port + "/users/top-players");
+
+        ResponseEntity<User[]> response = restTemplate.getForEntity(uri, User[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().length);
+    }
+
+    @Test
     void getUserById_UserFound_ReturnUser() throws Exception {
         User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
 
@@ -102,6 +125,26 @@ class UserControllerTest {
         URI uri = new URI(baseUrl + port + "/users/9999");
         ResponseEntity<User> response = restTemplate.getForEntity(uri, User.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void getUsersByIds() throws Exception {
+        User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        ratingRepository.save(rating);
+        userRepository.save(user);
+        URI uri = new URI(baseUrl + port + "/users/ids");
+
+        List<Map<String, String>> ids = Arrays.asList(Collections.singletonMap("id", "1"));
+        HttpEntity<List<Map<String, String>>> requestEntity = new HttpEntity<>(ids);
+
+        ResponseEntity<User[]> response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, User[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().length);
     }
 
     @Test
@@ -139,6 +182,69 @@ class UserControllerTest {
     }
 
     @Test
+    void createUser_InvalidJson_Return500() throws Exception {
+        MockMultipartFile invalidUserJson = new MockMultipartFile(
+            "user",
+            "",
+            "application/json",
+            ("{ invalid json }").getBytes()
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users")
+                .file(invalidUserJson)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string(containsString("Failed to create user or upload profile picture")));
+    }
+
+    @Test
+    void updateUser() throws Exception {
+        User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
+
+        LocalDateTime firstDayOfYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+        Rating rating = new Rating(user, ratingCalc.getDefaultRating(), ratingCalc.getDefaultRatingDeviation(),
+                ratingCalc.getDefaultVolatility(), 0, firstDayOfYear);
+        ratingRepository.save(rating);
+
+        String id = userRepository.save(user).getId();
+
+        MockMultipartFile updatedUserJson = new MockMultipartFile(
+            "user",
+            "",
+            "application/json",
+            ("{"
+                + "\"id\":\"" + id + "\","
+                + "\"username\":\"updatedUser\","
+                + "\"fullname\":\"Updated User\","
+                + "\"gender\":\"Female\","
+                + "\"email\":\"updated@example.com\","
+                + "\"role\":\"PLAYER\","
+                + "\"country\":\"Canada\","
+                + "\"profilePicture\":\"updated_profile_pic_url\""
+                + "}").getBytes()
+        );
+
+        MockMultipartFile updatedProfilePicture = new MockMultipartFile(
+            "profilePicture", 
+            "updated_profile.jpg", 
+            MediaType.IMAGE_JPEG_VALUE, 
+            "updated image content".getBytes()
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/" + id)
+                .file(updatedUserJson)
+                .file(updatedProfilePicture)
+                .contentType(MediaType.MULTIPART_FORM_DATA) 
+                .with(request -> {
+                    request.setMethod("PUT"); 
+                    return request;
+                }))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.email").value("updated@example.com"))
+            .andExpect(jsonPath("$.username").value("updatedUser"));
+    }
+
+    @Test
     void deleteUser_UserFound() throws Exception {
         User user = new User("1", "testuser1", "Test User1", "Male", "test1@example.com", Role.PLAYER, "USA", "profile_pic_url", null, null);
         String id = userRepository.save(user).getId();
@@ -167,6 +273,15 @@ class UserControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().length);
+    }
+
+    @Test
+    void getUsersByRole_NoUsersFound_Return404() throws Exception {
+        URI uri = new URI(baseUrl + port + "/users/role/" + Role.ADMIN);
+
+        ResponseEntity<User[]> response = restTemplate.getForEntity(uri, User[].class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
