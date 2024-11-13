@@ -24,58 +24,72 @@ public class UserService {
         this.ratingService = ratingService;
     }
 
+    // Fetches a list of all users from the repository
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    
+
+    // Retrieves a user by their username, Returns null if the user does not exist
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-    
+
+    // Fetches a user by their ID, Throws a UserNotFoundException if the user does not exist
+    // Enriches the user with a rank if they are not an admin
     public User getUserById(String id) {
         return userRepository.findById(id)
             .map(this::enrichUserWithRankIfNotAdmin)
             .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
-    
+
+    // Retrieves a list of users by their IDs, ordered by rating in descending order
+    // Maps each user's ID to their rank and assigns it to the user
     public List<User> getUsersByIds(List<String> ids) {
         List<User> players = userRepository.findByIdInOrderByRatingDesc(ids);
         Map<String, Number> playerToRank = getPlayerRanksMap(ids);
-    
+
         players.forEach(player -> player.setRank(playerToRank.getOrDefault(player.getId(), null)));
         return players;
     }
-    
+
+    // Fetches the top players ordered by their rating and assigns their rank
     public List<User> getTopPlayers() {
         List<Object[]> results = userRepository.findAllOrderByRatingDesc();
         return results.stream()
             .map(result -> enrichUserWithRank((User) result[0], (Long) result[1]))
             .collect(Collectors.toList());
     }
-    
+
+    // Creates a new user if they do not already exist
+    // Initializes the rating for a user if they are assigned the role of PLAYER
     public User createUser(User user, MultipartFile profilePicture) {
         if (userRepository.existsById(user.getId())) {
             throw new UserAlreadyExistsException("User with id " + user.getId() + " already exists");
         }
-    
+
         User createdUser = userRepository.save(user);
         if (isPlayer(createdUser)) {
             ratingService.initRating(createdUser.getId());
         }
         return createdUser;
     }
-    
+
+    // Updates an existing user's details if the user is found
+    // Throws UserNotFoundException if the user does not exist
     public User updateUser(String id, User updatedUser, MultipartFile profilePicture) {
         return userRepository.findById(id)
             .map(existingUser -> applyUserUpdates(existingUser, updatedUser))
             .map(userRepository::save)
             .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
-    
+
+    // Fetches a list of users with a specified role (e.g., ADMIN or PLAYER)
     public List<User> getUsersByRole(Role role) {
         return userRepository.findByRole(role);
     }
-    
+
+    // Deletes a user by their ID if they exist
+    // Also removes the user's rating if they are successfully deleted
     public void deleteUser(String id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("User with ID " + id + " not found");
