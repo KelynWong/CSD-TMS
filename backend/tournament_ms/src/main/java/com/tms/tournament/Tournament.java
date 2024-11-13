@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class Tournament {
+    /* ATTRIBUTES */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
@@ -45,11 +46,11 @@ public class Tournament {
     private String createdBy;
     private String winner = null;
 
-    @ManyToMany(mappedBy = "tournaments") // , cascade = CascadeType.ALL
+    @ManyToMany(mappedBy = "tournaments")
     @JsonIgnore
     private List<Player> players = new ArrayList<>();
 
-    // Custom Constructor
+    /* CUSTOM CONSTRUCTOR */
     public Tournament(String tournamentName, LocalDateTime startDT, LocalDateTime endDT, String status,
             LocalDateTime regStartDT, LocalDateTime regEndDT, String createdBy, String winner) {
 
@@ -64,19 +65,25 @@ public class Tournament {
 
     }
 
-    // Custom Methods
+    /* CUSTOM METHODS */
 
     // Purpose : Map player to tournament
     public Player addPlayer(Player p) {
+        // add player to tournament's player list
         this.players.add(p);
+        // add tournament to player's tournament list
         p.getTournaments().add(this);
+        // return the added player
         return p;
     }
 
     // Purpose : Remove player to tournament mapping
     public Player removePlayer(Player p) {
+        // remove player from tournament's player list
         this.players.remove(p);
+        // remove tournament from player's tournament list
         p.getTournaments().remove(this);
+        // return removed player
         return p;
     }
 
@@ -87,21 +94,26 @@ public class Tournament {
 
     // Purpose : Check if player is in tournament
     public boolean isPlayerInTournament(String p_id) {
+        // loop thr the tournament's player list
         for (Player p : this.players) {
+            // if found specified player
             if (p.getId().equals(p_id)) {
+                // return true
                 return true;
             }
         }
+        // cannot find, return false
         return false;
     }
 
     // Purpose : Remove all player to tournament mapping
     public void removeAllPlayers() {
-
+        // loop thr the tournament's player list
         for (Player p : this.players) {
+            // for ea player, remove this tournament
             p.getTournaments().remove(this);
         }
-
+        // set the tournament's player list to empty
         this.players = new ArrayList<>();
 
     }

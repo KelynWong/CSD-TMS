@@ -5,7 +5,7 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/DataTableColumns";
 import TournamentHistory from "./_components/TournamentHistory";
 import { formatDate } from "@/utils/dateFormatter";
-import { fetchPlayer, getPlayerRank, PlayerResponse } from "@/api/users/api";
+import { fetchPlayer, PlayerResponse } from "@/api/users/api";
 import { fetchPlayerStats, fetchPlayerMatches } from "@/api/matches/api";
 import Loading from "@/components/Loading";
 import React, { useState, useEffect } from "react";
@@ -24,17 +24,17 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [loading, setLoading] = useState(true);
 	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
 	const [gameHistory, setGameHistory] = useState([]);
+	const [tournamentNames, setTournamentNames] = useState<String[]>([]);
 
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
-				const [data, stats, tournaments, matches] =
-					await Promise.all([
-						fetchPlayer(params.id),
-						fetchPlayerStats(params.id),
-						fetchTournamentByPlayerId(params.id),
-						fetchPlayerMatches(params.id),
-					]);
+				const [data, stats, tournaments, matches] = await Promise.all([
+					fetchPlayer(params.id),
+					fetchPlayerStats(params.id),
+					fetchTournamentByPlayerId(params.id),
+					fetchPlayerMatches(params.id),
+				]);
 				setLoading(false);
 				const mappedData: Player = {
 					id: data.id,
@@ -68,22 +68,22 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					player1Id: match.player1Id,
 					player2Id: match.player2Id,
 					games: match.games,
-                    roundNum: match.roundNum,
+					roundNum: match.roundNum,
 				}));
 
 				// Collect all opponent IDs
 				const opponentIds = new Set();
 				matchHistory.forEach((match) => {
 					const opponentId =
-						params.id === match.player1Id
-							? match.player2Id
-							: match.player1Id;
+						params.id === match.player1Id ? match.player2Id : match.player1Id;
 					opponentIds.add(opponentId);
 				});
 
 				// Fetch all opponents' data in one go
 				const opponentData: PlayerResponse[] = await Promise.all(
-					Array.from(opponentIds).map((id) => fetchPlayer(id))
+					Array.from(opponentIds)
+						.filter((id): id is string => id !== null) // Filter out null values
+						.map((id) => fetchPlayer(id))
 				);
 
 				// Create a map of opponent IDs to their names
@@ -97,9 +97,10 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 				for (const match of matchHistory) {
 					for (const game of match.games) {
 						const opponentId =
-							params.id === match.player1Id
-								? match.player2Id
-								: match.player1Id;
+							params.id === match.player1Id ? match.player2Id : match.player1Id;
+						if (opponentId === null) {
+							continue; // skip this game
+						}
 						const opponent = opponentMap.get(opponentId);
 						const playerScore =
 							params.id === match.player1Id
@@ -113,24 +114,30 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 						gameHistory.push({
 							game_id: game.id,
 							tournament_name: tournamentHistory.find(
-								(tournament) =>
-									tournament.id === match.tournament_id
+								(tournament) => tournament.id === match.tournament_id
 							)?.tournamentName,
-                            tournament_id: match.tournament_id,
+							tournament_id: match.tournament_id,
 							match_id: match.match_id,
 							set_number: game.setNum,
 							round: match.roundNum,
 							opponent_id: opponentId,
 							opponent: opponent,
 							score: game.player1Score + "-" + game.player2Score,
-							result:
-								playerScore > opponentScore ? "Win" : "Loss",
+							result: playerScore > opponentScore ? "Win" : "Loss",
 						});
 					}
 				}
 				setGameHistory(gameHistory);
 				setTournaments(tournamentHistory);
 				setPlayer(mappedData);
+
+				// Store a list of unique tournament names
+				const uniqueTournamentNames = Array.from(
+					new Set(
+						tournamentHistory.map((tournament) => tournament.tournamentName)
+					)
+				);
+				setTournamentNames(uniqueTournamentNames);
 			} catch (err) {
 				console.error("Failed to fetch player:", err);
 			}
@@ -147,7 +154,11 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>
 			<div className="container mx-auto py-5 px-5">
 				<p className="text-4xl font-bold pb-3">Game History</p>
-				<DataTable columns={columns} data={gameHistory} />
+				<DataTable
+					columns={columns}
+					data={gameHistory}
+					tournamentNames={tournamentNames}
+				/>
 			</div>
 			<div className="container mx-auto py-5 px-5">
 				<TournamentHistory tournaments={tournaments} />

@@ -55,7 +55,6 @@ export default function TournamentDetails() {
             // Fetch tournament details
             const tournamentData = await fetchTournamentById(Number(id));
             const organiserData = await fetchOrganizer(tournamentData.createdBy);
-            console.log(organiserData);
 
             let tournamentDetails = {
                 id: tournamentData.id,
@@ -120,7 +119,6 @@ export default function TournamentDetails() {
                 };
             }
 
-            console.log(tournamentDetails);
             setTournamentDetails(tournamentDetails);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -271,7 +269,7 @@ export default function TournamentDetails() {
                         )}
                     </div>
 
-                    {role === "ADMIN" || (tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
+                    {(tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
                         tournamentDetails.matches.length > 0 ? (
                             <div className="w-full my-5 results">
                                 <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>

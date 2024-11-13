@@ -20,7 +20,6 @@ export const completeOnboarding = async (formData: FormData) => {
 		});
 		return { message: "User metadata Updated" };
 	} catch (e) {
-		console.log("error", e);
 		return { message: "Error Updating User Metadata" };
 	}
 };

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button"; // Example Button component, use your existing one
+import { Button } from "@/components/ui/button";
 
 export type Period = "AM" | "PM";
 

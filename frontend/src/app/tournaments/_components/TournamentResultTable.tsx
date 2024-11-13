@@ -12,8 +12,6 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     const winners: any[] = [];
     const scores: { [roundNum: number]: { winnerName: string, score: string }[] } = {};
 
-    // console.log(matchResult);
-
     // Extract distinct roundNum values and sort them in descending order
     const roundNums = matchResult.map(item => item.roundNum);
     const distinctRoundNums = Array.from(new Set(roundNums)).sort((a, b) => b - a);
@@ -32,9 +30,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
     // Gather winners and scores in BFS order based on roundNum levels
     const gatherWinnersBFS = (): void => {    
-        // console.log('matchResult', matchResult);    
         matchResult.forEach((match) => {
-            // console.log('match', match);
             if (match.winner !== null) {
                 winners.push(match.winner);
                 const formattedScores = match.games.map(game => `${game.player1Score}-${game.player2Score}`).join(' / ');
@@ -56,11 +52,6 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     // Populate players and winners
     getPlayersInRound(distinctRoundNums[0]);
     gatherWinnersBFS();
-
-    // Now you have both `players`, `winners`, and `scores` arrays populated
-    console.log("Players:", players);
-    console.log("Winners:", winners);
-    console.log("Scores:", scores);
 
     const columnHeaders = useMemo(() => {
         const headers = [];

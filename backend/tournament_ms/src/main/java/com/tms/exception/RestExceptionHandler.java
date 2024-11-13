@@ -44,13 +44,6 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(TournamentExistsException.class)
-    public ResponseEntity<Object> handleTypeMismatch(TournamentExistsException ex) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(TournamentNotFoundException.class)
     public ResponseEntity<Object> handleTypeMismatch(TournamentNotFoundException ex) {
         Map<String, Object> body = new HashMap<>();

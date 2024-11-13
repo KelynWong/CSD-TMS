@@ -1,6 +1,7 @@
 package com.tms.matchmaking;
 
 import com.tms.exceptions.TournamentExistsException;
+import com.tms.exceptions.TournamentFoundNoMatchException;
 import com.tms.exceptions.TournamentNotFoundException;
 import com.tms.match.Game;
 import com.tms.match.MatchJson;
@@ -45,7 +46,7 @@ public class MatchmakeService {
             if (tournaments != null && !tournaments.isEmpty()) {
                 throw new TournamentExistsException(tournamentId);
             }
-        } catch (TournamentNotFoundException e) {
+        } catch (TournamentFoundNoMatchException e) {
             List<Player> playerIds = apiManager.fetchTournamentPlayerIds(tournamentId);
             int numPlayers = playerIds.size();
             double numRounds = Math.ceil(Math.log(numPlayers) / Math.log(2)); // k is height of tree, or number of rounds in tournament

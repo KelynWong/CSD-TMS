@@ -74,12 +74,10 @@ export default function SetEditForm({
       player2Score: player2Scores[index],
     }));
 
-    console.log(payload);
     const response = await addGamesByMatchId(matchId, payload);
     setLoading(false);
 
     if (response) {
-      console.log(response);
       message.success("Match games added successfully!");
       setTimeout(() => {
         window.location.reload();

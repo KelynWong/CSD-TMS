@@ -33,12 +33,9 @@ export const fetchTournaments = async (): Promise<Tournament[]> => {
 	try {
 		const jwtToken = getJwtToken(); 
 		console.log("jwtToken: ", jwtToken);
-		console.log("URL: ", URL);
 		const response = await axios.get(`${URL}`, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-		console.log("fetchTournaments API Response:", response); 
-		console.log("fetchTournaments API Response data:", response.data);
 		return response.data;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
@@ -54,7 +51,7 @@ export const fetchTournamentByPlayerId = async (
 		const response = await axios.get(`${URL}/players/${player_id}`, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-		console.log(response.data);
+		
 		const formattedData: tournamentResponse[] = response.data.map(
 			(tournament: tournamentResponse) => ({
 				id: tournament.id,
@@ -160,10 +157,10 @@ export const registerTournament = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		const response = await axios.post(`${URL}/${tournament_id}/players/${user_id}/register`, {
+		const response = await axios.post(`${URL}/${tournament_id}/players/${user_id}/register`, {}, {
 			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
 		});
-		console.log(response);
+		
 		return response.status === 200;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);
@@ -177,14 +174,12 @@ export const withdrawTournament = async (
 ): Promise<boolean> => {
 	try {
 		const jwtToken = getJwtToken(); 
-		console.log(`${URL}/${tournament_id}/players/${user_id}/deregister`, {
-			headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
-		});
-
 		const response = await axios.put(
-			`${URL}/${tournament_id}/players/${user_id}/deregister`
+			`${URL}/${tournament_id}/players/${user_id}/deregister`, {}, {
+				headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : {},
+			}
 		);
-		console.log(response);
+		
 		return response.status === 200;
 	} catch (error) {
 		console.error("Error fetching tournaments", error);

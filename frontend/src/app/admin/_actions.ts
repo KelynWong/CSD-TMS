@@ -48,7 +48,6 @@ export const updateUser = async (userId: string, formData: FormData) => {
 			);
             
         } catch (e) {
-            console.log("error", e);
             return { error: e, message: "Error Updating User Profile Image" };
         }
     }
@@ -68,7 +67,6 @@ export const updateUser = async (userId: string, formData: FormData) => {
 		});   
 		return { message: "User metadata Updated" };
 	} catch (e) {
-		console.log("error", e);
 		return { error: e, message: "Error Updating User Metadata" };
 	}
 };
@@ -79,7 +77,6 @@ export const deleteUser = async (userId: string) => {
 		await clerkClient().users.deleteUser(userId);
 		return { message: "User Deleted" };
 	} catch (e) {
-		console.log("error", e);
 		return { error: e, message: "Error Deleting User" };
 	}
 };

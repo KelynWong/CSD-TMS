@@ -102,10 +102,16 @@ export default function Players() {
 
 	if (currentPlayers.length === 0) {
 		return (
-			<div className="w-[80%] h-full mx-auto py-16">
-				<div className="flex flex-col items-center justify-center h-full">
-					<img src="/images/no_ongoing.png" className="size-72" alt="No Players Found" />
-					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No players found.</h1>
+			<div className="container mx-auto px-4 py-10">
+				<div className="flex justify-between items-center mb-6">
+					<h1 className="text-3xl font-bold">Players</h1>
+					<SearchBar onSearch={(term) => handleSearch(term)} />
+				</div>
+				<div className="w-[80%] h-full mx-auto py-16">
+					<div className="flex flex-col items-center justify-center h-full">
+						<img src="/images/no_ongoing.png" className="size-72" alt="No Players Found" />
+						<h1 className="text-2xl font-bold text-center mt-8 text-red-500">No players found.</h1>
+					</div>
 				</div>
 			</div>
 		);

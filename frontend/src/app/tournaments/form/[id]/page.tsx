@@ -6,27 +6,19 @@ import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format, addDays, isBefore, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon, ClockIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { TimePicker } from "../../_components/TimePicker";
-import { createTournaments, updateTournaments, fetchTournaments, fetchTournamentById } from "@/api/tournaments/api";
+import { createTournaments, updateTournaments, fetchTournamentById } from "@/api/tournaments/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { message } from "antd";
@@ -34,8 +26,6 @@ import {useNavBarContext} from "@/context/navBarContext";
 
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
-    // location: z.string().min(2, { message: "Location must be at least 2 characters." }),
-    // description: z.string().optional(),
     startDT: z.date(),
     endDT: z.date(),
     status: z.string(),
@@ -95,11 +85,7 @@ export default function TournamentForm() {
             setLoading(true);
             const getTournamentsData = async () => {
                 try {
-                    // const data = await fetchTournaments();
                     const data = await fetchTournamentById(Number(id));
-                    console.log(data)
-                    // const selectedTournament = data.find((tournament) => tournament.id === Number(id));
-                    // if (selectedTournament) {
                     setInitialData({
                         ...data,
                         startDT: new Date(new Date(data.startDT).getTime() + sgTimeZoneOffset),
@@ -107,9 +93,6 @@ export default function TournamentForm() {
                         regStartDT: new Date(new Date(data.regStartDT).getTime() + sgTimeZoneOffset),
                         regEndDT: new Date(new Date(data.regEndDT).getTime() + sgTimeZoneOffset),
                     });
-                    // } else {
-                    //     console.error("Tournament not found");
-                    // }
                 } catch (err) {
                     console.error("Failed to fetch tournaments:", err);
                 }
@@ -127,10 +110,6 @@ export default function TournamentForm() {
 
     const onSubmit = async (data: any) => {
         setLoading(true);
-
-        console.log(user.id);
-        console.log("data: ", data);
-        
         const payload = {
             ...data, // Include form data
             startDT: data.startDT.toISOString(),
@@ -145,11 +124,9 @@ export default function TournamentForm() {
             ...(!isEditing && { createdBy: user.id }) // Include createdBy if not editing
         };
     
-        console.log("payload: ", payload);
         const response = await (isEditing ? updateTournaments(payload) : createTournaments(payload));
     
         if (response) {
-            console.log(response)
             setLoading(false);
             message.success(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
             router.push('/tournaments');
@@ -167,8 +144,6 @@ export default function TournamentForm() {
     if (loading) {
 		return <Loading />;
 	}
-
-    console.log("initialData: ", initialData)
 
     return (
         <div className="w-[80%] mx-auto py-16">
@@ -306,7 +281,7 @@ export default function TournamentForm() {
                             name="regStartDT"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-lg block">Registeration Start Date and Time</FormLabel>
+                                    <FormLabel className="text-lg block">Registration Start Date and Time</FormLabel>
                                     <FormControl className="block">
                                         <Popover>
                                             <PopoverTrigger asChild>
@@ -359,7 +334,7 @@ export default function TournamentForm() {
                             name="regEndDT"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-lg block">Registeration End Date and Time</FormLabel>
+                                    <FormLabel className="text-lg block">Registration End Date and Time</FormLabel>
                                     <FormControl className="block">
                                         <Popover>
                                             <PopoverTrigger asChild>
@@ -407,42 +382,6 @@ export default function TournamentForm() {
                             )}
                         />
                     </div>
-
-                    {/* {!isEditing ? (
-                        <FormField
-                            control={form.control}
-                            name="status"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-lg block">Status of Tournament</FormLabel>
-                                    <FormControl className="block">
-                                        <Select
-                                            value={field.value} // Bind value to form state
-                                            onValueChange={field.onChange} // Bind onChange to form state
-                                        >
-                                            <SelectTrigger className="w-full font-body bg-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="font-body">
-                                                <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                                <SelectItem value="Registration Start">Registration Start</SelectItem>
-                                                <SelectItem value="Registration Close">Registration Close</SelectItem>
-                                                <SelectItem value="Ongoing">Ongoing</SelectItem>
-                                                <SelectItem value="Completed">Completed</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Specify the status of the tournament.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    ) : (
-                        <></>
-                    )} */}
-
                     <div className="flex justify-center space-x-4">
                         <Button type="button" variant="outline" className="text-base" onClick={handleReset}>Cancel</Button>
                         <Button type="submit" className="text-base">{isEditing ? 'Update' : 'Submit'}</Button>
