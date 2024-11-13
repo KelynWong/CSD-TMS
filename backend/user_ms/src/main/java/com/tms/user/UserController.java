@@ -129,29 +129,23 @@ public class UserController {
 
   /**
    * Webhook endpoint for Clerk
-   */
+  */
   @PostMapping(value = "/clerk-webhook", consumes = "application/json")
   public ResponseEntity<String> handleClerkWebhook(@RequestHeader Map<String, String> headers,
       @RequestBody String payload) {
     try {
       // Convert headers to a format that Svix expects (java.net.http.HttpHeaders)
-      HashMap<String, List<String>> headerMap = new HashMap<>();
-      headerMap.put("svix-id", Collections.singletonList(headers.get("svix-id")));
-      headerMap.put("svix-timestamp", Collections.singletonList(headers.get("svix-timestamp")));
-      headerMap.put("svix-signature", Collections.singletonList(headers.get("svix-signature")));
-
-      HttpHeaders svixHeaders = HttpHeaders.of(headerMap, (key, value) -> true); // Creating java.net.http.HttpHeaders
+      HttpHeaders svixHeaders = convertToSvixHeaders(headers);
 
       // Initialize Svix Webhook object
       Webhook webhook = new Webhook(signingSecret);
 
-      // Verify the webhook signature using java.net.http.HttpHeaders
+      // Verify the webhook signature
       webhook.verify(payload, svixHeaders);
 
       // Process the webhook payload (after verification)
-      ObjectMapper objectMapper = new ObjectMapper();
-      JsonNode webhookEvent = objectMapper.readTree(payload);
-      String eventType = webhookEvent.get("type").asText();
+      JsonNode webhookEvent = new ObjectMapper().readTree(payload);
+      String eventType = getNodeText(webhookEvent, "type");
       JsonNode userData = webhookEvent.get("data");
 
       // Handle the specific event type
@@ -172,68 +166,45 @@ public class UserController {
 
       return ResponseEntity.ok("Webhook received successfully");
     } catch (WebhookVerificationException e) {
-      // Signature verification failed
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid signature");
     } catch (IOException e) {
-      // Payload parsing or processing failed
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JSON payload");
     } catch (Exception e) {
-      // Handle other exceptions
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("Error processing webhook: " + e.getMessage());
     }
   }
 
+  // Convert headers to Svix-compliant HttpHeaders
+  private HttpHeaders convertToSvixHeaders(Map<String, String> headers) {
+    HashMap<String, List<String>> headerMap = new HashMap<>();
+    headerMap.put("svix-id", Collections.singletonList(headers.get("svix-id")));
+    headerMap.put("svix-timestamp", Collections.singletonList(headers.get("svix-timestamp")));
+    headerMap.put("svix-signature", Collections.singletonList(headers.get("svix-signature")));
+    return HttpHeaders.of(headerMap, (key, value) -> true);
+  }
+
+  // Helper to safely extract text from JsonNode
+  private String getNodeText(JsonNode node, String key) {
+    return node.has(key) && !node.get(key).isNull() ? node.get(key).asText() : "";
+  }
+
   // Handle the user.created event from Clerk
   private void handleUserCreated(JsonNode userData) {
     try {
-      // Create a new User instance
       User user = new User();
 
-      // Id
-      user.setId(userData.get("id").asText());
+      // Extract user details
+      user.setId(getNodeText(userData, "id"));
+      user.setUsername(extractUsername(userData));
+      user.setFullname(extractFullname(userData));
+      user.setEmail(extractEmail(userData));
+      user.setGender(getNodeText(userData, "gender"));
+      user.setProfilePicture(getNodeText(userData, "profile_image_url"));
+      user.setRole(Role.PLAYER); // Default role
+      user.setCountry(null); // Default country since Clerk doesn't provide it
 
-      // Extract necessary user details from the webhook data
-      if (userData.has("username") && !userData.get("username").isNull()) {
-        user.setUsername(userData.get("username").asText());
-      } else {
-        // Use email as username if username is null
-        user.setUsername(userData.get("email_addresses").get(0).get("email_address").asText());
-      }
-
-      // Full name (First name + Last name)
-      if (userData.has("first_name") || userData.has("last_name")) {
-        String firstName = userData.has("first_name") ? userData.get("first_name").asText() : "";
-        String lastName = userData.has("last_name") ? userData.get("last_name").asText() : "";
-        user.setFullname(firstName + " " + lastName);
-      }
-
-      // Email
-      if (userData.has("email_addresses")) {
-        user.setEmail(userData.get("email_addresses").get(0).get("email_address").asText());
-      }
-
-      // Gender
-      if (userData.has("gender") && !userData.get("gender").isNull()) {
-        user.setGender(userData.get("gender").asText());
-      } else {
-        user.setGender("Not Specified");
-      }
-
-      // Role
-      user.setRole(Role.PLAYER);
-
-      // Country - Since Clerk data doesn't include country, use a default
-      user.setCountry(null);
-
-      // Profile Picture - Use profile_image_url if provided
-      if (userData.has("profile_image_url") && !userData.get("profile_image_url").isNull()) {
-        user.setProfilePicture(userData.get("profile_image_url").asText());
-      }
-
-      // Call your service to create the user in the database
       userService.createUser(user, null);
-
     } catch (Exception e) {
       throw new RuntimeException("Error handling user.created event: " + e.getMessage());
     }
@@ -242,55 +213,22 @@ public class UserController {
   // Handle the user.updated event from Clerk
   private void handleUserUpdated(JsonNode userData) {
     try {
-      // Fetch the user by ID
-      String userId = userData.get("id").asText();
+      String userId = getNodeText(userData, "id");
       User user = userService.getUserById(userId);
-      
+
       if (user == null) {
-          throw new RuntimeException("User not found");
+        throw new RuntimeException("User not found");
       }
 
-      // Update email if present
-      if (userData.has("email_addresses") && userData.get("email_addresses").size() > 0) {
-        user.setEmail(userData.get("email_addresses").get(0).get("email_address").asText());
-      }
+      // Update user fields if present
+      user.setEmail(extractEmail(userData));
+      user.setUsername(getNodeText(userData, "username"));
+      user.setFullname(extractFullname(userData));
+      user.setGender(extractMetadataField(userData, "gender"));
+      user.setProfilePicture(getNodeText(userData, "profile_image_url"));
+      user.setCountry(extractMetadataField(userData, "country"));
+      user.setRole(extractRole(userData));
 
-      // Update username if present
-      if (userData.has("username") && !userData.get("username").isNull()) {
-        user.setUsername(userData.get("username").asText());
-      }
-
-      // Update full name if present
-      if (userData.has("first_name") || userData.has("last_name")) {
-        String firstName = userData.has("first_name") ? userData.get("first_name").asText() : "";
-        String lastName = userData.has("last_name") ? userData.get("last_name").asText() : "";
-        user.setFullname(firstName + " " + lastName);
-      }
-
-      // Update gender if present
-      if (userData.has("public_metadata") && userData.get("public_metadata").has("gender")) {
-        user.setGender(userData.get("public_metadata").get("gender").asText());
-      }
-
-      // Update profile picture if present
-      if (userData.has("profile_image_url") && !userData.get("profile_image_url").isNull()) {
-        user.setProfilePicture(userData.get("profile_image_url").asText());
-      }
-
-      // Update country if present
-      if (userData.has("public_metadata") && userData.get("public_metadata").has("country")) {
-        user.setCountry(userData.get("public_metadata").get("country").asText());
-      }
-
-      // Role
-      if (userData.has("public_metadata") && userData.get("public_metadata").has("role")) {
-        String role = userData.get("public_metadata").get("role").asText().toUpperCase();
-        user.setRole(Role.valueOf(role));
-      } else {
-        user.setRole(Role.PLAYER);
-      }
-
-      // Update the user in your system
       userService.updateUser(userId, user, null);
     } catch (Exception e) {
       throw new RuntimeException("Error handling user.updated event: " + e.getMessage());
@@ -300,10 +238,43 @@ public class UserController {
   // Handle the user.deleted event from Clerk
   private void handleUserDeleted(JsonNode userData) {
     try {
-      String userId = userData.get("id").asText();
+      String userId = getNodeText(userData, "id");
       userService.deleteUser(userId);
     } catch (Exception e) {
       throw new RuntimeException("Error handling user.deleted event: " + e.getMessage());
     }
+  }
+
+  // Extract role with default fallback
+  private Role extractRole(JsonNode userData) {
+    String roleText = extractMetadataField(userData, "role").toUpperCase();
+    return roleText.isEmpty() ? Role.PLAYER : Role.valueOf(roleText);
+  }
+
+  // Extract full name by combining first and last names if available
+  private String extractFullname(JsonNode userData) {
+    String firstName = getNodeText(userData, "first_name");
+    String lastName = getNodeText(userData, "last_name");
+    return (firstName + " " + lastName).trim();
+  }
+
+  // Extract primary email if available
+  private String extractEmail(JsonNode userData) {
+    if (userData.has("email_addresses") && userData.get("email_addresses").size() > 0) {
+      return getNodeText(userData.get("email_addresses").get(0), "email_address");
+    }
+    return "";
+  }
+
+  // Extract username, using email as fallback
+  private String extractUsername(JsonNode userData) {
+    String username = getNodeText(userData, "username");
+    return username.isEmpty() ? extractEmail(userData) : username;
+  }
+
+  // Extract field from public_metadata if available
+  private String extractMetadataField(JsonNode userData, String field) {
+    return userData.has("public_metadata") && userData.get("public_metadata").has(field) ?
+        getNodeText(userData.get("public_metadata"), field) : "";
   }
 }
