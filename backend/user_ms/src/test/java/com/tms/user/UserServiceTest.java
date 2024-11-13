@@ -47,7 +47,7 @@ public class UserServiceTest {
     void addUser_ExistingUser_ThrowException() {
         User user = new User("user1", Role.PLAYER);
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsById(user.getId())).thenReturn(true);
 
         assertThrows(UserAlreadyExistsException.class, () -> {
             userService.createUser(user, null);
@@ -70,12 +70,13 @@ public class UserServiceTest {
     }
 
     @Test
-    void getUserById_NonExistingUser_ReturnNull() {
+    void getUserById_NonExistingUser_ThrowException() {
         when(userRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        User foundUser = userService.getUserById("nonexistent_id");
+        assertThrows(UserNotFoundException.class, () -> {
+            userService.getUserById("nonexistent_id");
+        });
 
-        assertNull(foundUser);
         verify(userRepository, times(1)).findById("nonexistent_id");
     }
 
@@ -147,7 +148,7 @@ public class UserServiceTest {
     void deleteUser_ExistingUser_DeleteSuccessfully() {
         User user = new User("user1", Role.PLAYER);
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsById(user.getId())).thenReturn(true);
 
         userService.deleteUser(user.getId());
 
@@ -157,8 +158,6 @@ public class UserServiceTest {
 
     @Test
     void deleteUser_NonExistingUser_ThrowsUserNotFoundException() {
-        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
-
         assertThrows(UserNotFoundException.class, () -> userService.deleteUser("nonexistent_id"));
 
         verify(userRepository, never()).deleteById(anyString());
