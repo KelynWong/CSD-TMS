@@ -14,7 +14,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
@@ -22,7 +21,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<?> handleFileUploadException(FileUploadException ex, WebRequest request) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -30,7 +28,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", "An error occurred. Please try again later.");
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,7 +35,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
@@ -46,7 +42,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidUserException.class)
     public ResponseEntity<Object> handleInvalidUserException(InvalidUserException ex) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
