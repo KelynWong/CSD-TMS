@@ -34,26 +34,27 @@ public class UserController {
     this.userService = userService;
   }
 
-  // Health check endpoint
+  // Health check endpoint to verify if the service is running (for the app gateway to call)
   @GetMapping("/health")
   public ResponseEntity<String> healthCheck() {
       return ResponseEntity.ok("Service is healthy");
   }
 
-  // Get all users
+  // Retrieve all users from the database
   @GetMapping
   public List<User> getAllUsers() {
-    return userService.getAllUsers();
+      return userService.getAllUsers();
   }
 
+  // Retrieve users with the highest ratings (top players)
   @GetMapping("/top-players")
   public List<User> getTopRatings() {
-    return userService.getTopPlayers();
+      return userService.getTopPlayers();
   }
 
-  // Get user by ID
+  // Retrieve a user by their unique ID
   @GetMapping("/{id}")
-  public ResponseEntity<User> getUserById(@PathVariable String id) { // String instead of Long
+  public ResponseEntity<User> getUserById(@PathVariable String id) { // String is used instead of Long for ID type
       User user = userService.getUserById(id);
       if (user != null) {
           return ResponseEntity.ok(user);
@@ -62,69 +63,69 @@ public class UserController {
       }
   }
 
-  // Get user by list of ids
+  // Retrieve a list of users by a list of provided IDs
   @PostMapping("/ids")
   public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<Map<String, String>> ids) {
-    List<User> users = userService.getUsersByIds(ids.stream()
-        .map(idMap -> idMap.get("id"))
-        .collect(Collectors.toList()));
-    return ResponseEntity.ok(users);
+      List<User> users = userService.getUsersByIds(ids.stream()
+          .map(idMap -> idMap.get("id"))
+          .collect(Collectors.toList()));
+      return ResponseEntity.ok(users);
   }
 
-  // Get users by role
+  // Retrieve users by a specified role (e.g., PLAYER, ADMIN)
   @GetMapping("/role/{role}")
   public ResponseEntity<List<User>> getUsersByRole(@PathVariable String role) {
-    List<User> users = userService.getUsersByRole(Role.valueOf(role.toUpperCase()));
-    if (!users.isEmpty()) {
-      return ResponseEntity.ok(users);
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+      List<User> users = userService.getUsersByRole(Role.valueOf(role.toUpperCase()));
+      if (!users.isEmpty()) {
+          return ResponseEntity.ok(users);
+      } else {
+          return ResponseEntity.notFound().build();
+      }
   }
 
-  // Create a new user
+  // Create a new user with optional profile picture upload
   @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
   public ResponseEntity<Object> createUser(@RequestPart("user") String userJson,
       @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
-    try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      User user = objectMapper.readValue(userJson, User.class);
+      try {
+          ObjectMapper objectMapper = new ObjectMapper();
+          User user = objectMapper.readValue(userJson, User.class);
 
-      // Call your service to create the user
-      User userobj = userService.createUser(user, profilePicture);
-      return ResponseEntity.ok(userobj);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Failed to create user or upload profile picture: " + e.getMessage());
-    }
+          // Call the service to save the user in the database
+          User userobj = userService.createUser(user, profilePicture);
+          return ResponseEntity.ok(userobj);
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("Failed to create user or upload profile picture: " + e.getMessage());
+      }
   }
 
-  // Update user by ID
+  // Update an existing user by their ID, with optional profile picture update
   @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
   public ResponseEntity<Object> updateUser(@PathVariable String id,
       @RequestPart("user") String userJson,
       @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) {
-    try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      User user = objectMapper.readValue(userJson, User.class);
-      user.setId(id); // Set the ID of the user to be updated
+      try {
+          ObjectMapper objectMapper = new ObjectMapper();
+          User user = objectMapper.readValue(userJson, User.class);
+          user.setId(id); // Ensure the ID is set on the user being updated
 
-      // Call your service to update the user
-      User userObj = userService.updateUser(id, user, profilePicture);
-      return ResponseEntity.ok(userObj);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Failed to update user or upload profile picture: " + e.getMessage());
-    }
+          // Call the service to update the user in the database
+          User userObj = userService.updateUser(id, user, profilePicture);
+          return ResponseEntity.ok(userObj);
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+              .body("Failed to update user or upload profile picture: " + e.getMessage());
+      }
   }
 
-  // Delete user by ID
+  // Delete a user by their ID from the database
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-    userService.deleteUser(id);
-    return ResponseEntity.ok().build();
+      userService.deleteUser(id);
+      return ResponseEntity.ok().build();
   }
 
   /**
