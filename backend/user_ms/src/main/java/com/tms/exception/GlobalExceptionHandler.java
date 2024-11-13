@@ -20,14 +20,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(SupabaseClientException.class)
-    public ResponseEntity<Object> handleSupabaseClientException(SupabaseClientException ex) {
-        ex.printStackTrace();
-        Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<?> handleFileUploadException(FileUploadException ex, WebRequest request) {
         ex.printStackTrace();
