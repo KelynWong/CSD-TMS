@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,101 +27,106 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
+    
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-
+    
     public User getUserById(String id) {
-        Optional<User> result = userRepository.findById(id);
-        return result.map(user -> {
-            if (checkIfAdmin(user)) {
-                return user;
-            }
-            user.setRank(userRepository.findUserRankById(user.getId())
-                    .orElseThrow(() -> new RatingNotFoundException(user.getId())));
-            return user;
-        }).orElse(null);
+        return userRepository.findById(id)
+            .map(this::enrichUserWithRankIfNotAdmin)
+            .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
-
+    
     public List<User> getUsersByIds(List<String> ids) {
         List<User> players = userRepository.findByIdInOrderByRatingDesc(ids);
-        List<Object[]> playerRankRes = userRepository.findUserRanksByIds(ids);
-
-        Map<String, Number> playerToRank = playerRankRes.stream()
-            .collect(Collectors.toMap(
-                result -> (String) result[0],
-                result -> (Number) result[1]
-            ));
-
+        Map<String, Number> playerToRank = getPlayerRanksMap(ids);
+    
         players.forEach(player -> player.setRank(playerToRank.getOrDefault(player.getId(), null)));
         return players;
     }
-
-    private boolean checkIfAdmin(User user) {
-        return user.getRole().equals(Role.ADMIN);
-    }
-
+    
     public List<User> getTopPlayers() {
         List<Object[]> results = userRepository.findAllOrderByRatingDesc();
-        return results.stream().map(result -> {
-            User user = (User) result[0];
-            Long rank = (Long) result[1];
-            user.setRank(rank);
-            return user;
-        }).collect(Collectors.toList());
+        return results.stream()
+            .map(result -> enrichUserWithRank((User) result[0], (Long) result[1]))
+            .collect(Collectors.toList());
     }
-
+    
     public User createUser(User user, MultipartFile profilePicture) {
-        userRepository.findById(user.getId()).ifPresent(u -> {
-            throw new UserAlreadyExistsException("User with id " + u.getId() + " already exists");
-        });
+        if (userRepository.existsById(user.getId())) {
+            throw new UserAlreadyExistsException("User with id " + user.getId() + " already exists");
+        }
+    
         User createdUser = userRepository.save(user);
-        if (createdUser.getRole().equals(Role.PLAYER)) {
+        if (isPlayer(createdUser)) {
             ratingService.initRating(createdUser.getId());
         }
         return createdUser;
     }
-
-    public User updateUser(String id, User updatedUser, MultipartFile profilePicture) { 
+    
+    public User updateUser(String id, User updatedUser, MultipartFile profilePicture) {
         return userRepository.findById(id)
-            .map(user -> {
-                if (updatedUser.getUsername() != null) {
-                    user.setUsername(updatedUser.getUsername());
-                }
-                if (updatedUser.getFullname() != null) {
-                    user.setFullname(updatedUser.getFullname());
-                }
-                if (updatedUser.getGender() != null) {
-                    user.setGender(updatedUser.getGender());
-                }
-                if (updatedUser.getEmail() != null) {
-                    user.setEmail(updatedUser.getEmail());
-                }
-                if (updatedUser.getRole() != null) {
-                    user.setRole(updatedUser.getRole());
-                }
-                if (updatedUser.getCountry() != null) {
-                    user.setCountry(updatedUser.getCountry());
-                }
-                if (updatedUser.getProfilePicture() != null) {
-                    user.setProfilePicture(updatedUser.getProfilePicture()); 
-                }
-                return userRepository.save(user);
-            })
+            .map(existingUser -> applyUserUpdates(existingUser, updatedUser))
+            .map(userRepository::save)
             .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
-    }    
-
+    }
+    
     public List<User> getUsersByRole(Role role) {
         return userRepository.findByRole(role);
     }
-
-    public void deleteUser(String id) { 
-        if (userRepository.findById(id).isPresent()){
-            userRepository.deleteById(id);
-            ratingService.deleteRating(id);
-        } else {
+    
+    public void deleteUser(String id) {
+        if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("User with ID " + id + " not found");
         }
+        userRepository.deleteById(id);
+        ratingService.deleteRating(id);
     }
+    
+    // Helper method to enrich a user with rank if they are not an admin
+    private User enrichUserWithRankIfNotAdmin(User user) {
+        if (!isAdmin(user)) {
+            user.setRank(userRepository.findUserRankById(user.getId())
+                .orElseThrow(() -> new RatingNotFoundException(user.getId())));
+        }
+        return user;
+    }
+    
+    // Helper method to map player ranks
+    private Map<String, Number> getPlayerRanksMap(List<String> ids) {
+        return userRepository.findUserRanksByIds(ids).stream()
+            .collect(Collectors.toMap(
+                result -> (String) result[0],
+                result -> (Number) result[1]
+            ));
+    }
+    
+    // Helper method to enrich user with rank
+    private User enrichUserWithRank(User user, Long rank) {
+        user.setRank(rank);
+        return user;
+    }
+    
+    // Helper method to check if user is an admin
+    private boolean isAdmin(User user) {
+        return Role.ADMIN.equals(user.getRole());
+    }
+    
+    // Helper method to check if user is a player
+    private boolean isPlayer(User user) {
+        return Role.PLAYER.equals(user.getRole());
+    }
+    
+    // Helper method to apply updates to an existing user
+    private User applyUserUpdates(User existingUser, User updatedUser) {
+        if (updatedUser.getUsername() != null) existingUser.setUsername(updatedUser.getUsername());
+        if (updatedUser.getFullname() != null) existingUser.setFullname(updatedUser.getFullname());
+        if (updatedUser.getGender() != null) existingUser.setGender(updatedUser.getGender());
+        if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
+        if (updatedUser.getRole() != null) existingUser.setRole(updatedUser.getRole());
+        if (updatedUser.getCountry() != null) existingUser.setCountry(updatedUser.getCountry());
+        if (updatedUser.getProfilePicture() != null) existingUser.setProfilePicture(updatedUser.getProfilePicture());
+        return existingUser;
+    }    
 }
