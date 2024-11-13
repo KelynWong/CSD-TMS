@@ -95,7 +95,6 @@ public class UserController {
           User userobj = userService.createUser(user, profilePicture);
           return ResponseEntity.ok(userobj);
       } catch (Exception e) {
-          e.printStackTrace();
           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("Failed to create user or upload profile picture: " + e.getMessage());
       }
@@ -115,7 +114,6 @@ public class UserController {
           User userObj = userService.updateUser(id, user, profilePicture);
           return ResponseEntity.ok(userObj);
       } catch (Exception e) {
-          e.printStackTrace();
           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
               .body("Failed to update user or upload profile picture: " + e.getMessage());
       }
