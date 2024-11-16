@@ -22,7 +22,6 @@ public class RestExceptionHandler{
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralException(Exception ex) {
-        ex.printStackTrace();
         Map<String, Object> body = new HashMap<>();
         body.put("error", "An error occurred. Please try again later.");
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);

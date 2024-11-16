@@ -43,13 +43,10 @@ public class MessageService {
 
         } catch (JsonProcessingException e) {
             // Handle JSON processing errors
-            e.printStackTrace();
         } catch (SqsException e) {
             // Handle SQS client-related errors
-            e.printStackTrace();
         } catch (Exception e) {
             // Handle any other unforeseen errors
-            e.printStackTrace();
         }
     }
 
