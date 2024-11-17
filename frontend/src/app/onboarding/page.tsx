@@ -1,10 +1,10 @@
-"use client";
+"use client"; // Importing client-side code
 
-import * as React from "react";
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { completeOnboarding } from "./_actions";
-import { Button } from "@/components/ui/button";
+import * as React from "react"; // Importing React
+import { useUser } from "@clerk/nextjs"; // Importing useUser hook from Clerk
+import { useRouter } from "next/navigation"; // Importing useRouter hook from Next.js
+import { completeOnboarding } from "./_actions"; // Importing completeOnboarding action
+import { Button } from "@/components/ui/button"; // Importing Button component from ui/button
 import {
 	Card,
 	CardHeader,
@@ -12,38 +12,43 @@ import {
 	CardContent,
 	CardFooter,
 	CardDescription,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/card"; // Importing Card components from ui/card
+import { Label } from "@/components/ui/label"; // Importing Label component from ui/label
 import {
 	Select,
 	SelectTrigger,
 	SelectValue,
 	SelectContent,
 	SelectItem,
-} from "@/components/ui/select";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { CountryCombobox } from "./_components/CountryCombobox";
-import { useToast } from "@/hooks/use-toast";
+} from "@/components/ui/select"; // Importing Select components from ui/select
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; // Importing Avatar components from ui/avatar
+import { CountryCombobox } from "./_components/CountryCombobox"; // Importing CountryCombobox component
+import { useToast } from "@/hooks/use-toast"; // Importing useToast hook
 
+// Define the OnboardingComponent
 export default function OnboardingComponent() {
-	const { toast } = useToast();
-	const { user } = useUser();
-	const router = useRouter();
+	const { toast } = useToast(); // Use the useToast hook
+	const { user } = useUser(); // Use the useUser hook
+	const router = useRouter(); // Use the useRouter hook
 
+	// Initialize state for countryValue, genderValue, and errors
 	const [countryValue, setCountryValue] = React.useState("");
 	const [genderValue, setGenderValue] = React.useState("");
 	const [errors, setErrors] = React.useState({ gender: "", country: "" });
 
+	// Function to handle country change
 	const handleCountryChange = (value: string) => {
 		setCountryValue(value);
 		setErrors((prevErrors) => ({ ...prevErrors, country: "" }));
 	};
 
+	// Function to handle gender change
 	const handleGenderChange = (value: string) => {
 		setGenderValue(value);
 		setErrors((prevErrors) => ({ ...prevErrors, gender: "" }));
 	};
 
+	// Function to validate the form
 	const validateForm = () => {
 		let isValid = true;
 		const newErrors = { gender: "", country: "" };
@@ -62,6 +67,7 @@ export default function OnboardingComponent() {
 		return isValid;
 	};
 
+	// Function to handle form submission
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		if (validateForm()) {
@@ -89,6 +95,8 @@ export default function OnboardingComponent() {
 			});
 		}
 	};
+
+	// Render the OnboardingComponent
 	return (
 		<div className="px-8 py-12 sm:py-16 md:px-20">
 			<Card className="mx-auto max-w-sm">

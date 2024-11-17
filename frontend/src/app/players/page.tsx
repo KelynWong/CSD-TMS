@@ -1,27 +1,28 @@
 "use client";
 
-import { PlayerCard } from "./_components/PlayerCard";
-import { PlayerCardProps } from "@/types/player";
-import { fetchUserByRoles } from "@/api/users/api";
-import { useEffect, useState } from "react";
-import Loading from "@/components/Loading";
-import Paginator from "@/components/Paginator";
-import { PlayerResponse } from "@/api/users/api";
-import { useNavBarContext } from "@/context/navBarContext";
-import SearchBar from "@/components/Search";
+import { PlayerCard } from "./_components/PlayerCard"; // Import PlayerCard component from local directory
+import { PlayerCardProps } from "@/types/player"; // Import PlayerCardProps from types/player
+import { fetchUserByRoles } from "@/api/users/api"; // Import fetchUserByRoles from users api
+import { useEffect, useState } from "react"; // Import useEffect and useState from react
+import Loading from "@/components/Loading"; // Import Loading component from components
+import Paginator from "@/components/Paginator"; // Import Paginator component from components
+import { PlayerResponse } from "@/api/users/api"; // Import PlayerResponse from users api
+import { useNavBarContext } from "@/context/navBarContext"; // Import useNavBarContext from navBarContext
+import SearchBar from "@/components/Search"; // Import SearchBar component from components
 
 export default function Players() {
-	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const [PlayerCardProps, setPlayerCardProps] = useState<PlayerCardProps[]>([]); // State to hold player card props
+	const [loading, setLoading] = useState(true); // State to manage loading status
+	const [error, setError] = useState<string | null>(null); // State to manage error message
 
-	// Set navbar context
+	// Set navbar context to 'players'
 	const { setState } = useNavBarContext();
 	setState("players");
 
-	// set search term
+	// State to manage search term
 	const [searchTerm, setSearchTerm] = useState("");
 
+	// Function to handle search input
 	const handleSearch = (searchTerm: string) => {
 		setSearchTerm(searchTerm);
 	};
@@ -29,7 +30,7 @@ export default function Players() {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const data = await fetchUserByRoles("Player");
+				const data = await fetchUserByRoles("Player"); // Fetch players by role
 				const mappedData: PlayerCardProps[] = (data as PlayerResponse[]).map(
 					(player: PlayerResponse) => ({
 						id: player.id,
@@ -39,54 +40,52 @@ export default function Players() {
 						profilePicture: player.profilePicture,
 					})
 				);
-				setPlayerCardProps(mappedData);
+				setPlayerCardProps(mappedData); // Update player card props state
 			} catch (error) {
-				console.error("Failed to fetch players:", error);
-				setError("No Players Found.");
+				console.error("Failed to fetch players:", error); // Log error if fetching fails
+				setError("No Players Found."); // Set error message
 			} finally {
-                setLoading(false);
+                setLoading(false); // Set loading to false after fetching
             }
 		};
-		fetchData();
+		fetchData(); // Call fetchData function
 	}, []);
 
-	const [currentPage, setCurrentPage] = useState(1);
-	const [itemsPerPage, setItemsPerPage] = useState(30);
+	const [currentPage, setCurrentPage] = useState(1); // State to manage current page
+	const [itemsPerPage, setItemsPerPage] = useState(30); // State to manage items per page
 
 	useEffect(() => {
 		const handleResize = () => {
 			if (window.innerWidth < 640) {
-				setItemsPerPage(10);
+				setItemsPerPage(10); // Adjust items per page for small screens
 			} else if (window.innerWidth < 1024) {
-				setItemsPerPage(20);
+				setItemsPerPage(20); // Adjust items per page for medium screens
 			} else {
-				setItemsPerPage(30);
+				setItemsPerPage(30); // Adjust items per page for large screens
 			}
 		};
 
-		handleResize();
-		window.addEventListener("resize", handleResize);
+		handleResize(); // Call handleResize function
+		window.addEventListener("resize", handleResize); // Listen for window resize event
 
-		return () => window.removeEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize); // Cleanup event listener
 	}, []);
 
-    const FilteredPlayers = PlayerCardProps.filter(player => player.fullname.toLowerCase().includes(searchTerm.toLowerCase()));
+    const FilteredPlayers = PlayerCardProps.filter(player => player.fullname.toLowerCase().includes(searchTerm.toLowerCase())); // Filter players based on search term
 
-	const totalPages = Math.ceil(FilteredPlayers.length / itemsPerPage);
-
+	const totalPages = Math.ceil(FilteredPlayers.length / itemsPerPage); // Calculate total pages
 
 	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
+		setCurrentPage(page); // Update current page state
 	};
-
 
 	const currentPlayers = FilteredPlayers.slice(
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage
-	);
+	); // Calculate current players to display
 
 	if (loading) {
-		return <Loading />;
+		return <Loading />; // Display loading component if loading
 	}
 
 	if (error) {

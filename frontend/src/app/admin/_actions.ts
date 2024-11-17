@@ -2,26 +2,27 @@
 
 import { clerkClient } from "@clerk/nextjs/server";
 
+// This file contains actions related to user management in the admin panel.
 
-// update user
+// Function to update user profile
 export const updateUser = async (userId: string, formData: FormData) => {
 	if (!userId) {
 		return { message: "No Logged In User" };
 	}
-	// get user
+	// Get user data
 	const user = await clerkClient().users.getUser(userId);
 
+	// Check if the profile picture is a placeholder
 	const base64String = formData.get("profilePicture");
-    // check if the profile picture is a placeholder
 	const isProfilePicturePlaceholder = base64String.startsWith("https://");
 
-    // get first name and last name from full name
-    const fullname = formData.get("fullname");
-    const names = fullname.split(" ");
-    const firstName = names[0];
-    const lastName = names.slice(1).join(" ");
+	// Get first name and last name from full name
+	const fullname = formData.get("fullname");
+	const names = fullname.split(" ");
+	const firstName = names[0];
+	const lastName = names.slice(1).join(" ");
 
-    // create file from base64 string
+	// Create file from base64 string
 	if (!isProfilePicturePlaceholder) {
 		const cleanBase64String = base64String.replace(
 			/^data:image\/\w+;base64,/,
@@ -39,10 +40,9 @@ export const updateUser = async (userId: string, formData: FormData) => {
 			file,
 		};
         
-        // update user profile image
+        // Update user profile image
         try {
-            // update user profile image
-			const response = await clerkClient().users.updateUserProfileImage(
+            const response = await clerkClient().users.updateUserProfileImage(
                 userId,
 				params
 			);
@@ -53,7 +53,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
     }
 
     try {
-		// update user data
+		// Update user data
 		const response1 = await clerkClient().users.updateUser(userId, {
 			firstName: firstName,
             lastName: lastName,
@@ -71,7 +71,7 @@ export const updateUser = async (userId: string, formData: FormData) => {
 	}
 };
 
-// delete user
+// Function to delete user
 export const deleteUser = async (userId: string) => {
 	try {
 		await clerkClient().users.deleteUser(userId);

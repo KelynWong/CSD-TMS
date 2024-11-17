@@ -8,9 +8,11 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
+// Constants for toast limit and remove delay
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
+// Type for the toaster toast
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
@@ -18,6 +20,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+// Action types for the toaster
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -25,15 +28,19 @@ const actionTypes = {
   REMOVE_TOAST: "REMOVE_TOAST",
 } as const
 
+// Counter for generating unique toast ids
 let count = 0
 
+// Function to generate a unique toast id
 function genId() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER
   return count.toString()
 }
 
+// Type for the action types
 type ActionType = typeof actionTypes
 
+// Action types for the toaster
 type Action =
   | {
       type: ActionType["ADD_TOAST"]
@@ -52,12 +59,15 @@ type Action =
       toastId?: ToasterToast["id"]
     }
 
+// Interface for the toaster state
 interface State {
   toasts: ToasterToast[]
 }
 
+// Map to store toast timeouts
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
+// Function to add a toast to the remove queue
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return
@@ -74,6 +84,7 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout)
 }
 
+// Reducer function for the toaster
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -129,10 +140,13 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
+// Listeners for the toaster state
 const listeners: Array<(state: State) => void> = []
 
+// Initial state for the toaster
 let memoryState: State = { toasts: [] }
 
+// Function to dispatch actions to the toaster
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)
   listeners.forEach((listener) => {
@@ -140,8 +154,10 @@ function dispatch(action: Action) {
   })
 }
 
+// Type for the toast
 type Toast = Omit<ToasterToast, "id">
 
+// Function to create a new toast
 function toast({ ...props }: Toast) {
   const id = genId()
 
@@ -171,6 +187,7 @@ function toast({ ...props }: Toast) {
   }
 }
 
+// Hook to use the toaster
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -191,4 +208,5 @@ function useToast() {
   }
 }
 
+// Exporting the useToast hook and the toast function
 export { useToast, toast }

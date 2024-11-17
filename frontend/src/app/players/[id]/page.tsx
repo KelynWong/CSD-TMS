@@ -1,20 +1,21 @@
-"use client";
-import PlayerHero from "@/components/PlayerHero";
-import { Player } from "@/types/player";
-import { DataTable } from "./_components/DataTable";
-import { columns } from "./_components/DataTableColumns";
-import TournamentHistory from "./_components/TournamentHistory";
-import { formatDate } from "@/utils/dateFormatter";
-import { fetchPlayer, PlayerResponse } from "@/api/users/api";
-import { fetchPlayerStats, fetchPlayerMatches } from "@/api/matches/api";
-import Loading from "@/components/Loading";
-import React, { useState, useEffect } from "react";
+"use client"; // Importing client-side code
+import PlayerHero from "@/components/PlayerHero"; // Importing PlayerHero component
+import { Player } from "@/types/player"; // Importing Player type
+import { DataTable } from "./_components/DataTable"; // Importing DataTable component
+import { columns } from "./_components/DataTableColumns"; // Importing columns for DataTable
+import TournamentHistory from "./_components/TournamentHistory"; // Importing TournamentHistory component
+import { formatDate } from "@/utils/dateFormatter"; // Importing formatDate function
+import { fetchPlayer, PlayerResponse } from "@/api/users/api"; // Importing fetchPlayer and PlayerResponse from users api
+import { fetchPlayerStats, fetchPlayerMatches } from "@/api/matches/api"; // Importing fetchPlayerStats and fetchPlayerMatches from matches api
+import Loading from "@/components/Loading"; // Importing Loading component
+import React, { useState, useEffect } from "react"; // Importing React, useState and useEffect
 import {
 	fetchTournamentByPlayerId,
 	tournamentResponse,
-} from "@/api/tournaments/api";
-import { useNavBarContext } from "@/context/navBarContext";
+} from "@/api/tournaments/api"; // Importing fetchTournamentByPlayerId and tournamentResponse from tournaments api
+import { useNavBarContext } from "@/context/navBarContext"; // Importing useNavBarContext from navBarContext
 
+// Define the PlayerProfile component
 export default function PlayerProfile({ params }: { params: { id: string } }) {
 	// Set navbar context
 	const { setState } = useNavBarContext();
@@ -26,9 +27,11 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 	const [gameHistory, setGameHistory] = useState([]);
 	const [tournamentNames, setTournamentNames] = useState<String[]>([]);
 
+	// Use effect to fetch player data
 	useEffect(() => {
 		const getPlayerData = async () => {
 			try {
+				// Fetch player data, stats, tournaments and matches
 				const [data, stats, tournaments, matches] = await Promise.all([
 					fetchPlayer(params.id),
 					fetchPlayerStats(params.id),
@@ -36,6 +39,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					fetchPlayerMatches(params.id),
 				]);
 				setLoading(false);
+				// Map player data
 				const mappedData: Player = {
 					id: data.id,
 					username: data.username,
@@ -50,6 +54,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					country: data.country,
 				};
 
+				// Map tournament history
 				const tournamentHistory = tournaments.map((tournament) => ({
 					id: tournament.id,
 					tournamentName: tournament.tournamentName,
@@ -61,6 +66,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					winner: tournament.winner,
 				}));
 
+				// Map match history
 				const matchHistory = matches.map((match) => ({
 					match_id: match.id,
 					winner_id: match.winnerId,
@@ -92,6 +98,7 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 					opponentMap.set(opponent.id, opponent.fullname);
 				});
 
+				// Map game history
 				const gameHistory = [];
 
 				for (const match of matchHistory) {
@@ -145,10 +152,12 @@ export default function PlayerProfile({ params }: { params: { id: string } }) {
 		getPlayerData();
 	}, [params.id]);
 
+	// Render loading component if loading
 	if (loading) {
 		return <Loading />;
 	}
 
+	// Render player profile
 	return (
 		<>
 			<div>{player ? <PlayerHero player={player} /> : <Loading />}</div>

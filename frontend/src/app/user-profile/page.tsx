@@ -1,3 +1,4 @@
+// This line enables client-side rendering for this page
 "use client";
 import PlayerHero from "@/components/PlayerHero";
 import { Player } from "@/types/player";
@@ -16,29 +17,32 @@ import {
 } from "@/api/tournaments/api";
 import { useNavBarContext } from "@/context/navBarContext";
 
+// UserProfile component definition
 export default function UserProfile() {
-	// Set navbar context
+	// Set navbar context to 'user-profile'
 	const { setState } = useNavBarContext();
 	setState("user-profile");
 
-	const { user } = useUserContext();
-	const [player, setPlayer] = useState<Player | null>(null);
-	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [gameHistory, setGameHistory] = useState([]);
-	const [tournamentNames, setTournamentNames] = useState<String[]>([]);
+	const { user } = useUserContext(); // Get the current user from user context
+	const [player, setPlayer] = useState<Player | null>(null); // State to manage the player data
+	const [tournaments, setTournaments] = useState<tournamentResponse[]>([]); // State to manage tournament history
+	const [loading, setLoading] = useState(true); // State to manage loading status
+	const [gameHistory, setGameHistory] = useState([]); // State to manage game history
+	const [tournamentNames, setTournamentNames] = useState<String[]>([]); // State to manage unique tournament names
 
 	useEffect(() => {
 		if (user) {
 			const getPlayerData = async () => {
 				try {
+					// Fetch player data, stats, tournaments, and matches in parallel
 					const [data, stats, tournaments, matches] = await Promise.all([
-						fetchPlayer(user.id),
-						fetchPlayerStats(user.id),
-						fetchTournamentByPlayerId(user.id),
-						fetchPlayerMatches(user.id),
+						fetchPlayer(user.id), // Fetch player data
+						fetchPlayerStats(user.id), // Fetch player stats
+						fetchTournamentByPlayerId(user.id), // Fetch tournaments by player ID
+						fetchPlayerMatches(user.id), // Fetch player matches
 					]);
-					setLoading(false);
+					setLoading(false); // Set loading to false after data is fetched
+					// Map the fetched data to the Player type
 					const mappedData: Player = {
 						id: user.id,
 						username: user.username,
@@ -53,6 +57,7 @@ export default function UserProfile() {
 						country: user.publicMetadata.country,
 					};
 
+					// Map the fetched tournaments to the tournamentResponse type
 					const tournamentHistory = tournaments.map((tournament) => ({
 						id: tournament.id,
 						tournamentName: tournament.tournamentName,
@@ -64,7 +69,7 @@ export default function UserProfile() {
 						winner: tournament.winner,
 					}));
 
-					// get the match history
+					// Map the fetched matches to the matchResponse type
 					const matchHistory = matches.map((match) => ({
 						match_id: match.id,
 						winner_id: match.winnerId,
@@ -75,7 +80,7 @@ export default function UserProfile() {
 						roundNum: match.roundNum,
 					}));
 
-					// collect all the opponent id
+					// Collect all the opponent ids
 					const opponentIds = new Set();
 					matchHistory.forEach((match) => {
 						const opponentId =
@@ -90,12 +95,13 @@ export default function UserProfile() {
 							.map((id) => fetchPlayer(id))
 					);
 
-					// create a map of opponent Ids to their names
+					// Create a map of opponent ids to their names
 					const opponentMap = new Map<string, string>();
 					opponentData.forEach((opponent) => {
 						opponentMap.set(opponent.id, opponent.fullname);
 					});
 
+					// Map the fetched games to the gameResponse type
 					const gameHistory = [];
 
 					for (const match of matchHistory) {
@@ -133,6 +139,7 @@ export default function UserProfile() {
                     console.log(tournamentHistory)
 					setPlayer(mappedData);
 
+					// Get unique tournament names
 					const uniqueTournamentNames = Array.from(
 						new Set(
 							tournamentHistory.map((tournament) => tournament.tournamentName)

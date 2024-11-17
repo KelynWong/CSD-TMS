@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; // Import Button component from ui/button
 import {
 	Dialog,
 	DialogContent,
@@ -6,34 +6,35 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"; // Import Dialog components from ui/dialog
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import * as React from "react";
-import { updateUser } from "../_actions";
-import { message } from "antd";
-import { useFetchUsersContext } from "@/context/fetchUsersContext";
-import { CountryCombobox } from "./CountryCombobox";
+} from "@/components/ui/select"; // Import Select components from ui/select
+import { Input } from "@/components/ui/input"; // Import Input component from ui/input
+import { Label } from "@/components/ui/label"; // Import Label component from ui/label
+import * as React from "react"; // Import React
+import { updateUser } from "../_actions"; // Import updateUser action from actions
+import { message } from "antd"; // Import message utility from antd for displaying success or error messages
+import { useFetchUsersContext } from "@/context/fetchUsersContext"; // Import context for fetching users
+import { CountryCombobox } from "./CountryCombobox"; // Import CountryCombobox component
 
-import { Upload } from "lucide-react";
+import { Upload } from "lucide-react"; // Import Upload icon from lucide-react
 
+// Define the UpdateUserModal component
 export function UpdateUserModal({
 	isOpen,
 	onClose,
 	userData,
 }: {
-	isOpen: boolean;
-	onClose: () => void;
-	userData: TData;
+	isOpen: boolean; // Boolean indicating if the modal is open
+	onClose: () => void; // Function to close the modal
+	userData: TData; // Data of the user to be updated
 }) {
-	// function to handle image upload
+	// Function to handle image upload
 	const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
@@ -45,7 +46,7 @@ export function UpdateUserModal({
 		}
 	};
 
-	const { setShouldFetchUsers } = useFetchUsersContext();
+	const { setShouldFetchUsers } = useFetchUsersContext(); // Use context to set flag for fetching users
 
 	// State to store the role of the user
 	const [role, setRole] = React.useState(userData.role);
@@ -73,7 +74,6 @@ export function UpdateUserModal({
 
 	// State to store the profile picture of the user
 	const [profile, setProfile] = React.useState(userData.profilePicture);
-
 
 	// State to store the gender of the user
 	const [gender, setGender] = React.useState(userData.gender);

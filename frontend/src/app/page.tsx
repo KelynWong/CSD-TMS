@@ -1,5 +1,7 @@
+// This is the main page of the application
 "use client";
 
+// Importing necessary libraries and components
 import { useEffect, useState } from "react";
 import "./styles.css";
 import { fetchTournamentsByStatus } from "@/api/tournaments/api";
@@ -23,6 +25,7 @@ import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import Image from "next/image";
 import { Fireworks } from "@fireworks-js/react";
 
+// Interface for Player
 interface Player {
 	id: string;
 	gender: string;
@@ -32,6 +35,7 @@ interface Player {
 	rating: number;
 }
 
+// Function to shuffle an array
 const shuffleArray = (array: Player[]): Player[] => {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -40,11 +44,13 @@ const shuffleArray = (array: Player[]): Player[] => {
 	return array;
 };
 
+// Main function for the Home page
 export default function Home() {
 	// Set navbar
 	const { setState } = useNavBarContext();
 	setState("home");
 
+	// State variables
 	const [ongoingTournaments, setOngoingTournaments] = useState<Tournament[]>([]);
 	const [completedTournament, setCompletedTournament] = useState<Tournament[]>([]);
 	const [playersRank, setPlayersRank] = useState<any[]>([]);
@@ -57,6 +63,7 @@ export default function Home() {
 	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 	const customOrder = [1, 0, 2];
 
+	// Words for the TypewriterEffect
 	const words = [
 		{
 			text: "Welcome",
@@ -70,6 +77,7 @@ export default function Home() {
 		},
 	];
 
+	// Fetching data on page load
 	useEffect(() => {
 		const getCompletedTournamentData = async () => {
 			try {
@@ -167,15 +175,18 @@ export default function Home() {
 		setShowFireworks(true);
 	}, []);
 
+	// Shuffle players when players state changes
 	useEffect(() => {
 		const shuffledPlayers = shuffleArray([...players]);
 		setRandomPlayers(shuffledPlayers.slice(0, 8));
 	}, [players]);
 
+	// Render loading screen while data is being fetched
 	if (loading) {
 		return <Loading />;
 	}
 
+	// Render the main page
 	return (
 		<div>
 			<div style={{ position: "relative", height: "60vh", overflow: "hidden" }}>

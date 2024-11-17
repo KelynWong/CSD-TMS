@@ -15,21 +15,22 @@ import { User } from "@/types/user";
 import { useFetchUsersContext } from "@/context/fetchUsersContext";
 import { useNavBarContext } from "@/context/navBarContext";
 
+// This function is the main component for the admin page.
 export default function AdminPage() {
-	const { user } = useUserContext();
-	const [admin, setAdmin] = useState<Admin | null>(null);
-	const [users, setUsers] = useState<User[]>([]);
-	const [loading, setLoading] = useState(true);
-	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext();
+	const { user } = useUserContext(); // Retrieve the user context.
+	const [admin, setAdmin] = useState<Admin | null>(null); // State to hold admin data.
+	const [users, setUsers] = useState<User[]>([]); // State to hold users data.
+	const [loading, setLoading] = useState(true); // State to manage loading state.
+	const { shouldFetchUsers, setShouldFetchUsers } = useFetchUsersContext(); // Context to manage fetching users.
 
-	// Set navbar context
+	// Set the navbar context to 'admin' to update the navbar state.
 	const { setState } = useNavBarContext();
 	setState("admin");
 
+	// Effect to fetch admin data and users when the user context is available.
 	useEffect(() => {
 		if (user) {
-			// Fetch admin data only when user data is available
-			setLoading(false);
+			setLoading(false); // Set loading to false when user data is available.
 
 			const getAdminData = async () => {
 				try {
@@ -39,37 +40,41 @@ export default function AdminPage() {
 						fullname: user.fullName,
 						profilePicture: user.imageUrl,
 					};
-					setAdmin(mappedData);
+					setAdmin(mappedData); // Set the admin state with mapped user data.
 
-					const users = await fetchUsers();
-					setUsers(users);
+					const users = await fetchUsers(); // Fetch users data.
+					setUsers(users); // Set the users state with fetched data.
 				} catch (err) {
-					console.error("Failed to fetch admin:", err);
+					console.error("Failed to fetch admin:", err); // Log error if fetching admin data fails.
 				}
 			};
 			getAdminData();
 		} else {
-			setLoading(true);
+			setLoading(true); // Set loading to true if user data is not available.
 		}
 	}, [user]);
 
+	// Effect to fetch users when the shouldFetchUsers context is true.
 	useEffect(() => {
 		if (shouldFetchUsers) {
 			const getUsers = async () => {
-				const users = await fetchUsers();
-				setUsers(users);
-				setShouldFetchUsers(false);
+				const users = await fetchUsers(); // Fetch users data.
+				setUsers(users); // Set the users state with fetched data.
+				setShouldFetchUsers(false); // Reset the shouldFetchUsers context.
 			};
 			getUsers();
 		}
 	}, [shouldFetchUsers, setShouldFetchUsers]);
 
+	// Effect to handle users state changes.
 	useEffect(() => {}, [users]);
 
+	// If loading is true, render the Loading component.
 	if (loading) {
 		return <Loading />;
 	}
 
+	// Render the admin hero component if admin data is available, otherwise render Loading.
 	return (
 		<>
 			<div>{admin ? <AdminHero admin={admin} /> : <Loading />}</div>
