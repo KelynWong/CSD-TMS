@@ -10,6 +10,7 @@ export type Player = {
 	total_matches: number;
 	profilePicture: string;
 	country: string;
+	rank: number;
 };
 
 export type PlayerCardProps = {
