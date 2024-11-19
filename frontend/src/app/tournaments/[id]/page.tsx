@@ -2,17 +2,6 @@
 
 import "../../tournaments/styles.css";
 import { useParams } from 'next/navigation';
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet"
-import { CirclePlus } from "lucide-react";
-import SetEditForm from "../_components/SetEditForm";
-import CarouselComponent from "../_components/CarouselComponent";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
@@ -21,348 +10,185 @@ import type { TournamentDetails, Match, Player } from "@/types/tournamentDetails
 import { useUserContext } from "@/context/userContext";
 import { fetchOrganizer, fetchPlayer, fetchUser } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
-import TournamentResultTable from "../_components/TournamentResultTable";
+import ErrorDisplay from "@/components/ErrorDisplay";
+import TournamentInfo from "../_components/TournamentInfo";
+import TournamentFormatAndPlayers from "../_components/TournamentFormatAndPlayers";
+import TournamentResults from "../_components/TournamentResults";
+import TournamentMatches from "../_components/TournamentMatches";
 
 export default function TournamentDetails() {
-    // Set navbar context
+    // set current navigation state
     const { setState } = useNavBarContext();
     setState("tournaments");
+
+    // Parameters and states
     const { id } = useParams();
-    const { user } = useUserContext();
-    const [role, setRole] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
+    const { user } = useUserContext(); // get user context for authentication and role
+    const [role, setRole] = useState<string | null>(null); // user role (e.g., ADMIN)
+    const [loading, setLoading] = useState(false); // loading indicator for fetching data
+    const [error, setError] = useState<string | null>(null); // err msg if data fetch fails
     const [tournamentDetails, setTournamentDetails] = useState<TournamentDetails | null>(null);
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
+    // Fetch user role
     useEffect(() => {
         if (user) {
-            const getPlayerData = async () => {
-                try {
-                    const data = await fetchUser(user.id);
-                    setLoading(false);
-                    setRole(data.role);
-                } catch (err) {
-                    console.error("Failed to fetch user:", err);
-                }
-            };
-            getPlayerData();
+            fetchUserRole(user.id);
         }
     }, [user]);
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            // Fetch tournament details
-            const tournamentData = await fetchTournamentById(Number(id));
-            const organiserData = await fetchOrganizer(tournamentData.createdBy);
-
-            let tournamentDetails = {
-                id: tournamentData.id,
-                tournamentName: tournamentData.tournamentName,
-                startDT: new Date(new Date(tournamentData.startDT).getTime() + sgTimeZoneOffset).toISOString(),
-                endDT: new Date(new Date(tournamentData.endDT).getTime() + sgTimeZoneOffset).toISOString(),
-                regStartDT: new Date(new Date(tournamentData.regStartDT).getTime() + sgTimeZoneOffset).toISOString(),
-                regEndDT: new Date(new Date(tournamentData.regEndDT).getTime() + sgTimeZoneOffset).toISOString(),
-                status: tournamentData.status,
-                organizer: organiserData,
-                winner: tournamentData.winner,
-                players: [] as Player[], // Initialize players as empty
-                matches: [] as Match[], // Initialize matches with explicit type
-            };
-
-            const isTournamentActive = tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed";
-            
-            if (isTournamentActive) {
-                const playersData = await fetchAllPlayersByTournament(Number(id));
-                const fullPlayersData = await Promise.all(
-                    playersData.map(async (player) => {
-                        const playerData = await fetchPlayer(player.id);
-                        return {
-                            id: player.id,
-                            username: playerData.username,
-                            fullname: playerData.fullname,
-                            gender: playerData.gender,
-                            rating: playerData.rating,
-                            country: playerData.country,
-                            profilePicture: playerData.profilePicture,
-                            email: playerData.email,
-                            role: playerData.role,
-                        };
-                    })
-                );
-
-                const matchesData = await fetchMatchByTournamentId(Number(id));
-                const enrichedMatches = await Promise.all(
-                    matchesData.map(async (match) => {
-                        const player1 = fullPlayersData.find(player => player.id === match.player1Id) as Player || null;
-                        const player2 = fullPlayersData.find(player => player.id === match.player2Id) as Player || null;
-                        const winner = fullPlayersData.find(player => player.id === match.winnerId) as Player || null;
-                        return {
-                            id: match.id,
-                            tournamentId: match.tournamentId,
-                            player1,
-                            player2,
-                            winner,
-                            left: match.left,
-                            right: match.right,
-                            games: match.games,
-                            roundNum: match.roundNum,
-                        };
-                    })
-                );
-
-                // Add matchmaking and match details without resetting dates unnecessarily
-                tournamentDetails = {
-                    ...tournamentDetails,
-                    players: fullPlayersData,
-                    matches: enrichedMatches, // Add matches with sets
-                };
-            }
-
-            setTournamentDetails(tournamentDetails);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-        setLoading(false);
-    };
-
-    // Fetching data
+    // Fetch tournament data
     useEffect(() => {
-        fetchData();
+        fetchTournamentData();
     }, [id]);
 
-    if (loading) {
-        return <Loading />;
-    }
+    // Fetch the user's role based on their ID
+    const fetchUserRole = async (userId: string) => {
+		setLoading(true);
+        try {
+            const data = await fetchUser(userId);
+            setRole(data.role); // set user's role (e.g., PLAYER, ADMIN)
+        } catch (err) {
+            setError("Failed to fetch user data."); // set error message
+        } finally {
+            setLoading(false); // Hide loading indicator
+        }
+    };
 
+    /**
+     * Fetch tournament details, players, and matches based on the tournament ID
+     */
+    const fetchTournamentData = async () => {
+        setLoading(true);
+        try {
+            const tournamentData = await fetchTournamentById(Number(id));
+            const organizerData = await fetchOrganizer(tournamentData.createdBy);
+
+            // Initialize basic tournament details
+            const tournamentInfo: TournamentDetails = {
+                ...tournamentData,
+                startDT: adjustToSGTime(tournamentData.startDT),
+                endDT: adjustToSGTime(tournamentData.endDT),
+                regStartDT: adjustToSGTime(tournamentData.regStartDT),
+                regEndDT: adjustToSGTime(tournamentData.regEndDT),
+                organizer: organizerData,
+                players: [], // Initialize players as empty
+                matches: [], // Initialize matches with explicit type
+            };
+
+            // Check if matches and players need to be fetched
+            if (["Matchmake", "Ongoing", "Completed"].includes(tournamentData.status)) {
+                tournamentInfo.players = await fetchPlayers(Number(id));
+                tournamentInfo.matches = await fetchMatches(Number(id), tournamentInfo.players);
+            }
+
+            setTournamentDetails(tournamentInfo);
+        } catch (error) {
+            console.error("Error fetching tournament data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Fetch players participating in the tournament
+     */
+    const fetchPlayers = async (tournamentId: number): Promise<Player[]> => {
+        const players = await fetchAllPlayersByTournament(tournamentId);
+        return Promise.all(
+            players.map(async (player) => {
+                const playerData = await fetchPlayer(player.id);
+                return {
+                    ...player,
+                    ...playerData,
+                };
+            })
+        );
+    };
+
+    /**
+     * Fetch matches and enrich with player data
+     */
+    const fetchMatches = async (tournamentId: number, players: Player[]): Promise<Match[]> => {
+        const matches = await fetchMatchByTournamentId(tournamentId);
+        return matches.map((match) => ({
+            ...match,
+            player1: players.find((player) => player.id === match.player1Id) || null,
+            player2: players.find((player) => player.id === match.player2Id) || null,
+            winner: players.find((player) => player.id === match.winnerId) || null,
+        }));
+    };
+
+    /**
+     * Convert UTC date to Singapore timezone
+     */
+    const adjustToSGTime = (date: string): string =>
+        new Date(new Date(date).getTime() + sgTimeZoneOffset).toISOString();
+
+    /**
+     * Format date and time for display
+     */
+    const formatDateTime = (date: string | undefined): { date: string; time: string } => {
+        if (!date) return { date: "TBC", time: "TBC" };
+        const dateObj = new Date(date);
+        return {
+            date: new Intl.DateTimeFormat("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            }).format(dateObj),
+            time: new Intl.DateTimeFormat("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+            }).format(dateObj),
+        };
+    };
+
+    // Calculate total number of matches
     const totalMatches = tournamentDetails?.matches.length ?? null;
 
-    const formattedStartDT = tournamentDetails?.startDT ? new Date(tournamentDetails.startDT) : new Date();
-    const startDate = new Intl.DateTimeFormat('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(formattedStartDT);
-    const formattedStartDate = startDate.replace(/(\w+) (\d+)/, '$1, $2'); // "Thursday, 10 October 2024"
-    const startTime = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(formattedStartDT); // "12:30 PM"
+    // Display error message if something goes wrong
+    if (error) {
+        return <ErrorDisplay message={error} />;
+    }
 
-    const formattedEndDT = tournamentDetails?.endDT ? new Date(tournamentDetails.endDT) : new Date();
-    const endDate = new Intl.DateTimeFormat('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(formattedEndDT);
-    const formattedEndDate = endDate.replace(/(\w+) (\d+)/, '$1, $2');
-    const endTime = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(formattedEndDT);
-
-    const formattedRegStartDT = tournamentDetails?.regStartDT ? new Date(tournamentDetails.regStartDT) : new Date();
-    const regStartDate = new Intl.DateTimeFormat('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(formattedRegStartDT);
-    const formattedRegStartDate = regStartDate.replace(/(\w+) (\d+)/, '$1, $2');
-    const regStartTime = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(formattedRegStartDT);
-
-    const formattedRegEndDT = tournamentDetails?.regEndDT ? new Date(tournamentDetails.regEndDT) : new Date();
-    const regEndDate = new Intl.DateTimeFormat('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    }).format(formattedRegEndDT);
-    const formattedRegEndDate = regEndDate.replace(/(\w+) (\d+)/, '$1, $2');
-    const regEndTime = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    }).format(formattedRegEndDT);
+    // Show loading indicator while data is being fetched
+    if (loading) return <Loading />;
 
     return (
         tournamentDetails ? (
             <div className="w-full">
+                {/* Tournament Header */}
                 <div className="w-full h-96 cardImg bg-center relative">
                     <div className="h-full overlay"></div>
                     <h1 className="w-[80%] text-4xl absolute top-2/4 left-2/4 text-white font-body font-bold text-center" style={{ transform: "translate(-50%, -50%)" }}>{tournamentDetails.tournamentName}</h1>
                 </div>
 
                 <div className="w-[80%] mx-auto py-16">
-                    <div className="w-full border border-slate-200 bg-white rounded-t-lg font-body">
-                        <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">Tournament Information</h2>
-                        <div className="text-slate-600">
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Organizer:</span>
-                                <span className="w-4/12">{tournamentDetails.organizer}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Registration:</span>
-                                <span className="w-4/12">Start: {formattedRegStartDate}, {regStartTime}<br />End: {formattedRegEndDate}, {regEndTime}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Tournament:</span>
-                                <span className="w-4/12">Start: {formattedStartDate}, {startTime}<br />End: {formattedEndDate}, {endTime}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">Status: </span>
-                                <span className="w-4/12">{tournamentDetails.status}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-slate-200 px-6 py-3 font-semibold">
-                                <span className="w-8/12">No. of Match: </span>
-                                <span className="w-4/12">{totalMatches === 0 ? 'TBC' : totalMatches}</span>
-                            </div>
-                            <div className="flex justify-between px-6 py-3 font-semibold">
-                                <span className="w-8/12">Format:</span>
-                                <span className="w-4/12">Automatic Matching</span>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Tournament Information */}
+                    <TournamentInfo
+                        tournamentDetails={tournamentDetails}
+                        totalMatches={totalMatches ?? 0}
+                        formatDateTime={formatDateTime}
+                    />
 
-                    <div className="w-full formatPlayer my-5 flex gap-4">
-                        <div className={`${(tournamentDetails.status === "Matchmake"  || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? 'w-3/5' : 'w-full'} border border-slate-200 bg-white rounded-lg font-body`}>
-                            <h2 className="text-lg border-b border-slate-200 bg-slate-100 rounded-t-lg font-body font-bold px-6 py-3 uppercase">formats</h2>
-                            <div className="p-6 pt-4 pb-16 text-slate-600">
-                                <p className="mb-2">Participants</p>
-                                <ul className="ml-3 list-disc list-inside">
-                                    <li>There is no limit on how many players/teams participate in the tournament</li>
-                                    <li>Players/teams are paired randomly for the first round, regardless of ranking or past performance.</li>
-                                </ul>
+                    {/* Format and Players */}
+                    <TournamentFormatAndPlayers
+                        tournamentDetails={tournamentDetails}
+                    />
 
-                                <p className="my-2">Format</p>
-                                <ul className="ml-3 list-disc list-inside">
-                                    <li>Single elimination format</li>
-                                    <li>All matches are best of 3 games (Bo3)</li>
-                                    <li>Each game is played to 21 points (with a 2-point advantage required)</li>
-                                    <li>In case of a tie at 20-20, the game continues until one player/team leads by 2 points</li>
-                                </ul>
+                    {/* Results */}
+                    <TournamentResults
+                        tournamentDetails={tournamentDetails}
+                    />
 
-                                <p className="my-2">Qualification to Next Events</p>
-                                <ul className="ml-3 list-disc list-inside">
-                                    <li>First-round matchups are either random or determined based on entry order, with no predefined seeding.</li>
-                                    <li>Subsequent rounds continue in a single-elimination format, with the winners advancing to the next stage.</li>
-                                    <li>The winner qualifies directly for the next round or a higher-level tournament.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {(tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
-                            <div className="w-2/5 rounded-lg font-body bg-slate-100 relative">
-                                <h2 className="text-lg rounded-t-lg font-body font-bold px-6 p-4 uppercase">Players</h2>
-                                <CarouselComponent tournament={{ ...tournamentDetails, players: tournamentDetails.players ?? [] }} />
-                            </div>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-
-                    {(tournamentDetails.status === "Matchmake" || tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed") ? (
-                        tournamentDetails.matches.length > 0 ? (
-                            <div className="w-full my-5 results">
-                                <h2 className="text-lg rounded-t-lg font-body font-bold pb-2 uppercase">Results</h2>
-
-                                <TournamentResultTable matchResult={tournamentDetails.matches} />
-                            </div>
-                        ) : (
-                            <>
-                            </>
-                        )
-                    ) : (
-                        <></>
-                    )}
-
-                    {tournamentDetails.status === "Ongoing" || tournamentDetails.status === "Completed" ? (
-                        tournamentDetails.matches.length > 0 ? (
-                            <div className="w-full my-5 matches">
-                                <h2 className="text-lg rounded-lg font-body font-bold pb-2 uppercase">Matches</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {tournamentDetails?.matches?.map((match, matchIndex: number) => (
-                                        (match.player1 !== null && match.player2 !== null) && (
-                                            <div key={match.id} className="w-full border border-slate-200 bg-white rounded-lg font-body">
-                                                <div className="border-b border-slate-200 bg-slate-100 rounded-t-lg flex justify-between items-center px-6 py-3">
-                                                    <h2 className="text-base font-body font-bold uppercase">{`Match ${matchIndex + 1} - ${match.player1.fullname} vs ${match.player2.fullname}`}</h2>
-
-                                                    {match.games.length === 0 && role === "ADMIN" && (
-                                                        <Sheet>
-                                                            <SheetTrigger asChild>
-                                                                <CirclePlus stroke="#ec4344" strokeWidth="3" size={21} />
-                                                            </SheetTrigger>
-
-                                                            <SheetContent className="bg-white">
-                                                                <SheetHeader className="mb-6">
-                                                                    <SheetTitle>Add Game Results for this Match</SheetTitle>
-                                                                    <SheetDescription>
-                                                                        <p className="text-red-500 font-bold">⚠️ Please ensure that the match is completed before submitting this form! ⚠️</p>
-                                                                        <p>Enter the scores for each player in each game.</p>
-                                                                    </SheetDescription>
-                                                                </SheetHeader>
-
-                                                                <SetEditForm
-                                                                    matchId={match.id}
-                                                                    // game={game}
-                                                                    player1Name={match.player1.fullname}
-                                                                    player2Name={match.player2.fullname}
-                                                                />
-
-                                                            </SheetContent>
-                                                        </Sheet>
-                                                    )}
-                                                </div>
-                                                <div className="text-slate-600">
-                                                    {match.games
-                                                        .sort((a, b) => a.setNum - b.setNum) // Sort games by setNum
-                                                        .map((game) =>
-                                                            <>
-                                                                <div key={game.id} className="border-b border-slate-200 px-6 py-2 flex justify-between">
-                                                                    <p className="text-slate-500">{`Set ${game.setNum}`}</p>
-                                                                </div>
-                                                                <div className="flex justify-center border-b border-slate-200">
-                                                                    <div
-                                                                        className={`w-2/5 flex items-center justify-end gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score > game.player2Score ? 'bg-green-100' : ''
-                                                                            }`}
-                                                                    >
-                                                                        <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                        <p>{match.player1.fullname} </p>
-                                                                    </div>
-                                                                    <div className="w-1/5 flex items-center justify-center gap-2 px-4 py-5 font-bold">
-                                                                        <p>{game.player1Score !== null ? game.player1Score : '?'} - {game.player2Score !== null ? game.player2Score : '?'}</p>
-                                                                    </div>
-                                                                    <div
-                                                                        className={`w-2/5 flex items-center justify-start gap-2 px-4 py-5 text-black font-bold ${(game.player1Score !== null && game.player2Score !== null) && game.player1Score < game.player2Score ? 'bg-green-100' : ''
-                                                                            }`}
-                                                                    >
-                                                                        <img src="/images/default_profile.png" className="rounded-full w-6 h-6" alt="Player Profile" />
-                                                                        <p>{match.player2.fullname} </p>
-                                                                    </div>
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                </div>
-                                            </div>
-                                        )
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                            </>
-                        )
-                    ) : (
-                        <></>
-                    )}
+                    {/* Matches */}
+                    <TournamentMatches
+                        tournamentDetails={tournamentDetails}
+                        role={role ?? ""}
+                    />
                 </div>
             </div>
         ) : (
