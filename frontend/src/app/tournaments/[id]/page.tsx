@@ -55,9 +55,7 @@ export default function TournamentDetails() {
         }
     };
 
-    /**
-     * Fetch tournament details, players, and matches based on the tournament ID
-     */
+    // Fetch tournament details, players, and matches based on the tournament ID
     const fetchTournamentData = async () => {
         setLoading(true);
         try {
@@ -90,9 +88,7 @@ export default function TournamentDetails() {
         }
     };
 
-    /**
-     * Fetch players participating in the tournament
-     */
+    // Fetch players participating in the tournament
     const fetchPlayers = async (tournamentId: number): Promise<Player[]> => {
         const players = await fetchAllPlayersByTournament(tournamentId);
         return Promise.all(
@@ -106,9 +102,7 @@ export default function TournamentDetails() {
         );
     };
 
-    /**
-     * Fetch matches and enrich with player data
-     */
+    // Fetch matches and enrich with player data
     const fetchMatches = async (tournamentId: number, players: Player[]): Promise<Match[]> => {
         const matches = await fetchMatchByTournamentId(tournamentId);
         return matches.map((match) => ({
@@ -119,15 +113,11 @@ export default function TournamentDetails() {
         }));
     };
 
-    /**
-     * Convert UTC date to Singapore timezone
-     */
+    // Convert UTC date to Singapore timezone
     const adjustToSGTime = (date: string): string =>
         new Date(new Date(date).getTime() + sgTimeZoneOffset).toISOString();
 
-    /**
-     * Format date and time for display
-     */
+    // Format date and time for display
     const formatDateTime = (date: string | undefined): { date: string; time: string } => {
         if (!date) return { date: "TBC", time: "TBC" };
         const dateObj = new Date(date);
