@@ -218,13 +218,13 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
 	}
 
     return (
-        <Card>
+        <Card className="flex flex-col justify-between h-full">
             <CardHeader className="p-0 h-36 overflow-hidden justify-end rounded-t-lg cardImg">
                 <div className="bg-gradient-to-t from-black to-transparent">
                     <CardTitle className="p-4 text-lg text-white leading-6 text-pretty">{tournamentName}</CardTitle>
                 </div>
             </CardHeader>
-            <CardContent className="p-6 py-3">
+            <CardContent className="p-6 py-3 grow">
                 <div className="my-1 flex items-start">
                     <p className="mr-1.5">⛳️</p>
                     <p>{formattedStartDate}, {startTime}</p>
@@ -243,7 +243,7 @@ export default function TournamentCard({ id, tournamentName, startDT, endDT, sta
                     <p className={`my-1 italic ${status === 'Registration Close' ? 'text-red-600' : status === 'Registration Start' ? 'text-green-600' : status === 'Matchmake' ? 'text-green-600' : 'text-black-600'}`}>{status === 'Matchmake' ? 'Matchmake Successful': status}</p>
                 )}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="mt-auto">
                 {role === "PLAYER" && status === 'Registration Start'? (
                     <div className={`grid grid-cols-1 w-full ${isRegistered === null ? '' : 'sm:grid-cols-2 gap-2'}`}>
                         <Link href={`/tournaments/${id}`}><Button style={{ backgroundColor: '#01205E' }} className="w-full hover:opacity-80">View</Button></Link>
