@@ -215,7 +215,6 @@ export default function Tournaments() {
                             currentPage={currentPage[tab]}
                             onPageChange={(page) => handlePageChange(tab, page)}
                             role={role}
-                            tab={tab}
                         />
 					</TabsContent>
 				))}

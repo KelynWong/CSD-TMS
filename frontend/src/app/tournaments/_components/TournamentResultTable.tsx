@@ -4,19 +4,28 @@ import { useMemo } from "react";
 import TPlayer from "./TPlayer";
 
 interface TournamentResultTableProps {
-    matchResult: Match[];
+    matchResult: Match[]; // Array of matches in the tournament
 }
 
+/**
+ * TournamentResultTable Component
+ * 
+ * Displays the results of the tournament in a table format.
+ * - Shows players in the first round.
+ * - Shows winners for each subsequent round, leading to the final winner.
+ * - Includes scores for matches where available.
+ */
 export default function TournamentResultTable({ matchResult }: TournamentResultTableProps) {
-    const players: any[] = [];
-    const winners: any[] = [];
-    const scores: { [roundNum: number]: { winnerName: string, score: string }[] } = {};
+    const players: any[] = []; // Array to hold all players
+    const winners: any[] = []; // Array to hold winners for each round
+    const scores: { [roundNum: number]: { winnerName: string, score: string }[] } = {}; // Object to store scores by round
 
-    // Extract distinct roundNum values and sort them in descending order
+    // Extract distinct round numbers and sort them in descending order
     const roundNums = matchResult.map(item => item.roundNum);
     const distinctRoundNums = Array.from(new Set(roundNums)).sort((a, b) => b - a);
 
     // Gather players in each round by filtering based on roundNum
+    // Adds "Bye." for matches with only one player.
     const getPlayersInRound = (round: number): void => {
         matchResult
             .filter((match) => match.roundNum === round)
@@ -29,6 +38,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     };
 
     // Gather winners and scores in BFS order based on roundNum levels
+    // Adds scores for matches where results are available.
     const gatherWinnersBFS = (): void => {    
         matchResult.forEach((match) => {
             if (match.winner !== null) {
@@ -50,9 +60,10 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
     };
 
     // Populate players and winners
-    getPlayersInRound(distinctRoundNums[0]);
-    gatherWinnersBFS();
+    getPlayersInRound(distinctRoundNums[0]); // Players for the first round
+    gatherWinnersBFS(); // Winners for subsequent rounds
 
+    // Create column headers dynamically based on distinct round numbers
     const columnHeaders = useMemo(() => {
         const headers = [];
         for (let i = 0; i < distinctRoundNums.length; i++) {
@@ -64,6 +75,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
 
     return (
         <Table className="font-body text-base">
+            {/* Table Header */}
             <TableHeader>
                 <TableRow className="bg-amber-400 hover:bg-amber-400">
                     <TableHead className="text-black font-bold text-center px-5 w-3">No.</TableHead>
@@ -75,10 +87,14 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                 </TableRow>
             </TableHeader>
 
+            {/* Table Body */}
             <TableBody>
                 {players.map((player, index) => (
                     <TableRow key={index} className="hover:bg-transparent h-10">
+                        {/* Player Row Number */}
                         <TableCell className="text-center w-3">{index + 1}</TableCell>
+                        
+                        {/* Player Details */}
                         <TableCell className={`w-1/${columnHeaders.length}`}>
                             <div className="flex items-center gap-2">
                                 {player == "Bye." ? (
@@ -87,6 +103,7 @@ export default function TournamentResultTable({ matchResult }: TournamentResultT
                                     <TPlayer player={player} />
                                 )}
                             </div>
+                            {/* Display score if available for the player */}
                             {scores[distinctRoundNums[0]] && scores[distinctRoundNums[0]].some(scoreObj => scoreObj.winnerName === player.fullname) && (
                                 <p className="text-sm font-bold mt-1" style={{ color: "#00215f" }}>
                                     {scores[distinctRoundNums[0]].find(scoreObj => scoreObj.winnerName === player.fullname)?.score}
