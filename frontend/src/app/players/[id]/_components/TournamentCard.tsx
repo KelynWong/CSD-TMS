@@ -55,16 +55,16 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
 	return (
 		<Card onClick={handleCardClick} className="cursor-pointer">
 			<CardHeader>
-				<CardTitle>{tournamentName}</CardTitle> // Displaying tournament name
+				<CardTitle>{tournamentName}</CardTitle> {/* Displaying tournament name */}
 				<CardDescription>
-					{startDT} - {endDT} // Displaying tournament dates
+					{startDT} - {endDT} {/* Displaying tournament dates */}
 				</CardDescription>
-				<CardDescription className={statusClass}>{status}</CardDescription> //
-				Displaying tournament status with dynamic class
+				<CardDescription className={statusClass}>{status}</CardDescription> 
+				{/* Displaying tournament status with dynamic class */}
 				{winnerName && (
 					<CardDescription>Winner: {winnerName}</CardDescription>
 				)}{" "}
-				// Displaying winner's name if available
+				{/* Displaying winner's name if available */}
 			</CardHeader>
 		</Card>
 	);

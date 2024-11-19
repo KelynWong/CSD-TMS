@@ -46,7 +46,7 @@ export default function Paginator({
 						onClick={() => handlePageClick(i)} // Handle click on page number
 						isActive={i === currentPage} // Highlight the current page
 					>
-						{i} // Display the page number
+						{i} {/* Display the page number */}
 					</PaginationLink>
 				</PaginationItem>
 			);
@@ -60,11 +60,11 @@ export default function Paginator({
 		<Pagination>
 			<PaginationContent>
 				<PaginationItem>
-					<PaginationPrevious onClick={handlePrevious} /> // Previous page button
+					<PaginationPrevious onClick={handlePrevious} /> {/* Previous page button */}
 				</PaginationItem>
-				{renderPageNumbers()} // Render page numbers
+				{renderPageNumbers()} {/* Render page numbers */}
 				<PaginationItem>
-					<PaginationNext onClick={handleNext} /> // Next page button
+					<PaginationNext onClick={handleNext} /> {/* Next page button */}
 				</PaginationItem>
 			</PaginationContent>
 		</Pagination>

@@ -45,7 +45,7 @@ export default function TournamentHistory({
 
 	return (
 		<>
-			<p className="text-4xl font-bold pb-3">Tournament History</p> // Display tournament history title
+			<p className="text-4xl font-bold pb-3">Tournament History</p> {/* Display tournament history title */}
 			{tournaments.length === 0 ? (
 				<p className="text-xl">No tournaments available.</p> // Display message if no tournaments are available
 			) : (
@@ -56,14 +56,14 @@ export default function TournamentHistory({
 								key={index}
 								tournament={tournament}
 							/>
-						))} // Map and display current tournaments
+						))} {/* Map and display current tournaments */}
 					</div>
 					<div className="flex justify-center mt-5">
 						<Paginator
 							totalPages={totalPages}
 							currentPage={currentPage}
 							onPageChange={handlePageChange}
-						/> // Display paginator for navigation
+						/> {/* Display paginator for navigation */}
 					</div>
 				</>
 			)}

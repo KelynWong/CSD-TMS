@@ -30,7 +30,7 @@ export default function PlayersCarousel({
 	return (
 		<div className="relative w-full max-w-7xl mx-auto">
 			{" "}
-			// Container for the carousel
+			{/* Container for the carousel */}
 			<Carousel
 				className="w-full max-w-7xl mx-auto" // Carousel container
 				plugins={[plugin.current]} // Adding the autoplay plugin to the carousel
@@ -40,30 +40,30 @@ export default function PlayersCarousel({
 					align: "start", // Aligning the carousel to start
 					loop: true, // Enabling carousel loop
 				}}>
+				{/* Carousel content container */}
 				<CarouselContent className="md:-ml-4 sm:-ml-2">
 					{" "}
-					// Carousel content container
+					{/* Carousel item container */}
 					{players.map((player, index) => (
 						<CarouselItem
 							key={player.id} // Using player id as key
 							className="pl-2 md:pl-4 basis-full md:basis-1/3 lg:basis-1/5">
 							{" "}
-							// Carousel item container
+							{/* Padding for the carousel item */}
 							<div className="p-1">
 								{" "}
-								// Padding for the carousel item
+								{/* Link to player details page */}
 								<Link href={`/players/${player.id}`} prefetch={true}>
 									{" "}
-									// Link to player details page
+									{/* Player card container */}
 									<Card className="w-full max-w-[300px] sm:max-w-[350px] md:max-w-[400px] mx-auto py-5">
 										{" "}
-										// Player card container
+										{/* Card content container */}
 										<CardContent className="flex aspect-square items-center justify-center p-4 sm:p-6">
 											{" "}
-											// Card content container
+											{/* Content container */}
 											<div className="w-full h-full flex flex-col items-center justify-center">
 												{" "}
-												// Content container
 												<Image
 													src={
 														player.profilePicture ||
@@ -75,10 +75,10 @@ export default function PlayersCarousel({
 													className="w-full h-full object-cover" // Image styling
 												/>
 												<p className="text-2xl font-semibold text-center ">
-													Rank {index + 1} // Displaying player rank
+													Rank {index + 1} {/* Displaying player rank */}
 												</p>
 												<p className="text-lg font-semibold text-center">
-													{player.fullname} // Displaying player full name
+													{player.fullname} {/* Displaying player full name */}
 												</p>
 											</div>
 										</CardContent>
@@ -88,8 +88,8 @@ export default function PlayersCarousel({
 						</CarouselItem>
 					))}
 				</CarouselContent>
-				<CarouselPrevious /> // Carousel previous button
-				<CarouselNext /> // Carousel next button
+				<CarouselPrevious /> {/* Carousel previous button */}
+				<CarouselNext /> {/* Carousel next button */}
 			</Carousel>
 		</div>
 	);

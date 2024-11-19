@@ -25,7 +25,7 @@ export const PlayerCard = ({ player }: { player: PlayerCardProps }) => {
 							className="w-full h-full object-cover rounded-full" // Style the image to cover the container and be rounded
 						/>
 						<p className="text-2xl font-semibold text-center ">
-							{player.fullname} // Display the player's full name
+							{player.fullname} {/* Display the player's full name */}
 						</p>
 					</div>
 				</CardContent>
