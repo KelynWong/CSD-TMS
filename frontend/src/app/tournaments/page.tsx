@@ -1,31 +1,35 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { PartyPopper, BicepsFlexed, Medal, CirclePlus } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent} from "@/components/ui/tabs";
 import "./styles.css";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import TournamentCard from "./_components/TournamentCard";
-import Pagination from "./_components/Pagination";
 import { fetchTournaments } from "@/api/tournaments/api";
 import { Tournament } from "@/types/tournament";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { fetchUser } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
+import ErrorDisplay from "@/components/ErrorDisplay";
+import { Category } from "@/types/category";
+import { Count } from "@/types/categoryCount";
+import StatsSection from "./_components/StatsSection";
+import TabList from "./_components/TabList";
+import TournamentList from "./_components/TournamentList";
+import TitleRow from "./_components/TitleRow";
 
 export default function Tournaments() {
+	// get user context for authentication and role
 	const { user } = useUserContext();
-	const [role, setRole] = useState<string | null>(null);
-	const [activeTab, setActiveTab] = useState("all");
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+
+	// set current navigation state
 	const { setState } = useNavBarContext();
 	setState("tournaments");
 
+	// states to manage app
+	const [role, setRole] = useState<string | null>(null); // user role (e.g., ADMIN)
+	const [activeTab, setActiveTab] = useState("all"); // current active tab (all, completed, ongoing, upcoming)
+	const [loading, setLoading] = useState(true); // loading indicator for fetching data
+	const [error, setError] = useState<string | null>(null); // err msg if data fetch fails
 	const [categorizedTournaments, setCategorizedTournaments] = useState<{
 		all: Tournament[];
 		completed: Tournament[];
@@ -38,9 +42,7 @@ export default function Tournaments() {
 		upcoming: [],
 	});
 
-	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
-
-	// Pagination states for each tab
+	// pagination states for each tab
 	const [currentPage, setCurrentPage] = useState({
 		all: 1,
 		completed: 1,
@@ -48,286 +50,179 @@ export default function Tournaments() {
 		upcoming: 1,
 	});
 
+	// number of items displayed per page
 	const itemsPerPage = 12;
 
-	useEffect(() => {
-		if (user) {
-			const getPlayerData = async () => {
-				try {
-					const data = await fetchUser(user.id);
-					setRole(data.role);
-				} catch (err) {
-					console.error("Failed to fetch user:", err);
-					setError("Failed to fetch user data.");
-				} finally {
-					setLoading(false);
-				}
-			};
-			getPlayerData();
-		}
-	}, [user]);
+	// offset to convert UTC to Singapore timezone
+	const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
-	useEffect(() => {
-		const getTournamentsData = async () => {
-			try {
-				const data = await fetchTournaments();
-				const reverseData = data.reverse();
-				const mappedData: Tournament[] = reverseData.map((tournament: any) => ({
-					id: tournament.id,
-					tournamentName: tournament.tournamentName,
-					startDT: new Date(
-						new Date(tournament.startDT).getTime() + sgTimeZoneOffset
-					).toISOString(),
-					endDT: new Date(
-						new Date(tournament.endDT).getTime() + sgTimeZoneOffset
-					).toISOString(),
-					status: tournament.status,
-					regStartDT: new Date(
-						new Date(tournament.regStartDT).getTime() + sgTimeZoneOffset
-					).toISOString(),
-					regEndDT: new Date(
-						new Date(tournament.regEndDT).getTime() + sgTimeZoneOffset
-					).toISOString(),
-					createdBy: tournament.createdBy,
-					winner: tournament.winner,
-				}));
-				categorizeTournaments(mappedData);
-			} catch (err) {
-				console.error("Failed to fetch tournaments:", err);
-				setError("Failed to fetch tournaments.");
-			} finally {
-				setLoading(false);
-			}
-		};
-		getTournamentsData();
-	}, []);
+	// set current view in the nav bar
+    useEffect(() => {
+        setState("tournaments");
+    }, [setState]);
 
-	const categorizeTournaments = (data: Tournament[]) => {
-		const completed = data.filter(
-			(tournament) => tournament.status === "Completed"
-		);
-		const ongoing = data.filter(
-			(tournament) => tournament.status === "Ongoing"
-		);
-		const upcoming = data.filter((tournament) =>
-			[
-				"Scheduled",
-				"Registration Start",
-				"Registration Close",
-				"Matchmake",
-			].includes(tournament.status)
-		);
-		const all = data;
+    // fetch user role
+    useEffect(() => {
+        if (user) {
+            fetchUserRole(user.id);
+        }
+    }, [user]);
 
-		setCategorizedTournaments({
-			all,
-			completed,
-			ongoing,
-			upcoming,
-		});
-	};
+    // fetch all tournament data
+    useEffect(() => {
+        fetchTournamentsData();
+    }, []);
 
-	const tournamentCount = {
+	/**
+     * fetch user's role based on ID
+     */
+    const fetchUserRole = async (userId: string) => {
+		setLoading(true);
+        try {
+            const data = await fetchUser(userId);
+            setRole(data.role); // set user's role (e.g., PLAYER, ADMIN)
+        } catch (err) {
+            setError("Failed to fetch user data."); // set error message
+        } finally {
+            setLoading(false); // Hide loading indicator
+        }
+    };
+
+	/**
+     * fetch all tournament data from server, adjust timestamps, and categorize it by status.
+     */
+    const fetchTournamentsData = async () => {
+		setLoading(true);
+        try {
+            const data = await fetchTournaments();
+            const adjustedData = adjustTimestamps(data); // convert timestamps to Singapore timezone
+            categorizeTournaments(adjustedData); // categorize tournaments into statuses
+        } catch (err) {
+            setError("Failed to fetch tournaments."); // set error message
+        } finally {
+            setLoading(false); // Hide loading indicator
+        }
+    };
+
+	/**
+     * adjust all timestamps in the data to Singapore timezone
+     * @param data Array of tournament objects
+     */
+    const adjustTimestamps = (data: any[]): Tournament[] =>
+        data.reverse().map((tournament) => ({
+            ...tournament,
+            startDT: adjustToSGTime(tournament.startDT),
+            endDT: adjustToSGTime(tournament.endDT),
+            regStartDT: adjustToSGTime(tournament.regStartDT),
+            regEndDT: adjustToSGTime(tournament.regEndDT),
+        }));
+
+    /**
+     * Convert a UTC date string to Singapore timezone
+     * @param date UTC date string
+     */
+    const adjustToSGTime = (date: string): string =>
+        new Date(new Date(date).getTime() + sgTimeZoneOffset).toISOString();
+
+    /**
+     * Categorize tournaments into statuses: all, completed, ongoing, upcoming
+     * @param data Array of tournaments
+     */
+    const categorizeTournaments = (data: Tournament[]) => {
+        const categories: Category = {
+            all: data,
+            completed: data.filter((tournament) => tournament.status === "Completed"),
+            ongoing: data.filter((tournament) => tournament.status === "Ongoing"),
+            upcoming: data.filter((tournament) =>
+                ["Scheduled", "Registration Start", "Registration Close", "Matchmake"].includes(tournament.status)
+            ),
+        };
+        setCategorizedTournaments(categories); // update state with categorized data
+    };
+
+	/**
+     * Handle tab changes (e.g., switch between all, completed, ongoing, upcoming)
+     * @param tab The selected tab
+     */
+    const handleTabChange = (tab: string) => setActiveTab(tab);
+
+    /**
+     * Handle pagination changes for a specific tab
+     * @param tab The tab for which pagination changed
+     * @param page The new page number
+     */
+    const handlePageChange = (tab: string, page: number) =>
+        setCurrentPage((prevState) => ({ ...prevState, [tab]: page }));
+
+	/**
+     * Paginate the data for a specific tab
+     * @param data The data to paginate
+     * @param page The current page number
+     */
+    const paginatedData = (data: Tournament[], currentPage: number) => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return data.slice(start, start + itemsPerPage);
+    };
+
+	/**
+	 * Counts the number of tournaments in each category.
+	 * @param categorizedTournaments Object containing categorized tournaments.
+	 * @returns An object with the counts for each category.
+	 */
+	const countTournaments = (categorizedTournaments: Category): Count => ({
 		all: categorizedTournaments.all.length,
-		completed: categorizedTournaments.completed.length,
-		ongoing: categorizedTournaments.ongoing.length,
 		upcoming: categorizedTournaments.upcoming.length,
-	};
+		ongoing: categorizedTournaments.ongoing.length,
+		completed: categorizedTournaments.completed.length,
+	});
 
-	const totalPages = {
-		all: Math.ceil(categorizedTournaments.all.length / itemsPerPage),
-		completed: Math.ceil(
-			categorizedTournaments.completed.length / itemsPerPage
-		),
-		ongoing: Math.ceil(categorizedTournaments.ongoing.length / itemsPerPage),
-		upcoming: Math.ceil(categorizedTournaments.upcoming.length / itemsPerPage),
-	};
+	// Display error message if something goes wrong
+    if (error) {
+        return <ErrorDisplay message={error} />;
+    }
 
-	const handlePageChange = (tab: string, page: number) => {
-		setCurrentPage((prevState) => ({ ...prevState, [tab]: page }));
-	};
-
-	const handleTabChange = (value: string) => {
-		setActiveTab(value);
-	};
-
-	const paginatedTournaments = (data: any[], currentPage: number) => {
-		const start = (currentPage - 1) * itemsPerPage;
-		const end = start + itemsPerPage;
-		return data.slice(start, end);
-	};
-
-	if (loading) {
-		return <Loading />;
-	}
-
-	if (error) {
-		return (
-			<div className="w-[80%] h-full mx-auto py-16">
-				<div className="flex flex-col items-center justify-center h-full">
-					<img
-						src="/images/error.png"
-						className="size-72"
-						alt="No Ongoing Tournament"
-					/>
-					<h1 className="text-2xl font-bold text-center mt-8 text-red-500">
-						{error}
-					</h1>
-				</div>
-			</div>
-		);
-	}
+	// Show loading indicator while data is being fetched
+    if (loading) {
+        return <Loading />;
+    }
 
 	return (
 		<div className="w-[80%] mx-auto py-16">
-			{/* tournament stats */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 md:mb-9 lg:mb-11">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl flex justify-between">
-							Upcoming <PartyPopper size={28} />
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-3xl font-heading font-bold">
-							{tournamentCount.upcoming}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl flex justify-between">
-							Ongoing <BicepsFlexed size={28} />
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-3xl font-heading font-bold">
-							{tournamentCount.ongoing}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl flex justify-between">
-							Completed <Medal size={28} />
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<div className="text-3xl font-heading font-bold">
-							{tournamentCount.completed}
-						</div>
-					</CardContent>
-				</Card>
-			</div>
+			{/* display statistics for tournaments */}
+            <StatsSection tournamentCount={countTournaments(categorizedTournaments)} />
 
-			{/* tournament cards */}
+			 {/* tabbed interface for different tournament statuses */}
 			<Tabs
 				value={activeTab}
 				onValueChange={handleTabChange}
 				className="w-full">
 				<div className="flex flex-wrap items-center justify-between">
-					<TabsContent value="all" className="mr-8 py-4">
-						<div className="flex items-center justify-between">
-							<h1 className="text-3xl mr-5">All Tournaments</h1>
-							{role === "ADMIN" && (
-								<Link href="/tournaments/form/create" prefetch={true}>
-									<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-										<CirclePlus className="mr-2" size={18} />
-										Create New
-									</Button>
-								</Link>
-							)}
-						</div>
-					</TabsContent>
-					<TabsContent value="upcoming" className="mr-8 py-4">
-						<div className="flex items-center justify-between">
-							<h1 className="text-3xl mr-5">Upcoming Tournaments</h1>
-							{role === "ADMIN" && (
-								<Link href="/tournaments/form/create" prefetch={true}>
-									<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-										<CirclePlus className="mr-2" size={18} />
-										Create New
-									</Button>
-								</Link>
-							)}
-						</div>
-					</TabsContent>
-					<TabsContent value="ongoing" className="mr-8 py-4">
-						<div className="flex items-center justify-between">
-							<h1 className="text-3xl mr-5">Ongoing Tournaments</h1>
-							{role === "ADMIN" && (
-								<Link href="/tournaments/form/create" prefetch={true}>
-									<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-										<CirclePlus className="mr-2" size={18} />
-										Create New
-									</Button>
-								</Link>
-							)}
-						</div>
-					</TabsContent>
-					<TabsContent value="completed" className="mr-8 py-4">
-						<div className="flex items-center justify-between">
-							<h1 className="text-3xl mr-5">Completed Tournaments</h1>
-							{role === "ADMIN" && (
-								<Link href="/tournaments/form/create" prefetch={true}>
-									<Button className="text-base tracking-wider bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-lg">
-										<CirclePlus className="mr-2" size={18} />
-										Create New
-									</Button>
-								</Link>
-							)}
-						</div>
-					</TabsContent>
+					{/* display tournament title for the specific tab */}
+					{(["all", "upcoming", "ongoing", "completed"] as const).map((tab) => (
+						<TabsContent key={tab} value={tab} className="mr-8 py-4">
+							<TitleRow tab={activeTab} role={role} />
+						</TabsContent>
+					))}
 
-					<TabsList className="TabsList px-2 py-6 rounded-lg">
-						{(["all", "upcoming", "ongoing", "completed"] as const).map(
-							(tab) => (
-								<TabsTrigger
-									key={tab}
-									className="TabsTrigger text-base px-4 py-1"
-									value={tab}>
-									{tab.charAt(0).toUpperCase() + tab.slice(1)}
-									{activeTab === tab && (
-										<Badge className="ml-2 px-1.5">
-											{tournamentCount[tab]}
-										</Badge>
-									)}
-								</TabsTrigger>
-							)
-						)}
-					</TabsList>
+					{/* list of all tab options */}
+					<TabList
+						tabs={["all", "upcoming", "ongoing", "completed"]}
+						activeTab={activeTab}
+						tournamentCount={countTournaments(categorizedTournaments)}
+					/>
 				</div>
 
+				{/* display list of tournaments for the specific tab */}
 				{(["all", "upcoming", "ongoing", "completed"] as const).map((tab) => (
 					<TabsContent key={tab} value={tab}>
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 my-6">
-							{paginatedTournaments(
-								categorizedTournaments[tab],
-								currentPage[tab]
-							).length === 0 ? (
-								<div className="col-span-full text-center text-md italic mt-8">
-									No tournaments found.
-								</div>
-							) : (
-								paginatedTournaments(
-									categorizedTournaments[tab],
-									currentPage[tab]
-								).map((tournament: Tournament) => (
-									<TournamentCard
-										role={role}
-										key={tournament.id}
-										{...tournament}
-									/>
-								))
-							)}
-						</div>
-						{totalPages[tab] > 1 && (
-							<Pagination
-								currentPage={currentPage[tab]}
-								totalPages={totalPages[tab]}
-								onPageChange={(page) => handlePageChange(tab, page)}
-							/>
-						)}
+						<TournamentList
+                            tournaments={paginatedData(categorizedTournaments[tab], currentPage[tab])}
+                            totalPages={Math.ceil(categorizedTournaments[tab].length / itemsPerPage)}
+                            currentPage={currentPage[tab]}
+                            onPageChange={(page) => handlePageChange(tab, page)}
+                            role={role}
+                            tab={tab}
+                        />
 					</TabsContent>
 				))}
 			</Tabs>

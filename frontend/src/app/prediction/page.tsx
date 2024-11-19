@@ -34,30 +34,30 @@ export default function Prediction() {
     // state for loading indicator
     const [loading, setLoading] = useState(true);
 
-    // access NavBar context to set active state
+    // set current navigation state
     const { setState } = useNavBarContext();
     setState("matchPredict");
     
-    // State variables for tournaments, selected tournament, and match results
+    // states to manage app
     const [tournaments, setTournaments] = useState<Tournament[]>([]);
     const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
     const [matchResults, setMatchResults] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [predictionResults, setPredictionResults] = useState<any[]>([]);
 
-    // fetch tournaments data when the component is mounted
+    // fetch tournaments data when component is mounted
     useEffect(() => {
         fetchTournaments();
     }, []);
 
-    // fetch all tournaments from the API and combine data from different statuses
+    // fetch all tournaments from API n combine data from different statuses
     const fetchTournaments = async () => {
         setLoading(true);
         try {
             const combinedTournaments = await getCombinedTournaments();
             setTournaments(combinedTournaments);
 
-            // auto-select the first tournament if available
+            // auto-select first tournament if available
             if (combinedTournaments.length > 0) {
                 const firstTournamentId = combinedTournaments[0].id.toString();
                 setSelectedTournamentId(firstTournamentId);
@@ -70,7 +70,7 @@ export default function Prediction() {
         }
     };
 
-    // helper to combine data from "Matchmake" and "Ongoing" tournaments
+    // helper to combine data from "Matchmake" n "Ongoing" tournaments
     const getCombinedTournaments = async (): Promise<Tournament[]> => {
         const [matchmakeData, ongoingData] = await Promise.all([
             fetchTournamentsByStatus("Matchmake"),
@@ -79,7 +79,7 @@ export default function Prediction() {
         return [...matchmakeData, ...ongoingData];
     };
 
-    // fetch details of the selected tournament and enrich match data
+    // fetch details of selected tournament n enrich match data
     const fetchTournamentDetails = async (tournamentId: string) => {
         setLoading(true);
         try {
@@ -189,7 +189,7 @@ export default function Prediction() {
                 />
             </div>
 
-            {/* show loading indicator, tournament results, or "no tournaments" message */}
+            {/* show loading indicator, tournament results or "no tournaments" message */}
             {loading ? (
                 <Loading />
             ) : tournaments.length > 0 ? (
