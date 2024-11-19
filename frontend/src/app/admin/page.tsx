@@ -4,8 +4,6 @@ import React from "react";
 import AdminHero from "@/components/AdminHero";
 import { Admin } from "@/types/admin";
 import { useState, useEffect } from "react";
-import { formatDate } from "@/utils/dateFormatter";
-import TournamentHistory from "@/components/TournamentHistory";
 import { useUserContext } from "@/context/userContext";
 import Loading from "@/components/Loading";
 import { DataTable } from "./_components/DataTable";
