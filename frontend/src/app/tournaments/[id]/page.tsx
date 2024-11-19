@@ -17,11 +17,11 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import { fetchAllPlayersByTournament, fetchTournamentById } from "@/api/tournaments/api";
 import { fetchMatchByTournamentId } from "@/api/matches/api";
-import TournamentResultTable from "../_components/TournamentResultTable";
 import type { TournamentDetails, Match, Player } from "@/types/tournamentDetails";
 import { useUserContext } from "@/context/userContext";
 import { fetchOrganizer, fetchPlayer, fetchUser } from "@/api/users/api";
 import { useNavBarContext } from "@/context/navBarContext";
+import TournamentResultTable from "../_components/TournamentResultTable";
 
 export default function TournamentDetails() {
     // Set navbar context

@@ -5,30 +5,23 @@ import { useForm } from "react-hook-form";
 import { useRouter, useParams } from 'next/navigation';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, addDays, isBefore, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { addDays, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { TimePicker } from "../../_components/TimePicker";
 import { createTournaments, updateTournaments, fetchTournamentById } from "@/api/tournaments/api";
 import Loading from "@/components/Loading";
 import { useUserContext } from "@/context/userContext";
 import { message } from "antd";
 import {useNavBarContext} from "@/context/navBarContext";
+import { TournamentData } from "@/types/tournamentFormData";
+import { CalendarWithTime } from "../../_components/CalendarWithTime";
 
+// define validation schema using zod
 const formSchema = z.object({
     tournamentName: z.string().min(2, { message: "Tournament name must be at least 2 characters." }),
     startDT: z.date(),
     endDT: z.date(),
-    status: z.string(),
     regStartDT: z.date(),
     regEndDT: z.date(),
 });
@@ -36,120 +29,143 @@ const formSchema = z.object({
 export default function TournamentForm() {
     const router = useRouter();
     const { id } = useParams();
+
+    // get user context for authentication and role
     const { user } = useUserContext();
-    // Set navbar context
+
+    // set current navigation state
     const { setState } = useNavBarContext();
     setState("tournaments");
+
+    // determine if form is for editing or creating a tournament
     const isEditing = id && id !== 'create';
     const sgTimeZoneOffset = 8 * 60 * 60 * 1000;
 
-    type TournamentData = {
-        tournamentName: string;
-        startDT: Date;
-        endDT: Date;
-        status: string;
-        regStartDT: Date;
-        regEndDT: Date;
-    };
-    const [initialData, setInitialData] = useState<TournamentData | null>(null);
-    const [loading, setLoading] = useState(false);
+    // form states
+    const [initialData, setInitialData] = useState<TournamentData | null>(null); // stores initial data for editing
+    const [loading, setLoading] = useState(false); // loading indicator for API calls
 
+    // default date constants for form fields
     const today = startOfDay(new Date());
-    const defaultStart = addDays(new Date(), 10);
-    defaultStart.setHours(9, 0, 0, 0); // Sets time to 9:00 AM
+    const DEFAULT_DATES = {
+        start: (() => {
+            const date = addDays(today, 10);
+            date.setHours(9, 0, 0, 0); // Set time to 9:00 AM
+            return date;
+        })(),
+        end: (() => {
+            const date = addDays(today, 14);
+            date.setHours(18, 0, 0, 0); // Set time to 6:00 PM
+            return date;
+        })(),
+        regStart: (() => {
+            const date = addDays(today, 1);
+            date.setHours(0, 0, 0, 0); // Set time to 12:00 AM
+            return date;
+        })(),
+        regEnd: (() => {
+            const date = addDays(today, 7);
+            date.setHours(23, 59, 0, 0); // Set time to 11:59 PM
+            return date;
+        })(),
+    };
 
-    const defaultEnd = addDays(new Date(), 14);
-    defaultEnd.setHours(18, 0, 0, 0); // Sets time to 6:00 PM
-
-    const defaultRegStart = addDays(new Date(), 1);
-    defaultRegStart.setHours(0, 0, 0, 0); // Sets time to 12:00 AM
-
-    const defaultRegEnd = addDays(new Date(), 7);
-    defaultRegEnd.setHours(23, 59, 0, 0); // Sets time to 11:59 PM
-
+    // react Hook Form setup with default values n validation schema
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: initialData || {
             tournamentName: "",
-            startDT: defaultStart,
-            endDT: defaultEnd,
-            status: "Scheduled",
-            regStartDT: defaultRegStart,
-            regEndDT: defaultRegEnd,
+            startDT: DEFAULT_DATES.start,
+            endDT: DEFAULT_DATES.end,
+            regStartDT: DEFAULT_DATES.regStart,
+            regEndDT: DEFAULT_DATES.regEnd,
         },
     });
 
-    // Fetching data if in edit mode
+    // fetch tournament data if editing an existing tournament
     useEffect(() => {
         if (isEditing) {
-            setLoading(true);
-            const getTournamentsData = async () => {
-                try {
-                    const data = await fetchTournamentById(Number(id));
-                    setInitialData({
-                        ...data,
-                        startDT: new Date(new Date(data.startDT).getTime() + sgTimeZoneOffset),
-                        endDT: new Date(new Date(data.endDT).getTime() + sgTimeZoneOffset),
-                        regStartDT: new Date(new Date(data.regStartDT).getTime() + sgTimeZoneOffset),
-                        regEndDT: new Date(new Date(data.regEndDT).getTime() + sgTimeZoneOffset),
-                    });
-                } catch (err) {
-                    console.error("Failed to fetch tournaments:", err);
-                }
-            };
-            getTournamentsData();
-            setLoading(false);
+            fetchInitialData();
         }
-    }, [id, isEditing]);
+    }, [isEditing]);
 
+    // Reset form fields with fetched initial data when available.
     useEffect(() => {
         if (initialData) {
             form.reset(initialData); // Reset the form with fetched data
         }
     }, [initialData, form]);
 
-    const onSubmit = async (data: any) => {
+    // Fetch initial data for editing mode.
+    const fetchInitialData = async () => {
         setLoading(true);
-        const payload = {
-            ...data, // Include form data
-            startDT: data.startDT.toISOString(),
-            endDT: data.endDT.toISOString(),
-            regStartDT: data.regStartDT.toISOString(),
-            regEndDT: data.regEndDT.toISOString(),
-            ...(isEditing && initialData && { // Merge initialData if editing
-                ...initialData,
-                ...data, // Override with form data
-                id: id // Ensure id is included
-            }),
-            ...(!isEditing && { createdBy: user.id }) // Include createdBy if not editing
-        };
-    
-        const response = await (isEditing ? updateTournaments(payload) : createTournaments(payload));
-    
-        if (response) {
+        try {
+            const data = await fetchTournamentById(Number(id));
+            setInitialData({
+                ...data,
+                startDT: new Date(new Date(data.startDT).getTime() + sgTimeZoneOffset),
+                endDT: new Date(new Date(data.endDT).getTime() + sgTimeZoneOffset),
+                regStartDT: new Date(new Date(data.regStartDT).getTime() + sgTimeZoneOffset),
+                regEndDT: new Date(new Date(data.regEndDT).getTime() + sgTimeZoneOffset),
+            });
+        } catch (error) {
+            message.error("Failed to fetch tournament data.");
+        } finally {
             setLoading(false);
-            message.success(`Tournament ${isEditing ? 'updated' : 'created'} successfully!`);
-            router.push('/tournaments');
-        } else {
-            setLoading(false);
-            message.error(`Failed to ${isEditing ? 'update' : 'create'} tournament`);
         }
-    };    
+    };
 
-    // Handle form reset manually
-    const handleReset = () => {
+    /**
+     * Handle form submission for creating or updating a tournament.
+     * @param data - The form data collected from user input.
+     */
+    const onSubmit = async (data: { startDT: { toISOString: () => any; }; endDT: { toISOString: () => any; }; regStartDT: { toISOString: () => any; }; regEndDT: { toISOString: () => any; }; }) => {
+        setLoading(true);
+        try {
+            const payload = {
+                ...data, // Include form data
+                // Convert dates to ISO strings for backend compatibility
+                startDT: data.startDT.toISOString(),
+                endDT: data.endDT.toISOString(),
+                regStartDT: data.regStartDT.toISOString(),
+                regEndDT: data.regEndDT.toISOString(),
+                ...(isEditing && initialData && { // Merge initialData if editing
+                    ...initialData,
+                    ...data, // Override with form data
+                    id: Number(id) // Ensure id is included as a number
+                }),
+                ...(!isEditing && { createdBy: user.id }) // Include createdBy if not editing
+            };
+
+            // Call the appropriate API based on the form mode
+            const response = isEditing ? await updateTournaments(payload) : await createTournaments(payload);
+            if (response) {
+                message.success(`Tournament ${isEditing ? "updated" : "created"} successfully!`);
+                router.push("/tournaments");
+            } else {
+                throw new Error();
+            }
+        } catch {
+            message.error(`Failed to ${isEditing ? "update" : "create"} tournament.`);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // Handle cancel/reset action by redirecting to the tournaments list.
+    const handleCancel = () => {
         router.push("/tournaments");
     };
 
-    if (loading) {
-		return <Loading />;
-	}
-
+    // Show loading spinner while fetching data or submitting
+    if (loading) return <Loading />;
+    
     return (
         <div className="w-[80%] mx-auto py-16">
             <h1 className="text-3xl mr-5 mb-6 text-center">{isEditing ? 'Edit' : 'Create'} Tournament</h1>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    {/* Tournament Name */}
                     <FormField
                         control={form.control}
                         name="tournamentName"
@@ -167,223 +183,33 @@ export default function TournamentForm() {
                         )}
                     />
 
-                    <div className="grid grid-cols-2 gap-16">
-                        <FormField
-                            control={form.control}
-                            name="startDT"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-lg block">Start Date and Time</FormLabel>
-                                    <FormControl className="block">
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-body bg-white",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, "PPP, hh:mm aaa") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0 font-body">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ?? undefined}
-                                                    onSelect={(date: any) => {
-                                                        // Set the date part while preserving the time
-                                                        const currentDate = field.value ?? defaultStart;
-                                                        const updatedDate = new Date(date);
-                                                        updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes());
-                                                        field.onChange(updatedDate);
-                                                    }}
-                                                    initialFocus
-                                                    disabled={(date: any) => isBefore(date, today)} // Disable past dates
-                                                />
-                                                <div className="p-3 border-t border-border">
-                                                    <TimePicker setDate={(newDate) => {
-                                                        const selectedDate = field.value ?? defaultStart;
-                                                        const updatedDate = new Date(selectedDate);
-                                                        updatedDate.setHours(newDate?.getHours() ?? 0, newDate?.getMinutes() ?? 0);
-                                                        field.onChange(updatedDate);
-                                                    }} date={field.value} />
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Set the start date for the tournament.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="endDT"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-lg block">End Date and Time</FormLabel>
-                                    <FormControl className="block">
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-body bg-white",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, "PPP, hh:mm aaa") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0 font-body">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ?? undefined}
-                                                    onSelect={(date: any) => {
-                                                        // Set the date part while preserving the time
-                                                        const currentDate = field.value ?? defaultEnd;
-                                                        const updatedDate = new Date(date);
-                                                        updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes());
-                                                        field.onChange(updatedDate);
-                                                    }}
-                                                    initialFocus
-                                                    disabled={(date: any) => isBefore(date, today)} // Disable past dates
-                                                />
-                                                <div className="p-3 border-t border-border">
-                                                    <TimePicker setDate={(newDate) => {
-                                                        const selectedDate = field.value ?? defaultEnd;
-                                                        const updatedDate = new Date(selectedDate);
-                                                        updatedDate.setHours(newDate?.getHours() ?? 0, newDate?.getMinutes() ?? 0);
-                                                        field.onChange(updatedDate);
-                                                    }} date={field.value} />
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Set the end date for the tournament.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                    {/* Date and Time Fields */}
+                    <div className="grid grid-cols-2 gap-8">
+                        {["startDT", "endDT", "regStartDT", "regEndDT"].map((fieldName) => (
+                            <CalendarWithTime
+                                key={fieldName}
+                                control={form.control}
+                                name={fieldName}
+                                label={
+                                    {
+                                        startDT: "Start Date and Time",
+                                        endDT: "End Date and Time",
+                                        regStartDT: "Registration Start Date and Time",
+                                        regEndDT: "Registration End Date and Time",
+                                    }[fieldName] || ""
+                                }
+                                description={`Set the ${
+                                    fieldName.includes("reg") ? "registration" : "tournament"
+                                } ${fieldName.includes("Start") ? "start" : "end"} date.`}
+                                defaultValue={DEFAULT_DATES[fieldName as keyof typeof DEFAULT_DATES]}
+                                today={today}
+                            />
+                        ))}
                     </div>
-
-                    <div className="grid grid-cols-2 gap-16">
-                        <FormField
-                            control={form.control}
-                            name="regStartDT"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-lg block">Registration Start Date and Time</FormLabel>
-                                    <FormControl className="block">
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-body bg-white",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, "PPP, hh:mm aaa") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0 font-body">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ?? undefined}
-                                                    onSelect={(date: any) => {
-                                                        // Set the date part while preserving the time
-                                                        const currentDate = field.value ?? defaultStart;
-                                                        const updatedDate = new Date(date);
-                                                        updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes());
-                                                        field.onChange(updatedDate);
-                                                    }}
-                                                    initialFocus
-                                                    disabled={(date: any) => isBefore(date, today)} // Disable past dates
-                                                />
-                                                <div className="p-3 border-t border-border">
-                                                    <TimePicker setDate={(newDate) => {
-                                                        const selectedDate = field.value ?? defaultStart;
-                                                        const updatedDate = new Date(selectedDate);
-                                                        updatedDate.setHours(newDate?.getHours() ?? 0, newDate?.getMinutes() ?? 0);
-                                                        field.onChange(updatedDate);
-                                                    }} date={field.value} />
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Set the start date for the tournament.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="regEndDT"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-lg block">Registration End Date and Time</FormLabel>
-                                    <FormControl className="block">
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-body bg-white",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, "PPP, hh:mm aaa") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0 font-body">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value ?? undefined}
-                                                    onSelect={(date: any) => {
-                                                        // Set the date part while preserving the time
-                                                        const currentDate = field.value ?? defaultEnd;
-                                                        const updatedDate = new Date(date);
-                                                        updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes());
-                                                        field.onChange(updatedDate);
-                                                    }}
-                                                    initialFocus
-                                                    disabled={(date: any) => isBefore(date, today)} // Disable past dates
-                                                />
-                                                <div className="p-3 border-t border-border">
-                                                    <TimePicker setDate={(newDate) => {
-                                                        const selectedDate = field.value ?? defaultEnd;
-                                                        const updatedDate = new Date(selectedDate);
-                                                        updatedDate.setHours(newDate?.getHours() ?? 0, newDate?.getMinutes() ?? 0);
-                                                        field.onChange(updatedDate);
-                                                    }} date={field.value} />
-                                                </div>
-                                            </PopoverContent>
-                                        </Popover>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Set the end date for the tournament.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    
+                    {/* Action Buttons */}
                     <div className="flex justify-center space-x-4">
-                        <Button type="button" variant="outline" className="text-base" onClick={handleReset}>Cancel</Button>
+                        <Button type="button" variant="outline" className="text-base" onClick={handleCancel}>Cancel</Button>
                         <Button type="submit" className="text-base">{isEditing ? 'Update' : 'Submit'}</Button>
                     </div>
                 </form>

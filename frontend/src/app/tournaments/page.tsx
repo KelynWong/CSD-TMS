@@ -73,9 +73,7 @@ export default function Tournaments() {
         fetchTournamentsData();
     }, []);
 
-	/**
-     * fetch user's role based on ID
-     */
+	// fetch user's role based on ID
     const fetchUserRole = async (userId: string) => {
 		setLoading(true);
         try {
@@ -88,9 +86,7 @@ export default function Tournaments() {
         }
     };
 
-	/**
-     * fetch all tournament data from server, adjust timestamps, and categorize it by status.
-     */
+	// fetch all tournament data from server, adjust timestamps, and categorize it by status.
     const fetchTournamentsData = async () => {
 		setLoading(true);
         try {
@@ -182,9 +178,7 @@ export default function Tournaments() {
     }
 
 	// Show loading indicator while data is being fetched
-    if (loading) {
-        return <Loading />;
-    }
+    if (loading) return <Loading />;
 
 	return (
 		<div className="w-[80%] mx-auto py-16">
