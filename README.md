@@ -23,7 +23,7 @@ Follow these steps to install and set up the project:
 ### Steps
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/CSD-TMS.git
+    git clone https://github.com/KelynWong/CSD-TMS.git
     ```
 2. **Navigate to the project directory**:
     ```bash
